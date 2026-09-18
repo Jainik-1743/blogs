@@ -1,0 +1,108 @@
+@import "tailwindcss";
+
+/* Dark-only theme tokens. Sky blue is the single accent. */
+@theme {
+  --color-bg: #0b1120;
+  --color-bg-elev: #111a2e;
+  --color-bg-code: #0a0f1c;
+  --color-line: #1e293b;
+  --color-ink: #e2e8f0;
+  --color-ink-dim: #94a3b8;
+  --color-sky: #38bdf8;
+  --color-sky-strong: #7dd3fc;
+  --color-sky-soft: rgb(56 189 248 / 0.12);
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+html {
+  color-scheme: dark;
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-bg text-ink font-sans antialiased;
+  font-size: 17px;
+  line-height: 1.7;
+}
+
+/* Long-form lesson content. Written once here so lesson pages stay readable JSX. */
+@layer components {
+  .lesson h2 {
+    @apply text-sky text-[1.6rem] font-semibold leading-tight mt-11 mb-3 scroll-mt-20;
+  }
+  .lesson h3 {
+    @apply text-sky-strong text-[1.15rem] font-semibold mt-7 mb-2;
+  }
+  .lesson p {
+    @apply mb-4;
+  }
+  .lesson a {
+    @apply text-sky hover:text-sky-strong hover:underline underline-offset-4;
+  }
+  .lesson ul {
+    @apply list-disc pl-6 mb-4 marker:text-sky;
+  }
+  .lesson ol {
+    @apply list-decimal pl-6 mb-4 marker:text-sky;
+  }
+  .lesson li {
+    @apply my-1;
+  }
+  .lesson strong {
+    @apply text-slate-50 font-semibold;
+  }
+  .lesson code {
+    @apply font-mono text-[0.88em] bg-sky-soft text-sky-strong px-1.5 py-0.5 rounded-md;
+  }
+  .lesson pre {
+    @apply bg-bg-code border border-line border-l-[3px] border-l-sky rounded-xl px-5 py-4 my-5 overflow-x-auto;
+  }
+  .lesson pre code {
+    @apply bg-transparent text-ink p-0 text-[0.85rem] rounded-none;
+  }
+  .lesson blockquote {
+    @apply my-6 px-5 py-3 border-l-[3px] border-sky bg-sky-soft rounded-r-xl;
+  }
+  .lesson blockquote p:last-child {
+    @apply mb-0;
+  }
+  .lesson table {
+    @apply w-full border-collapse my-5 text-[0.95rem];
+  }
+  .lesson th {
+    @apply text-left text-sky font-semibold px-3 py-2 border-b border-line;
+  }
+  .lesson td {
+    @apply text-left px-3 py-2 border-b border-line align-top;
+  }
+  .lesson hr {
+    @apply border-0 border-t border-line my-10;
+  }
+  /* Callouts carry their own spacing; keep inner prose tight. */
+  .lesson .callout p:last-child {
+    @apply mb-0;
+  }
+  /* Numbered walkthrough steps: a circled number in the gutter, heading + body beside it. */
+  .lesson ol.steps {
+    @apply list-none pl-0 mb-6;
+    counter-reset: step;
+  }
+  .lesson ol.steps > li {
+    @apply relative pl-11 mb-6;
+    counter-increment: step;
+  }
+  .lesson ol.steps > li::before {
+    content: counter(step);
+    @apply absolute left-0 top-0 flex h-7 w-7 items-center justify-center rounded-full bg-sky-soft font-mono text-[0.8rem] font-bold text-sky;
+  }
+  .lesson ol.steps h3 {
+    @apply mt-0 mb-1 text-[1.05rem];
+  }
+  .lesson ol.steps p {
+    @apply mb-2 text-ink-dim text-[0.97rem];
+  }
+  .lesson ol.steps pre {
+    @apply my-3;
+  }
+}
