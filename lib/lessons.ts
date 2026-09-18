@@ -36,21 +36,23 @@ export const LESSONS: Lesson[] = [
     number: 1,
     slug: "lesson-1",
     title: "Linux Fundamentals: Where Every Server Starts",
-    summary: "Filesystem, permissions, processes, and the commands you'll type a thousand times.",
-    published: false,
+    summary:
+      "Every EC2 server is a Linux box with no screen. Filesystem, permissions, users, processes — and the fix for \"my app dies when I close the terminal\".",
+    readTime: "18 min",
+    published: true,
   },
   {
     number: 2,
     slug: "lesson-2",
-    title: "Git Beyond Commit: Branching Workflows That Scale",
-    summary: "Trunk-based development, pull requests, and keeping history useful.",
+    title: "Networking Basics: DNS, Ports, HTTP and TLS",
+    summary: "How a request finds your server — just enough networking to debug production.",
     published: false,
   },
   {
     number: 3,
     slug: "lesson-3",
-    title: "Networking Essentials for People Who Deploy Things",
-    summary: "DNS, ports, HTTP, TLS, and reverse proxies — just enough to debug production.",
+    title: "Git Beyond Commit: Branching Workflows That Scale",
+    summary: "Trunk-based development, pull requests, and keeping history useful.",
     published: false,
   },
   {
@@ -77,8 +79,8 @@ export const LESSONS: Lesson[] = [
   {
     number: 7,
     slug: "lesson-7",
-    title: "Kubernetes: Running Containers at Scale",
-    summary: "Pods, Deployments, Services, Ingress — and when you don't need K8s at all.",
+    title: "Deploying Next.js on EC2 by Hand",
+    summary: "SSH in, install Node, clone, .env, build, and keep it alive with PM2 — the manual deploy every later lesson automates.",
     published: false,
   },
   {

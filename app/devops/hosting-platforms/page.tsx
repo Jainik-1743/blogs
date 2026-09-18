@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Callout from "@/components/Callout";
 import FlowChain from "@/components/FlowChain";
+import StatelessDiagram from "@/components/figures/StatelessDiagram";
+import TimeLimitBars from "@/components/figures/TimeLimitBars";
 import { LESSONS, lessonHref, READINGS, SERIES } from "@/lib/lessons";
 
 const reading = READINGS.find((r) => r.slug === "hosting-platforms")!;
@@ -116,6 +118,7 @@ export default function HostingPlatformsPage() {
           <li>Background jobs and scheduled workers that keep running.</li>
           <li>PHP, Python (Django), Laravel — no support for these runtimes.</li>
         </ul>
+        <TimeLimitBars />
 
         <h3>2. Railway and Render</h3>
         <p>
@@ -255,6 +258,8 @@ export default function HostingPlatformsPage() {
             same kitchen, same staff, remembers what is cooking, keeps a running account.
           </p>
         </Callout>
+
+        <StatelessDiagram />
 
         <h3>Same code, two different results</h3>
         <div className="my-6 grid gap-4 sm:grid-cols-2">

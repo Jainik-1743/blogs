@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Callout from "@/components/Callout";
 import FlowChain from "@/components/FlowChain";
+import CostCurveChart from "@/components/figures/CostCurveChart";
+import PaasIaasStack from "@/components/figures/PaasIaasStack";
 import LessonPager from "@/components/LessonPager";
+import Script from "@/components/Script";
 import { getLesson, READINGS, readingHref, SERIES } from "@/lib/lessons";
 
 const lesson = getLesson("lesson-0")!;
@@ -20,6 +23,8 @@ const outline = [
   { id: "architecture", label: "Architecture — where you are going" },
   { id: "real-example", label: "Real example: a multi-tenant SaaS" },
   { id: "commands", label: "Commands — your only setup for today" },
+  { id: "practice", label: "Practice task before Lesson 1" },
+  { id: "conclusion", label: "Conclusion" },
 ];
 
 /** The full target setup. Every future lesson fills in one box of this flow. */
@@ -102,6 +107,7 @@ export default function LessonZeroPage() {
           but this is exactly why every serious backend engineer knows AWS — this knowledge works
           everywhere, it is not tied to one company&apos;s platform.
         </p>
+        <PaasIaasStack />
 
         <h2 id="why-this-matters">Why this matters</h2>
         <p>Vercel is very good, no doubt. But you will face a wall when:</p>
@@ -134,6 +140,7 @@ export default function LessonZeroPage() {
             responsibility, cheap at scale <em>only if you manage it properly</em>.
           </p>
         </Callout>
+        <CostCurveChart />
 
         <Callout kind="warn" label="Common misunderstanding to correct">
           <p className="mb-0">
@@ -281,6 +288,78 @@ sudo ./aws/install`}</code>
             <code>aws configure</code> or in environment variables.
           </p>
         </Callout>
+
+        <hr />
+
+        <h2 id="practice">Practice task before Lesson 1</h2>
+        <p>
+          Nothing here creates a paid resource. The goal is to prove that your CLI talks to AWS as
+          the right user, in the right region, and that you can read what it says back.
+        </p>
+        <Script
+          title="practice.sh"
+          code={`aws sts get-caller-identity          # 1. who am I? the Arn must contain "user/", never "root"
+aws configure get region             # 2. must print ap-south-1
+aws ec2 describe-regions --output table   # 3. list every AWS region — find ap-south-1 (Mumbai) in it
+aws iam list-users                   # 4. you should see exactly one user: the IAM admin you created
+aws s3 ls                            # 5. lists your buckets — an empty result is correct, nothing exists yet`}
+        />
+        <p>Then answer these in your own words — no need to write them down, just be sure you can:</p>
+        <ol>
+          <li>Why did we create an IAM user instead of using the root account every day?</li>
+          <li>
+            Vercel charges per request; an EC2 server costs the same whether it serves 10 or 500
+            users. When is each model cheaper?
+          </li>
+          <li>
+            In the architecture flow above, which box handles &ldquo;yourapp.com&rdquo; → IP address,
+            and which box adds more servers when traffic grows?
+          </li>
+          <li>
+            Where on your machine does <code>aws configure</code> store your keys? (Hint:{" "}
+            <code>cat ~/.aws/credentials</code>.) Why must that file never be committed to git?
+          </li>
+        </ol>
+        <Callout kind="ok" label="Optional stretch">
+          <p className="mb-0">
+            Log into the AWS console and open <strong>Billing → Budgets</strong>. Create a budget
+            of <strong>$5 per month</strong> with an email alert. It costs nothing and it is the
+            single best protection against a forgotten server quietly running for weeks.
+          </p>
+        </Callout>
+
+        <h2 id="conclusion">Conclusion</h2>
+        <p>
+          Vercel is a PaaS: you push code and the platform hides the servers from you. AWS is IaaS:
+          you get raw building blocks — compute, network, database — and wire them together
+          yourself. That extra work is the price of control, and control is what you need once
+          you have long-running jobs, a real database next to your app, or a bill that grows with
+          every request.
+        </p>
+        <ul>
+          <li>
+            <strong>Cost model</strong>: Vercel is cheap at zero traffic and expensive at scale.
+            AWS is a mostly fixed cost — cheap at scale <em>only</em> if you manage it, because
+            nobody optimises it for you.
+          </li>
+          <li>
+            <strong>The target architecture</strong>: Route 53 → CloudFront → ALB + EC2 (Auto
+            Scaling) → RDS. Every future lesson fills in one of those boxes.
+          </li>
+          <li>
+            <strong>Security first</strong>: root user locked away with MFA, an IAM admin user for
+            daily work, and access keys that live only in <code>aws configure</code> — never in
+            your repository.
+          </li>
+          <li>
+            <strong>Region</strong>: <code>ap-south-1</code> (Mumbai), so your servers sit close
+            to your users.
+          </li>
+        </ul>
+        <p>
+          You have spent nothing, and you have a safe, verified AWS identity. From here on, every
+          lesson builds something real on top of it.
+        </p>
 
         <hr />
         <p>
