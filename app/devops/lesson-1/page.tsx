@@ -105,7 +105,7 @@ export default function LessonOnePage() {
 
         <h2 id="real-example">Real example — deploying your Next.js app manually</h2>
         <p>
-          Here&apos;s the actual sequence you&apos;ll run in Lesson 7, so you can see why each
+          Here&apos;s the actual sequence you&apos;ll run in Lesson 9, so you can see why each
           Linux skill matters:
         </p>
         <ol className="steps">
@@ -213,7 +213,7 @@ export default function LessonOnePage() {
           ]}
         />
         <p>
-          <strong>You will hit this exact error in Lesson 7</strong>, guaranteed:
+          <strong>You will hit this exact error in Lesson 9</strong>, guaranteed:
         </p>
         <Script
           title="The error"
@@ -291,7 +291,7 @@ Permissions 0644 for 'key.pem' are too open.`}
             { cmd: "pm2 restart myapp", note: "restart the app" },
           ]}
         />
-        <p>PM2 is what you&apos;ll actually use in Lesson 7 (and later Docker replaces it).</p>
+        <p>PM2 is what you&apos;ll actually use in Lesson 9 (and later Docker replaces it).</p>
 
         <h2 id="disk">Part F: Disk and system health</h2>
         <CommandList
