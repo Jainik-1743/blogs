@@ -27,7 +27,7 @@ export default function CommandList({ title, commands }: { title?: string; comma
             key={c.cmd}
             className="grid grid-cols-[1fr_auto] items-start gap-x-3 gap-y-1 border-b border-line px-4 py-3 last:border-b-0"
           >
-            <code className="block whitespace-pre-wrap break-words rounded-none bg-transparent p-0 font-mono text-[0.88rem] text-sky-strong">
+            <code className="block min-w-0 whitespace-pre-wrap [overflow-wrap:anywhere] rounded-none bg-transparent p-0 font-mono text-[0.88rem] text-sky-strong">
               {c.cmd}
             </code>
             <CopyButton text={c.cmd} />

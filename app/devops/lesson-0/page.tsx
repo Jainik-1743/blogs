@@ -159,6 +159,7 @@ export default function LessonZeroPage() {
         <FlowChain nodes={architecture} />
 
         <h3>What each name means, in one line</h3>
+        <div className="table-wrap">
         <table>
           <thead>
             <tr>
@@ -175,6 +176,7 @@ export default function LessonZeroPage() {
             ))}
           </tbody>
         </table>
+        </div>
 
         <h2 id="real-example">Real example</h2>
         <p>

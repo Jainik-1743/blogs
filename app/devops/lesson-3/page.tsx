@@ -104,6 +104,7 @@ export default function LessonThreePage() {
         <DnsResolution />
 
         <h2 id="records">DNS record types explained</h2>
+        <div className="table-wrap">
         <table>
           <thead>
             <tr>
@@ -122,6 +123,7 @@ export default function LessonThreePage() {
             ))}
           </tbody>
         </table>
+        </div>
 
         <h2 id="ttl">Why TTL matters practically</h2>
         <p>

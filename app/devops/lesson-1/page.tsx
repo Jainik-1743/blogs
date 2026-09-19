@@ -105,7 +105,7 @@ export default function LessonOnePage() {
 
         <h2 id="real-example">Real example — deploying your Next.js app manually</h2>
         <p>
-          Here&apos;s the actual sequence you&apos;ll run in Lesson 9, so you can see why each
+          Here&apos;s the actual sequence you&apos;ll run in Lesson 7, so you can see why each
           Linux skill matters:
         </p>
         <ol className="steps">
@@ -213,7 +213,7 @@ export default function LessonOnePage() {
           ]}
         />
         <p>
-          <strong>You will hit this exact error in Lesson 9</strong>, guaranteed:
+          <strong>You will hit this exact error in Lesson 7</strong>, guaranteed:
         </p>
         <Script
           title="The error"
@@ -291,7 +291,7 @@ Permissions 0644 for 'key.pem' are too open.`}
             { cmd: "pm2 restart myapp", note: "restart the app" },
           ]}
         />
-        <p>PM2 is what you&apos;ll actually use in Lesson 9 (and later Docker replaces it).</p>
+        <p>PM2 is what you&apos;ll actually use in Lesson 7 (and later Docker replaces it).</p>
 
         <h2 id="disk">Part F: Disk and system health</h2>
         <CommandList
@@ -387,9 +387,9 @@ ps aux | grep node`}
           commands={[
             { cmd: "sudo groupadd viewers", note: "1. Create a group for the people who should view" },
             { cmd: "sudo usermod -aG viewers rahul", note: "2. Add rahul to that group (do NOT add amit)" },
-            { cmd: "sudo chown jainik:viewers report.txt", note: "3. Make the file owned by you, but grouped to viewers" },
+            { cmd: "sudo chown ubuntu:viewers report.txt", note: "3. Make the file owned by you, but grouped to viewers" },
             { cmd: "chmod 640 report.txt", note: "4. Set the permissions" },
-            { cmd: "ls -l report.txt", note: <>5. Verify — expect <code>-rw-r----- 1 jainik viewers 2048 Sep 18 11:30 report.txt</code></> },
+            { cmd: "ls -l report.txt", note: <>5. Verify — expect <code>-rw-r----- 1 ubuntu viewers 2048 Sep 18 11:30 report.txt</code></> },
           ]}
         />
         <p>
@@ -405,7 +405,7 @@ ps aux | grep node`}
           <CommandList
             title="Folder permission"
             commands={[
-              { cmd: "chmod 750 /home/jainik/docs", note: "owner rwx, group r-x (can enter + list), others nothing" },
+              { cmd: "chmod 750 /home/ubuntu/docs", note: "owner rwx, group r-x (can enter + list), others nothing" },
             ]}
           />
           <p className="mb-0">

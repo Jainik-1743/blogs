@@ -2,13 +2,14 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
+import GlossaryTooltips from "@/components/GlossaryTooltips";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
 const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono", display: "swap" });
 
 export const metadata: Metadata = {
-  title: { default: "jainik.blogs", template: "%s · jainik.blogs" },
+  title: { default: "blogs", template: "%s · blogs" },
   description: "Hands-on DevOps lessons, written one at a time.",
 };
 
@@ -19,6 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <SiteHeader />
         <main className="mx-auto w-full max-w-[860px] flex-1 px-4 py-12">{children}</main>
         <SiteFooter />
+        <GlossaryTooltips />
       </body>
     </html>
   );

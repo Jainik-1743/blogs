@@ -24,10 +24,6 @@ export default function DevopsIndexPage() {
         <p className="max-w-[60ch] text-[1.15rem] text-ink-dim">{SERIES.tagline}</p>
         <dl className="mt-6 flex flex-wrap gap-x-6 gap-y-2 font-mono text-[0.82rem] text-ink-dim">
           <div>
-            <dt className="inline text-sky">Author&nbsp;</dt>
-            <dd className="inline">{SERIES.author}</dd>
-          </div>
-          <div>
             <dt className="inline text-sky">Started&nbsp;</dt>
             <dd className="inline">{SERIES.started}</dd>
           </div>
@@ -46,6 +42,15 @@ export default function DevopsIndexPage() {
           Lessons build on each other. If you are new, start at Lesson 00.
         </p>
         <LessonToc />
+      </section>
+
+      <section className="mt-12">
+        <h2 className="mb-2 text-[1.6rem] font-semibold text-sky">Glossary</h2>
+        <p className="mb-4 text-ink-dim">
+          Every short form used in the series — EC2, ALB, DNS, TTL and the rest. Inside any lesson,
+          hover or tap a dotted term to see its meaning without leaving the page.{" "}
+          <Link href={`/${SERIES.slug}/glossary`}>Browse all terms →</Link>
+        </p>
       </section>
 
       <section className="mt-12">

@@ -122,6 +122,7 @@ export default function LessonTwoPage() {
         </p>
 
         <h2 id="terms">Key terms, explained simply</h2>
+        <div className="table-wrap">
         <table>
           <thead>
             <tr>
@@ -138,6 +139,7 @@ export default function LessonTwoPage() {
             ))}
           </tbody>
         </table>
+        </div>
 
         <h2 id="building">Think of your server like an office building</h2>
         <p>
@@ -194,6 +196,7 @@ export default function LessonTwoPage() {
         <RequestFlow />
 
         <h2 id="ports">Common ports you&apos;ll actually use</h2>
+        <div className="table-wrap">
         <table>
           <thead>
             <tr>
@@ -210,6 +213,7 @@ export default function LessonTwoPage() {
             ))}
           </tbody>
         </table>
+        </div>
 
         <h2 id="tcp-udp">TCP vs UDP — why it matters for your stack</h2>
         <ul>
@@ -234,8 +238,7 @@ export default function LessonTwoPage() {
             You will see addresses written like <code>10.0.0.0/16</code>. The number after the
             slash tells you how many addresses are in that block — a smaller number means a bigger
             range. <code>/16</code> is about 65,000 addresses, <code>/24</code> is about 256
-            addresses, and <code>/32</code> is exactly one. Full detail comes with VPCs in a later
-            lesson; for now just recognise the notation.
+            addresses, and <code>/32</code> is exactly one. Full detail comes in Lesson 6 (VPC); for now just recognise the notation.
           </p>
         </Callout>
 
@@ -268,12 +271,13 @@ export default function LessonTwoPage() {
         </p>
         <p>
           This matters because AWS also has a stricter firewall called a{" "}
-          <strong>Network ACL</strong> (covered with VPCs later), which is <em>stateless</em> —
+          <strong>Network ACL</strong> (covered in Lesson 6, VPC), which is <em>stateless</em> —
           you must write rules for both directions separately. Security Groups are the simpler,
           friendlier one, and cover 95% of your daily work.
         </p>
 
         <h3>Every rule has four parts</h3>
+        <div className="table-wrap">
         <table>
           <thead>
             <tr>
@@ -292,8 +296,10 @@ export default function LessonTwoPage() {
             ))}
           </tbody>
         </table>
+        </div>
 
         <h3>A real, production-style setup for your Next.js app server</h3>
+        <div className="table-wrap">
         <table>
           <thead>
             <tr>
@@ -334,8 +340,10 @@ export default function LessonTwoPage() {
             </tr>
           </tbody>
         </table>
+        </div>
 
         <h3>A different setup for your RDS PostgreSQL database</h3>
+        <div className="table-wrap">
         <table>
           <thead>
             <tr>
@@ -360,6 +368,7 @@ export default function LessonTwoPage() {
             </tr>
           </tbody>
         </table>
+        </div>
         <p>
           That last row is one of the most important patterns in real AWS setups: instead of
           writing an IP address as the source, you write{" "}
@@ -506,7 +515,7 @@ export default function LessonTwoPage() {
             AWS traffic <strong>into</strong> your server (data transfer IN) is free. Traffic{" "}
             <strong>out</strong> to the internet (data transfer OUT) is billed, roughly $0.09/GB
             after a small free tier. This becomes relevant once your app has real users downloading
-            PDFs or images — we size this properly in the cost lesson.
+            PDFs or images — we size this properly in Lesson 19, the cost review.
           </p>
         </Callout>
 

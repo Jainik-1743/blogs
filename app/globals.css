@@ -67,6 +67,17 @@ body {
   .lesson blockquote p:last-child {
     @apply mb-0;
   }
+  /* Grid cells holding <pre> or long code must be allowed to shrink below their content. */
+  .lesson .grid > * {
+    min-width: 0;
+  }
+  /* Tables scroll sideways on narrow screens instead of pushing the page wider. */
+  .lesson .table-wrap {
+    @apply my-5 w-full overflow-x-auto;
+  }
+  .lesson .table-wrap table {
+    @apply my-0 min-w-full;
+  }
   .lesson table {
     @apply w-full border-collapse my-5 text-[0.95rem];
   }
@@ -105,4 +116,41 @@ body {
   .lesson ol.steps pre {
     @apply my-3;
   }
+}
+
+/* Glossary: a term in prose that shows its full meaning on hover / focus / tap. */
+.term {
+  @apply cursor-help rounded-sm;
+  text-decoration: underline dotted;
+  text-decoration-color: rgb(56 189 248 / 0.55);
+  text-underline-offset: 3px;
+}
+.term:hover,
+.term:focus-visible {
+  @apply bg-sky-soft outline-none;
+  text-decoration-color: var(--color-sky);
+}
+.term-tip {
+  @apply absolute z-50 w-[min(22rem,calc(100vw-24px))] rounded-xl border border-line bg-bg-elev px-4 py-3 text-[0.9rem] leading-relaxed text-ink shadow-xl shadow-black/40;
+}
+.term-tip-head {
+  @apply mb-1 flex flex-wrap items-baseline gap-x-2;
+}
+.term-tip-head strong {
+  @apply font-mono text-sky-strong;
+}
+.term-tip-head span {
+  @apply text-[0.82rem] text-ink-dim;
+}
+.term-tip p {
+  @apply m-0 [overflow-wrap:anywhere];
+}
+.term-tip-foot {
+  @apply mt-2 flex justify-between gap-3 font-mono text-[0.72rem] uppercase tracking-[0.08em];
+}
+.term-tip-foot a {
+  @apply text-sky hover:underline;
+}
+.term-tip-foot a:only-child {
+  @apply ml-auto;
 }
