@@ -63,8 +63,9 @@ export const LESSONS: Lesson[] = [
     slug: "lesson-4",
     title: "HTTPS, SSL and TLS: Certificates, Let’s Encrypt, ACM",
     summary:
-      "What a certificate actually proves, how the TLS handshake works, and the two ways you will get free certificates on AWS.",
-    published: false,
+      "What the padlock in your address bar actually proves, how a free certificate gets issued, and the exact commands to put HTTPS on your own EC2 server.",
+    readTime: "15 min",
+    published: true,
   },
   {
     number: 5,
