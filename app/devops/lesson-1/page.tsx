@@ -6,7 +6,9 @@ import FilesystemTree from "@/components/figures/FilesystemTree";
 import PermissionBits from "@/components/figures/PermissionBits";
 import LessonPager from "@/components/LessonPager";
 import Script from "@/components/Script";
-import { getLesson, SERIES } from "@/lib/lessons";
+import { getLesson, READINGS, readingHref, SERIES } from "@/lib/lessons";
+
+const piecesReading = READINGS.find((r) => r.slug === "the-pieces")!;
 
 const lesson = getLesson("lesson-1")!;
 
@@ -514,6 +516,10 @@ ps aux | grep node`}
         <hr />
         <p>
           End of Lesson 1. Next: <strong>Lesson 2 — Networking Basics</strong>.
+        </p>
+        <p>
+          Curious what PM2 and Nginx actually are before their lessons?{" "}
+          <Link href={readingHref(piecesReading)}>{piecesReading.title} →</Link>
         </p>
       </div>
 

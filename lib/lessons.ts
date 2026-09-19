@@ -199,6 +199,13 @@ export type Reading = {
 
 export const READINGS: Reading[] = [
   {
+    slug: "the-pieces",
+    title: "The Pieces You Keep Hearing About",
+    summary:
+      "Nginx, PM2, load balancers, CDN, RDS, VPC, Redis, Docker, CI/CD, Terraform, CloudWatch — what each one is, the problem it solves, where it sits in the flow, and the minimal “how”, before its own lesson.",
+    readTime: "30 min",
+  },
+  {
     slug: "hosting-platforms",
     title: "Hosting Platforms Explained",
     summary:

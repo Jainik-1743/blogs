@@ -6,7 +6,9 @@ import ChainOfTrust from "@/components/figures/ChainOfTrust";
 import HttpVsHttps from "@/components/figures/HttpVsHttps";
 import LessonPager from "@/components/LessonPager";
 import Script from "@/components/Script";
-import { getLesson, SERIES } from "@/lib/lessons";
+import { getLesson, READINGS, readingHref, SERIES } from "@/lib/lessons";
+
+const piecesReading = READINGS.find((r) => r.slug === "the-pieces")!;
 
 const lesson = getLesson("lesson-4")!;
 
@@ -548,6 +550,12 @@ curl -I http://github.com          # expect 301 and a Location: https://... head
         <hr />
         <p>
           End of Lesson 4. Next: <strong>Lesson 5 — AWS Account and IAM</strong>.
+        </p>
+        <p>
+          Before Lesson 5, read:{" "}
+          <Link href={readingHref(piecesReading)}>{piecesReading.title} →</Link> — Nginx, PM2,
+          load balancers, RDS, VPC and every other name Lessons 0–4 mentioned but did not yet
+          explain, each with a flow diagram and the minimal &ldquo;how&rdquo;.
         </p>
       </div>
 
