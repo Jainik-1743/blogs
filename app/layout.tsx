@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import GlossaryTooltips from "@/components/GlossaryTooltips";
@@ -21,6 +23,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <main className="mx-auto w-full max-w-[860px] flex-1 px-4 py-12">{children}</main>
         <SiteFooter />
         <GlossaryTooltips />
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
