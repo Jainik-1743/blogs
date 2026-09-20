@@ -90,9 +90,9 @@ export const JS_LESSONS: Lesson[] = [
     slug: "lesson-9",
     title: "Block Scope and Shadowing",
     summary:
-      "What a pair of curly braces actually does, which declarations respect it, and the rules for shadowing a variable legally and illegally.",
-    readTime: "9 min",
-    published: false,
+      "A block is anything inside { }. Simple idea — but var and let react to that boundary in completely different, and sometimes dangerous, ways. What a block creates in memory, how nested blocks chain, and every shadowing rule — legal, illegal, and the function-boundary exception.",
+    readTime: "14 min",
+    published: true,
   },
   {
     number: 10,
