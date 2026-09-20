@@ -2,34 +2,56 @@
 
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { GLOSSARY, findEntry, type GlossaryEntry } from "@/lib/glossary";
+import {
+  findEntry,
+  glossaryFor,
+  glossaryHref,
+  glossaryLessonHref,
+  type Glossary,
+  type GlossaryEntry,
+} from "@/lib/glossary";
 
 /**
  * Finds every glossary term in the page prose and wraps it in a <span class="term">.
  * Hovering, focusing or tapping the span shows one shared tooltip with the full name,
  * a one-line meaning and a link to the lesson that explains it.
  *
- * Short forms (EC2, ALB, DNS …) are marked everywhere they appear. Ordinary words that
- * also have an entry (port, process, firewall …) are marked only on their first use per
- * page, so paragraphs do not fill up with underlines.
+ * Which glossary is used depends on the series the page belongs to (DevOps terms under
+ * /devops, JavaScript terms under /javascript), so "scope" never gets an AWS meaning.
+ *
+ * Short forms (EC2, ALB, DNS, GEC, TDZ …) are marked everywhere they appear. Ordinary
+ * words that also have an entry (port, process, closure, scope …) are marked only on
+ * their first use per page, so paragraphs do not fill up with underlines.
  */
 
 /** Elements whose text must never be rewritten. */
 const SKIP = "code, pre, a, h1, button, svg, .term, .term-tip, [data-no-glossary]";
 
-const allNames = GLOSSARY.flatMap((e) => [e.term, ...(e.aliases ?? [])]).sort(
-  (a, b) => b.length - a.length,
-);
 const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&");
-const source = `(?<![A-Za-z0-9])(${allNames.map(escape).join("|")})(?![A-Za-z0-9])`;
-const pattern = new RegExp(source, "g");
-/** Same regex without the g flag, so .test() has no lastIndex state. */
-const hasTerm = new RegExp(source);
+
+type Matcher = { pattern: RegExp; hasTerm: RegExp };
+const matchers = new Map<Glossary, Matcher>();
+
+/** One compiled regex per glossary, longest names first so "IP address" beats "IP". */
+function matcherFor(glossary: Glossary): Matcher {
+  let m = matchers.get(glossary);
+  if (!m) {
+    const names = glossary.entries
+      .flatMap((e) => [e.term, ...(e.aliases ?? [])])
+      .sort((a, b) => b.length - a.length);
+    const source = `(?<![A-Za-z0-9])(${names.map(escape).join("|")})(?![A-Za-z0-9])`;
+    // Same regex without the g flag, so .test() has no lastIndex state.
+    m = { pattern: new RegExp(source, "g"), hasTerm: new RegExp(source) };
+    matchers.set(glossary, m);
+  }
+  return m;
+}
 
 /** Ordinary lowercase words are only marked the first time they appear. */
 const markEverywhere = (e: GlossaryEntry) => /^[A-Z0-9]/.test(e.term);
 
-function markTerms(root: HTMLElement) {
+function markTerms(root: HTMLElement, glossary: Glossary) {
+  const { pattern, hasTerm } = matcherFor(glossary);
   const seen = new Set<string>();
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
     acceptNode: (n) =>
@@ -46,7 +68,7 @@ function markTerms(root: HTMLElement) {
     let last = 0;
     pattern.lastIndex = 0;
     for (const m of text.matchAll(pattern)) {
-      const entry = findEntry(m[1]);
+      const entry = findEntry(glossary, m[1]);
       if (!entry) continue;
       if (!markEverywhere(entry)) {
         if (seen.has(entry.term)) continue;
@@ -76,15 +98,15 @@ function buildTip(): HTMLDivElement {
   return tip;
 }
 
-function fillTip(tip: HTMLDivElement, entry: GlossaryEntry) {
+function fillTip(tip: HTMLDivElement, glossary: Glossary, entry: GlossaryEntry) {
   const lesson =
     entry.lesson !== undefined
-      ? `<a href="/devops/lesson-${entry.lesson}">Lesson ${entry.lesson} →</a>`
+      ? `<a href="${glossaryLessonHref(glossary, entry.lesson)}">Lesson ${entry.lesson} →</a>`
       : "";
   tip.innerHTML = `
     <div class="term-tip-head"><strong>${entry.term}</strong><span>${entry.full}</span></div>
     <p>${entry.desc}</p>
-    <div class="term-tip-foot">${lesson}<a href="/devops/glossary">All terms</a></div>`;
+    <div class="term-tip-foot">${lesson}<a href="${glossaryHref(glossary)}">All terms</a></div>`;
 }
 
 function placeTip(tip: HTMLDivElement, target: HTMLElement) {
@@ -109,18 +131,19 @@ export default function GlossaryTooltips() {
   useEffect(() => {
     const main = document.querySelector("main");
     if (!main) return;
-    markTerms(main);
+    const glossary = glossaryFor(pathname);
+    markTerms(main, glossary);
 
     const tip = buildTip();
     let current: HTMLElement | null = null;
     let hideTimer: number | undefined;
 
     const show = (target: HTMLElement) => {
-      const entry = findEntry(target.dataset.term ?? "");
+      const entry = findEntry(glossary, target.dataset.term ?? "");
       if (!entry) return;
       window.clearTimeout(hideTimer);
       current = target;
-      fillTip(tip, entry);
+      fillTip(tip, glossary, entry);
       placeTip(tip, target);
     };
     const hide = () => {

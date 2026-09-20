@@ -1,8 +1,11 @@
+import { JS_GLOSSARY } from "./js-glossary";
+
 /**
- * Every short form used across the series, with its full name and a one-line meaning.
+ * Every short form used across the DevOps series, with its full name and a one-line meaning.
  * Hovering (or tapping) any of these words inside a lesson shows this entry, so a reader
  * who has forgotten what "ALB" means never has to leave the page. The full list is also
- * rendered at /devops/glossary.
+ * rendered at /devops/glossary. The JavaScript series has its own list in js-glossary.ts;
+ * `glossaryFor()` picks the right one from the page path.
  */
 export type GlossaryEntry = {
   /** The exact text as it appears in prose. Matched as a whole word, case-sensitive. */
@@ -15,8 +18,18 @@ export type GlossaryEntry = {
   desc: string;
   /** The lesson that explains it properly, if any. */
   lesson?: number;
-  /** Grouping on the glossary page. */
-  group: "AWS" | "Networking" | "Linux" | "Tools" | "Concepts";
+  /** Grouping on the glossary page — one of the parent glossary's `groups`. */
+  group: string;
+};
+
+/** One series' worth of terms plus where its tooltips should link. */
+export type Glossary = {
+  /** Series slug, also the URL prefix: /devops, /javascript. */
+  series: string;
+  seriesTitle: string;
+  /** Group order on the glossary page. */
+  groups: string[];
+  entries: GlossaryEntry[];
 };
 
 export const GLOSSARY: GlossaryEntry[] = [
@@ -99,7 +112,22 @@ export const GLOSSARY: GlossaryEntry[] = [
   { term: "authoritative", full: "Authoritative nameserver", desc: "The one source of truth for a domain's DNS records. Everything else is a cached copy.", lesson: 3, group: "Concepts" },
 ];
 
+export const DEVOPS_GLOSSARY: Glossary = {
+  series: "devops",
+  seriesTitle: "DevOps, From Zero",
+  groups: ["AWS", "Networking", "Linux", "Tools", "Concepts"],
+  entries: GLOSSARY,
+};
+
 /** Lookup by term or alias. */
-export function findEntry(text: string): GlossaryEntry | undefined {
-  return GLOSSARY.find((e) => e.term === text || e.aliases?.includes(text));
+export function findEntry(glossary: Glossary, text: string): GlossaryEntry | undefined {
+  return glossary.entries.find((e) => e.term === text || e.aliases?.includes(text));
+}
+
+export const glossaryHref = (g: Glossary) => `/${g.series}/glossary`;
+export const glossaryLessonHref = (g: Glossary, lesson: number) => `/${g.series}/lesson-${lesson}`;
+
+/** Which series' terms to mark on a page. Anything outside /javascript uses the DevOps list. */
+export function glossaryFor(pathname: string): Glossary {
+  return pathname.startsWith("/javascript") ? JS_GLOSSARY : DEVOPS_GLOSSARY;
 }

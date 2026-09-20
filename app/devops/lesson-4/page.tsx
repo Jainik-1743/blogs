@@ -6,6 +6,7 @@ import ChainOfTrust from "@/components/figures/ChainOfTrust";
 import HttpVsHttps from "@/components/figures/HttpVsHttps";
 import LessonPager from "@/components/LessonPager";
 import Script from "@/components/Script";
+import TlsHandshakeStepper from "@/components/figures/TlsHandshakeStepper";
 import { getLesson, READINGS, readingHref, SERIES } from "@/lib/lessons";
 
 const piecesReading = READINGS.find((r) => r.slug === "the-pieces")!;
@@ -258,6 +259,7 @@ Content-Type: application/json
             warning instead of your site.
           </p>
         </Callout>
+        <TlsHandshakeStepper />
 
         <h2 id="options">Two ways to get a free certificate</h2>
         <div className="table-wrap">

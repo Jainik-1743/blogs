@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Callout from "@/components/Callout";
 import CommandList from "@/components/CommandList";
+import DnsLookupStepper from "@/components/figures/DnsLookupStepper";
 import DnsResolution from "@/components/figures/DnsResolution";
 import WildcardRecord from "@/components/figures/WildcardRecord";
 import LessonPager from "@/components/LessonPager";
@@ -102,6 +103,7 @@ export default function LessonThreePage() {
           to the end.
         </p>
         <DnsResolution />
+        <DnsLookupStepper />
 
         <h2 id="records">DNS record types explained</h2>
         <div className="table-wrap">

@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Figure from "./Figure";
+import Stepper, { PHASE, type PhaseStyle, type StepBase } from "./Stepper";
 
 /**
  * Live, step-through trace of how the JS engine runs a small program:
@@ -26,12 +25,10 @@ type Frame = {
   vars: Vars;
 };
 
-type Step = {
+type Step = StepBase & {
   /** 1-based source line being executed, or null when no line is active. */
   line: number | null;
   phase: "setup" | "memory" | "code" | "done";
-  title: string;
-  note: string;
   /** Call stack, bottom first. */
   stack: Frame[];
   /** Keys that were written in this step (to flash them). */
@@ -172,72 +169,21 @@ const STEPS: Step[] = [
   },
 ];
 
-const phaseStyle: Record<Step["phase"], string> = {
-  setup: "border-line bg-bg-code text-ink-dim",
-  memory: "border-violet-400/50 bg-violet-400/10 text-violet-200",
-  code: "border-emerald-400/50 bg-emerald-400/10 text-emerald-200",
-  done: "border-line bg-bg-code text-ink-dim",
+const phases: Record<Step["phase"], PhaseStyle> = {
+  setup: { label: "Setup", className: PHASE.plain },
+  memory: { label: "Memory creation phase", className: PHASE.violet },
+  code: { label: "Code execution phase", className: PHASE.green },
+  done: { label: "Finished", className: PHASE.plain },
 };
-
-const phaseLabel: Record<Step["phase"], string> = {
-  setup: "Setup",
-  memory: "Memory creation phase",
-  code: "Code execution phase",
-  done: "Finished",
-};
-
-const btn =
-  "rounded-md border border-line bg-bg-elev px-3 py-1 font-mono text-[0.72rem] uppercase tracking-[0.08em] text-ink-dim transition hover:border-sky hover:text-sky disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-line disabled:hover:text-ink-dim";
 
 export default function ExecutionContextStepper() {
-  const [i, setI] = useState(0);
-  const [playing, setPlaying] = useState(false);
-  const step = STEPS[i];
-  const last = STEPS.length - 1;
-
-  useEffect(() => {
-    if (!playing) return;
-    if (i >= last) {
-      setPlaying(false);
-      return;
-    }
-    const t = setTimeout(() => setI((v) => Math.min(v + 1, last)), 1800);
-    return () => clearTimeout(t);
-  }, [playing, i, last]);
-
   return (
-    <Figure
+    <Stepper
+      steps={STEPS}
+      phases={phases}
       caption="Step through the program. Watch the memory phase fill every slot with undefined first, then the code phase overwrite them — and each function call get its own context on the stack."
-      note="interactive"
     >
-      {/* Controls */}
-      <div className="mb-4 flex flex-wrap items-center gap-2">
-        <button type="button" className={btn} onClick={() => { setPlaying(false); setI(0); }} disabled={i === 0}>
-          ⟲ Reset
-        </button>
-        <button type="button" className={btn} onClick={() => { setPlaying(false); setI((v) => Math.max(v - 1, 0)); }} disabled={i === 0}>
-          ← Prev
-        </button>
-        <button type="button" className={btn} onClick={() => { setPlaying(false); setI((v) => Math.min(v + 1, last)); }} disabled={i === last}>
-          Next →
-        </button>
-        <button type="button" className={btn} onClick={() => setPlaying((p) => !p)} disabled={i === last && !playing}>
-          {playing ? "❚❚ Pause" : "▶ Play"}
-        </button>
-        <span className="ml-auto font-mono text-[0.72rem] text-ink-dim">
-          step {i + 1} / {STEPS.length}
-        </span>
-      </div>
-
-      {/* Phase + explanation */}
-      <div className={`mb-4 rounded-lg border px-4 py-3 ${phaseStyle[step.phase]}`}>
-        <div className="font-mono text-[0.7rem] uppercase tracking-[0.1em] opacity-80">
-          {phaseLabel[step.phase]}
-        </div>
-        <div className="font-semibold text-ink">{step.title}</div>
-        <p className="mb-0 mt-1 text-[0.88rem] text-ink-dim">{step.note}</p>
-      </div>
-
+      {(step) => (
       <div className="grid grid-cols-1 gap-4 md:grid-cols-[1.1fr_1fr]">
         {/* Source */}
         <div className="overflow-hidden rounded-lg border border-line bg-bg-code">
@@ -321,6 +267,7 @@ export default function ExecutionContextStepper() {
           </div>
         </div>
       </div>
-    </Figure>
+      )}
+    </Stepper>
   );
 }
