@@ -25,20 +25,20 @@ export const JS_LESSONS: Lesson[] = [
   {
     number: 2,
     slug: "lesson-2",
-    title: "Call Stack and Code Execution",
+    title: "The Call Stack",
     summary:
-      "Trace function calls step by step as contexts are pushed and popped, and watch it happen live in Node and Chrome DevTools.",
-    readTime: "10 min",
-    published: false,
+      "JavaScript can only ever do one thing at a time. This is the structure that decides exactly what runs right now, what's paused and waiting its turn, and what happens the moment a function calls itself one time too many.",
+    readTime: "12 min",
+    published: true,
   },
   {
     number: 3,
     slug: "lesson-3",
-    title: "Hoisting: var, let, const and Functions",
+    title: "Var, Let, and Const",
     summary:
-      "Why you can call a function before it is written, why var gives undefined, and how to predict the output of hoisted code before running it.",
-    readTime: "10 min",
-    published: false,
+      "All three get hoisted. What happens after that — what value they start with, where they're actually stored in memory, and when you're allowed to touch them — is where they completely part ways.",
+    readTime: "12 min",
+    published: true,
   },
   {
     number: 4,

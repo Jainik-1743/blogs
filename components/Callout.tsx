@@ -1,12 +1,13 @@
 import type { ReactNode } from "react";
 
-type Kind = "note" | "warn" | "ok";
+type Kind = "note" | "warn" | "ok" | "bad";
 
 /** Colour per kind. The site is dark-only, so these are translucent tints on the dark background. */
 const styles: Record<Kind, { box: string; label: string }> = {
   note: { box: "border-sky/40 bg-sky-soft", label: "text-sky" },
   warn: { box: "border-amber-400/40 bg-amber-400/10", label: "text-amber-300" },
   ok: { box: "border-emerald-400/40 bg-emerald-400/10", label: "text-emerald-300" },
+  bad: { box: "border-red-400/40 bg-red-400/10", label: "text-red-300" },
 };
 
 /** A highlighted aside inside lesson prose: key insight, warning, or a "good news" box. */
