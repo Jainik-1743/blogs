@@ -13,6 +13,9 @@ export default function SiteHeader() {
           <Link href="/devops" className="text-ink-dim hover:text-sky">
             DevOps
           </Link>
+          <Link href="/javascript" className="text-ink-dim hover:text-sky">
+            JavaScript
+          </Link>
         </nav>
       </div>
     </header>
