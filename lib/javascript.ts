@@ -45,9 +45,9 @@ export const JS_LESSONS: Lesson[] = [
     slug: "lesson-4",
     title: "Functions and Variable Environments",
     summary:
-      "Each function call gets its own execution context with its own memory. What that means for variables with the same name in different functions.",
-    readTime: "9 min",
-    published: false,
+      "Every function call gets its own private notepad of variables — even the same function, called twice, never shares a page. This lesson is about exactly what goes in that notepad, who's allowed to read it, and when it gets thrown away.",
+    readTime: "10 min",
+    published: true,
   },
   {
     number: 5,
