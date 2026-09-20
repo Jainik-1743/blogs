@@ -20,7 +20,7 @@ export const JS_LESSONS: Lesson[] = [
     summary:
       "Everything in JavaScript happens inside an execution context. How the global one is created — memory phase first, then code phase — and why that order explains almost everything that follows.",
     readTime: "12 min",
-    published: false,
+    published: true,
   },
   {
     number: 2,
