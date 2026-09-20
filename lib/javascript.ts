@@ -52,38 +52,38 @@ export const JS_LESSONS: Lesson[] = [
   {
     number: 5,
     slug: "lesson-5",
-    title: "Window Object and Global this",
+    title: "Window and Global This",
     summary:
-      "What the engine creates before your first line runs: the global object, the global this, and why var on the top level ends up on window.",
-    readTime: "7 min",
-    published: false,
+      "Even a completely empty JS file isn't really empty — the engine still builds a global object and points a keyword called this straight at it. Here's exactly what gets built, what it's called in different places, and the one rule that quietly changes depending on strict mode.",
+    readTime: "9 min",
+    published: true,
   },
   {
     number: 6,
     slug: "lesson-6",
-    title: "undefined vs. Not Defined",
+    title: "Undefined vs Not Defined",
     summary:
-      "undefined is a placeholder, not an absence. The difference between the two, and why JavaScript is called loosely typed.",
-    readTime: "6 min",
-    published: false,
+      "These sound like the same complaint — \"there's nothing there\" — but JavaScript treats them as two completely different situations, one safe and expected, the other a genuine error. Mixing them up is one of the most common small misunderstandings in the language.",
+    readTime: "9 min",
+    published: true,
   },
   {
     number: 7,
     slug: "lesson-7",
     title: "Scope Chain and Lexical Environment",
     summary:
-      "How the engine finds a variable: the lexical environment, the reference to the parent, and tracing a lookup through nested scopes until it hits null.",
-    readTime: "12 min",
-    published: false,
+      "Lesson 4 showed one function looking outward to Global. This lesson extends that into a full chain — as many levels deep as your code is nested — and gives it a proper name: lexical scope, decided entirely by where you physically wrote your code, never by which function called which.",
+    readTime: "11 min",
+    published: true,
   },
   {
     number: 8,
     slug: "lesson-8",
-    title: "let, const, var and the Temporal Dead Zone",
+    title: "The Temporal Dead Zone, In Full",
     summary:
-      "let and const are hoisted too — just somewhere else. The Temporal Dead Zone, the three kinds of errors, and why let/const behave differently from var.",
-    readTime: "11 min",
-    published: false,
+      "Lesson 3 introduced the TDZ. This lesson goes further: what happens when you redeclare a variable, why some mistakes crash your whole file before a single line runs, and a genuine exception to the \"typeof is always safe\" rule from Lesson 6.",
+    readTime: "10 min",
+    published: true,
   },
   {
     number: 9,
