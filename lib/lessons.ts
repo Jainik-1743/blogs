@@ -72,8 +72,9 @@ export const LESSONS: Lesson[] = [
     slug: "lesson-5",
     title: "AWS Account and IAM: Identity and Access",
     summary:
-      "Users, roles, policies and least privilege — who is allowed to do what, and how to never leak a key again.",
-    published: false,
+      "Who is allowed to do what in your AWS account. Users, groups, policies, roles and least privilege — the lesson that protects you from the expensive mistakes, and it costs nothing to set up.",
+    readTime: "16 min",
+    published: true,
   },
   {
     number: 6,
@@ -198,6 +199,13 @@ export type Reading = {
 };
 
 export const READINGS: Reading[] = [
+  {
+    slug: "github-access-control",
+    title: "GitHub Access Control — The Same Idea as IAM",
+    summary:
+      "Can you make package.json read-only for some developers? Yes — and understanding how GitHub does it (CODEOWNERS, rulesets, branch protection) is the fastest way to understand AWS IAM.",
+    readTime: "8 min",
+  },
   {
     slug: "the-pieces",
     title: "The Pieces You Keep Hearing About",
