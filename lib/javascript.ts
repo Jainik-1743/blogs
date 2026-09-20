@@ -79,10 +79,10 @@ export const JS_LESSONS: Lesson[] = [
   {
     number: 8,
     slug: "lesson-8",
-    title: "The Temporal Dead Zone, In Full",
+    title: "let, const, var and the Temporal Dead Zone",
     summary:
-      "Lesson 3 introduced the TDZ. This lesson goes further: what happens when you redeclare a variable, why some mistakes crash your whole file before a single line runs, and a genuine exception to the \"typeof is always safe\" rule from Lesson 6.",
-    readTime: "10 min",
+      "The full picture of the three declaration keywords: every axis they differ on, function scope versus block scope (and what loops do), exactly where the TDZ starts and ends and why it is temporal rather than positional, the places it hides, redeclaration, errors that stop your file before it runs, and the one exception to \"typeof is always safe\".",
+    readTime: "18 min",
     published: true,
   },
   {

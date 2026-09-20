@@ -1,9 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Callout from "@/components/Callout";
+import ConstBindingBox from "@/components/figures/ConstBindingBox";
 import ErrorTaxonomy from "@/components/figures/ErrorTaxonomy";
+import KeywordMatrix from "@/components/figures/KeywordMatrix";
+import LoopBindingStepper from "@/components/figures/LoopBindingStepper";
 import ParseVsRuntimeStepper from "@/components/figures/ParseVsRuntimeStepper";
+import TdzTimingStepper from "@/components/figures/TdzTimingStepper";
 import TdzTraceStepper from "@/components/figures/TdzTraceStepper";
+import TdzWindowDiagram from "@/components/figures/TdzWindowDiagram";
 import TypeofTdzStepper from "@/components/figures/TypeofTdzStepper";
 import LessonPager from "@/components/LessonPager";
 import Script from "@/components/Script";
@@ -21,16 +26,80 @@ const outline = [
   { id: "concept", label: "Concept" },
   { id: "why", label: "Why this matters" },
   { id: "blueprint", label: "The blueprint vs. the locked room — an analogy" },
+  { id: "matrix", label: "The three keywords side by side" },
+  { id: "scope", label: "Function scope vs. block scope — and what loops do" },
+  { id: "window", label: "The TDZ, precisely: where it starts and where it ends" },
+  { id: "temporal", label: "Why \"temporal\" — it is about time, not position" },
+  { id: "disguise", label: "The TDZ in disguise: shadowing and default parameters" },
   { id: "redeclare", label: "Redeclaration: var allows it, let and const don't" },
   { id: "parsetime", label: "The parse-time twist: why some errors crash everything" },
   { id: "taxonomy", label: "The five error types — full taxonomy" },
   { id: "typeofgotcha", label: "The typeof exception: TDZ breaks the safety net" },
-  { id: "minimize", label: "Minimizing your own TDZ window" },
+  { id: "construle", label: "const: a frozen binding, not a frozen value" },
+  { id: "minimize", label: "Minimizing your own TDZ window — and which keyword to use" },
   { id: "example", label: "Real example — traced line by line" },
   { id: "live", label: "See it live — console & DevTools" },
   { id: "pitfalls", label: "Common misconceptions" },
   { id: "interview", label: "Interview questions" },
 ];
+
+const scopeCode = `function checkIn() {
+  if (true) {
+    var floor = 3;            // belongs to checkIn, not to the if
+    let wing = "north";       // belongs to the if block only
+    const suite = false;      // belongs to the if block only
+  }
+  console.log(floor);         // 3
+  console.log(typeof wing);   // "undefined" — gone with the block
+}`;
+
+const loopVar = `for (var i = 0; i < 3; i++) {
+  console.log(i);
+}
+console.log(i); // 3 — leaked out of the loop`;
+
+const loopLet = `for (let i = 0; i < 3; i++) {
+  console.log(i);
+}
+console.log(i); // ReferenceError: i is not defined`;
+
+const windowCode = `function checkIn() {
+  // TDZ for roomNumber starts here — the top of the scope
+  console.log(typeof roomNumber); // ReferenceError
+  let roomNumber;                  // ← declaration evaluated: TDZ ends
+  console.log(roomNumber);         // undefined — unlocked, just empty
+  roomNumber = 101;
+}`;
+
+const temporal = `function readRoom() {
+  return roomNumber; // written ABOVE the let, both times
+}
+
+readRoom();          // ① ReferenceError — called before line 6 has run
+let roomNumber = 101;
+readRoom();          // ② 101 — same function, called after line 6 ran`;
+
+const shadowTdz = `let roomNumber = 101;
+
+{
+  console.log(roomNumber); // ReferenceError — NOT 101
+  let roomNumber = 202;    // this inner let shadows the outer one
+}                          // …and its TDZ covers the whole block`;
+
+const paramTdz = `function book(nights = stay, stay = 1) {
+  return nights * stay;
+}
+book();      // ReferenceError: Cannot access 'stay' before initialization
+book(2);     // 2 — nights was given, so \`stay\` is never read early`;
+
+const constObj = `const guest = { name: "Aditi", room: 101 };
+
+guest.room = 102;              // fine — the object changed, the binding did not
+guest = { name: "Rahul" };     // TypeError: Assignment to constant variable.
+
+const frozen = Object.freeze({ name: "Aditi", room: 101 });
+frozen.room = 102;             // silently ignored (throws in strict mode)
+console.log(frozen.room);      // 101`;
 
 const redeclare = `var guestCount = 10;
 var guestCount = 20; // totally fine — var allows redeclaring
@@ -64,6 +133,38 @@ const example = `function checkIn() {
 checkIn();`;
 
 const questions: [React.ReactNode, React.ReactNode][] = [
+  [
+    "Is let hoisted? Then why does reading it early throw instead of giving undefined?",
+    <>Yes, all three keywords are hoisted — a slot is reserved in the memory phase. The difference is the slot&apos;s starting state: <code>var</code> is initialised to <code>undefined</code> immediately; <code>let</code>/<code>const</code> are left uninitialised (locked) until their declaration is evaluated. Reading a locked binding throws a <code>ReferenceError</code>. The locked stretch is the Temporal Dead Zone.</>,
+  ],
+  [
+    "What is the scope of var versus let/const?",
+    <><code>var</code> is function-scoped: it belongs to the nearest enclosing function (or Global) and ignores all other braces. <code>let</code>/<code>const</code> are block-scoped: they belong to the nearest enclosing <code>{"{ }"}</code> of any kind and cease to exist when it closes.</>,
+  ],
+  [
+    "What does for (let i = 0; …) do differently from for (var i = 0; …)?",
+    <>With <code>var</code> there is one <code>i</code> slot for the whole loop, which survives after it ends. With <code>let</code> the engine creates a fresh binding for every iteration — three iterations, three separate slots — and discards them when the loop ends, so <code>i</code> is not defined afterwards. The per-iteration binding is what makes closures inside the loop capture the right value.</>,
+  ],
+  [
+    "Exactly where does the TDZ start and end?",
+    <>It starts at the top of the enclosing scope (the opening brace, or the first line of the function/file), not at the line just above the declaration. It ends the moment the declaration is evaluated — for <code>let x;</code> with no initialiser, that sets <code>x</code> to <code>undefined</code> and unlocks it.</>,
+  ],
+  [
+    "Why is it called the *Temporal* Dead Zone?",
+    <>Because it is defined by time, not position. A function that reads a <code>let</code> variable can be written above the declaration and still work — as long as it is <em>called</em> after the declaration has been evaluated. The same function called before that moment throws. Scope is decided by where code is written (lexical); readiness is decided by when it runs (temporal).</>,
+  ],
+  [
+    "Can shadowing cause a TDZ error even when the outer variable is initialised?",
+    <>Yes. An inner <code>let</code> with the same name creates a separate binding with its own TDZ covering the whole inner block. Lookups inside the block resolve to the inner binding first (nearest match wins), so reading the name before the inner declaration throws — the initialised outer value is never reached.</>,
+  ],
+  [
+    "Why does function f(a = b, b = 1) {} throw when called with no arguments?",
+    <>Default parameters are evaluated left to right in their own scope, like a sequence of <code>let</code> declarations. Evaluating <code>a = b</code> reads <code>b</code> while it is still in its TDZ. A default may refer to parameters on its left, never on its right.</>,
+  ],
+  [
+    "Does const make a value immutable?",
+    <>No — it makes the <em>binding</em> immutable: the name can never be re-pointed, and it must be given a value on the declaration line. An object or array it points to can still be mutated through it. <code>Object.freeze</code> is the (shallow) way to freeze the value itself.</>,
+  ],
   [
     "Can you redeclare a var in the same scope? Can you redeclare a let?",
     <><code>var</code> can be redeclared freely in the same scope. <code>let</code>/<code>const</code> throw a <code>SyntaxError</code> if redeclared in the same scope.</>,
@@ -128,17 +229,38 @@ export default function JsLessonEightPage() {
       <div className="lesson">
         <h2 id="concept">Concept</h2>
         <p>
-          Quick recap from Lesson 3: <code>let</code> and <code>const</code> are hoisted into a
-          locked state called the Temporal Dead Zone (TDZ) — they exist in memory, but touching
-          them before their declaration line throws instead of returning <code>undefined</code>.
-          This lesson goes past that basic behaviour into the parts that actually trip people up:
-          what happens when you declare the same name twice, why some mistakes stop your entire
-          file from running at all, and one real exception to a rule you learned as absolute in
-          Lesson 6.
+          Lesson 3 gave you the headline: <code>var</code>, <code>let</code> and <code>const</code>{" "}
+          are all hoisted, and the difference is what happens next — <code>var</code> starts as{" "}
+          <code>undefined</code>, <code>let</code>/<code>const</code> start <em>locked</em> in the
+          Temporal Dead Zone (TDZ). This lesson is the full picture. Every axis on which the three
+          keywords differ, in one grid. Function scope versus block scope, including the one place
+          it bites hardest: loops. Exactly which lines the TDZ covers, why it is called{" "}
+          <em>temporal</em> rather than positional, and the two places it hides where you would
+          not expect it. Then the parts that trip up even experienced developers: redeclaration,
+          errors that stop your whole file before a single line runs, the five distinct error
+          messages, and the one real exception to &ldquo;<code>typeof</code> is always safe&rdquo;.
         </p>
+        <Callout kind="note">
+          <p className="mb-0">
+            One mental model carries the whole lesson: <strong>a declaration reserves a slot in the
+            memory phase; the keyword decides what the slot starts as, which braces own it, and
+            what you are allowed to do to it afterwards.</strong> Everything below is a consequence
+            of those three decisions.
+          </p>
+        </Callout>
 
         <h2 id="why">Why This Matters</h2>
         <ul>
+          <li>
+            &ldquo;Which keyword should I use?&rdquo; is answered properly only once you can see all
+            the differences at once — scope, initial value, reassignment, redeclaration and the
+            global object — rather than the one or two you happen to remember.
+          </li>
+          <li>
+            The loop case (<code>for (var i…)</code> versus <code>for (let i…)</code>) is behind
+            the single most famous JavaScript interview question, which Lesson 11 traces in full.
+            This lesson gives you the memory picture it depends on.
+          </li>
           <li>
             Redeclaration bugs are common when refactoring — knowing exactly which combinations
             throw and which don&apos;t saves real debugging time.
@@ -180,6 +302,141 @@ export default function JsLessonEightPage() {
             entirely different categories of error.
           </p>
         </Callout>
+
+        <h2 id="matrix">The Three Keywords Side By Side</h2>
+        <p>
+          Before going deep on any one row, here is the whole table. Read it top to bottom once
+          now; the rest of the lesson explains the rows that need explaining.
+        </p>
+        <KeywordMatrix />
+        <p>
+          Three things to notice. First, the <strong>hoisting row is identical</strong> — the
+          engine reserves a slot for all three in the memory phase (Lesson 1). Second, the
+          differences split cleanly into two families: <code>var</code> on one side,{" "}
+          <code>let</code>/<code>const</code> on the other, with <code>const</code> adding exactly
+          two extra rules on top of <code>let</code> (must initialise, cannot reassign). Third,
+          the last row is the mechanism behind several of the others — <code>let</code>/
+          <code>const</code> live in a private record the engine controls directly (Lesson 3),
+          which is what makes a &ldquo;locked&rdquo; state possible at all.
+        </p>
+
+        <h2 id="scope">Function Scope vs. Block Scope — And What Loops Do</h2>
+        <p>
+          <code>var</code> is <strong>function-scoped</strong>: it belongs to the nearest enclosing
+          function (or to Global if there is none), and it ignores every other pair of braces on
+          the way. <code>let</code> and <code>const</code> are <strong>block-scoped</strong>: they
+          belong to the nearest enclosing <code>{"{ }"}</code> of any kind — <code>if</code>,{" "}
+          <code>for</code>, <code>while</code>, a bare block, a function body.
+        </p>
+        <Script title="scope.js" code={scopeCode} />
+        <p>
+          Inside <code>checkIn</code>, <code>floor</code> is hoisted to the function&apos;s own
+          memory during the memory phase, exactly as if it had been written on the first line of
+          the function — the <code>if</code> braces are invisible to it. <code>wing</code> and{" "}
+          <code>suite</code> are created when the block is entered and destroyed when it closes;
+          by line 8 they do not exist anywhere in the scope chain (Lesson 7).
+        </p>
+        <p>
+          The place this matters most is a <code>for</code> loop, because a loop is a block that
+          runs many times:
+        </p>
+        <div className="grid grid-cols-1 gap-0 sm:grid-cols-2 sm:gap-4">
+          <Script title="loop-var.js" code={loopVar} />
+          <Script title="loop-let.js" code={loopLet} />
+        </div>
+        <p>
+          The visible difference is the last line. The important difference is invisible: with{" "}
+          <code>var</code> there is <strong>one</strong> <code>i</code> for the whole loop, mutated
+          three times. With <code>let</code>, the engine creates a{" "}
+          <strong>fresh binding for every iteration</strong> — three separate slots that happen to
+          share a name — and throws them all away when the loop ends.
+        </p>
+        <LoopBindingStepper />
+        <Callout kind="note" label="Why the per-iteration binding matters">
+          <p className="mb-0">
+            Right now the three <code>let</code> slots look like a technicality — the console
+            output is identical. It stops being a technicality the moment something inside the loop
+            body <em>remembers</em> <code>i</code> for later, such as a <code>setTimeout</code>{" "}
+            callback. That is the <code>var</code>-prints-<code>3, 3, 3</code> interview classic,
+            and it is entirely explained by &ldquo;one slot versus three slots&rdquo;. Lesson 11
+            traces it step by step; bank the picture now.
+          </p>
+        </Callout>
+
+        <h2 id="window">The TDZ, Precisely: Where It Starts And Where It Ends</h2>
+        <p>
+          &ldquo;Before the declaration&rdquo; is the informal description. The precise one has
+          two ends:
+        </p>
+        <ul>
+          <li>
+            <strong>It starts at the top of the enclosing scope</strong> — the opening brace of the
+            block (or the first line of the function or file) — not at the line above the
+            declaration. Every line of the scope that comes before the declaration is in the zone.
+          </li>
+          <li>
+            <strong>It ends when the declaration is evaluated</strong> — when execution actually
+            reaches and runs the <code>let</code>/<code>const</code> line. For <code>let</code>{" "}
+            with no initialiser, that moment sets the binding to <code>undefined</code>: unlocked,
+            merely empty, readable without error.
+          </li>
+        </ul>
+        <Script title="window.js" code={windowCode} />
+        <TdzWindowDiagram />
+        <p>
+          Line 5 is the detail people miss. <code>let roomNumber;</code> is not &ldquo;still
+          uninitialised&rdquo; — evaluating the declaration <em>is</em> the initialisation, to{" "}
+          <code>undefined</code>. After that line, <code>roomNumber</code> behaves like any empty
+          variable. The lock is tied to the declaration being <em>reached</em>, not to a value
+          being provided.
+        </p>
+
+        <h2 id="temporal">Why &ldquo;Temporal&rdquo; — It Is About Time, Not Position</h2>
+        <p>
+          The name is precise. The dead zone is a stretch of <em>time</em> during execution — from
+          the scope being entered until the declaration runs — not a stretch of <em>lines</em> in
+          the file. The cleanest proof is a function that reads the variable, written above the
+          declaration both times, called twice:
+        </p>
+        <Script title="temporal.js" code={temporal} />
+        <TdzTimingStepper />
+        <Callout kind="note">
+          <p className="mb-0">
+            Same function, same line 2, same position above the <code>let</code>. Call ① throws,
+            call ② returns <code>101</code>. Nothing about the code&apos;s layout changed between
+            them — only <em>when</em> the read happened relative to the declaration being
+            evaluated. That is the whole meaning of &ldquo;temporal&rdquo;, and it is why a
+            lexical (position-based) rule like scope (Lesson 7) and a temporal rule like the TDZ
+            can coexist: scope decides <em>which</em> binding a name refers to; the TDZ decides
+            whether that binding is <em>ready yet</em>.
+          </p>
+        </Callout>
+
+        <h2 id="disguise">The TDZ In Disguise: Shadowing And Default Parameters</h2>
+        <p>
+          Two places the TDZ appears where people do not expect a declaration to matter at all.
+        </p>
+        <h3>Shadowing creates a fresh TDZ for the inner name</h3>
+        <Script title="shadow-tdz.js" code={shadowTdz} />
+        <p>
+          The outer <code>roomNumber</code> is fully initialised — <code>101</code> is right there.
+          But the block declares its <em>own</em> <code>roomNumber</code> (Lesson 7&apos;s
+          shadowing), so inside the block every reference to that name resolves to the inner
+          binding, which is locked from the block&apos;s opening brace until line 5. The lookup
+          never climbs to the outer <code>101</code>, because the nearest match wins — and the
+          nearest match is in its dead zone. Reading line 4, you would swear it prints{" "}
+          <code>101</code>. It throws.
+        </p>
+        <h3>Default parameters are evaluated left to right, in their own scope</h3>
+        <Script title="param-tdz.js" code={paramTdz} />
+        <p>
+          Parameters with defaults behave like a sequence of <code>let</code> declarations,
+          evaluated in order. When <code>book()</code> is called with no arguments, the engine
+          evaluates <code>nights = stay</code> first — and <code>stay</code>, one position to the
+          right, is still in its TDZ. Give <code>nights</code> a value and its default expression
+          is never evaluated, so <code>stay</code> is never read early and nothing throws. A
+          default may refer to any parameter to its <em>left</em>, never to its right.
+        </p>
 
         <h2 id="redeclare">Redeclaration: var Allows It, let And const Don&apos;t</h2>
         <Script title="redeclare.js" code={redeclare} />
@@ -265,7 +522,28 @@ export default function JsLessonEightPage() {
           </p>
         </Callout>
 
-        <h2 id="minimize">Minimizing Your Own TDZ Window</h2>
+        <h2 id="construle">const: A Frozen Binding, Not A Frozen Value</h2>
+        <p>
+          <code>const</code> is <code>let</code> plus two rules: the declaration must carry an
+          initialiser (otherwise a <code>SyntaxError</code> at parse time — there would never be a
+          moment to give it a value), and the binding can never be reassigned (a{" "}
+          <code>TypeError</code> at runtime). Both rules are about the <strong>binding</strong> —
+          the arrow from the name to the value. Neither says anything about the value at the other
+          end of the arrow.
+        </p>
+        <Script title="const.js" code={constObj} />
+        <ConstBindingBox />
+        <p>
+          For primitives (numbers, strings, booleans) the distinction is invisible, because a
+          primitive cannot be changed in place — the only way to &ldquo;change&rdquo; it is to
+          re-point the binding, which <code>const</code> forbids. For objects and arrays the
+          distinction is everything: <code>guest.room = 102</code> reaches through the arrow and
+          edits the object; the arrow itself is untouched. If you want the object frozen too,
+          that is a separate, explicit request — <code>Object.freeze</code> — and it is shallow:
+          nested objects inside remain mutable.
+        </p>
+
+        <h2 id="minimize">Minimizing Your Own TDZ Window — And Which Keyword To Use</h2>
         <p>
           The TDZ exists for every <code>let</code>/<code>const</code> from the top of its scope
           until its declaration line runs. You can&apos;t remove it, but you can make it as short
@@ -280,6 +558,18 @@ export default function JsLessonEightPage() {
             sidesteps almost every mistake in this lesson.
           </li>
         </ul>
+        <Callout kind="ok" label="The decision rule, in one line">
+          <p className="mb-0">
+            <strong><code>const</code> unless you will reassign; then <code>let</code>; never{" "}
+            <code>var</code>.</strong> The reasoning is the matrix above: <code>const</code> gives
+            you block scope, no accidental global property, no silent redeclaration, and a
+            guarantee that the name always points at the same thing — every one of those is a
+            class of bug removed. Reach for <code>let</code> only when the binding genuinely has
+            to move (a loop counter, an accumulator). The only time you will still meet{" "}
+            <code>var</code> is in code written before 2015, and in interview questions designed
+            to check you understand why it was replaced.
+          </p>
+        </Callout>
 
         <h2 id="example">Real Example — Traced Line By Line</h2>
         <Script title="checkin.js" code={example} />
@@ -331,6 +621,33 @@ export default function JsLessonEightPage() {
             <Script title="console" code={`console.log(typeof totallyUnknown); // "undefined" — no error at all`} />
           </li>
           <li>
+            <h3>Watch the TDZ in the Scope panel</h3>
+            <Script title="scope-panel.js" code={`function checkIn() {
+  debugger;            // paused here, roomNumber is in the TDZ
+  let roomNumber = 101;
+  debugger;            // paused here, it is 101
+}
+checkIn();`} />
+            <p>
+              At the first pause, open <strong>Scope → Local</strong>: Chrome lists{" "}
+              <code>roomNumber</code> already, with the value{" "}
+              <code>&lt;value unavailable&gt;</code> — its way of showing a binding that exists
+              but is locked. Resume to the second pause and the same entry reads <code>101</code>.
+              That is the TDZ, rendered by the engine itself.
+            </p>
+          </li>
+          <li>
+            <h3>Count the loop slots</h3>
+            <Script title="console" code={`for (let i = 0; i < 3; i++) { debugger; }`} />
+            <p>
+              Each time it pauses, <strong>Scope → Block</strong> shows an <code>i</code> — and
+              stepping to the next iteration shows a <em>new</em> Block scope, not the same one
+              with a bigger number. Swap <code>let</code> for <code>var</code> and the Block scope
+              disappears: <code>i</code> now sits in <strong>Local</strong> (or Global) for the
+              whole loop.
+            </p>
+          </li>
+          <li>
             <h3>Confirm the difference side by side</h3>
             <p>
               Notice the console still shows the SyntaxError as a red flag attached to the whole
@@ -363,6 +680,29 @@ export default function JsLessonEightPage() {
             They don&apos;t — <code>var</code> happily allows redeclaring the same name in the same
             scope; <code>let</code>/<code>const</code> throw a <code>SyntaxError</code> immediately
             if you try.
+          </p>
+        </Callout>
+
+        <Callout kind="bad">
+          <p className="mb-0">
+            <strong>&ldquo;The TDZ is the lines above the declaration.&rdquo;</strong> It is the{" "}
+            <em>time</em> before the declaration is evaluated. A function written above the{" "}
+            <code>let</code> reads it fine when called after the <code>let</code> has run, and
+            throws when called before — same lines, different moment.
+          </p>
+        </Callout>
+        <Callout kind="bad">
+          <p className="mb-0">
+            <strong>&ldquo;If the outer variable is initialised, an inner one with the same name is safe to read.&rdquo;</strong>{" "}
+            Shadowing gives the inner name its own binding with its own TDZ, and the lookup stops
+            at the nearest match — so the initialised outer value is never even consulted.
+          </p>
+        </Callout>
+        <Callout kind="bad">
+          <p className="mb-0">
+            <strong>&ldquo;<code>const</code> makes the object immutable.&rdquo;</strong> It makes
+            the <em>binding</em> immutable. Properties of the object can still be changed; only
+            re-pointing the name is forbidden. Freezing the value is a separate operation.
           </p>
         </Callout>
 
