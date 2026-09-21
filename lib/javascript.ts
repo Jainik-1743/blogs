@@ -99,18 +99,18 @@ export const JS_LESSONS: Lesson[] = [
     slug: "lesson-10",
     title: "Closures",
     summary:
-      "A function bundled with its lexical scope. Closure-based examples you can run, the real use cases, and the memory cost of keeping a scope alive.",
-    readTime: "14 min",
-    published: false,
+      "A function that remembers where it was born — even after the place it was born in is gone. This is the one exception to \"popped execution context = memory freed\" that Lesson 2 promised we'd come back to.",
+    readTime: "13 min",
+    published: true,
   },
   {
     number: 11,
     slug: "lesson-11",
     title: "setTimeout and Closures: The Interview Classic",
     summary:
-      "Print 1 to 5 with a one-second gap. Why the var version prints 6 five times, and the two fixes that show you understand closures.",
-    readTime: "10 min",
-    published: false,
+      "One loop, one setTimeout, one wrong answer almost everyone gives the first time. This lesson is dedicated entirely to the single most-asked closures question in JavaScript interviews — and four different, genuinely correct ways to fix it.",
+    readTime: "12 min",
+    published: true,
   },
   {
     number: 12,
@@ -119,7 +119,7 @@ export const JS_LESSONS: Lesson[] = [
     summary:
       "Functions as values: passing them as arguments, returning them, callbacks, and attaching and removing event listeners without leaking memory.",
     readTime: "12 min",
-    published: false,
+    published: true,
   },
   {
     number: 13,
@@ -128,7 +128,7 @@ export const JS_LESSONS: Lesson[] = [
     summary:
       "Parser, interpreter (Ignition), compiler (TurboFan), memory heap and garbage collection — what the engine does between your file and the CPU.",
     readTime: "13 min",
-    published: false,
+    published: true,
   },
   {
     number: 14,
@@ -137,9 +137,31 @@ export const JS_LESSONS: Lesson[] = [
     summary:
       "Call stack, Web APIs, callback queue, microtask queue and the event loop that ties them together — plus starvation, and why setTimeout(0) is not 0.",
     readTime: "16 min",
-    published: false,
+    published: true,
   },
 ];
+
+/** Standalone background reading that sits beside the numbered lessons. */
+export type JsReading = {
+  slug: string;
+  title: string;
+  summary: string;
+  readTime?: string;
+};
+
+export const JS_READINGS: JsReading[] = [
+  {
+    slug: "recap",
+    title: "Core JavaScript: The Last-Minute Recap",
+    summary:
+      "All 14 lessons, compressed into one read for the morning of an interview — concept, a runnable example with its real output, and a ready-made spoken answer for each, plus an output-prediction drill and rapid-fire Q&A.",
+    readTime: "30 min",
+  },
+];
+
+export function jsReadingHref(reading: JsReading): string {
+  return `/${JS_SERIES.slug}/${reading.slug}`;
+}
 
 export function jsLessonHref(lesson: Lesson): string {
   return `/${JS_SERIES.slug}/${lesson.slug}`;
