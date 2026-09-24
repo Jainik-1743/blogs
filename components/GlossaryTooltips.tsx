@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   findEntry,
   glossaryFor,
@@ -131,6 +131,7 @@ function placeTip(tip: HTMLDivElement, target: HTMLElement) {
 
 export default function GlossaryTooltips() {
   const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
     const main = document.querySelector("main");
@@ -174,6 +175,18 @@ export default function GlossaryTooltips() {
     };
     // Touch screens have no hover: tap toggles, tap elsewhere closes.
     const onClick = (e: Event) => {
+      // Tooltip links are plain <a> tags (the tip is built as HTML), so route them through the
+      // Next.js router instead of letting the browser reload the page. Modified clicks
+      // (new tab, new window) keep their normal behaviour.
+      const link = (e.target as HTMLElement | null)?.closest?.(".term-tip a") as HTMLAnchorElement | null;
+      const m = e as MouseEvent;
+      if (link && link.origin === window.location.origin && m.button === 0 && !m.metaKey && !m.ctrlKey && !m.shiftKey && !m.altKey) {
+        e.preventDefault();
+        tip.hidden = true;
+        current = null;
+        router.push(link.pathname + link.search + link.hash);
+        return;
+      }
       const t = termOf(e);
       if (t) {
         e.preventDefault();
@@ -209,7 +222,7 @@ export default function GlossaryTooltips() {
       document.removeEventListener("keydown", onKey);
       tip.remove();
     };
-  }, [pathname]);
+  }, [pathname, router]);
 
   return null;
 }
