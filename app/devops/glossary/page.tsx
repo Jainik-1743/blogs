@@ -3,7 +3,7 @@ import GlossaryIndex from "@/components/GlossaryIndex";
 import { DEVOPS_GLOSSARY } from "@/lib/glossary";
 
 export const metadata: Metadata = {
-  title: "Glossary",
+  title: "DevOps Glossary",
   description: "Every short form used in the DevOps series, with its full name and meaning.",
 };
 

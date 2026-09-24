@@ -45,9 +45,9 @@ export default function SystemDesignIndexPage() {
       </section>
 
       <section className="mb-12">
-        <h2 className="mb-2 text-[1.6rem] font-semibold text-sky">The route</h2>
+        <h2 className="mb-2 text-[1.6rem] font-semibold text-sky">How the series is organised</h2>
         <p className="mb-4 text-ink-dim">
-          Twelve parts, each building on the one before. Jump to any part, or start at Lesson 01.
+          Twelve parts, each building on the one before. Jump to any part, or start at Lesson 01 and read in order.
         </p>
         <ol className="m-0 grid list-none gap-3 p-0 sm:grid-cols-2">
           {SD_PARTS.map((p) => (

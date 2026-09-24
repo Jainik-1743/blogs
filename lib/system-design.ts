@@ -9,9 +9,9 @@ export const SD_ACCENT: "orange" | "sky" = "orange";
 
 export const SD_SERIES = {
   slug: "system-design",
-  title: "System Design, From First Principles",
+  title: "System Design, Step by Step",
   tagline:
-    "From \"what happens when you press Enter\" to designing a chat system for millions — networking, scaling, caching, databases, queues, reliability, security and real case studies, one post at a time. Every short form is explained on hover, and every idea gets a diagram.",
+    "Learn how real systems are built, one idea at a time. Start with what happens when you press Enter, then work through scaling, caching, databases, queues, reliability and security, and finish by designing a URL shortener, a chat app and a news feed. Every short form is explained when you hover over it, and every idea comes with a diagram.",
   started: "2026",
   accent: SD_ACCENT,
 };
