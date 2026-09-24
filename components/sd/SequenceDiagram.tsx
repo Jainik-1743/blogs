@@ -33,59 +33,58 @@ export default function SequenceDiagram({
   messages: SeqMessage[];
   caption: string;
 }) {
-  const [shown, setShown] = useState(messages.length);
+  // Starts at the first message and moves forward, like the steppers in the other series.
+  const total = messages.length;
+  const [shown, setShown] = useState(1);
   const [playing, setPlaying] = useState(false);
   const n = actors.length;
   const center = (i: number) => ((i + 0.5) / n) * 100;
 
   useEffect(() => {
     if (!playing) return;
-    if (shown >= messages.length) {
+    if (shown >= total) {
       setPlaying(false);
       return;
     }
     const t = setTimeout(() => setShown((s) => s + 1), 1100);
     return () => clearTimeout(t);
-  }, [playing, shown, messages.length]);
+  }, [playing, shown, total]);
+
+  const go = (v: number) => {
+    setPlaying(false);
+    setShown(Math.min(Math.max(v, 1), total));
+  };
 
   return (
     <Figure caption={caption} note="sequence · step through">
       <div data-no-glossary>
         <div className="mb-4 flex flex-wrap items-center gap-2">
+          <button type="button" className={btn} onClick={() => go(1)} disabled={shown === 1}>
+            ⟲ Reset
+          </button>
+          <button type="button" className={btn} onClick={() => go(shown - 1)} disabled={shown === 1}>
+            ← Prev
+          </button>
+          <button type="button" className={btn} onClick={() => go(shown + 1)} disabled={shown === total}>
+            Next →
+          </button>
           <button
             type="button"
             className={btn}
             onClick={() => {
-              setShown(0);
+              if (playing) return setPlaying(false);
+              // Replay from the start once the last step has been reached.
+              if (shown >= total) setShown(1);
               setPlaying(true);
             }}
           >
-            ▶ Play
+            {playing ? "❚❚ Pause" : shown >= total ? "▶ Replay" : "▶ Play"}
           </button>
-          <button
-            type="button"
-            className={btn}
-            onClick={() => {
-              setPlaying(false);
-              setShown((s) => Math.max(s - 1, 0));
-            }}
-            disabled={shown === 0}
-          >
-            ← Prev
-          </button>
-          <button
-            type="button"
-            className={btn}
-            onClick={() => {
-              setPlaying(false);
-              setShown((s) => Math.min(s + 1, messages.length));
-            }}
-            disabled={shown === messages.length}
-          >
-            Next →
+          <button type="button" className={btn} onClick={() => go(total)} disabled={shown === total}>
+            Show all
           </button>
           <span className="ml-auto font-mono text-[0.72rem] text-ink-dim">
-            {shown} / {messages.length}
+            step {shown} / {total}
           </span>
         </div>
 
