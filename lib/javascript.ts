@@ -119,8 +119,8 @@ export const JS_LESSONS: Lesson[] = [
     slug: "lesson-12",
     title: "First-Class Functions, Callbacks and Event Listeners",
     summary:
-      "Functions as values: passing them as arguments, returning them, callbacks, and attaching and removing event listeners without leaking memory.",
-    readTime: "12 min",
+      "Functions as values: passing them as arguments, returning them from other functions, sync vs async callbacks stepped side by side, and attaching and removing event listeners without leaking memory.",
+    readTime: "14 min",
     published: true,
   },
   {
@@ -128,8 +128,8 @@ export const JS_LESSONS: Lesson[] = [
     slug: "lesson-13",
     title: "JS Engine and V8 Architecture",
     summary:
-      "Parser, interpreter (Ignition), compiler (TurboFan), memory heap and garbage collection — what the engine does between your file and the CPU.",
-    readTime: "13 min",
+      "Parser, interpreter (Ignition), compiler (TurboFan), memory heap and garbage collection — what the engine does between your file and the CPU. Watch a function climb V8's tiers and fall back on a deopt, and step through mark-and-sweep.",
+    readTime: "16 min",
     published: true,
   },
   {
@@ -137,8 +137,8 @@ export const JS_LESSONS: Lesson[] = [
     slug: "lesson-14",
     title: "Async JS and the Event Loop",
     summary:
-      "Call stack, Web APIs, callback queue, microtask queue and the event loop that ties them together — plus starvation, and why setTimeout(0) is not 0.",
-    readTime: "16 min",
+      "Call stack, Web APIs, callback queue, microtask queue and the event loop that ties them together, stepped tick by tick — plus async/await, where rendering fits, starvation, and why setTimeout(0) is not 0.",
+    readTime: "20 min",
     published: true,
   },
 ];

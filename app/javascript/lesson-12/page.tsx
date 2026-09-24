@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Callout from "@/components/Callout";
 import CallbackHandoff from "@/components/figures/CallbackHandoff";
+import CallbackTimingStepper from "@/components/figures/CallbackTimingStepper";
+import ListenerIdentity from "@/components/figures/ListenerIdentity";
 import LessonPager from "@/components/LessonPager";
 import Script from "@/components/Script";
 import { JS_LESSONS, JS_SERIES, jsLessonHref } from "@/lib/javascript";
@@ -20,6 +22,7 @@ const outline = [
   { id: "analogy", label: "The instruction card — an analogy" },
   { id: "proof", label: "Proof: functions are values" },
   { id: "hof", label: "Higher-order functions" },
+  { id: "returning", label: "Functions that return functions" },
   { id: "callbacks", label: "Callbacks — sync vs. async" },
   { id: "listeners", label: "Event listeners are just callbacks" },
   { id: "removing", label: "Removing listeners correctly" },
@@ -53,6 +56,37 @@ repeatTask(3, (round) => {
 // Cleaning pass 1 complete
 // Cleaning pass 2 complete
 // Cleaning pass 3 complete`;
+
+const returning = `function makeDiscount(percent) {
+  return function (price) {
+    return price - (price * percent) / 100;
+  };
+}
+
+const festiveSale = makeDiscount(20); // a brand-new function, remembering percent = 20
+const staffRate = makeDiscount(50);   // another one, remembering percent = 50
+
+console.log(festiveSale(1000)); // 800
+console.log(staffRate(1000));   // 500
+
+// The same idea, used to wrap any function with extra behaviour:
+function withLogging(fn) {
+  return function (...args) {
+    console.log("calling with", args);
+    return fn(...args);
+  };
+}
+const loggedDiscount = withLogging(festiveSale);
+loggedDiscount(1500); // logs "calling with [1500]", returns 1200`;
+
+const cleanRemoval = `// Run once, then remove itself automatically
+checkoutButton.addEventListener("click", handleCheckout, { once: true });
+
+// Remove many listeners at once, anonymous ones included
+const controller = new AbortController();
+checkoutButton.addEventListener("click", () => console.log("A"), { signal: controller.signal });
+window.addEventListener("resize", () => console.log("B"), { signal: controller.signal });
+controller.abort(); // both listeners are gone`;
 
 const listeners = `const checkoutButton = document.querySelector("#checkout-button");
 
@@ -98,6 +132,14 @@ const questions: [React.ReactNode, React.ReactNode][] = [
   [
     "Why does this behave differently between a regular function and an arrow function used as a listener?",
     <>A regular function&apos;s <code>this</code> is set dynamically by how it&apos;s called — the browser sets it to the element the event fired on. An arrow function has no <code>this</code> of its own; it keeps whatever <code>this</code> its surrounding scope had at definition time.</>,
+  ],
+  [
+    "Give an example of a function that returns a function, and explain why it works.",
+    <>A factory like <code>makeDiscount(percent)</code> that returns <code>(price) =&gt; price - price * percent / 100</code>. Each call creates a new execution context with its own <code>percent</code>, and the returned function keeps it through a closure — so <code>makeDiscount(20)</code> and <code>makeDiscount(50)</code> produce two independent functions.</>,
+  ],
+  [
+    "How can you remove an anonymous event listener?",
+    <>You can&apos;t with <code>removeEventListener</code>, because you have no reference to it. Register it with an <code>AbortController</code>&apos;s <code>signal</code> and call <code>controller.abort()</code>, or use <code>{"{ once: true }"}</code> if it should only ever fire once.</>,
   ],
 ];
 
@@ -210,6 +252,23 @@ export default function JsLessonTwelvePage() {
         </p>
         <CallbackHandoff />
 
+        <h2 id="returning">Functions That Return Functions</h2>
+        <p>
+          The other half of &ldquo;higher-order&rdquo; is <em>returning</em> a function. Because a
+          function is a value, a function can build one and hand it back — and thanks to closures
+          (Lesson 10), the returned function keeps access to the variables of the call that made
+          it. That turns one general function into a small factory for specialised ones:
+        </p>
+        <Script title="returning-functions.js" code={returning} />
+        <p>
+          <code>makeDiscount(20)</code> and <code>makeDiscount(50)</code> are two separate calls,
+          so each gets its own Variable Environment (Lesson 4) and each returned function closes
+          over its own <code>percent</code>. <code>withLogging</code> goes one step further: it
+          takes a function <em>and</em> returns a new one that wraps it — the pattern behind
+          middleware, retry helpers, debounce and throttle, and most &ldquo;decorators&rdquo; you
+          will meet in real code.
+        </p>
+
         <h2 id="callbacks">Callbacks — Sync vs. Async</h2>
         <p>Not all callbacks run at the same moment relative to the code around them:</p>
         <div className="table-wrap">
@@ -240,6 +299,7 @@ export default function JsLessonTwelvePage() {
           changes is only <em>when</em> that run actually happens, which is a preview of the event
           loop machinery in Lesson 14.
         </p>
+        <CallbackTimingStepper />
 
         <h2 id="listeners">Event Listeners Are Just Callbacks</h2>
         <Script title="listener.js" code={listeners} />
@@ -264,6 +324,16 @@ export default function JsLessonTwelvePage() {
             you&apos;ll ever need to remove it.
           </p>
         </Callout>
+        <ListenerIdentity />
+        <p>
+          Modern browsers also give you two ways to clean up without keeping a reference around:
+          the <code>once</code> option removes a listener automatically after its first call, and
+          an <code>AbortController</code> signal removes every listener registered with it in one
+          go — anonymous ones included. This matters beyond tidiness: a listener that is never
+          removed keeps its callback, and everything that callback&apos;s closure references, alive
+          in memory for as long as the element exists.
+        </p>
+        <Script title="clean-removal.js" code={cleanRemoval} />
 
         <h2 id="this">this Inside A Listener — A Lesson 5 Callback</h2>
         <Script title="this-in-listener.js" code={thisInListener} />

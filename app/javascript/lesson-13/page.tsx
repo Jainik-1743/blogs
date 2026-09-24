@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Callout from "@/components/Callout";
 import EngineRuntimeMap from "@/components/figures/EngineRuntimeMap";
+import HiddenClassDiagram from "@/components/figures/HiddenClassDiagram";
+import JitTierStepper from "@/components/figures/JitTierStepper";
+import MarkSweepStepper from "@/components/figures/MarkSweepStepper";
 import LessonPager from "@/components/LessonPager";
 import Script from "@/components/Script";
 import { JS_LESSONS, JS_SERIES, jsLessonHref } from "@/lib/javascript";
@@ -85,6 +88,18 @@ const questions: [React.ReactNode, React.ReactNode][] = [
   [
     "What is Mark-and-Sweep, in one sentence?",
     "Starting from reachable roots, the collector marks every object it can still reach as alive, then frees the memory of everything left unmarked.",
+  ],
+  [
+    "What is deoptimization, and what usually triggers it?",
+    "When optimized machine code's assumptions stop holding — most often a function suddenly receiving a different type or object shape than before — V8 throws the optimized code away and continues in Ignition's bytecode. It keeps the program correct at the cost of speed, and the function may be re-optimized later for the wider set of types.",
+  ],
+  [
+    "Why should you create objects with the same properties in the same order?",
+    "So they share one hidden class. Property access can then be a single read from a fixed slot, cached at each call site. Different orders or late-added properties create several shapes, making access polymorphic or megamorphic and noticeably slower.",
+  ],
+  [
+    "Can two objects that reference each other leak memory in JavaScript?",
+    "Not by themselves. Mark-and-sweep frees anything a root can't reach, cycles included. Leaks in practice are objects that are still reachable by accident — forgotten listeners, timers, caches or globals that keep growing.",
   ],
 ];
 
@@ -277,6 +292,7 @@ export default function JsLessonThirteenPage() {
             makes it safe for TurboFan to optimize aggressively in the first place.
           </p>
         </Callout>
+        <JitTierStepper />
 
         <h2 id="tiers">Beyond Ignition And TurboFan — The Extra Tiers</h2>
         <p>
@@ -320,6 +336,7 @@ export default function JsLessonThirteenPage() {
           memory read instead of a lookup.
         </p>
         <Script title="hidden-classes.js" code={hiddenClasses} />
+        <HiddenClassDiagram />
         <Callout kind="warn">
           <p className="mb-0">
             If you add properties to different instances in a <strong>different order</strong>, or
@@ -382,6 +399,18 @@ export default function JsLessonThirteenPage() {
           (Lesson 10) can keep a Lexical Environment alive indefinitely: as long as a reachable
           function still points to it, it&apos;s marked &ldquo;alive&rdquo; and never swept.
         </p>
+        <MarkSweepStepper />
+        <Callout kind="note" label="Why not just count references?">
+          <p className="mb-0">
+            A simpler idea — free an object when nothing points to it any more (reference
+            counting) — fails on cycles: two objects that point only at each other never reach a
+            count of zero, so they would leak forever. Mark-and-sweep never asks &ldquo;does
+            anything point to this?&rdquo;, only &ldquo;can a root reach this?&rdquo;, so cycles
+            are freed like anything else. The usual real-world leaks in JavaScript are therefore
+            <em> reachable</em> garbage: a forgotten event listener, a growing array or map on a
+            global, or a timer that keeps a closure alive.
+          </p>
+        </Callout>
 
         <h2 id="live">See It Live — Feel The JIT Warm-Up</h2>
         <Script title="jit-warmup.js" code={jitWarmup} />

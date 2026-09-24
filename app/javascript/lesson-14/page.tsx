@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Callout from "@/components/Callout";
 import EventLoopPlayers from "@/components/figures/EventLoopPlayers";
+import EventLoopStepper from "@/components/figures/EventLoopStepper";
 import LessonPager from "@/components/LessonPager";
 import Script from "@/components/Script";
 import { JS_LESSONS, JS_SERIES, jsLessonHref } from "@/lib/javascript";
@@ -21,6 +22,8 @@ const outline = [
   { id: "players", label: "The four players" },
   { id: "rule", label: "The golden rule: microtasks drain first" },
   { id: "trace", label: "Tracing the classic example" },
+  { id: "async-await", label: "async/await — microtasks in disguise" },
+  { id: "rendering", label: "Where rendering fits in the loop" },
   { id: "starvation", label: "Starvation — when microtasks never stop" },
   { id: "node", label: "A quick note on Node.js" },
   { id: "live", label: "See it live — DevTools" },
@@ -46,6 +49,40 @@ console.log("4: sync end");
 // 4: sync end
 // 3: promise callback
 // 2: setTimeout callback`;
+
+const asyncAwait = `async function checkIn() {
+  console.log("2: checkIn starts");
+  await null;
+  console.log("4: after await");
+}
+
+console.log("1: script start");
+setTimeout(() => console.log("6: timeout"), 0);
+checkIn();
+Promise.resolve().then(() => console.log("5: then"));
+console.log("3: script end");
+
+// 1: script start
+// 2: checkIn starts
+// 3: script end
+// 4: after await
+// 5: then
+// 6: timeout`;
+
+const frames = `// Blocks rendering: the browser can't paint until this task ends
+button.addEventListener("click", () => {
+  box.style.transform = "translateX(0)";
+  heavyWork(); // 300 ms of synchronous work — the page freezes
+  box.style.transform = "translateX(200px)";
+});
+
+// Runs just before the next paint — the right place for visual updates
+let x = 0;
+function animate() {
+  box.style.transform = \`translateX(\${x++}px)\`;
+  if (x < 200) requestAnimationFrame(animate);
+}
+requestAnimationFrame(animate);`;
 
 const starvation = `function scheduleMicrotaskForever() {
   Promise.resolve().then(() => {
@@ -80,6 +117,18 @@ const questions: [React.ReactNode, React.ReactNode][] = [
   [
     "Are Web APIs like setTimeout and fetch part of the JavaScript engine?",
     <>No — they&apos;re provided by the surrounding runtime environment (the browser or Node.js), not by the JS engine itself, which only knows how to parse, compile, and execute JavaScript syntax.</>,
+  ],
+  [
+    "When does the code after an await run?",
+    <>As a microtask. The <code>async</code> function runs synchronously up to the <code>await</code>, then returns a pending promise; the rest of the function is queued and runs after the current synchronous code finishes — before any <code>setTimeout</code> callback, but in order with other microtasks.</>,
+  ],
+  [
+    "Predict the output: console.log(1); setTimeout(() => console.log(2)); Promise.resolve().then(() => console.log(3)); (async () => { console.log(4); await null; console.log(5); })(); console.log(6);",
+    <><code>1 4 6 3 5 2</code>. Synchronous first (1, then the async function up to its await prints 4, then 6), then microtasks in the order they were queued (the <code>.then</code> printing 3, then the continuation printing 5), and finally the timer (2).</>,
+  ],
+  [
+    "Why can a long-running promise chain freeze the page even though no single step is slow?",
+    "Rendering only happens between tasks, after the microtask queue is completely empty. If microtasks keep queueing more microtasks, the queue never empties, so the browser can't paint or handle input — the same starvation that blocks the callback queue.",
   ],
 ];
 
@@ -250,6 +299,7 @@ export default function JsLessonFourteenPage() {
             </p>
           </li>
         </ol>
+        <EventLoopStepper scenario="classic" />
         <Callout kind="warn">
           <p className="mb-0">
             This is why <code>setTimeout(fn, 0)</code> never truly means &ldquo;run this
@@ -259,8 +309,73 @@ export default function JsLessonFourteenPage() {
           </p>
         </Callout>
 
+        <h2 id="async-await">async/await — Microtasks In Disguise</h2>
+        <p>
+          <code>async</code>/<code>await</code> doesn&apos;t add a new queue or a new kind of
+          scheduling — it is written on top of promises, so it follows exactly the same rules. Two
+          facts explain every <code>async</code> puzzle:
+        </p>
+        <ul>
+          <li>
+            An <code>async</code> function runs <strong>synchronously</strong>, on the current
+            call stack, right up to its first <code>await</code>. Calling it is not deferred.
+          </li>
+          <li>
+            <code>await</code> pauses the function and schedules <strong>the rest of it</strong> as
+            a microtask. The function returns a pending promise straight away, and the caller keeps
+            running.
+          </li>
+        </ul>
+        <Script title="async-await.js" code={asyncAwait} />
+        <EventLoopStepper scenario="async" />
+        <Callout kind="note">
+          <p className="mb-0">
+            That&apos;s why &ldquo;<code>await</code> blocks&rdquo; is only half true. It pauses{" "}
+            <em>that one function</em>; it never blocks the call stack, the rest of your script, or
+            the browser. Code after an <code>await</code> always runs after the current synchronous
+            code has finished — and before any timer or click handler.
+          </p>
+        </Callout>
+
+        <h2 id="rendering">Where Rendering Fits In The Loop</h2>
+        <p>
+          The browser paints the screen from the same thread that runs your JavaScript, so
+          painting has to take a turn in the loop too. One full turn looks like this:
+        </p>
+        <ol className="steps">
+          <li>
+            <h3>Run one task from the callback queue</h3>
+            <p>A timer callback, a click handler, the initial script — exactly one.</p>
+          </li>
+          <li>
+            <h3>Drain the entire microtask queue</h3>
+            <p>Every promise callback and <code>await</code> continuation, including new ones added along the way.</p>
+          </li>
+          <li>
+            <h3>Maybe render</h3>
+            <p>
+              If it&apos;s time for a new frame (about every 16 ms at 60 Hz), run{" "}
+              <code>requestAnimationFrame</code> callbacks, recalculate styles and layout, and
+              paint.
+            </p>
+          </li>
+          <li>
+            <h3>Repeat</h3>
+            <p>Pick the next task, and go round again.</p>
+          </li>
+        </ol>
+        <p>
+          Two practical rules fall straight out of that order. Any single task or microtask chain
+          that runs for 300 ms delays the next paint by 300 ms — the page looks frozen, and clicks
+          feel ignored. And visual updates belong in <code>requestAnimationFrame</code>, which runs
+          right before the paint, rather than in a <code>setTimeout</code> that may fire between
+          frames.
+        </p>
+        <Script title="rendering.js" code={frames} />
+
         <h2 id="starvation">Starvation — When Microtasks Never Stop</h2>
         <Script title="starvation.js" code={starvation} />
+        <EventLoopStepper scenario="starvation" />
         <Callout kind="bad">
           <p className="mb-0">
             Because the microtask queue must be fully drained before the callback queue gets a

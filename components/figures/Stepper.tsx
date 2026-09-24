@@ -67,6 +67,8 @@ export default function Stepper<S extends StepBase>({
 
   return (
     <Figure caption={caption} note="interactive">
+      {/* Glossary marking rewrites text nodes; React re-renders this subtree on every step, so it must opt out. */}
+      <div data-no-glossary>
       {/* Controls */}
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <button type="button" className={btn} onClick={() => { setPlaying(false); setI(0); }} disabled={i === 0}>
@@ -94,6 +96,7 @@ export default function Stepper<S extends StepBase>({
       </div>
 
       {children(step, i)}
+      </div>
     </Figure>
   );
 }
