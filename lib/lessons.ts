@@ -9,12 +9,20 @@ export type Lesson = {
   published: boolean;
 };
 
+/**
+ * Accent colour for every /devops page and its card on the home page. "violet" keeps the
+ * series visually distinct from JavaScript (sky) and System Design (orange); set it to
+ * "sky" to use the site default. See the accent rules in globals.css.
+ */
+export const DEVOPS_ACCENT: "violet" | "sky" = "violet";
+
 export const SERIES = {
   slug: "devops",
   title: "DevOps, From Zero",
   tagline:
     "A lesson-by-lesson series that takes you from \"just git push to Vercel\" to running your own production setup on raw AWS — servers, networking, databases, and the mindset behind them.",
   started: "2026",
+  accent: DEVOPS_ACCENT,
 };
 
 /**

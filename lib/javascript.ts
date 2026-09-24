@@ -6,6 +6,8 @@ export const JS_SERIES = {
   tagline:
     "A lesson-by-lesson deep dive into how JavaScript actually runs under the hood — execution context, call stack, scope, closures, this, and the event loop. Pure execution-model JavaScript: no array methods, no framework code.",
   started: "2026",
+  /** The site default; see the accent rules in globals.css. */
+  accent: "sky",
 };
 
 /**

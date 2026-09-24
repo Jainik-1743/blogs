@@ -15,7 +15,7 @@ export function LogoMark({ size = 26, className = "" }: { size?: number; classNa
       className={className}
       fill="none"
     >
-      <rect width="32" height="32" rx="8" fill="#38bdf8" />
+      <rect width="32" height="32" rx="8" style={{ fill: "var(--color-sky)" }} />
       <g stroke="#0b1120" strokeWidth="2.75" strokeLinecap="round">
         <path d="M9 10.5h14" />
         <path d="M9 16h14" />

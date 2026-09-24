@@ -17,7 +17,8 @@ import {
  * a one-line meaning and a link to the lesson that explains it.
  *
  * Which glossary is used depends on the series the page belongs to (DevOps terms under
- * /devops, JavaScript terms under /javascript), so "scope" never gets an AWS meaning.
+ * /devops, JavaScript terms under /javascript, System Design terms under /system-design),
+ * so "scope" never gets an AWS meaning.
  *
  * Short forms (EC2, ALB, DNS, GEC, TDZ …) are marked everywhere they appear. Ordinary
  * words that also have an entry (port, process, closure, scope …) are marked only on
@@ -47,8 +48,11 @@ function matcherFor(glossary: Glossary): Matcher {
   return m;
 }
 
-/** Ordinary lowercase words are only marked the first time they appear. */
-const markEverywhere = (e: GlossaryEntry) => /^[A-Z0-9]/.test(e.term);
+/** Ordinary lowercase words (and entries flagged `once`) are only marked the first time they appear. */
+const markEverywhere = (e: GlossaryEntry) => !e.once && /^[A-Z0-9]/.test(e.term);
+
+/** Entries are plain text; some examples contain markup like <script>, so escape before innerHTML. */
+const html = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 function markTerms(root: HTMLElement, glossary: Glossary) {
   const { pattern, hasTerm } = matcherFor(glossary);
@@ -104,8 +108,8 @@ function fillTip(tip: HTMLDivElement, glossary: Glossary, entry: GlossaryEntry) 
       ? `<a href="${glossaryLessonHref(glossary, entry.lesson)}">Lesson ${entry.lesson} →</a>`
       : "";
   tip.innerHTML = `
-    <div class="term-tip-head"><strong>${entry.term}</strong><span>${entry.full}</span></div>
-    <p>${entry.desc}</p>
+    <div class="term-tip-head"><strong>${html(entry.term)}</strong><span>${html(entry.full)}</span></div>
+    <p>${html(entry.desc)}</p>
     <div class="term-tip-foot">${lesson}<a href="${glossaryHref(glossary)}">All terms</a></div>`;
 }
 

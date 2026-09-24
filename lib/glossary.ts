@@ -1,4 +1,5 @@
 import { JS_GLOSSARY } from "./js-glossary";
+import { SD_GLOSSARY } from "./sd-glossary";
 
 /**
  * Every short form used across the DevOps series, with its full name and a one-line meaning.
@@ -20,6 +21,8 @@ export type GlossaryEntry = {
   lesson?: number;
   /** Grouping on the glossary page — one of the parent glossary's `groups`. */
   group: string;
+  /** Mark only the first use per page even though the term is capitalised (Kafka, Redis …). */
+  once?: boolean;
 };
 
 /** One series' worth of terms plus where its tooltips should link. */
@@ -127,7 +130,9 @@ export function findEntry(glossary: Glossary, text: string): GlossaryEntry | und
 export const glossaryHref = (g: Glossary) => `/${g.series}/glossary`;
 export const glossaryLessonHref = (g: Glossary, lesson: number) => `/${g.series}/lesson-${lesson}`;
 
-/** Which series' terms to mark on a page. Anything outside /javascript uses the DevOps list. */
+/** Which series' terms to mark on a page. Anything outside /javascript and /system-design uses the DevOps list. */
 export function glossaryFor(pathname: string): Glossary {
-  return pathname.startsWith("/javascript") ? JS_GLOSSARY : DEVOPS_GLOSSARY;
+  if (pathname.startsWith("/javascript")) return JS_GLOSSARY;
+  if (pathname.startsWith("/system-design")) return SD_GLOSSARY;
+  return DEVOPS_GLOSSARY;
 }

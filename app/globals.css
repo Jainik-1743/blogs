@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* Dark-only theme tokens. Sky blue is the single accent. */
+/* Dark-only theme tokens. Sky blue is the default accent; a series can swap it (see below). */
 @theme {
   --color-bg: #0b1120;
   --color-bg-elev: #111a2e;
@@ -13,6 +13,28 @@
   --color-sky-soft: rgb(56 189 248 / 0.12);
   --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+/*
+ * Per-series accents. Every "sky" utility reads these variables, so redefining them swaps
+ * the accent for everything inside. Two hooks:
+ *   data-page-accent  on a series layout (app/devops, app/system-design) recolours the whole
+ *                     page, header and tooltips included, via body:has();
+ *   data-accent       on any element (the home-page series cards) recolours just that element.
+ * The values come from each series' `accent` field in lib/lessons.ts, lib/javascript.ts and
+ * lib/system-design.ts — change it there to "sky" to fall back to the default.
+ */
+body:has([data-page-accent="orange"]),
+[data-accent="orange"] {
+  --color-sky: #fb923c;
+  --color-sky-strong: #fdba74;
+  --color-sky-soft: rgb(251 146 60 / 0.12);
+}
+body:has([data-page-accent="violet"]),
+[data-accent="violet"] {
+  --color-sky: #a78bfa;
+  --color-sky-strong: #c4b5fd;
+  --color-sky-soft: rgb(167 139 250 / 0.12);
 }
 
 html {
@@ -122,7 +144,7 @@ body {
 .term {
   @apply cursor-help rounded-sm;
   text-decoration: underline dotted;
-  text-decoration-color: rgb(56 189 248 / 0.55);
+  text-decoration-color: color-mix(in oklab, var(--color-sky) 55%, transparent);
   text-underline-offset: 3px;
 }
 .term:hover,
@@ -153,4 +175,64 @@ body {
 }
 .term-tip-foot a:only-child {
   @apply ml-auto;
+}
+
+/* ── System Design series: the recurring sections of every post get their own look. ── */
+@layer components {
+  .lesson .sd-eyebrow {
+    @apply mb-0 mt-12 font-mono text-[0.7rem] uppercase tracking-[0.14em] text-ink-dim;
+  }
+  .lesson .sd-eyebrow + h2 {
+    @apply mt-1;
+  }
+  /* The problem: a red-tinted card, because it is the pain the post removes. */
+  .lesson .sd-problem > .sd-body {
+    @apply rounded-xl border border-red-400/25 border-l-[3px] border-l-red-400 bg-red-400/5 px-5 pb-1 pt-4;
+  }
+  /* The core idea: the analogy, in an accent card. */
+  .lesson .sd-idea > .sd-body {
+    @apply rounded-xl border border-sky/25 border-l-[3px] border-l-sky bg-sky-soft/40 px-5 pb-1 pt-4;
+  }
+  /* Trade-offs: each bullet is a small card. */
+  .lesson .sd-tradeoffs .sd-body > ul {
+    @apply grid list-none gap-2 pl-0 sm:grid-cols-2;
+  }
+  .lesson .sd-tradeoffs .sd-body > ul > li {
+    @apply m-0 rounded-lg border border-line bg-bg-elev px-4 py-3 text-[0.95rem];
+  }
+  /* Real world: each story paragraph becomes a case-study card. */
+  .lesson .sd-real .sd-body > p {
+    @apply rounded-xl border border-line bg-bg-elev px-5 py-4;
+  }
+  .lesson .sd-real .sd-body > p > strong:first-child {
+    @apply block text-sky-strong;
+  }
+  /* Key takeaways: green checklist. */
+  .lesson .sd-takeaways > .sd-body {
+    @apply rounded-xl border border-emerald-400/30 bg-emerald-400/5 px-5 py-4;
+  }
+  .lesson .sd-takeaways ul {
+    @apply mb-0 list-none pl-0;
+  }
+  .lesson .sd-takeaways li {
+    @apply relative my-2 pl-7;
+  }
+  .lesson .sd-takeaways li::before {
+    content: "✓";
+    @apply absolute left-0 top-0 font-bold text-emerald-300;
+  }
+  /* Further reading: a quiet list with book markers. */
+  .lesson .sd-reading ul {
+    @apply list-none pl-0;
+  }
+  .lesson .sd-reading li {
+    @apply relative border-b border-line py-2 pl-7 text-[0.95rem] text-ink-dim;
+  }
+  .lesson .sd-reading li::before {
+    content: "→";
+    @apply absolute left-0 font-mono text-sky;
+  }
+  .lesson .qa-answer p:last-child {
+    @apply mb-0;
+  }
 }

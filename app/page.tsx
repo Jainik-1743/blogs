@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { JS_LESSONS, JS_SERIES } from "@/lib/javascript";
 import { LESSONS, SERIES } from "@/lib/lessons";
+import { SD_LESSONS, SD_SERIES } from "@/lib/system-design";
 
 const SERIES_CARDS = [
   { series: SERIES, lessons: LESSONS },
   { series: JS_SERIES, lessons: JS_LESSONS },
+  { series: SD_SERIES, lessons: SD_LESSONS },
 ];
 
 export default function HomePage() {
@@ -26,6 +28,7 @@ export default function HomePage() {
             <Link
               key={series.slug}
               href={`/${series.slug}`}
+              data-accent={series.accent}
               className="block rounded-xl border border-line bg-bg-elev px-6 py-6 text-ink transition hover:-translate-y-0.5 hover:border-sky hover:no-underline"
             >
               <div className="font-mono text-[0.8rem] text-sky">
