@@ -11,20 +11,16 @@ export default function AppleIcon() {
         style={{
           width: 180,
           height: 180,
-          background: "#38bdf8",
-          borderRadius: 40,
+          background: "linear-gradient(135deg, #7dd3fc, #38bdf8)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
         }}
       >
         <svg width="180" height="180" viewBox="0 0 32 32" fill="none">
-          <g stroke="#0b1120" strokeWidth="2.75" strokeLinecap="round">
-            <path d="M9 10.5h14" />
-            <path d="M9 16h14" />
-            <path d="M9 21.5h7" />
-          </g>
-          <rect x="19.5" y="19.5" width="4" height="4" rx="1" fill="#0b1120" />
+          <rect x="6.5" y="6.5" width="3.6" height="19" rx="1.8" fill="#0b1120" />
+          <circle cx="14.7" cy="19.2" r="5.4" stroke="#0b1120" strokeWidth="3.6" />
+          <rect x="23.4" y="12.8" width="2.8" height="13.4" rx="1.4" fill="#0b1120" />
         </svg>
       </div>
     ),

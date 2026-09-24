@@ -1,11 +1,12 @@
+import type { AccentName } from "./accents";
 import type { Lesson } from "./lessons";
 
 /**
  * Accent colour for every /system-design page (headings, links, bold text, code, tooltips,
- * diagrams). "orange" is the default for this series; set it to "sky" to fall back to the
- * site-wide sky blue. Nothing else needs to change — see the accent rules in globals.css.
+ * diagrams). "orange" is the default for this series; any name from lib/accents.ts works.
+ * Readers can still pick their own colour from the header swatch menu.
  */
-export const SD_ACCENT: "orange" | "sky" = "orange";
+export const SD_ACCENT: AccentName = "orange";
 
 export const SD_SERIES = {
   slug: "system-design",

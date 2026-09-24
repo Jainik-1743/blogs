@@ -1,11 +1,21 @@
 import Link from "next/link";
 
 /**
- * The site mark: a sky tile with three lines of text and a cursor still writing the last one.
- * Deliberately not tied to DevOps — it stands for "posts being written", whatever the series.
- * The same drawing is used for the favicon (app/icon.svg) and the Apple touch icon.
+ * The site mark: a lowercase "b" (stem + round bowl) on an accent-gradient tile, with a text
+ * cursor beside it — a post still being written. It reads the accent variables, so it takes
+ * on the series colour (and the reader's pick). The favicon (app/icon.svg) and the Apple
+ * touch icon draw the same shapes in sky.
  */
-export function LogoMark({ size = 26, className = "" }: { size?: number; className?: string }) {
+export function LogoMark({
+  size = 30,
+  className = "",
+  gradientId = "logo-tile",
+}: {
+  size?: number;
+  className?: string;
+  /** Must be unique per page when the mark is drawn more than once. */
+  gradientId?: string;
+}) {
   return (
     <svg
       width={size}
@@ -15,13 +25,17 @@ export function LogoMark({ size = 26, className = "" }: { size?: number; classNa
       className={className}
       fill="none"
     >
-      <rect width="32" height="32" rx="8" style={{ fill: "var(--color-sky)" }} />
-      <g stroke="#0b1120" strokeWidth="2.75" strokeLinecap="round">
-        <path d="M9 10.5h14" />
-        <path d="M9 16h14" />
-        <path d="M9 21.5h7" />
-      </g>
-      <rect x="19.5" y="19.5" width="4" height="4" rx="1" fill="#0b1120" />
+      <defs>
+        <linearGradient id={gradientId} x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+          <stop offset="0" style={{ stopColor: "var(--color-sky-strong)" }} />
+          <stop offset="1" style={{ stopColor: "var(--color-sky)" }} />
+        </linearGradient>
+      </defs>
+      <rect width="32" height="32" rx="9" fill={`url(#${gradientId})`} />
+      <rect x="0.5" y="0.5" width="31" height="31" rx="8.5" stroke="#fff" strokeOpacity="0.22" />
+      <rect x="6.5" y="6.5" width="3.6" height="19" rx="1.8" fill="#0b1120" />
+      <circle cx="14.7" cy="19.2" r="5.4" stroke="#0b1120" strokeWidth="3.6" />
+      <rect className="logo-caret" x="23.4" y="12.8" width="2.8" height="13.4" rx="1.4" fill="#0b1120" />
     </svg>
   );
 }
@@ -31,11 +45,14 @@ export default function Logo() {
   return (
     <Link
       href="/"
-      className="flex items-center gap-2.5 font-bold tracking-tight text-ink hover:text-sky hover:no-underline"
+      className="logo group flex shrink-0 items-center gap-2.5 text-[1.05rem] font-bold tracking-tight text-ink hover:no-underline"
       aria-label="blogs — home"
     >
-      <LogoMark />
-      <span>blogs</span>
+      <LogoMark className="transition-transform duration-200 group-hover:-rotate-6" />
+      <span>
+        <span className="font-mono font-semibold text-sky">/</span>
+        <span className="transition-colors group-hover:text-sky-strong">blogs</span>
+      </span>
     </Link>
   );
 }

@@ -16,25 +16,99 @@
 }
 
 /*
- * Per-series accents. Every "sky" utility reads these variables, so redefining them swaps
- * the accent for everything inside. Two hooks:
- *   data-page-accent  on a series layout (app/devops, app/system-design) recolours the whole
- *                     page, header and tooltips included, via body:has();
- *   data-accent       on any element (the home-page series cards) recolours just that element.
- * The values come from each series' `accent` field in lib/lessons.ts, lib/javascript.ts and
- * lib/system-design.ts — change it there to "sky" to fall back to the default.
+ * Accent palette. Every "sky" utility reads these three variables, so redefining them swaps
+ * the accent for everything inside. The names match ACCENTS in lib/accents.ts. Three hooks,
+ * from weakest to strongest:
+ *   data-page-accent     on a series layout (app/devops, app/javascript, app/system-design)
+ *                        recolours the whole page, header and tooltips included, via
+ *                        body:has(). The value is the series' `accent` field.
+ *   data-reader-accent   on <html>, set from the reader's pick in the header swatch menu.
+ *                        `html[…] body` outranks `body:has(…)`, so the pick wins.
+ *   data-accent          on any element (home-page cards, the swatches themselves)
+ *                        recolours just that element.
  */
+body:has([data-page-accent="sky"]),
+html[data-reader-accent="sky"] body,
+[data-accent="sky"] {
+  --color-sky: #38bdf8;
+  --color-sky-strong: #7dd3fc;
+  --color-sky-soft: rgb(56 189 248 / 0.12);
+}
+body:has([data-page-accent="indigo"]),
+html[data-reader-accent="indigo"] body,
+[data-accent="indigo"] {
+  --color-sky: #818cf8;
+  --color-sky-strong: #a5b4fc;
+  --color-sky-soft: rgb(129 140 248 / 0.12);
+}
+body:has([data-page-accent="violet"]),
+html[data-reader-accent="violet"] body,
+[data-accent="violet"] {
+  --color-sky: #a78bfa;
+  --color-sky-strong: #c4b5fd;
+  --color-sky-soft: rgb(167 139 250 / 0.12);
+}
+body:has([data-page-accent="pink"]),
+html[data-reader-accent="pink"] body,
+[data-accent="pink"] {
+  --color-sky: #f472b6;
+  --color-sky-strong: #f9a8d4;
+  --color-sky-soft: rgb(244 114 182 / 0.12);
+}
+body:has([data-page-accent="rose"]),
+html[data-reader-accent="rose"] body,
+[data-accent="rose"] {
+  --color-sky: #fb7185;
+  --color-sky-strong: #fda4af;
+  --color-sky-soft: rgb(251 113 133 / 0.12);
+}
 body:has([data-page-accent="orange"]),
+html[data-reader-accent="orange"] body,
 [data-accent="orange"] {
   --color-sky: #fb923c;
   --color-sky-strong: #fdba74;
   --color-sky-soft: rgb(251 146 60 / 0.12);
 }
-body:has([data-page-accent="violet"]),
-[data-accent="violet"] {
-  --color-sky: #a78bfa;
-  --color-sky-strong: #c4b5fd;
-  --color-sky-soft: rgb(167 139 250 / 0.12);
+body:has([data-page-accent="amber"]),
+html[data-reader-accent="amber"] body,
+[data-accent="amber"] {
+  --color-sky: #fbbf24;
+  --color-sky-strong: #fcd34d;
+  --color-sky-soft: rgb(251 191 36 / 0.12);
+}
+body:has([data-page-accent="lime"]),
+html[data-reader-accent="lime"] body,
+[data-accent="lime"] {
+  --color-sky: #a3e635;
+  --color-sky-strong: #bef264;
+  --color-sky-soft: rgb(163 230 53 / 0.12);
+}
+body:has([data-page-accent="emerald"]),
+html[data-reader-accent="emerald"] body,
+[data-accent="emerald"] {
+  --color-sky: #34d399;
+  --color-sky-strong: #6ee7b7;
+  --color-sky-soft: rgb(52 211 153 / 0.12);
+}
+body:has([data-page-accent="teal"]),
+html[data-reader-accent="teal"] body,
+[data-accent="teal"] {
+  --color-sky: #2dd4bf;
+  --color-sky-strong: #5eead4;
+  --color-sky-soft: rgb(45 212 191 / 0.12);
+}
+
+/* The logo's cursor blinks while the pointer is over it. */
+@keyframes caret-blink {
+  0%, 45% { opacity: 1; }
+  50%, 95% { opacity: 0; }
+  100% { opacity: 1; }
+}
+.logo:hover .logo-caret {
+  animation: caret-blink 1.05s step-end infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .logo:hover .logo-caret { animation: none; }
 }
 
 html {

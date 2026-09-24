@@ -1,3 +1,5 @@
+import type { AccentName } from "./accents";
+
 export type Lesson = {
   /** Lesson number, starting at 0 (the book's "first page"). */
   number: number;
@@ -11,10 +13,10 @@ export type Lesson = {
 
 /**
  * Accent colour for every /devops page and its card on the home page. "violet" keeps the
- * series visually distinct from JavaScript (sky) and System Design (orange); set it to
- * "sky" to use the site default. See the accent rules in globals.css.
+ * series visually distinct from JavaScript (sky) and System Design (orange); any name from
+ * lib/accents.ts works. Readers can still pick their own colour from the header swatch menu.
  */
-export const DEVOPS_ACCENT: "violet" | "sky" = "violet";
+export const DEVOPS_ACCENT: AccentName = "violet";
 
 export const SERIES = {
   slug: "devops",
