@@ -92,7 +92,8 @@ export const LESSONS: Lesson[] = [
     title: "VPC: Subnets, Route Tables, Security Groups",
     summary:
       "Your own private network inside AWS. Public and private subnets, how traffic gets in and out, and where your database hides.",
-    published: false,
+    readTime: "20 min",
+    published: true,
   },
   {
     number: 7,
@@ -100,7 +101,8 @@ export const LESSONS: Lesson[] = [
     title: "EC2: Launch Your First Server and Deploy Next.js Manually",
     summary:
       "SSH in, install Node, clone, .env, build, and keep it alive with PM2 — the manual deploy every later lesson automates.",
-    published: false,
+    readTime: "20 min",
+    published: true,
   },
   {
     number: 8,
@@ -108,7 +110,8 @@ export const LESSONS: Lesson[] = [
     title: "RDS: Managed PostgreSQL",
     summary:
       "A real database that AWS backs up, patches and fails over for you — and how to connect it privately from your app server.",
-    published: false,
+    readTime: "20 min",
+    published: true,
   },
   {
     number: 9,
@@ -116,7 +119,8 @@ export const LESSONS: Lesson[] = [
     title: "Docker: Containerize Your Next.js and Node App",
     summary:
       "Images, layers, Dockerfiles and Compose — build once, run the same thing on your laptop and on EC2.",
-    published: false,
+    readTime: "20 min",
+    published: true,
   },
   {
     number: 10,
@@ -124,7 +128,8 @@ export const LESSONS: Lesson[] = [
     title: "Nginx: Reverse Proxy",
     summary:
       "The receptionist in front of your app: TLS termination, static files, compression, and why port 3000 never goes public.",
-    published: false,
+    readTime: "20 min",
+    published: true,
   },
   {
     number: 11,
@@ -132,7 +137,8 @@ export const LESSONS: Lesson[] = [
     title: "S3 and CloudFront: Static Assets and CDN",
     summary:
       "Uploads, images and built assets in S3, served from edge locations near your users.",
-    published: false,
+    readTime: "20 min",
+    published: true,
   },
   {
     number: 12,
@@ -140,7 +146,8 @@ export const LESSONS: Lesson[] = [
     title: "ALB and Auto Scaling: Scaling to 1000+ Concurrent Users",
     summary:
       "One server becomes many. Health checks, target groups, and servers that appear when traffic spikes and vanish when it drops.",
-    published: false,
+    readTime: "25 min",
+    published: true,
   },
   {
     number: 13,
@@ -148,7 +155,8 @@ export const LESSONS: Lesson[] = [
     title: "Route 53: Production Domain",
     summary:
       "Hosted zones, alias records to your load balancer and CDN, and health-checked routing for a real domain.",
-    published: false,
+    readTime: "20 min",
+    published: true,
   },
   {
     number: 14,
@@ -156,7 +164,8 @@ export const LESSONS: Lesson[] = [
     title: "CI/CD with GitHub Actions",
     summary:
       "Lint, test, build and deploy on every push — automatically, with no one SSH-ing into a server.",
-    published: false,
+    readTime: "22 min",
+    published: true,
   },
   {
     number: 15,
@@ -164,7 +173,8 @@ export const LESSONS: Lesson[] = [
     title: "Terraform: Infrastructure as Code",
     summary:
       "Describe your whole cloud in files, review it in pull requests, and rebuild it in minutes.",
-    published: false,
+    readTime: "25 min",
+    published: true,
   },
   {
     number: 16,
@@ -172,7 +182,8 @@ export const LESSONS: Lesson[] = [
     title: "Redis: Caching and Sessions",
     summary:
       "Fast in-memory storage for sessions, rate limits and hot data — and when not to reach for it.",
-    published: false,
+    readTime: "22 min",
+    published: true,
   },
   {
     number: 17,
@@ -180,7 +191,8 @@ export const LESSONS: Lesson[] = [
     title: "Monitoring and Logging with CloudWatch",
     summary:
       "Knowing what your system is doing before your users tell you: metrics, logs, alarms and dashboards.",
-    published: false,
+    readTime: "25 min",
+    published: true,
   },
   {
     number: 18,
@@ -188,7 +200,8 @@ export const LESSONS: Lesson[] = [
     title: "Security Hardening and Backups",
     summary:
       "Locking down what you built: patching, secrets, least privilege, automated backups and tested restores.",
-    published: false,
+    readTime: "27 min",
+    published: true,
   },
   {
     number: 19,
@@ -196,7 +209,8 @@ export const LESSONS: Lesson[] = [
     title: "Cost Review and Final Production Architecture",
     summary:
       "Where the money goes, how to cut it, and the complete architecture you have built — box by box.",
-    published: false,
+    readTime: "27 min",
+    published: true,
   },
 ];
 
