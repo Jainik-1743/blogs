@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Callout from "@/components/Callout";
-import CommandList from "@/components/CommandList";
 import VpcLayout from "@/components/figures/VpcLayout";
 import InterviewQA from "@/components/InterviewQA";
 import LessonIntro from "@/components/LessonIntro";
@@ -462,151 +461,95 @@ cache-sg inbound: 6379      from web-sg           # only app servers may reach R
 
         <h2 id="build">Build it: the full VPC, step by step</h2>
         <p>
-          You can click through the console (VPC → &ldquo;Create VPC&rdquo; → &ldquo;VPC and
-          more&rdquo; builds most of this in one screen), but doing it once with the CLI shows you
-          exactly what each object is. Lesson 15 turns this into Terraform.
+          The console builds most of this in one screen. Go slowly and read each field — every
+          box maps to one piece from the diagram above. Lesson 15 turns the same network into
+          Terraform.
         </p>
-        <Callout kind="note" label="Shell variables hold the IDs">
-          <p className="mb-0">
-            Each AWS command returns a new ID (<code>vpc-0abc…</code>). We capture it in a variable
-            with <code>--query … --output text</code> so the next command can use it. Run all of it
-            in <em>one terminal session</em>, or the variables disappear.
-          </p>
-        </Callout>
         <ol className="steps">
           <li>
-            <h3>Create the VPC</h3>
-            <Script
-              title="1 · the network"
-              code={`export AWS_REGION=ap-south-1
-
-VPC_ID=$(aws ec2 create-vpc --cidr-block 10.0.0.0/16 \\
-  --tag-specifications 'ResourceType=vpc,Tags=[{Key=Name,Value=myapp-vpc}]' \\
-  --query Vpc.VpcId --output text)
-
-# Servers get DNS names like ip-10-0-1-5.ap-south-1.compute.internal, and RDS needs this
-aws ec2 modify-vpc-attribute --vpc-id $VPC_ID --enable-dns-hostnames
-echo $VPC_ID`}
-            />
-          </li>
-          <li>
-            <h3>Create four subnets — public and private, in two AZs</h3>
-            <Script
-              title="2 · subnets"
-              code={`mk_subnet () {  # usage: mk_subnet NAME CIDR AZ
-  aws ec2 create-subnet --vpc-id $VPC_ID --cidr-block $2 --availability-zone $3 \\
-    --tag-specifications "ResourceType=subnet,Tags=[{Key=Name,Value=$1}]" \\
-    --query Subnet.SubnetId --output text
-}
-
-PUB_A=$(mk_subnet myapp-public-a  10.0.1.0/24 ap-south-1a)
-PRV_A=$(mk_subnet myapp-private-a 10.0.2.0/24 ap-south-1a)
-PUB_B=$(mk_subnet myapp-public-b  10.0.3.0/24 ap-south-1b)
-PRV_B=$(mk_subnet myapp-private-b 10.0.4.0/24 ap-south-1b)
-
-# Servers launched in the public subnets get a public IP automatically
-aws ec2 modify-subnet-attribute --subnet-id $PUB_A --map-public-ip-on-launch
-aws ec2 modify-subnet-attribute --subnet-id $PUB_B --map-public-ip-on-launch`}
-            />
+            <h3>Create the VPC and its subnets</h3>
             <p>
-              At this point all four subnets are <em>identical</em> — none is public yet. The next
-              two steps are what create the difference.
+              VPC → <strong>Create VPC</strong> → choose <strong>VPC and more</strong>. Name it{" "}
+              <code>myapp</code>, CIDR <code>10.0.0.0/16</code>, <strong>2</strong> Availability
+              Zones, <strong>2</strong> public and <strong>2</strong> private subnets, NAT gateways{" "}
+              <strong>None</strong> (they cost money — see above), VPC endpoints{" "}
+              <strong>None</strong>, and keep DNS hostnames enabled (RDS needs it).
+            </p>
+            <p>
+              The preview on the right is the resource map: four subnets, one Internet Gateway, and
+              route tables already wired. Create it.
             </p>
           </li>
           <li>
-            <h3>Create the Internet Gateway and attach it</h3>
-            <Script
-              title="3 · the front door"
-              code={`IGW_ID=$(aws ec2 create-internet-gateway \\
-  --tag-specifications 'ResourceType=internet-gateway,Tags=[{Key=Name,Value=myapp-igw}]' \\
-  --query InternetGateway.InternetGatewayId --output text)
-
-aws ec2 attach-internet-gateway --internet-gateway-id $IGW_ID --vpc-id $VPC_ID`}
-            />
+            <h3>Read what the wizard made</h3>
             <p>
-              An IGW that exists but is not <em>referenced by a route</em> does nothing. Attaching
-              it is like building the front door; the route table is the sign that points visitors
-              to it.
+              Open the <strong>public</strong> route table: it has the <code>local</code> row plus{" "}
+              <code>0.0.0.0/0 → igw-…</code>. That single row is the whole difference between
+              public and private. The private route tables have only <code>local</code>. An
+              Internet Gateway that no route points to does nothing — the route is the sign that
+              sends traffic to the door.
+            </p>
+            <p>
+              On each public subnet, turn on <strong>auto-assign public IPv4</strong> (Edit subnet
+              settings), so servers launched there get a public address.
             </p>
           </li>
           <li>
-            <h3>Make the public subnets public — one route, two associations</h3>
-            <Script
-              title="4 · the route that makes a subnet public"
-              code={`PUB_RT=$(aws ec2 create-route-table --vpc-id $VPC_ID \\
-  --tag-specifications 'ResourceType=route-table,Tags=[{Key=Name,Value=myapp-public-rt}]' \\
-  --query RouteTable.RouteTableId --output text)
-
-# THE row. This single line is the difference between public and private.
-aws ec2 create-route --route-table-id $PUB_RT --destination-cidr-block 0.0.0.0/0 --gateway-id $IGW_ID
-
-aws ec2 associate-route-table --route-table-id $PUB_RT --subnet-id $PUB_A
-aws ec2 associate-route-table --route-table-id $PUB_RT --subnet-id $PUB_B`}
-            />
+            <h3>Create the three Security Groups</h3>
+            <p>EC2 → Security Groups → Create, in the <code>myapp</code> VPC:</p>
+            <div className="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Group</th>
+                    <th>Inbound rule</th>
+                    <th>Source</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>alb-sg</code></td>
+                    <td>HTTP 80, HTTPS 443</td>
+                    <td><code>0.0.0.0/0</code> — the whole internet</td>
+                  </tr>
+                  <tr>
+                    <td><code>web-sg</code></td>
+                    <td>HTTP 80, HTTPS 443</td>
+                    <td>the group <code>alb-sg</code></td>
+                  </tr>
+                  <tr>
+                    <td><code>web-sg</code></td>
+                    <td>SSH 22</td>
+                    <td>&ldquo;My IP&rdquo; (a <code>/32</code>)</td>
+                  </tr>
+                  <tr>
+                    <td><code>db-sg</code></td>
+                    <td>PostgreSQL 5432</td>
+                    <td>the group <code>web-sg</code></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
             <p>
-              The private subnets are still attached to the VPC&apos;s <em>main</em> route table,
-              which only has the <code>local</code> row. That is exactly what we want. Confirm with:
+              For the group-to-group rules, type <code>sg-</code> in the source box and pick the
+              group by name. That is the trick from above: the rule follows the servers, not their
+              IPs.
             </p>
-            <CommandList
-              title="Check your work"
-              commands={[
-                { cmd: "aws ec2 describe-route-tables --filters Name=vpc-id,Values=$VPC_ID --query 'RouteTables[].{Name:Tags[?Key==`Name`]|[0].Value,Routes:Routes[].GatewayId}' --output json", note: "The public table shows an igw-… entry; the main table shows only “local”" },
-              ]}
-            />
-          </li>
-          <li>
-            <h3>Create the Security Groups</h3>
-            <Script
-              title="5 · firewalls, referencing each other"
-              code={`mk_sg () {  # usage: mk_sg NAME DESCRIPTION
-  aws ec2 create-security-group --group-name $1 --description "$2" --vpc-id $VPC_ID \\
-    --query GroupId --output text
-}
-
-ALB_SG=$(mk_sg alb-sg "Public load balancer")
-WEB_SG=$(mk_sg web-sg "App servers")
-DB_SG=$(mk_sg db-sg "Postgres")
-
-MY_IP=$(curl -s https://checkip.amazonaws.com)
-
-# Internet -> load balancer
-aws ec2 authorize-security-group-ingress --group-id $ALB_SG --protocol tcp --port 80  --cidr 0.0.0.0/0
-aws ec2 authorize-security-group-ingress --group-id $ALB_SG --protocol tcp --port 443 --cidr 0.0.0.0/0
-
-# Load balancer -> app servers (source is a GROUP, not an IP)
-aws ec2 authorize-security-group-ingress --group-id $WEB_SG --protocol tcp --port 80  --source-group $ALB_SG
-aws ec2 authorize-security-group-ingress --group-id $WEB_SG --protocol tcp --port 443 --source-group $ALB_SG
-
-# You -> app servers, SSH only from your own IP
-aws ec2 authorize-security-group-ingress --group-id $WEB_SG --protocol tcp --port 22 --cidr $MY_IP/32
-
-# App servers -> database
-aws ec2 authorize-security-group-ingress --group-id $DB_SG --protocol tcp --port 5432 --source-group $WEB_SG`}
-            />
             <Callout kind="warn" label="Your IP changes">
               <p className="mb-0">
                 Home and mobile connections change IP every few days. When SSH suddenly times out
-                next week, the fix is to update the <code>/32</code> rule. In Lesson 18 you will
+                next week, the fix is to update the &ldquo;My IP&rdquo; rule. In Lesson 18 you will
                 remove port 22 entirely and use SSM Session Manager instead.
               </p>
             </Callout>
           </li>
           <li>
-            <h3>Save the IDs — later lessons need them</h3>
-            <Script
-              title="6 · write it down"
-              code={`cat > ~/myapp-network.env <<EOF
-VPC_ID=$VPC_ID
-PUB_A=$PUB_A
-PUB_B=$PUB_B
-PRV_A=$PRV_A
-PRV_B=$PRV_B
-ALB_SG=$ALB_SG
-WEB_SG=$WEB_SG
-DB_SG=$DB_SG
-EOF
-echo "Saved. In any new terminal run:  source ~/myapp-network.env"`}
-            />
+            <h3>Write down the IDs</h3>
+            <p>
+              Later lessons ask for &ldquo;the private subnets&rdquo; or &ldquo;web-sg&rdquo;.
+              Keep a note of the VPC ID, the four subnet IDs and the three Security Group IDs —
+              the console shows them all on the VPC&apos;s resource map.
+            </p>
           </li>
         </ol>
 
@@ -777,12 +720,12 @@ echo "Saved. In any new terminal run:  source ~/myapp-network.env"`}
 
         <h2 id="practice">Practice task before Lesson 7</h2>
         <p>
-          Run the six steps in the previous section, then prove to yourself that the network behaves
-          as designed. Everything is free.
+          Build the network from the previous section, then prove to yourself that it behaves as
+          designed. Everything is free.
         </p>
         <ol>
           <li>
-            Run all six steps and confirm four subnets, one Internet Gateway, one custom route
+            Confirm four subnets, one Internet Gateway, one custom route
             table and three Security Groups exist in the console (VPC → Your VPCs → the resource
             map shows the picture).
           </li>
@@ -801,9 +744,8 @@ echo "Saved. In any new terminal run:  source ~/myapp-network.env"`}
             that better?
           </li>
           <li>
-            Stretch: create a free S3 Gateway endpoint (<code>aws ec2 create-vpc-endpoint --vpc-id
-            $VPC_ID --service-name com.amazonaws.ap-south-1.s3 --route-table-ids $PUB_RT</code>).
-            It adds a route to the table. Find it.
+            Stretch: create a free S3 Gateway endpoint (VPC → Endpoints → Create → S3,
+            type Gateway, pick your route tables). It adds a route to the table. Find it.
           </li>
         </ol>
         <Callout kind="ok" label="Cleaning up">

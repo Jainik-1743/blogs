@@ -161,14 +161,20 @@ export default function LessonEighteenPage() {
           Identity is the front door, and the most common one attackers use. Audit it with AWS&apos;s
           own tool, then apply the rules:
         </p>
-        <CommandList
-          title="Audit your account's identities"
-          commands={[
-            { cmd: "aws iam generate-credential-report && aws iam get-credential-report --query Content --output text | base64 -d", note: "A CSV of every user: password age, MFA on/off, access key age and last use. Look for: no MFA, keys older than 90 days, keys never used" },
-            { cmd: "aws iam list-users --query 'Users[].UserName' --output text", note: "Everyone with a login. Does each person still work here? Do all of them need to exist?" },
-            { cmd: "aws accessanalyzer create-analyzer --analyzer-name account-analyzer --type ACCOUNT", note: "IAM Access Analyzer (free): finds S3 buckets, roles and keys shared outside your account, and can generate least-privilege policies from real usage" },
-          ]}
-        />
+        <ul>
+          <li>
+            IAM → <strong>Credential report</strong>: a CSV of every user — password age, MFA on/off,
+            access-key age and last use. Look for no MFA, keys older than 90 days, keys never used.
+          </li>
+          <li>
+            The user list itself: does each person still work here? Does each identity need to
+            exist?
+          </li>
+          <li>
+            IAM <strong>Access Analyzer</strong> (free): finds buckets, roles and keys shared outside
+            your account, and can generate least-privilege policies from real usage.
+          </li>
+        </ul>
         <ul>
           <li>
             <strong>Root user:</strong> MFA on (Lesson 0), no access keys, never used. Verify with the
@@ -222,15 +228,12 @@ export default function LessonEighteenPage() {
           The safest port is the one that is closed. Audit what is open to the world — it should be a very
           short list:
         </p>
-        <Script
-          title="which Security Group rules allow the entire internet?"
-          code={`aws ec2 describe-security-groups \\
-  --query "SecurityGroups[?IpPermissions[?contains(IpRanges[].CidrIp, '0.0.0.0/0')]].[GroupName,GroupId]" \\
-  --output table
-
-# For our design, the ONLY group that may appear here with ports 80/443 is alb-sg.
-# If web-sg, db-sg or cache-sg appears, or any group shows port 22 / 3306 / 5432 / 6379 open to the world: fix it now.`}
-        />
+        <p>
+          In EC2 → Security Groups, look at every inbound rule with source <code>0.0.0.0/0</code>.
+          For our design the <strong>only</strong> one should be <code>alb-sg</code> on 80/443. If{" "}
+          <code>web-sg</code>, <code>db-sg</code> or <code>cache-sg</code> appears, or any group
+          has 22, 5432 or 6379 open to the world: fix it now.
+        </p>
         <div className="table-wrap">
           <table>
             <thead>
@@ -296,34 +299,34 @@ export default function LessonEighteenPage() {
         <ol className="steps">
           <li>
             <h3>Give the instance role permission to talk to SSM</h3>
-            <CommandList
-              title="Attach the managed policy (also used by Lesson 14's migrations)"
-              commands={[
-                { cmd: "aws iam attach-role-policy --role-name myapp-ec2-role --policy-arn arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore", note: "The agent is preinstalled on Ubuntu 24.04 AMIs; it just needs this permission and outbound HTTPS" },
-              ]}
-            />
+            <p>
+              Attach the AWS-managed policy <code>AmazonSSMManagedInstanceCore</code> to{" "}
+              <code>myapp-ec2-role</code> (Lesson 14&apos;s migrations already need it). The agent
+              is preinstalled on Ubuntu 24.04 images; it only needs this permission and outbound
+              HTTPS. After a few minutes the instance shows as <em>Online</em> in Systems Manager →
+              Fleet Manager.
+            </p>
           </li>
           <li>
             <h3>Install the Session Manager plugin and connect</h3>
+            <p>Install the Session Manager plugin for the AWS CLI on your laptop, then:</p>
             <CommandList
               title="On your laptop"
               commands={[
-                { cmd: "brew install --cask session-manager-plugin", note: "macOS. Other systems: AWS documents the installer for Windows and Linux" },
-                { cmd: "aws ssm describe-instance-information --query 'InstanceInformationList[].[InstanceId,PingStatus]' --output table", note: "The instance must appear as Online (takes a few minutes after boot)" },
-                { cmd: "aws ssm start-session --target i-0abc123def456", note: "A shell on the server — no port 22, no key pair" },
-                { cmd: "aws ssm start-session --target i-0abc123def456 --document-name AWS-StartPortForwardingSessionToRemoteHost --parameters host=db.internal.yourapp.com,portNumber=5432,localPortNumber=5433", note: "The database tunnel of Lesson 8, but through SSM: no SSH at all" },
+                { cmd: "aws ssm start-session --target i-0abc123def456", note: "A shell on the server — no port 22, no key pair. The console's Connect → Session Manager button does the same in the browser" },
               ]}
             />
+            <p>
+              The same command can also forward a port, which replaces Lesson 8&apos;s SSH tunnel to
+              the database — with no SSH at all.
+            </p>
           </li>
           <li>
             <h3>Close port 22 and drop the key pair</h3>
-            <CommandList
-              title="Remove the door"
-              commands={[
-                { cmd: "aws ec2 revoke-security-group-ingress --group-id $WEB_SG --protocol tcp --port 22 --cidr <YOUR-IP>/32", note: "Remove the SSH rule. Confirm you can still get in with start-session first" },
-                { cmd: "aws ec2 describe-security-groups --group-ids $WEB_SG --query 'SecurityGroups[0].IpPermissions[].FromPort'", note: "Port 22 must no longer be listed. New launch templates already omit the key pair (Lesson 12)" },
-              ]}
-            />
+            <p>
+              Once <code>start-session</code> works, delete the SSH rule from <code>web-sg</code>.
+              New launch templates already omit the key pair (Lesson 12).
+            </p>
           </li>
         </ol>
 
@@ -335,16 +338,13 @@ export default function LessonEighteenPage() {
         </p>
         <ul>
           <li>
-            <strong>Automatic OS security updates</strong> as a safety net for long-lived servers:
+            <strong>Automatic OS security updates</strong> as a safety net for long-lived servers.
           </li>
         </ul>
-        <Script
-          title="unattended security upgrades (add to user-data.sh)"
-          code={`apt-get install -y unattended-upgrades
-dpkg-reconfigure -f noninteractive unattended-upgrades   # enables daily security updates
-
-# Check it:  cat /etc/apt/apt.conf.d/20auto-upgrades   →  APT::Periodic::Unattended-Upgrade "1";`}
-        />
+        <p>
+          Install the <code>unattended-upgrades</code> package in the user-data script and enable
+          it, and Ubuntu applies security updates every day on its own.
+        </p>
         <ul>
           <li>
             <strong>Roll fresh servers regularly.</strong> Run an instance refresh (Lesson 12) at least
@@ -353,16 +353,15 @@ dpkg-reconfigure -f noninteractive unattended-upgrades   # enables daily securit
           </li>
           <li>
             <strong>IMDSv2 required</strong> (set since Lesson 7): stops an app bug from being turned into
-            credential theft. Verify on every instance:
+            credential theft. Verify on every instance.
           </li>
         </ul>
-        <CommandList
-          title="Any instance still allowing IMDSv1?"
-          commands={[
-            { cmd: "aws ec2 describe-instances --query \"Reservations[].Instances[?MetadataOptions.HttpTokens=='optional'].InstanceId\" --output text", note: "Should print nothing. Anything listed accepts the old, weaker metadata protocol" },
-            { cmd: "aws ec2 modify-instance-metadata-options --instance-id i-0abc --http-tokens required --http-put-response-hop-limit 2", note: "Fix an instance in place" },
-          ]}
-        />
+        <p>
+          In the EC2 instance list, add the <em>IMDSv2</em> column: every instance should say{" "}
+          <strong>Required</strong>. Anything that says <em>Optional</em> accepts the old, weaker
+          protocol — fix it in place with Actions → Instance settings → Modify instance metadata
+          options.
+        </p>
         <ul>
           <li>
             <strong>Encrypted disks by default:</strong> in EC2 settings, turn on &ldquo;EBS encryption by
@@ -416,20 +415,13 @@ dpkg-reconfigure -f noninteractive unattended-upgrades   # enables daily securit
         <p>
           Our setup already uses Parameter Store (Lesson 12). The upgrade that is worth doing is the
           database password: let RDS manage it in Secrets Manager with rotation, so it never appears in
-          Terraform state, chat messages or anyone&apos;s clipboard:
+          Terraform state, chat messages or anyone&apos;s clipboard.
         </p>
-        <Script
-          title="RDS-managed password"
-          code={`aws rds modify-db-instance --db-instance-identifier myapp-db \\
-  --manage-master-user-password --apply-immediately
-
-# The secret's ARN:
-aws rds describe-db-instances --db-instance-identifier myapp-db \\
-  --query 'DBInstances[0].MasterUserSecret.SecretArn' --output text
-
-# The app (or its boot script) reads it, with permission from its role:
-aws secretsmanager get-secret-value --secret-id <ARN> --query SecretString --output text`}
-        />
+        <p>
+          In RDS → Modify, tick <strong>Manage master credentials in AWS Secrets Manager</strong>.
+          RDS creates the secret, rotates it, and the app (or its boot script) reads it with
+          permission from its role — the password itself never has to be copied anywhere.
+        </p>
         <Callout kind="ok" label="Rotation is the real prize">
           <p className="mb-0">
             A secret that never changes is a secret that has been quietly copied to more places every year.
@@ -541,20 +533,16 @@ aws secretsmanager get-secret-value --secret-id <ARN> --query SecretString --out
             </tbody>
           </table>
         </div>
-        <Script
-          title="turn on the two that matter first"
-          code={`# 1. A trail: all regions, delivered to a locked-down S3 bucket, with tamper-evident log validation
-aws s3api create-bucket --bucket myapp-cloudtrail-$(aws sts get-caller-identity --query Account --output text) \\
-  --region ap-south-1 --create-bucket-configuration LocationConstraint=ap-south-1
-# (attach the bucket policy CloudTrail requires; the console's "Create trail" does this for you)
-
-aws cloudtrail create-trail --name main --s3-bucket-name <THE-BUCKET> \\
-  --is-multi-region-trail --enable-log-file-validation
-aws cloudtrail start-logging --name main
-
-# 2. GuardDuty: one command, then wire findings to the same SNS topic as your alarms
-aws guardduty create-detector --enable`}
-        />
+        <ol>
+          <li>
+            <strong>CloudTrail</strong> → Create trail: all regions, delivered to a new, locked-down
+            S3 bucket, with <em>log file validation</em> on so tampering is detectable.
+          </li>
+          <li>
+            <strong>GuardDuty</strong> → Get started → Enable. Then send its findings to the same
+            SNS topic as your alarms (Lesson 17).
+          </li>
+        </ol>
         <p>
           Send GuardDuty findings to the alerts topic through an EventBridge rule (<code>source:
           aws.guardduty</code>, severity ≥ 7) so a high-severity finding reaches a human the same way a
@@ -628,14 +616,10 @@ aws guardduty create-detector --enable`}
           <li>A copy of each to a vault in a second region (e.g. <code>ap-southeast-1</code>).</li>
           <li>Backup vault lock (compliance mode) once you are sure of your retention.</li>
         </ul>
-        <CommandList
-          title="Manual protection you can add today"
-          commands={[
-            { cmd: "aws rds copy-db-snapshot --source-db-snapshot-identifier arn:aws:rds:ap-south-1:123456789012:snapshot:myapp-db-before-migration-1 --target-db-snapshot-identifier myapp-db-copy --source-region ap-south-1 --region ap-southeast-1 --kms-key-id alias/aws/rds", note: "Copy a snapshot to another region (encrypted snapshots need a KMS key in the destination). Run from any machine; the region flag is the destination" },
-            { cmd: "aws s3api put-bucket-versioning --bucket $BUCKET --versioning-configuration Status=Enabled", note: "Undo for overwritten and deleted files (Lesson 11)" },
-            { cmd: "aws backup list-backup-plans", note: "See existing AWS Backup plans" },
-          ]}
-        />
+        <ul>
+          <li>Copy an important RDS snapshot to a second region (Actions → Copy snapshot).</li>
+          <li>Keep versioning on for every bucket that holds user data (Lesson 11).</li>
+        </ul>
         <Callout kind="warn" label="Backups in the same account can be deleted by the same attacker">
           <p className="mb-0">
             If an attacker steals an admin login, they delete the database <em>and</em> its backups in the
@@ -671,28 +655,18 @@ aws guardduty create-detector --enable`}
             </tbody>
           </table>
         </div>
-        <Script
-          title="a database restore drill (about 20 minutes)"
-          code={`# 1. Pick a point in time a few minutes ago and restore to a NEW instance — production is untouched
-aws rds restore-db-instance-to-point-in-time \\
-  --source-db-instance-identifier myapp-db \\
-  --target-db-instance-identifier myapp-db-drill \\
-  --use-latest-restorable-time \\
-  --db-subnet-group-name myapp-private \\
-  --vpc-security-group-ids $DB_SG \\
-  --no-publicly-accessible
-
-date; aws rds wait db-instance-available --db-instance-identifier myapp-db-drill; date   # ← your real RTO
-
-# 2. Connect from an app server and check the data is really there
-DRILL=$(aws rds describe-db-instances --db-instance-identifier myapp-db-drill \\
-  --query 'DBInstances[0].Endpoint.Address' --output text)
-psql "host=$DRILL dbname=myapp user=appuser sslmode=require" \\
-  -c "select count(*) from users;" -c "select max(created_at) from orders;"
-
-# 3. Clean up so it stops billing
-aws rds delete-db-instance --db-instance-identifier myapp-db-drill --skip-final-snapshot`}
-        />
+        <ol>
+          <li>
+            Restore the production database to a <strong>new</strong> instance{" "}
+            <code>myapp-db-drill</code> at the latest restorable time (Lesson 8). Production is
+            untouched. Note the time it takes — that is your real recovery time.
+          </li>
+          <li>
+            Connect to the drill copy from an app server and check the data is really there: row
+            counts, and the newest <code>created_at</code>.
+          </li>
+          <li>Delete the drill instance so it stops billing.</li>
+        </ol>
         <p>
           Do this quarterly and after any major change. Note the time it took: that number is your real
           RTO, and it is usually larger than the one in your head. For the object store, practise
@@ -712,10 +686,13 @@ aws rds delete-db-instance --db-instance-identifier myapp-db-drill --skip-final-
               title="Kill the credential"
               commands={[
                 { cmd: "aws iam update-access-key --user-name <USER> --access-key-id <AKIA…> --status Inactive", note: "Deactivating stops it instantly and keeps the evidence. Deleting can come later" },
-                { cmd: "aws iam put-user-policy --user-name <USER> --policy-name emergency-deny --policy-document '{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Deny\",\"Action\":\"*\",\"Resource\":\"*\"}]}'", note: "Belt and braces: an explicit Deny on the whole identity. Explicit deny always wins (Lesson 5)" },
-                { cmd: "aws iam list-access-keys --user-name <USER>", note: "Check the attacker did not create a second key for themselves" },
               ]}
             />
+            <p>
+              Then attach an explicit <em>Deny everything</em> policy to that identity (explicit deny
+              always wins — Lesson 5), and check the attacker did not create a second key for
+              themselves.
+            </p>
           </li>
           <li>
             <h3>Find out what the key did</h3>

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Callout from "@/components/Callout";
-import CommandList from "@/components/CommandList";
 import DeployPipeline from "@/components/figures/DeployPipeline";
 import InterviewQA from "@/components/InterviewQA";
 import LessonIntro from "@/components/LessonIntro";
@@ -302,12 +301,11 @@ jobs:
         <ol className="steps">
           <li>
             <h3>Tell AWS to trust GitHub (once per account)</h3>
-            <Script
-              title="create the OIDC provider"
-              code={`aws iam create-open-id-connect-provider \\
-  --url https://token.actions.githubusercontent.com \\
-  --client-id-list sts.amazonaws.com`}
-            />
+            <p>
+              IAM → Identity providers → Add provider → <strong>OpenID Connect</strong>. Provider
+              URL <code>https://token.actions.githubusercontent.com</code>, audience{" "}
+              <code>sts.amazonaws.com</code>. Free, and done once.
+            </p>
           </li>
           <li>
             <h3>Create the role, with a trust policy that pins it to your repository</h3>
@@ -346,38 +344,23 @@ jobs:
                 (&ldquo;Not authorized to perform sts:AssumeRoleWithWebIdentity&rdquo;).
               </p>
             </Callout>
-            <CommandList
-              title="Create the role"
-              commands={[
-                { cmd: "aws iam create-role --role-name github-deploy --assume-role-policy-document file://github-trust.json --max-session-duration 3600", note: "The identity GitHub runs will wear" },
-              ]}
-            />
+            <p>
+              In the console: IAM → Roles → Create role → <strong>Web identity</strong>, pick the
+              GitHub provider, and fill in your organisation, repository and branch — the console
+              writes most of this trust policy for you. Name the role <code>github-deploy</code>,
+              then edit the trust policy to add the <code>environment:production</code> line.
+            </p>
           </li>
           <li>
             <h3>Give it only the permissions the pipeline needs</h3>
-            <Script
-              title="github-deploy-policy.json"
-              code={`{
-  "Version": "2012-10-17",
-  "Statement": [
-    { "Sid": "EcrLogin", "Effect": "Allow", "Action": "ecr:GetAuthorizationToken", "Resource": "*" },
-    { "Sid": "EcrPush", "Effect": "Allow",
-      "Action": ["ecr:BatchCheckLayerAvailability", "ecr:InitiateLayerUpload", "ecr:UploadLayerPart",
-                 "ecr:CompleteLayerUpload", "ecr:PutImage", "ecr:BatchGetImage", "ecr:GetDownloadUrlForLayer"],
-      "Resource": "arn:aws:ecr:ap-south-1:123456789012:repository/myapp" },
-    { "Sid": "StaticAssets", "Effect": "Allow", "Action": ["s3:PutObject"],
-      "Resource": "arn:aws:s3:::myapp-uploads-abcd1234/_next/static/*" },
-    { "Sid": "ImageTagParameter", "Effect": "Allow", "Action": "ssm:PutParameter",
-      "Resource": "arn:aws:ssm:ap-south-1:123456789012:parameter/myapp/image-tag" },
-    { "Sid": "RollOut", "Effect": "Allow",
-      "Action": ["autoscaling:StartInstanceRefresh", "autoscaling:DescribeInstanceRefreshes"],
-      "Resource": "*" },
-    { "Sid": "RunMigrations", "Effect": "Allow",
-      "Action": ["ssm:SendCommand", "ssm:GetCommandInvocation", "ec2:DescribeInstances"],
-      "Resource": "*" }
-  ]
-}`}
-            />
+            <p>Attach an inline policy that allows exactly the deploy and nothing else:</p>
+            <ul>
+              <li>log in to ECR and push images to the <code>myapp</code> repository;</li>
+              <li>upload to <code>_next/static/*</code> in the assets bucket (Lesson 11);</li>
+              <li>update the one parameter <code>/myapp/image-tag</code>;</li>
+              <li>start and watch an instance refresh on the Auto Scaling group;</li>
+              <li>send an SSM command to the app servers (for migrations, Step 4).</li>
+            </ul>
             <p>
               Note what is <em>absent</em>: no IAM permissions, no <code>ec2:*</code>, no ability to
               read the database or delete anything. If this role were ever abused, the blast radius is
@@ -390,11 +373,11 @@ jobs:
 
         <h2 id="build">Step 3 — build and push the image</h2>
         <p>
-          The deploy workflow. It calls the CI workflow first, then builds and pushes. Read the
-          top-level settings — each protects you from a specific failure:
+          The deploy workflow. It calls the CI workflow first, then builds, pushes and rolls out.
+          Read the top-level settings — each protects you from a specific failure:
         </p>
         <Script
-          title=".github/workflows/deploy.yml — part 1: settings and the build job"
+          title=".github/workflows/deploy.yml"
           code={`name: Deploy
 
 on:
@@ -409,12 +392,6 @@ permissions:
   id-token: write                # allow the job to request an OIDC token
   contents: read
 
-env:
-  AWS_REGION: ap-south-1
-  ECR_REPOSITORY: myapp
-  ROLE_ARN: arn:aws:iam::123456789012:role/github-deploy
-  ASSETS_BUCKET: myapp-uploads-abcd1234
-
 jobs:
   ci:
     uses: ./.github/workflows/ci.yml       # exactly the same checks as a pull request
@@ -422,44 +399,38 @@ jobs:
   build:
     needs: ci                              # nothing is built unless the checks passed
     runs-on: ubuntu-latest
-    timeout-minutes: 20
     outputs:
       tag: \${{ steps.meta.outputs.tag }}
     steps:
       - uses: actions/checkout@v4
-
       - uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: \${{ env.ROLE_ARN }}
-          aws-region: \${{ env.AWS_REGION }}
-
+          role-to-assume: arn:aws:iam::123456789012:role/github-deploy
+          aws-region: ap-south-1
       - id: ecr
         uses: aws-actions/amazon-ecr-login@v2
-
       - id: meta
         run: echo "tag=$(git rev-parse --short=12 HEAD)" >> "$GITHUB_OUTPUT"
-
-      - uses: docker/setup-buildx-action@v3
-
-      - name: Build and push the image
-        uses: docker/build-push-action@v6
+      - uses: docker/build-push-action@v6
         with:
-          context: .
           push: true
-          tags: \${{ steps.ecr.outputs.registry }}/\${{ env.ECR_REPOSITORY }}:\${{ steps.meta.outputs.tag }}
-          cache-from: type=gha                 # reuse layers from previous runs
+          tags: \${{ steps.ecr.outputs.registry }}/myapp:\${{ steps.meta.outputs.tag }}
+          cache-from: type=gha             # reuse layers from previous runs
           cache-to: type=gha,mode=max
-          build-args: |
-            NEXT_PUBLIC_API_URL=https://yourapp.com
+      # then: copy .next/static out of the image and sync it to S3 (Lesson 11)
 
-      - name: Publish static assets to S3 (before any server runs the new build)
-        env:
-          IMAGE: \${{ steps.ecr.outputs.registry }}/\${{ env.ECR_REPOSITORY }}:\${{ steps.meta.outputs.tag }}
-        run: |
-          docker create --name extract "$IMAGE"
-          docker cp extract:/app/.next/static ./static
-          aws s3 sync ./static "s3://$ASSETS_BUCKET/_next/static" \\
-            --cache-control "public, max-age=31536000, immutable"`}
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: production                # pauses for approval; also changes the OIDC subject
+    steps:
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::123456789012:role/github-deploy
+          aws-region: ap-south-1
+      # 1. run database migrations inside the VPC (Step 4)
+      # 2. set /myapp/image-tag to the new tag and start an instance refresh (Lesson 12)
+      # 3. wait for the refresh, then curl https://yourapp.com/api/health — fail the run if it is down`}
         />
         <div className="table-wrap">
           <table>
@@ -529,69 +500,13 @@ jobs:
           the managed policy <code>AmazonSSMManagedInstanceCore</code> on their role (add it to{" "}
           <code>myapp-ec2-role</code>).
         </p>
-        <Script
-          title="deploy.yml — part 2: migrate, roll out, verify"
-          code={`  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    environment: production                # ← pauses for approval; also changes the OIDC subject
-    env:
-      TAG: \${{ needs.build.outputs.tag }}
-    steps:
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: \${{ env.ROLE_ARN }}
-          aws-region: \${{ env.AWS_REGION }}
-
-      - name: Run database migrations from inside the VPC
-        run: |
-          REGISTRY=$(aws sts get-caller-identity --query Account --output text).dkr.ecr.$AWS_REGION.amazonaws.com
-          INSTANCE=$(aws ec2 describe-instances \\
-            --filters Name=tag:app,Values=myapp Name=instance-state-name,Values=running \\
-            --query 'Reservations[0].Instances[0].InstanceId' --output text)
-
-          CMD_ID=$(aws ssm send-command --instance-ids "$INSTANCE" \\
-            --document-name AWS-RunShellScript \\
-            --parameters "commands=[
-              'aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $REGISTRY',
-              'docker run --rm --env-file /etc/myapp.env $REGISTRY/$ECR_REPOSITORY:$TAG pnpm prisma migrate deploy'
-            ]" \\
-            --query Command.CommandId --output text)
-
-          aws ssm wait command-executed --command-id "$CMD_ID" --instance-id "$INSTANCE"
-          aws ssm get-command-invocation --command-id "$CMD_ID" --instance-id "$INSTANCE" \\
-            --query '[Status,StandardOutputContent]' --output text
-
-      - name: Roll out
-        run: |
-          aws ssm put-parameter --name /myapp/image-tag --type String --value "$TAG" --overwrite
-
-          REFRESH_ID=$(aws autoscaling start-instance-refresh \\
-            --auto-scaling-group-name myapp-asg \\
-            --preferences '{"MinHealthyPercentage":100,"MaxHealthyPercentage":110,"InstanceWarmup":120}' \\
-            --query InstanceRefreshId --output text)
-
-          while true; do
-            STATUS=$(aws autoscaling describe-instance-refreshes \\
-              --auto-scaling-group-name myapp-asg --instance-refresh-ids "$REFRESH_ID" \\
-              --query 'InstanceRefreshes[0].Status' --output text)
-            echo "instance refresh: $STATUS"
-            case "$STATUS" in
-              Successful) break ;;
-              Failed|Cancelled|RollbackSuccessful|RollbackFailed) echo "::error::rollout failed"; exit 1 ;;
-            esac
-            sleep 20
-          done
-
-      - name: Smoke test the live site
-        run: |
-          for i in 1 2 3 4 5; do
-            curl -fsS https://yourapp.com/api/health && exit 0
-            sleep 10
-          done
-          echo "::error::live site failed its health check"; exit 1`}
-        />
+        <p>
+          The migration step finds one running app server, then uses <code>send-command</code> to
+          make it log in to ECR and run the <em>new</em> image once with the server&apos;s own env
+          file and the command <code>prisma migrate deploy</code>. The step waits for the result
+          and fails the deploy if the migration fails — before any server switches to the new
+          code.
+        </p>
         <p>
           The migration runs <strong>before</strong> the new servers start, against the same database
           the old servers are using. That is why Lesson 8&apos;s &ldquo;expand then contract&rdquo;
@@ -604,38 +519,15 @@ jobs:
         <h2 id="rollback">Rollbacks</h2>
         <p>
           Because every release is an immutable image with a tag, a rollback is not a rebuild — it is
-          &ldquo;point the servers at the previous tag&rdquo;. Give the team a button that does it:
+          &ldquo;point the servers at the previous tag&rdquo;. Give the team a button that does it.
         </p>
-        <Script
-          title=".github/workflows/rollback.yml"
-          code={`name: Rollback
-
-on:
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: "Image tag to roll back to (see ECR or a previous run)"
-        required: true
-
-permissions:
-  id-token: write
-  contents: read
-
-jobs:
-  rollback:
-    runs-on: ubuntu-latest
-    environment: production
-    steps:
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::123456789012:role/github-deploy
-          aws-region: ap-south-1
-
-      - run: |
-          aws ssm put-parameter --name /myapp/image-tag --type String --value "\${{ inputs.tag }}" --overwrite
-          aws autoscaling start-instance-refresh --auto-scaling-group-name myapp-asg \\
-            --preferences '{"MinHealthyPercentage":100,"MaxHealthyPercentage":110,"InstanceWarmup":120}'`}
-        />
+        <p>
+          A small <code>rollback.yml</code> workflow, started by hand from the Actions tab
+          (<code>workflow_dispatch</code>) with one input — the tag to go back to — does just the
+          last two moves of the deploy: write that tag to <code>/myapp/image-tag</code> and start
+          an instance refresh. It uses the same role and the same <code>production</code>{" "}
+          environment, so it needs the same approval.
+        </p>
         <Callout kind="warn" label="Code rolls back; data does not">
           <p className="mb-0">
             Reverting the image is easy. A migration that has already dropped a column is not. That
@@ -686,12 +578,11 @@ jobs:
             editing the pipeline is equivalent to editing production access.
           </li>
         </ul>
-        <CommandList
-          title="Debug an OIDC failure by looking at the token claims"
-          commands={[
-            { cmd: "curl -sH \"Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN\" \"$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com\" | jq -r .value | cut -d. -f2 | base64 -d | jq", note: "Run as a temporary step in the workflow. Prints the token's claims — compare “sub” with your trust policy's condition. Remove the step afterwards" },
-          ]}
-        />
+        <p>
+          To debug an OIDC failure, add a temporary step that prints the token&apos;s claims and
+          compare its <code>sub</code> with your trust policy&apos;s condition. Remove the step
+          afterwards.
+        </p>
 
         <h2 id="speed">Making it fast</h2>
         <p>

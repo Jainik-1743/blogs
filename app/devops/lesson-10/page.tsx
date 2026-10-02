@@ -139,27 +139,20 @@ export default function LessonTenPage() {
         </Callout>
 
         <h2 id="install">Install and first look</h2>
-        <CommandList
-          title="On the EC2 server"
-          commands={[
-            { cmd: "sudo apt install -y nginx", note: "Installs and immediately starts Nginx as a systemd service" },
-            { cmd: "systemctl status nginx --no-pager", note: "Should say active (running)" },
-            { cmd: "curl -I http://localhost", note: "HTTP/1.1 200 OK and Server: nginx — the default welcome page" },
-            { cmd: "sudo ss -tlnp | grep nginx", note: "Nginx is listening on 0.0.0.0:80" },
-          ]}
-        />
+        <p>
+          On the server, install the <code>nginx</code> package. It starts immediately as a
+          systemd service, listening on port 80 and serving a &ldquo;Welcome to nginx!&rdquo; page.
+        </p>
         <p>
           For this to work from your laptop, the Security Group must allow ports 80 and 443. In
           Lesson 6 we allowed them only from the (future) load balancer. Until Lesson 12, open them
-          to the world on the app&apos;s group:
+          to the world on the app&apos;s group.
         </p>
-        <Script
-          title="on your laptop"
-          code={`source ~/myapp-network.env
-aws ec2 authorize-security-group-ingress --group-id $WEB_SG --protocol tcp --port 80  --cidr 0.0.0.0/0
-aws ec2 authorize-security-group-ingress --group-id $WEB_SG --protocol tcp --port 443 --cidr 0.0.0.0/0
-# Browse to http://SERVER_IP — you should see "Welcome to nginx!"`}
-        />
+        <p>
+          In the console, add inbound rules for HTTP 80 and HTTPS 443 from{" "}
+          <code>0.0.0.0/0</code> to <code>web-sg</code>, then browse to{" "}
+          <code>http://SERVER_IP</code> — you should see the welcome page.
+        </p>
 
         <h2 id="anatomy">How an Nginx config is organised</h2>
         <p>Configuration is text files in <code>/etc/nginx/</code>. The layout on Ubuntu:</p>
@@ -233,11 +226,9 @@ server {
         <CommandList
           title="Enable it"
           commands={[
-            { cmd: "sudo ln -s /etc/nginx/sites-available/myapp /etc/nginx/sites-enabled/myapp", note: "Turn the site on" },
-            { cmd: "sudo rm /etc/nginx/sites-enabled/default", note: "Remove the welcome page so it does not answer for your domain" },
+            { cmd: "sudo ln -s /etc/nginx/sites-available/myapp /etc/nginx/sites-enabled/", note: "Turn the site on (and delete sites-enabled/default, so the welcome page stops answering)" },
             { cmd: "sudo nginx -t", note: "ALWAYS test the syntax before reloading. Prints “syntax is ok … test is successful”" },
             { cmd: "sudo systemctl reload nginx", note: "Apply the change without dropping any connection (restart would cut them)" },
-            { cmd: "curl -I -H 'Host: yourapp.com' http://localhost", note: "Test the routing locally, faking the domain name. You should get the app's response, not the Nginx welcome page" },
           ]}
         />
         <h3>What each line does</h3>
@@ -333,24 +324,12 @@ gzip_types text/plain text/css text/xml application/json application/javascript
           filename changes when the content does, so they can be cached for a year. Let Nginx
           answer these from its own cache and never bother Node:
         </p>
-        <Script
-          title="top of the file, outside server { }"
-          code={`proxy_cache_path /var/cache/nginx/next levels=1:2 keys_zone=next_cache:10m
-                 max_size=200m inactive=7d use_temp_path=off;`}
-        />
-        <Script
-          title="inside server { ... }, above location /"
-          code={`location /_next/static/ {
-    proxy_pass http://127.0.0.1:3000;
-    proxy_cache next_cache;
-    proxy_cache_valid 200 365d;
-    add_header Cache-Control "public, max-age=31536000, immutable";
-    add_header X-Cache-Status $upstream_cache_status;   # HIT or MISS — handy for debugging
-}`}
-        />
         <p>
-          Test it: <code>curl -sI http://localhost/_next/static/chunks/main.js | grep -i
-          x-cache</code> shows <code>MISS</code> the first time and <code>HIT</code> after.
+          That takes two pieces of config: a small cache defined at the top of the file, and a{" "}
+          <code>location /_next/static/</code> block that uses it and sends{" "}
+          <code>Cache-Control: public, max-age=31536000, immutable</code> to browsers.
+        </p>
+        <p>
           Lesson 11 pushes this idea to its limit by moving these files to a CDN.
         </p>
 
@@ -362,19 +341,13 @@ gzip_types text/plain text/css text/xml application/json application/javascript
           ever sees the extra requests:
         </p>
         <Script
-          title="top of the file: define the limit"
-          code={`# 10 requests/second per client IP, remembered in a 10 MB table
-limit_req_zone $binary_remote_addr zone=perip:10m rate=10r/s;`}
-        />
-        <Script
-          title="inside server { ... }: apply it to the sensitive paths"
-          code={`location /api/ {
-    limit_req zone=perip burst=20 nodelay;   # allow short bursts of 20 extra, reject the rest
-    limit_req_status 429;                    # "Too Many Requests", the correct status code
+          title="rate limiting: define once, apply to /api/"
+          code={`limit_req_zone $binary_remote_addr zone=perip:10m rate=10r/s;   # top of the file
+
+location /api/ {                                                  # inside server { }
+    limit_req zone=perip burst=20 nodelay;
+    limit_req_status 429;                                         # "Too Many Requests"
     proxy_pass http://127.0.0.1:3000;
-    proxy_set_header Host $host;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto $scheme;
 }`}
         />
         <p>
@@ -416,33 +389,19 @@ server_tokens off;                                             # hide the Nginx 
         <CommandList
           title="Get a free certificate"
           commands={[
-            { cmd: "dig +short yourapp.com", note: "First check DNS actually returns your server's IP. If not, certbot will fail" },
-            { cmd: "sudo apt install -y certbot python3-certbot-nginx", note: "Certbot plus its Nginx plugin" },
-            { cmd: "sudo certbot --nginx -d yourapp.com -d www.yourapp.com", note: "Proves ownership, downloads the certificate, edits your config to add the 443 server block and an HTTP→HTTPS redirect" },
-            { cmd: "sudo certbot renew --dry-run", note: "Simulates a renewal. Certificates last 90 days; a systemd timer renews them automatically at 30 days left" },
-            { cmd: "systemctl list-timers | grep certbot", note: "Confirms the auto-renew timer exists — the thing that stops the 3 a.m. “certificate expired” outage" },
+            { cmd: "sudo certbot --nginx -d yourapp.com -d www.yourapp.com", note: "Proves ownership, downloads the certificate, and edits your config: a 443 server block plus an HTTP→HTTPS redirect (install certbot and python3-certbot-nginx first)" },
           ]}
         />
+        <p>
+          Certificates last 90 days and a systemd timer renews them automatically at 30 days left
+          — the thing that stops the 3 a.m. &ldquo;certificate expired&rdquo; outage. Run a dry-run
+          renewal once to be sure it works.
+        </p>
         <p>Open your config afterwards and read what Certbot did — never treat generated config as magic:</p>
-        <Script
-          title="what the file looks like after certbot"
-          code={`server {
-    server_name yourapp.com www.yourapp.com;
-
-    location / { ... }   # unchanged: the proxy_pass block from before
-
-    listen 443 ssl;      # managed by Certbot
-    ssl_certificate     /etc/letsencrypt/live/yourapp.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/yourapp.com/privkey.pem;
-    include /etc/letsencrypt/options-ssl-nginx.conf;     # modern TLS versions and ciphers only
-}
-
-server {                 # the new redirect block
-    listen 80;
-    server_name yourapp.com www.yourapp.com;
-    return 301 https://$host$request_uri;                # permanent redirect to HTTPS
-}`}
-        />
+        <p>
+          It added a <code>listen 443 ssl</code> block with the two certificate paths, and turned
+          the port-80 block into a one-line redirect to https — the same shape as Lesson 4.
+        </p>
         <p>
           Test it: <code>curl -I http://yourapp.com</code> returns <code>301</code> to https, and{" "}
           <code>curl -I https://yourapp.com</code> returns <code>200</code>. Then run your domain
@@ -472,23 +431,22 @@ server {                 # the new redirect block
             the ALB&apos;s protocol header on instead of overwriting it:
           </li>
         </ul>
-        <Script
-          title="behind-ALB adjustments"
-          code={`# Trust X-Forwarded-For only when it comes from inside our VPC (the ALB)
-set_real_ip_from 10.0.0.0/16;
-real_ip_header   X-Forwarded-For;
-real_ip_recursive on;
-
-# The ALB already says http or https. Forward ITS value, not Nginx's own $scheme (always "http" here).
-map $http_x_forwarded_proto $forwarded_proto {
-    default $http_x_forwarded_proto;
-    ''      $scheme;
-}
-# ...and in the location block:  proxy_set_header X-Forwarded-Proto $forwarded_proto;
-
-# A cheap endpoint for the ALB health check that does not wake the app
-location = /nginx-health { access_log off; return 200 "ok\\n"; }`}
-        />
+        <p>Three adjustments, all in the server block:</p>
+        <ul>
+          <li>
+            <strong>Trust the ALB&apos;s headers only from inside the VPC</strong>{" "}
+            (<code>set_real_ip_from 10.0.0.0/16</code> plus <code>real_ip_header
+            X-Forwarded-For</code>), so logs and rate limits see the real visitor&apos;s IP.
+          </li>
+          <li>
+            <strong>Forward the ALB&apos;s <code>X-Forwarded-Proto</code></strong> instead of
+            Nginx&apos;s own <code>$scheme</code>, which is always &ldquo;http&rdquo; behind an ALB.
+          </li>
+          <li>
+            <strong>A cheap health endpoint</strong> (<code>location = /nginx-health</code>{" "}
+            returning 200) for the ALB to call, which doesn&apos;t wake the app.
+          </li>
+        </ul>
         <p>
           Get this wrong and you will see the classic symptom: <em>redirect loop</em>. The app
           thinks the request was HTTP (because Nginx said so), redirects to HTTPS, the ALB sends it
@@ -504,16 +462,8 @@ location = /nginx-health { access_log off; return 200 "ok\\n"; }`}
         </p>
         <Script
           title="one block, every customer"
-          code={`server {
-    listen 80;
-    server_name yourapp.com *.yourapp.com;      # wildcard match
-
-    location / {
-        proxy_pass http://127.0.0.1:3000;
-        proxy_set_header Host $host;             # the app reads "acme.yourapp.com" → tenant "acme"
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}`}
+          code={`server_name yourapp.com *.yourapp.com;   # wildcard match
+proxy_set_header Host $host;             # the app reads "acme.yourapp.com" → tenant "acme"`}
         />
         <Callout kind="warn" label="Wildcard HTTPS needs a different challenge">
           <p className="mb-0">
@@ -531,15 +481,18 @@ location = /nginx-health { access_log off; return 200 "ok\\n"; }`}
           Now that Nginx is the front door, make sure it is the <em>only</em> door. Check both
           layers:
         </p>
-        <CommandList
-          title="Prove port 3000 is private"
-          commands={[
-            { cmd: "aws ec2 revoke-security-group-ingress --group-id $WEB_SG --protocol tcp --port 3000 --cidr <YOUR-IP>/32", note: "From your laptop: remove the temporary rule from Lesson 7 (skip if you never added it)" },
-            { cmd: "sudo ss -tlnp | grep 3000", note: "On the server: with Docker's -p 127.0.0.1:3000:3000 you should see 127.0.0.1:3000, never 0.0.0.0:3000 or *:3000" },
-            { cmd: "curl -m 5 http://SERVER_IP:3000", note: "From your laptop: must time out or be refused. If you get the app, port 3000 is still exposed" },
-            { cmd: "curl -I https://yourapp.com", note: "The public path still works" },
-          ]}
-        />
+        <ol>
+          <li>Delete the temporary port-3000 rule from Lesson 7 in <code>web-sg</code>.</li>
+          <li>
+            On the server, check what is listening on 3000: it must be{" "}
+            <code>127.0.0.1:3000</code> (Docker&apos;s <code>-p 127.0.0.1:3000:3000</code>), never{" "}
+            <code>0.0.0.0:3000</code>.
+          </li>
+          <li>
+            From your laptop, <code>http://SERVER_IP:3000</code> must time out or be refused, while{" "}
+            <code>https://yourapp.com</code> still works.
+          </li>
+        </ol>
 
         <h2 id="operate">Operating Nginx: test, reload, logs</h2>
         <div className="table-wrap">
@@ -553,12 +506,8 @@ location = /nginx-health { access_log off; return 200 "ok\\n"; }`}
             <tbody>
               <tr><td>Test config before applying</td><td><code>sudo nginx -t</code></td></tr>
               <tr><td>Apply config with no dropped connections</td><td><code>sudo systemctl reload nginx</code></td></tr>
-              <tr><td>Full restart (rarely needed)</td><td><code>sudo systemctl restart nginx</code></td></tr>
               <tr><td>Watch requests live</td><td><code>sudo tail -f /var/log/nginx/access.log</code></td></tr>
               <tr><td>See errors</td><td><code>sudo tail -f /var/log/nginx/error.log</code></td></tr>
-              <tr><td>Print the whole effective config</td><td><code>sudo nginx -T | less</code></td></tr>
-              <tr><td>Top 10 IPs hitting you</td><td><code>awk &apos;&#123;print $1&#125;&apos; /var/log/nginx/access.log | sort | uniq -c | sort -rn | head</code></td></tr>
-              <tr><td>Count of each status code</td><td><code>awk &apos;&#123;print $9&#125;&apos; /var/log/nginx/access.log | sort | uniq -c | sort -rn</code></td></tr>
             </tbody>
           </table>
         </div>
@@ -696,20 +645,19 @@ location = /nginx-health { access_log off; return 200 "ok\\n"; }`}
           </li>
           <li>
             Point a real (or free) domain at the Elastic IP, run Certbot, and confirm the padlock
-            and the HTTP→HTTPS redirect. Run <code>certbot renew --dry-run</code>.
+            and the HTTP→HTTPS redirect.
           </li>
           <li>
-            Prove port 3000 is closed from the internet with the two checks in the lesson.
+            Prove port 3000 is closed from the internet with the checks in the lesson.
           </li>
           <li>
-            Stop the app (<code>docker stop myapp</code> or <code>pm2 stop myapp</code>) and load
+            Stop the app and load
             the site. You should see a <code>502</code>. Find the matching line in{" "}
             <code>error.log</code>. Start the app again.
           </li>
           <li>
-            Add rate limiting to an endpoint and hit it with{" "}
-            <code>for i in $(seq 1 60); do curl -s -o /dev/null -w &quot;%&#123;http_code&#125; &quot;
-            https://yourapp.com/api/x; done</code>. Watch the 200s turn into 429s.
+            Add rate limiting to an endpoint and refresh it quickly many times (or loop it
+            with <code>curl</code>). Watch the 200s turn into 429s.
           </li>
           <li>
             Make a deliberate typo in the config and run <code>sudo nginx -t</code>. Read the error,
@@ -719,9 +667,8 @@ location = /nginx-health { access_log off; return 200 "ok\\n"; }`}
         <Callout kind="ok" label="Optional stretch">
           <p className="mb-0">
             Add the wildcard <code>server_name *.yourapp.com</code> block and make your app print
-            the subdomain from the <code>Host</code> header. Then test with{" "}
-            <code>curl -H &quot;Host: acme.yourapp.com&quot; http://localhost</code> before touching
-            DNS.
+            the subdomain from the <code>Host</code> header. Test it by sending a fake{" "}
+            <code>Host: acme.yourapp.com</code> header with curl before touching DNS.
           </p>
         </Callout>
 

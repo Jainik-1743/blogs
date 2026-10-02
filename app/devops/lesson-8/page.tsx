@@ -21,7 +21,7 @@ const outline = [
   { id: "responsibility", label: "Who does what — you vs AWS" },
   { id: "options", label: "The choices you make: class, storage, Multi-AZ" },
   { id: "backups", label: "Backups, snapshots and point-in-time restore" },
-  { id: "build", label: "Build it: a private database in six steps" },
+  { id: "build", label: "Build it: a private database" },
   { id: "connect", label: "Connect from the app server" },
   { id: "users", label: "Do not run your app as the admin" },
   { id: "app", label: "Connect the Next.js app" },
@@ -53,7 +53,7 @@ const trouble: [string, string, string][] = [
   ["FATAL: password authentication failed", "Wrong user/password, or special characters not URL-encoded in DATABASE_URL", "Test with psql first. URL-encode @ : / # ? in the password, or generate one without them"],
   ["FATAL: remaining connection slots are reserved", "Too many open connections (see the pooling section)", "Lower the app’s pool size, add pooling, or use a bigger instance"],
   ["could not translate host name", "Typo in the endpoint, or DNS hostnames disabled in the VPC", "Copy the endpoint from describe-db-instances; enable-dns-hostnames (Lesson 6)"],
-  ["Creation stuck in “creating” for 15+ minutes", "Normal for the first instance (5–15 min)", "aws rds wait db-instance-available"],
+  ["Creation stuck in “creating” for 15+ minutes", "Normal for the first instance (5–15 min)", "Wait — the status turns to “Available” on its own"],
   ["Storage full, database read-only", "Free storage hit zero", "Enable storage autoscaling; alarm on FreeStorageSpace (Lesson 17)"],
 ];
 
@@ -289,115 +289,65 @@ export default function LessonEightPage() {
           restore.
         </p>
 
-        <h2 id="build">Build it: a private database in six steps</h2>
-        <p>
-          Run these from your laptop, in the same terminal where you loaded{" "}
-          <code>~/myapp-network.env</code> in Lesson 6.
-        </p>
+        <h2 id="build">Build it: a private database</h2>
         <ol className="steps">
           <li>
             <h3>Create a subnet group — the list of subnets RDS may use</h3>
-            <Script
-              title="1 · subnet group"
-              code={`source ~/myapp-network.env
-
-# Both PRIVATE subnets, in two different AZs. RDS insists on two even for one database.
-aws rds create-db-subnet-group \\
-  --db-subnet-group-name myapp-private \\
-  --db-subnet-group-description "Private subnets for myapp databases" \\
-  --subnet-ids $PRV_A $PRV_B`}
-            />
             <p>
-              This is the sentence that keeps the database off the internet: RDS can only place it in
-              subnets with no route to the Internet Gateway.
+              RDS → Subnet groups → Create: name it <code>myapp-private</code>, pick the{" "}
+              <code>myapp</code> VPC and select <strong>only the two private subnets</strong> (RDS
+              insists on two AZs even for one database). This is the sentence that keeps the
+              database off the internet: RDS can only place it in subnets with no route to the
+              Internet Gateway.
             </p>
           </li>
           <li>
-            <h3>Generate a strong admin password without ever typing it</h3>
-            <Script
-              title="2 · password"
-              code={`# 24 random characters; tr removes symbols that break URLs and shell quoting
-DB_ADMIN_PASS=$(openssl rand -base64 24 | tr -d '/+=')
-
-# Save it to a file only you can read. Put it in a password manager afterwards.
-umask 077
-echo "DB_ADMIN_PASS=$DB_ADMIN_PASS" >> ~/myapp-secrets.env`}
-            />
-          </li>
-          <li>
             <h3>Create the instance</h3>
-            <Script
-              title="3 · create-db-instance"
-              code={`aws rds create-db-instance \\
-  --db-instance-identifier myapp-db \\
-  --engine postgres \\
-  --engine-version 16 \\
-  --db-instance-class db.t4g.micro \\
-  --allocated-storage 20 \\
-  --max-allocated-storage 100 \\
-  --storage-type gp3 \\
-  --storage-encrypted \\
-  --master-username dbadmin \\
-  --master-user-password "$DB_ADMIN_PASS" \\
-  --db-subnet-group-name myapp-private \\
-  --vpc-security-group-ids $DB_SG \\
-  --no-publicly-accessible \\
-  --backup-retention-period 7 \\
-  --deletion-protection \\
-  --copy-tags-to-snapshot
-
-# Takes 5–15 minutes. Go make tea.
-aws rds wait db-instance-available --db-instance-identifier myapp-db`}
-            />
-            <p>The flags that matter:</p>
-            <ul>
-              <li>
-                <code>--no-publicly-accessible</code>: no public IP at all. The database exists only
-                inside the VPC.
-              </li>
-              <li>
-                <code>--vpc-security-group-ids $DB_SG</code>: the group from Lesson 6 that accepts
-                port 5432 only from <code>web-sg</code>.
-              </li>
-              <li>
-                <code>--deletion-protection</code>: the delete command is refused until you switch
-                it off. It has saved many careers.
-              </li>
-              <li>
-                <code>--engine-version 16</code>: use a currently supported major version. List
-                them with{" "}
-                <code>aws rds describe-db-engine-versions --engine postgres --query
-                &apos;DBEngineVersions[].EngineVersion&apos;</code>.
-              </li>
-            </ul>
-          </li>
-          <li>
-            <h3>Fetch the endpoint</h3>
-            <CommandList
-              title="4 · where is it?"
-              commands={[
-                { cmd: "DB_HOST=$(aws rds describe-db-instances --db-instance-identifier myapp-db --query 'DBInstances[0].Endpoint.Address' --output text) && echo $DB_HOST", note: "Looks like myapp-db.abc123xyz.ap-south-1.rds.amazonaws.com. Note it has no public IP behind it" },
-                { cmd: "nslookup $DB_HOST", note: "From your laptop this resolves to a 10.0.x.x private address — proof it is not reachable from the internet" },
-              ]}
-            />
+            <p>RDS → Create database → <strong>Standard create</strong>, PostgreSQL. The fields that matter:</p>
+            <div className="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Field</th>
+                    <th>Set it to</th>
+                    <th>Why</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>Engine version</td><td>a current major (16+)</td><td>Supported for years; gets security patches</td></tr>
+                  <tr><td>Template</td><td>Free tier / Dev-Test</td><td>Single-AZ is fine while learning</td></tr>
+                  <tr><td>Master username</td><td><code>dbadmin</code></td><td>For you only — never for the app</td></tr>
+                  <tr><td>Password</td><td>Auto-generate, or a long random one</td><td>Store it in your password manager straight away</td></tr>
+                  <tr><td>Instance class</td><td><code>db.t4g.micro</code></td><td>Smallest; ~100 connections (see below)</td></tr>
+                  <tr><td>Storage</td><td>20 GB gp3, autoscaling to 100</td><td>Grows on its own instead of filling up</td></tr>
+                  <tr><td>Connectivity</td><td><code>myapp</code> VPC, subnet group <code>myapp-private</code></td><td>The private subnets from step 1</td></tr>
+                  <tr><td>Public access</td><td><strong>No</strong></td><td>No public IP at all — it exists only inside the VPC</td></tr>
+                  <tr><td>Security group</td><td><code>db-sg</code> (remove <code>default</code>)</td><td>Accepts 5432 only from <code>web-sg</code> (Lesson 6)</td></tr>
+                  <tr><td>Backups</td><td>7 days retention</td><td>Point-in-time restore to any second in that window</td></tr>
+                  <tr><td>Encryption</td><td>On</td><td>Free, and can&apos;t be added later</td></tr>
+                  <tr><td>Deletion protection</td><td><strong>On</strong></td><td>Delete is refused until you switch it off. It has saved many careers</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p>
+              Creating takes 5–15 minutes. When it is ready, copy the <strong>endpoint</strong> —
+              something like <code>myapp-db.abc123xyz.ap-south-1.rds.amazonaws.com</code>. Looked up
+              from your laptop, it resolves to a private <code>10.0.x.x</code> address: proof that
+              the internet can&apos;t reach it.
+            </p>
           </li>
         </ol>
-        <p>
-          That is the database. Steps five and six happen on the app server, in the next sections:
-          create an application user, and point the app at it.
-        </p>
 
         <h2 id="connect">Connect from the app server</h2>
         <p>
           The database only accepts connections from <code>web-sg</code>, so the test has to come
-          from your EC2 instance. SSH in and install the Postgres client tools:
+          from your EC2 instance. SSH in, install the Postgres client (<code>postgresql-client</code>),
+          and connect:
         </p>
         <CommandList
           title="On the EC2 server"
           commands={[
-            { cmd: "sudo apt install -y postgresql-client", note: "Gives you psql — the standard Postgres command-line client" },
-            { cmd: "psql \"host=<DB_HOST> port=5432 dbname=postgres user=dbadmin sslmode=require\"", note: "Prompts for the password. If it connects you will see “postgres=>”. If it hangs, it is the network (troubleshooting table)" },
-            { cmd: "select version(), now();", note: "Run inside psql: proves the round trip. \\q quits" },
+            { cmd: "psql \"host=<DB_HOST> port=5432 dbname=postgres user=dbadmin sslmode=require\"", note: "Prompts for the password. “postgres=>” means you are in. If it hangs, it is the network — see the troubleshooting table" },
           ]}
         />
 
@@ -410,20 +360,13 @@ aws rds wait db-instance-available --db-instance-identifier myapp-db`}
         </p>
         <Script
           title="inside psql, connected as dbadmin"
-          code={`-- A user that can only touch its own database
-CREATE USER appuser WITH PASSWORD 'GENERATE-ANOTHER-LONG-RANDOM-ONE';
-CREATE DATABASE myapp OWNER appuser;
-
--- Nobody else may even connect to it
-REVOKE ALL ON DATABASE myapp FROM PUBLIC;
-
--- Verify
-\\l          -- list databases; myapp is owned by appuser
-\\q`}
+          code={`CREATE USER appuser WITH PASSWORD 'A-LONG-RANDOM-PASSWORD';
+CREATE DATABASE myapp OWNER appuser;      -- a user that can only touch its own database
+REVOKE ALL ON DATABASE myapp FROM PUBLIC; -- nobody else may even connect to it`}
         />
         <p>
-          Generate that second password the same way (<code>openssl rand -base64 24 | tr -d
-          &apos;/+=&apos;</code>) and store it in your password manager. Now you have two
+          Generate that second password as a long random string without symbols, and store it
+          in your password manager. Now you have two
           identities: <code>dbadmin</code> for you, <code>appuser</code> for the app.
         </p>
 
@@ -480,7 +423,7 @@ REVOKE ALL ON DATABASE myapp FROM PUBLIC;
           </p>
         </Callout>
         <p>
-          Add the migration step to <code>~/deploy.sh</code> from Lesson 7, <em>before</em> the
+          Add the migration step to your deploy loop from Lesson 7, <em>before</em> the
           reload, and make it backward-compatible: the old version of the app is still running
           while the migration executes, so never rename or drop a column in the same release that
           stops using it. Add the new column first, deploy code that uses both, drop the old one in
@@ -491,28 +434,13 @@ REVOKE ALL ON DATABASE myapp FROM PUBLIC;
         <p>
           On PostgreSQL 15 and later, RDS requires encrypted connections by default, so{" "}
           <code>sslmode=require</code> is mandatory. That encrypts the traffic but does not verify
-          the server&apos;s identity. For full verification, download the AWS trust bundle and pass
-          it to your driver:
+          the server&apos;s identity — a convincing impostor would still be accepted.
         </p>
-        <Script
-          title="db.ts — node-postgres with certificate verification"
-          code={`import fs from "node:fs";
-import { Pool } from "pg";
-
-export const pool = new Pool({
-  connectionString: process.env.DATABASE_URL_NO_SSLMODE, // same URL, without ?sslmode=...
-  max: 5,                                                // see the next section — this number matters
-  idleTimeoutMillis: 30_000,
-  ssl: {
-    ca: fs.readFileSync("/etc/ssl/rds/global-bundle.pem").toString(),
-    rejectUnauthorized: true,
-  },
-});
-
-// One-time on the server:
-//   sudo mkdir -p /etc/ssl/rds
-//   sudo curl -o /etc/ssl/rds/global-bundle.pem https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem`}
-        />
+        <p>
+          In practice: download the AWS RDS certificate bundle onto the server once, give it to
+          your Postgres driver as the trusted CA, and turn on certificate checking. That also is
+          the place to set the pool size — the number the next section is about.
+        </p>
 
         <h2 id="pooling">Connection limits — the outage that surprises everyone</h2>
         <p>
@@ -564,18 +492,15 @@ export const pool = new Pool({
           database is private, and the wrong fix is to make it public. The right fix is an{" "}
           <strong>SSH tunnel</strong> through the app server, which is allowed to reach it:
         </p>
-        <Script
-          title="on your laptop"
-          code={`# Forward local port 5433 → (through the EC2 server) → the database's port 5432
-ssh -N -L 5433:myapp-db.abc123xyz.ap-south-1.rds.amazonaws.com:5432 myapp
-
-# In another terminal, or your GUI: connect to  localhost:5433  as usual
-psql "host=localhost port=5433 dbname=myapp user=appuser sslmode=require"`}
+        <CommandList
+          title="On your laptop"
+          commands={[
+            { cmd: "ssh -N -L 5433:<DB_HOST>:5432 myapp", note: "Forward localhost:5433 → through the EC2 server → the database. Point your GUI at localhost:5433; Ctrl+C closes the tunnel" },
+          ]}
         />
         <p>
           The traffic travels inside the encrypted SSH connection, exits on the server (inside the
-          VPC), and reaches the database. Nothing was opened to the internet. Close the tunnel with
-          Ctrl+C when finished.
+          VPC), and reaches the database. Nothing was opened to the internet.
         </p>
         <Callout kind="warn" label="Never “just for a minute” make it public">
           <p className="mb-0">
@@ -627,14 +552,13 @@ psql "host=localhost port=5433 dbname=myapp user=appuser sslmode=require"`}
           answers &ldquo;why is it slow?&rdquo; in one screen.
         </p>
         <h3>Take a snapshot, and prove it restores</h3>
-        <CommandList
-          title="Backups you control"
-          commands={[
-            { cmd: "aws rds create-db-snapshot --db-instance-identifier myapp-db --db-snapshot-identifier myapp-db-before-migration-1", note: "Manual snapshot; survives until you delete it. Do this before risky changes" },
-            { cmd: "aws rds describe-db-snapshots --db-instance-identifier myapp-db --query 'DBSnapshots[].[DBSnapshotIdentifier,Status,SnapshotCreateTime]' --output table", note: "List them" },
-            { cmd: "aws rds restore-db-instance-to-point-in-time --source-db-instance-identifier myapp-db --target-db-instance-identifier myapp-db-restored --restore-time 2026-01-15T09:30:00Z --db-subnet-group-name myapp-private --vpc-security-group-ids $DB_SG --no-publicly-accessible", note: "Point-in-time restore into a NEW instance. Time is UTC. Delete the copy after the drill or it keeps billing" },
-          ]}
-        />
+        <p>
+          Before any risky change, take a <strong>manual snapshot</strong> (RDS → your database →
+          Actions → Take snapshot); it lives until you delete it. And once, as a drill, use{" "}
+          <strong>Restore to point in time</strong> to create a copy from ten minutes ago. It
+          always restores into a <em>new</em> instance with a new hostname, and that copy bills
+          until you delete it.
+        </p>
 
         <h2 id="troubleshooting">Troubleshooting table</h2>
         <div className="table-wrap">
@@ -762,7 +686,7 @@ psql "host=localhost port=5433 dbname=myapp user=appuser sslmode=require"`}
         <h2 id="practice">Practice task before Lesson 9</h2>
         <ol>
           <li>
-            Build the database with the six steps. Confirm from your laptop that the hostname
+            Build the database as above. Confirm from your laptop that the hostname
             resolves to a <code>10.0.x.x</code> address and that <code>psql</code> hangs (it must:
             it is private). Then connect successfully from the EC2 server.
           </li>

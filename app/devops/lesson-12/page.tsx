@@ -307,274 +307,165 @@ export default function LessonTwelvePage() {
 
         <h2 id="build">Build it, step by step</h2>
         <p>
-          Assume the network variables from Lesson 6 (<code>source ~/myapp-network.env</code>), an
-          image pushed to ECR (Lesson 9), and a domain (Lesson 3). We will use the CLI so every
-          object is visible; the console wizards create the same things.
+          You need the network from Lesson 6, an image in ECR (Lesson 9) and a domain (Lesson 3).
+          Each step is one console screen; the table under each step lists the only fields that
+          matter.
         </p>
         <ol className="steps">
           <li>
             <h3>Request the HTTPS certificate</h3>
-            <Script
-              title="1 · ACM certificate (in ap-south-1, for the ALB)"
-              code={`CERT_ARN=$(aws acm request-certificate \\
-  --domain-name yourapp.com \\
-  --subject-alternative-names "*.yourapp.com" \\
-  --validation-method DNS \\
-  --region ap-south-1 \\
-  --query CertificateArn --output text)
-
-# ACM now waits for you to prove you own the domain by creating a CNAME.
-# Console → ACM → the certificate → "Create records in Route 53" does it in one click.
-aws acm wait certificate-validated --certificate-arn $CERT_ARN --region ap-south-1
-echo $CERT_ARN`}
-            />
             <p>
-              The wildcard covers every tenant subdomain (<code>acme.yourapp.com</code>); the apex
-              name is listed separately because <code>*.yourapp.com</code> does not match{" "}
-              <code>yourapp.com</code> itself.
+              ACM (in <code>ap-south-1</code>, the ALB&apos;s region) → Request a public
+              certificate for <code>yourapp.com</code> <strong>and</strong>{" "}
+              <code>*.yourapp.com</code>, validated by DNS. Click &ldquo;Create records in Route
+              53&rdquo; and it is issued in a few minutes. The wildcard covers every tenant
+              subdomain; the apex is listed separately because <code>*.yourapp.com</code> does not
+              match <code>yourapp.com</code> itself.
             </p>
           </li>
           <li>
             <h3>Create the target group (the pool)</h3>
-            <Script
-              title="2 · target group"
-              code={`TG_ARN=$(aws elbv2 create-target-group \\
-  --name myapp-tg --protocol HTTP --port 80 \\
-  --vpc-id $VPC_ID --target-type instance \\
-  --health-check-path /api/health \\
-  --health-check-interval-seconds 15 \\
-  --healthy-threshold-count 2 \\
-  --unhealthy-threshold-count 3 \\
-  --matcher HttpCode=200 \\
-  --query 'TargetGroups[0].TargetGroupArn' --output text)
-
-# When a server is being removed, let in-flight requests finish for 30 s (default is 300 s)
-aws elbv2 modify-target-group-attributes --target-group-arn $TG_ARN \\
-  --attributes Key=deregistration_delay.timeout_seconds,Value=30`}
-            />
+            <p>
+              EC2 → Target groups → Create: type <em>Instances</em>, HTTP port 80, the{" "}
+              <code>myapp</code> VPC. Health check path <code>/api/health</code>, interval 15 s,
+              healthy after 2 passes, unhealthy after 3. Register no targets — Auto Scaling will do
+              it. Afterwards, under Attributes, lower the <strong>deregistration delay</strong> from
+              300 to 30 seconds so a server being removed only waits for in-flight requests.
+            </p>
           </li>
           <li>
             <h3>Create the load balancer and its listeners</h3>
-            <Script
-              title="3 · ALB + listeners"
-              code={`ALB_ARN=$(aws elbv2 create-load-balancer \\
-  --name myapp-alb --type application --scheme internet-facing \\
-  --subnets $PUB_A $PUB_B --security-groups $ALB_SG \\
-  --query 'LoadBalancers[0].LoadBalancerArn' --output text)
-
-# HTTPS: terminate TLS here with the ACM certificate, forward to the pool
-aws elbv2 create-listener --load-balancer-arn $ALB_ARN \\
-  --protocol HTTPS --port 443 \\
-  --certificates CertificateArn=$CERT_ARN \\
-  --ssl-policy ELBSecurityPolicy-TLS13-1-2-2021-06 \\
-  --default-actions Type=forward,TargetGroupArn=$TG_ARN
-
-# HTTP: redirect everything to HTTPS
-aws elbv2 create-listener --load-balancer-arn $ALB_ARN \\
-  --protocol HTTP --port 80 \\
-  --default-actions 'Type=redirect,RedirectConfig={Protocol=HTTPS,Port=443,StatusCode=HTTP_301}'
-
-ALB_DNS=$(aws elbv2 describe-load-balancers --load-balancer-arns $ALB_ARN \\
-  --query 'LoadBalancers[0].DNSName' --output text)
-echo $ALB_DNS      # myapp-alb-123456789.ap-south-1.elb.amazonaws.com`}
-            />
             <p>
-              The security group <code>alb-sg</code> (Lesson 6) already accepts 80 and 443 from the
-              world, and <code>web-sg</code> accepts 80 <em>only from alb-sg</em>. The public can no
-              longer reach a server directly. Remove the temporary <code>0.0.0.0/0</code> port 80
-              and 443 rules on <code>web-sg</code> that Lesson 10 added.
+              EC2 → Load balancers → Application Load Balancer: internet-facing, the two{" "}
+              <strong>public</strong> subnets, security group <code>alb-sg</code>. Two listeners:
+            </p>
+            <ul>
+              <li>
+                <strong>HTTPS 443</strong> → forward to <code>myapp-tg</code>, with the ACM
+                certificate. TLS ends here.
+              </li>
+              <li>
+                <strong>HTTP 80</strong> → redirect to HTTPS 443 (301).
+              </li>
+            </ul>
+            <p>
+              <code>alb-sg</code> (Lesson 6) already accepts 80 and 443 from the world, and{" "}
+              <code>web-sg</code> accepts 80 <em>only from alb-sg</em>. The public can no longer
+              reach a server directly. Remove the temporary <code>0.0.0.0/0</code> port 80 and 443
+              rules on <code>web-sg</code> that Lesson 10 added.
             </p>
           </li>
           <li>
             <h3>Store the deploy settings where new servers can read them</h3>
             <p>
-              A server launched at 3 a.m. by Auto Scaling has no human to tell it which image to run.
-              It reads that from <strong>SSM Parameter Store</strong> (free for standard
-              parameters):
+              A server launched at 3 a.m. by Auto Scaling has no human to tell it which image to
+              run. It reads that from <strong>SSM Parameter Store</strong> (free for standard
+              parameters). Create two:
             </p>
-            <Script
-              title="4 · parameters"
-              code={`aws ssm put-parameter --name /myapp/image-tag --type String --value "a1b2c3d" --overwrite
-
-# Secrets as an encrypted SecureString (uses the free AWS-managed key)
-aws ssm put-parameter --name /myapp/env --type SecureString --overwrite --value "NODE_ENV=production
-DATABASE_URL=postgresql://appuser:APP-PASSWORD@myapp-db.abc123xyz.ap-south-1.rds.amazonaws.com:5432/myapp?sslmode=require
-KEEP_ALIVE_TIMEOUT=65000"`}
-            />
+            <ul>
+              <li><code>/myapp/image-tag</code> — a plain String: the commit SHA to run, e.g. <code>a1b2c3d</code>.</li>
+              <li>
+                <code>/myapp/env</code> — a <strong>SecureString</strong> (encrypted): the whole
+                production env file, <code>DATABASE_URL</code> and all, plus{" "}
+                <code>KEEP_ALIVE_TIMEOUT=65000</code> (see the gotchas below).
+              </li>
+            </ul>
             <p>
-              Give the EC2 role permission to read them and pull images (<code>myapp-ec2-role</code>{" "}
-              from Lesson 5):
+              Then give <code>myapp-ec2-role</code> permission to read <code>/myapp/*</code>{" "}
+              parameters and pull from the <code>myapp</code> ECR repository — the AWS-managed{" "}
+              <code>AmazonEC2ContainerRegistryReadOnly</code> policy plus a small inline policy
+              allowing <code>ssm:GetParameter</code> on that path.
             </p>
-            <Script
-              title="ssm-ecr-policy.json"
-              code={`{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": ["ssm:GetParameter", "ssm:GetParameters"],
-      "Resource": "arn:aws:ssm:ap-south-1:123456789012:parameter/myapp/*"
-    },
-    {
-      "Effect": "Allow",
-      "Action": ["ecr:GetAuthorizationToken"],
-      "Resource": "*"
-    },
-    {
-      "Effect": "Allow",
-      "Action": ["ecr:BatchGetImage", "ecr:GetDownloadUrlForLayer"],
-      "Resource": "arn:aws:ecr:ap-south-1:123456789012:repository/myapp"
-    }
-  ]
-}`}
-            />
           </li>
           <li>
             <h3>Write the user-data script — the boot recipe</h3>
+            <p>
+              <strong>User data</strong> is a script that runs once, as root, the first time a
+              server boots. It is how a brand-new machine turns itself into one of your app
+              servers with nobody logged in:
+            </p>
             <Script
-              title="5 · user-data.sh (runs once as root when a server first boots)"
+              title="user-data.sh — the shape of it"
               code={`#!/bin/bash
 set -euxo pipefail
-export DEBIAN_FRONTEND=noninteractive
-export PATH=$PATH:/snap/bin
-REGION=ap-south-1
-
-apt-get update
-apt-get install -y docker.io
-snap install aws-cli --classic
-systemctl enable --now docker
-
-ACCOUNT=$(aws sts get-caller-identity --query Account --output text)
-REGISTRY=$ACCOUNT.dkr.ecr.$REGION.amazonaws.com
-
-# Which version, and what configuration? Read them — never hard-code.
-TAG=$(aws ssm get-parameter --region $REGION --name /myapp/image-tag --query Parameter.Value --output text)
-aws ssm get-parameter --region $REGION --name /myapp/env --with-decryption \\
+# 1. install Docker and the AWS CLI
+# 2. read which version to run and its config — never hard-code them
+TAG=$(aws ssm get-parameter --name /myapp/image-tag --query Parameter.Value --output text)
+aws ssm get-parameter --name /myapp/env --with-decryption \\
   --query Parameter.Value --output text > /etc/myapp.env
-chmod 600 /etc/myapp.env
-
-aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $REGISTRY
-
+# 3. log in to ECR and start the container on port 80
 docker run -d --name myapp --restart unless-stopped \\
-  --env-file /etc/myapp.env \\
-  --log-opt max-size=10m --log-opt max-file=3 \\
-  -p 80:3000 \\
-  $REGISTRY/myapp:$TAG`}
+  --env-file /etc/myapp.env -p 80:3000 $REGISTRY/myapp:$TAG`}
             />
             <p>
-              The app container is published on port 80 because that is what the target group
-              targets and what <code>web-sg</code> allows from the ALB. (You can still run Nginx on
-              each server for caching and rate limiting; here the ALB already handles TLS, so we keep
-              the servers minimal.) If it fails, the log is{" "}
+              The container is published on port 80 because that is what the target group targets
+              and what <code>web-sg</code> allows from the ALB. If boot fails, the log is{" "}
               <code>/var/log/cloud-init-output.log</code>.
             </p>
           </li>
           <li>
             <h3>Create the launch template</h3>
-            <Script
-              title="6 · launch template"
-              code={`AMI_ID=$(aws ssm get-parameter \\
-  --name /aws/service/canonical/ubuntu/server/24.04/stable/current/amd64/hvm/ebs-gp3/ami-id \\
-  --query Parameter.Value --output text)
-USERDATA=$(base64 < user-data.sh | tr -d '\\n')
-
-cat > lt.json <<EOF
-{
-  "ImageId": "$AMI_ID",
-  "InstanceType": "t3.small",
-  "IamInstanceProfile": { "Name": "myapp-ec2-profile" },
-  "SecurityGroupIds": ["$WEB_SG"],
-  "MetadataOptions": { "HttpTokens": "required", "HttpPutResponseHopLimit": 2 },
-  "BlockDeviceMappings": [
-    { "DeviceName": "/dev/sda1", "Ebs": { "VolumeSize": 20, "VolumeType": "gp3", "Encrypted": true } }
-  ],
-  "UserData": "$USERDATA",
-  "TagSpecifications": [
-    { "ResourceType": "instance", "Tags": [ { "Key": "Name", "Value": "myapp-web" }, { "Key": "app", "Value": "myapp" } ] }
-  ]
-}
-EOF
-
-aws ec2 create-launch-template --launch-template-name myapp-lt --launch-template-data file://lt.json`}
-            />
-            <Callout kind="note" label="HttpPutResponseHopLimit: 2 — why">
-              <p className="mb-0">
-                The metadata service replies with a network hop limit. A container sits one hop
-                further away than the host (the Docker bridge counts), so with the default limit of 1
-                the container cannot fetch the role&apos;s credentials and every AWS call from your
-                app fails with a confusing &ldquo;could not load credentials&rdquo;. Setting 2 fixes
-                it while keeping IMDSv2 on.
-              </p>
-            </Callout>
             <p>
-              No key pair here on purpose: production servers should not be SSH-able. You get a shell
-              through SSM Session Manager in Lesson 18.
+              EC2 → Launch templates → Create. Fill it exactly like Lesson 7&apos;s server — Ubuntu
+              24.04, <code>t3.small</code>, <code>web-sg</code>, the <code>myapp-ec2-role</code>{" "}
+              profile, 20 GB encrypted gp3, IMDSv2 required — and paste the script above into{" "}
+              <strong>User data</strong>. Two differences from Lesson 7:
             </p>
+            <ul>
+              <li>
+                <strong>Metadata hop limit: 2.</strong> A container sits one network hop further
+                from the metadata service than the host, so with the default of 1 your app inside
+                Docker cannot fetch the role&apos;s credentials and every AWS call fails with
+                &ldquo;could not load credentials&rdquo;.
+              </li>
+              <li>
+                <strong>No key pair</strong>, on purpose: production servers should not be
+                SSH-able. You get a shell through SSM Session Manager in Lesson 18.
+              </li>
+            </ul>
           </li>
           <li>
             <h3>Create the Auto Scaling group</h3>
-            <Script
-              title="7 · ASG"
-              code={`aws autoscaling create-auto-scaling-group \\
-  --auto-scaling-group-name myapp-asg \\
-  --launch-template LaunchTemplateName=myapp-lt,Version='$Latest' \\
-  --min-size 2 --max-size 6 --desired-capacity 2 \\
-  --vpc-zone-identifier "$PUB_A,$PUB_B" \\
-  --target-group-arns $TG_ARN \\
-  --health-check-type ELB \\
-  --health-check-grace-period 180 \\
-  --default-instance-warmup 120 \\
-  --tags Key=Name,Value=myapp-web,PropagateAtLaunch=true`}
-            />
+            <p>
+              EC2 → Auto Scaling groups → Create, using the launch template. The settings that
+              matter:
+            </p>
             <ul>
               <li>
-                <code>--min-size 2</code> and two subnets in two AZs: losing a whole data centre
-                leaves one server up.
+                <strong>Two subnets in two AZs, min 2, desired 2, max 6</strong>: losing a whole
+                data centre leaves one server up.
               </li>
               <li>
-                <code>--health-check-type ELB</code>: the group replaces servers that the{" "}
-                <em>load balancer</em> reports unhealthy, not merely ones whose EC2 status is fine but
-                whose app is dead. The default (EC2) misses exactly the failures you care about.
+                <strong>Attach to <code>myapp-tg</code></strong>, and turn on{" "}
+                <strong>ELB health checks</strong>: the group replaces servers that the{" "}
+                <em>load balancer</em> reports unhealthy, not merely ones whose EC2 status is fine
+                but whose app is dead. The default (EC2 only) misses exactly the failures you care
+                about.
               </li>
               <li>
-                <code>--health-check-grace-period 180</code>: do not judge a new server for 3
-                minutes while it boots and pulls the image. Set it longer than your real boot time.
+                <strong>Health check grace period 180 s</strong>: don&apos;t judge a new server for
+                3 minutes while it boots and pulls the image. Make it longer than your real boot
+                time.
               </li>
             </ul>
           </li>
           <li>
             <h3>Add the scaling policy</h3>
-            <Script
-              title="8 · target tracking on CPU"
-              code={`cat > tt.json <<'EOF'
-{
-  "TargetValue": 50.0,
-  "PredefinedMetricSpecification": { "PredefinedMetricType": "ASGAverageCPUUtilization" }
-}
-EOF
-
-aws autoscaling put-scaling-policy \\
-  --auto-scaling-group-name myapp-asg \\
-  --policy-name cpu-50 \\
-  --policy-type TargetTrackingScaling \\
-  --target-tracking-configuration file://tt.json`}
-            />
             <p>
-              &ldquo;Keep the average CPU across the group near 50%.&rdquo; Above it the group adds
-              servers; well below it, it removes them — with AWS creating and managing the
-              CloudWatch alarms for you.
+              On the same screen: <strong>Target tracking</strong>, metric{" "}
+              <em>Average CPU utilisation</em>, target <strong>50</strong>. &ldquo;Keep the average
+              CPU across the group near 50%.&rdquo; Above it the group adds servers; well below it,
+              it removes them — with AWS creating and managing the CloudWatch alarms for you.
             </p>
           </li>
           <li>
             <h3>Watch it come alive</h3>
-            <CommandList
-              title="Verify"
-              commands={[
-                { cmd: "aws autoscaling describe-scaling-activities --auto-scaling-group-name myapp-asg --max-items 5", note: "Activity history: “Launching a new EC2 instance …”. Also where you see why something failed" },
-                { cmd: "aws elbv2 describe-target-health --target-group-arn $TG_ARN --query 'TargetHealthDescriptions[].[Target.Id,TargetHealth.State,TargetHealth.Reason]' --output table", note: "Wait until both targets are “healthy” (2–4 minutes)" },
-                { cmd: "curl -I https://$ALB_DNS --insecure", note: "Reaches the app through the ALB. --insecure because the cert is for yourapp.com, not the ALB's own name; Lesson 13 points the real domain here" },
-              ]}
-            />
+            <p>
+              The group&apos;s <strong>Activity</strong> tab shows &ldquo;Launching a new EC2
+              instance…&rdquo; (and, if something fails, why). The target group&apos;s{" "}
+              <strong>Targets</strong> tab turns both servers <em>healthy</em> within 2–4 minutes.
+              Then open the ALB&apos;s DNS name in a browser and you reach the app.
+            </p>
           </li>
         </ol>
 
@@ -684,28 +575,25 @@ export function GET() {
           With many servers a deploy stops being &ldquo;SSH in and restart&rdquo;. The clean
           pattern is <strong>replace, don&apos;t modify</strong>:
         </p>
-        <Script
-          title="a zero-downtime release"
-          code={`# 1. New image already pushed to ECR by CI, tagged with the commit SHA
-aws ssm put-parameter --name /myapp/image-tag --type String --value "$NEW_SHA" --overwrite
-
-# 2. Roll every server, a few at a time, waiting for each to pass its health check
-aws autoscaling start-instance-refresh \\
-  --auto-scaling-group-name myapp-asg \\
-  --preferences '{"MinHealthyPercentage":100,"MaxHealthyPercentage":110,"InstanceWarmup":120}'
-
-# 3. Watch progress
-aws autoscaling describe-instance-refreshes --auto-scaling-group-name myapp-asg \\
-  --query 'InstanceRefreshes[0].[Status,PercentageComplete]'
-
-# Roll back? Put the previous SHA back in the parameter and refresh again.`}
-        />
+        <ol>
+          <li>CI pushes the new image to ECR, tagged with the commit SHA.</li>
+          <li>Update <code>/myapp/image-tag</code> to that SHA.</li>
+          <li>
+            Start an <strong>instance refresh</strong> on the Auto Scaling group (min healthy
+            100%, max healthy 110%). AWS replaces every server a few at a time, waiting for each
+            new one to pass its health check.
+          </li>
+        </ol>
         <p>
-          <code>MinHealthyPercentage 100</code> with <code>MaxHealthyPercentage 110</code> means AWS
+          Rolling back is the same move: put the previous SHA back in the parameter and refresh
+          again.
+        </p>
+        <p>
+          Min healthy 100% with max healthy 110% means AWS
           starts a new server <em>before</em> retiring an old one, so capacity never dips. Because
           the ALB only routes to healthy targets, users never reach a server that is still booting;
           because deregistration waits 30 seconds, requests already in flight on a retiring server
-          finish. Lesson 14 fires this command from GitHub Actions.
+          finish. Lesson 14 triggers the refresh from GitHub Actions.
         </p>
         <Callout kind="warn" label="Make your app exit cleanly on SIGTERM">
           <p className="mb-0">
@@ -723,16 +611,11 @@ aws autoscaling describe-instance-refreshes --auto-scaling-group-name myapp-asg 
           confidence.
         </p>
         <h3>Experiment 1 — does it scale?</h3>
-        <Script
-          title="on your laptop (use a staging copy or a small window; this is real traffic)"
-          code={`brew install hey            # or: go install github.com/rakyll/hey@latest   (k6 is a fine alternative)
-
-# 200 concurrent connections for 3 minutes against a real page
-hey -z 3m -c 200 https://yourapp.com/
-
-# In a second terminal, watch the group grow
-watch -n 15 "aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names myapp-asg \\
-  --query 'AutoScalingGroups[0].[DesiredCapacity,length(Instances)]'"`}
+        <CommandList
+          title="On your laptop (a staging copy, or a quiet window — this is real traffic)"
+          commands={[
+            { cmd: "hey -z 3m -c 200 https://yourapp.com/", note: "200 concurrent connections for 3 minutes (install hey with brew; k6 is a fine alternative). Watch the Auto Scaling group's instance count grow in the console meanwhile" },
+          ]}
         />
         <p>Look at three numbers from the <code>hey</code> summary, and one graph:</p>
         <ul>
@@ -753,14 +636,12 @@ watch -n 15 "aws autoscaling describe-auto-scaling-groups --auto-scaling-group-n
           </li>
         </ul>
         <h3>Experiment 2 — does it heal?</h3>
-        <CommandList
-          title="Chaos in miniature"
-          commands={[
-            { cmd: "aws ec2 terminate-instances --instance-ids <ONE-OF-THE-ASG-INSTANCES>", note: "Kill one server while hey is running, as if a data centre lost a machine" },
-            { cmd: "aws elbv2 describe-target-health --target-group-arn $TG_ARN", note: "The ALB marks it draining/unhealthy within seconds; users keep being served by the survivor" },
-            { cmd: "aws autoscaling describe-scaling-activities --auto-scaling-group-name myapp-asg --max-items 3", note: "The group notices it is below desired and launches a replacement by itself" },
-          ]}
-        />
+        <p>
+          While the load test runs, terminate one of the group&apos;s instances in the console, as
+          if a data centre lost a machine. Within seconds the ALB marks it unhealthy and users keep
+          being served by the survivor; the group notices it is below desired capacity and launches
+          a replacement by itself.
+        </p>
         <p>
           If the site blips or errors for more than a moment, you have found a real weakness (usually
           a keep-alive timeout, a health check that is too slow, or a min-size of 1) to fix while it
@@ -777,16 +658,12 @@ watch -n 15 "aws autoscaling describe-auto-scaling-groups --auto-scaling-group-n
           your laptop. The rule: <strong>the server&apos;s keep-alive timeout must be longer than the
           load balancer&apos;s idle timeout.</strong>
         </p>
-        <Script
-          title="two ways to set it"
-          code={`# Next.js standalone server: the env var we already put in /myapp/env
-KEEP_ALIVE_TIMEOUT=65000
-
-// A custom Node server
-const server = http.createServer(app);
-server.keepAliveTimeout = 65_000;   // > ALB's 60 s
-server.headersTimeout   = 66_000;   // must be slightly larger than keepAliveTimeout`}
-        />
+        <p>
+          With the Next.js standalone server, that is the <code>KEEP_ALIVE_TIMEOUT=65000</code>{" "}
+          line already in <code>/myapp/env</code>. A custom Node server sets{" "}
+          <code>server.keepAliveTimeout = 65_000</code> (and <code>headersTimeout</code> slightly
+          higher) — anything above the ALB&apos;s 60 seconds.
+        </p>
         <h3>Sticky sessions</h3>
         <p>
           The ALB can pin a user to one server with a cookie (&ldquo;stickiness&rdquo;). It is tempting
@@ -963,7 +840,7 @@ server.headersTimeout   = 66_000;   // must be slightly larger than keepAliveTim
           </li>
           <li>
             Publish a new image tag, update <code>/myapp/image-tag</code> and run an instance
-            refresh. Confirm the site stayed up (leave a <code>curl</code> loop running).
+            refresh. Confirm the site stayed up the whole time.
           </li>
           <li>
             Calculate the monthly cost of your setup at min-size 2 and at max-size 6 for one hour a

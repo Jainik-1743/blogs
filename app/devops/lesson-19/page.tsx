@@ -282,13 +282,13 @@ export default function LessonNineteenPage() {
           </p>
         </Callout>
         <h3>Right-sizing with evidence</h3>
-        <CommandList
-          title="Is this instance too big?"
-          commands={[
-            { cmd: "aws compute-optimizer get-ec2-instance-recommendations --query 'instanceRecommendations[].[instanceArn,finding,recommendationOptions[0].instanceType]' --output table", note: "Free service (opt in first with `aws compute-optimizer update-enrollment-status --status Active`). Needs ~14 days of metrics" },
-            { cmd: "aws cloudwatch get-metric-statistics --namespace AWS/EC2 --metric-name CPUUtilization --dimensions Name=AutoScalingGroupName,Value=myapp-asg --start-time $(date -u -v-14d +%FT%TZ) --end-time $(date -u +%FT%TZ) --period 86400 --statistics Average Maximum --output table", note: "Do it by hand: two weeks of daily CPU. Average 8% and maximum 30% means a smaller size is safe (on Linux use date -d '14 days ago' instead of -v-14d)" },
-          ]}
-        />
+        <p>
+          Opt in to <strong>Compute Optimizer</strong> (free). After about 14 days of metrics it
+          lists each instance as <em>over-provisioned</em>, <em>optimized</em> or{" "}
+          <em>under-provisioned</em>, with a suggested size. You can check by hand too: two weeks of
+          daily average and maximum CPU for the Auto Scaling group, in CloudWatch. Average 8% and
+          maximum 30% means a smaller size is safe.
+        </p>
         <p>
           Watch <strong>memory</strong> as well as CPU (from the agent of Lesson 17); CPU alone can
           mislead, and memory-bound apps often need the same RAM at a cheaper vCPU ratio.
@@ -371,13 +371,6 @@ export default function LessonNineteenPage() {
           </li>
           <li>
             <h3>Cost Explorer — read it weekly at first</h3>
-            <CommandList
-              title="Where did the money go?"
-              commands={[
-                { cmd: "aws ce get-cost-and-usage --time-period Start=2026-01-01,End=2026-02-01 --granularity MONTHLY --metrics UnblendedCost --group-by Type=DIMENSION,Key=SERVICE --query 'ResultsByTime[0].Groups[].[Keys[0],Metrics.UnblendedCost.Amount]' --output table", note: "Last month by service, largest first when you sort. Change the dates. (Each Cost Explorer API call costs $0.01, so use the console for casual browsing)" },
-                { cmd: "aws ce get-cost-and-usage --time-period Start=2026-01-01,End=2026-02-01 --granularity MONTHLY --metrics UnblendedCost --group-by Type=TAG,Key=Environment", note: "Split by the Environment tag: how much does staging cost compared with prod?" },
-              ]}
-            />
             <p>
               In the console, group by <em>Service</em> first, then drill into the biggest by{" "}
               <em>Usage type</em>. Look at daily granularity for the month to spot the day a cost
@@ -391,27 +384,11 @@ export default function LessonNineteenPage() {
               alerts at <strong>50%, 80% and 100% of actual</strong> and at <strong>100% of forecast</strong>{" "}
               (which fires <em>early</em>, when AWS predicts you will overspend, not after).
             </p>
-            <Script
-              title="budget.json + notifications.json"
-              code={`# budget.json
-{
-  "BudgetName": "myapp-monthly",
-  "BudgetLimit": { "Amount": "150", "Unit": "USD" },
-  "TimeUnit": "MONTHLY",
-  "BudgetType": "COST"
-}
-
-# notifications.json
-[
-  { "Notification": { "NotificationType": "ACTUAL",     "ComparisonOperator": "GREATER_THAN", "Threshold": 80,  "ThresholdType": "PERCENTAGE" },
-    "Subscribers": [{ "SubscriptionType": "EMAIL", "Address": "team@yourapp.com" }] },
-  { "Notification": { "NotificationType": "FORECASTED", "ComparisonOperator": "GREATER_THAN", "Threshold": 100, "ThresholdType": "PERCENTAGE" },
-    "Subscribers": [{ "SubscriptionType": "EMAIL", "Address": "team@yourapp.com" }] }
-]
-
-aws budgets create-budget --account-id $(aws sts get-caller-identity --query Account --output text) \\
-  --budget file://budget.json --notifications-with-subscribers file://notifications.json`}
-            />
+            <p>
+              Billing → <strong>Budgets</strong> → Create: monthly cost budget for{" "}
+              <code>myapp</code>, with email alerts to the team address at 80% of actual and 100% of
+              forecast.
+            </p>
           </li>
           <li>
             <h3>Cost Anomaly Detection — the tripwire</h3>
@@ -453,22 +430,29 @@ Add per-tenant variable costs:
 
         <h2 id="sweep">The orphan sweep: finding what you forgot</h2>
         <p>
-          Everything you create keeps billing until deleted. A quarterly sweep pays for itself. Run these
-          read-only checks:
+          Everything you create keeps billing until deleted. A quarterly sweep pays for itself.
+          Check these:
         </p>
-        <CommandList
-          title="Things that bill while doing nothing"
-          commands={[
-            { cmd: "aws ec2 describe-volumes --filters Name=status,Values=available --query 'Volumes[].[VolumeId,Size,CreateTime]' --output table", note: "Unattached EBS disks left behind by terminated servers. Snapshot if unsure, then delete" },
-            { cmd: "aws ec2 describe-addresses --query 'Addresses[?AssociationId==null].[PublicIp,AllocationId]' --output table", note: "Elastic IPs attached to nothing (still billed as public IPv4)" },
-            { cmd: "aws ec2 describe-snapshots --owner-ids self --query 'Snapshots[].[SnapshotId,VolumeSize,StartTime]' --output table", note: "Old EBS snapshots. Sort by date; delete anything with no purpose" },
-            { cmd: "aws rds describe-db-snapshots --snapshot-type manual --query 'DBSnapshots[].[DBSnapshotIdentifier,AllocatedStorage,SnapshotCreateTime]' --output table", note: "Manual RDS snapshots live forever until deleted, including the drill copies" },
-            { cmd: "aws ec2 describe-nat-gateways --filter Name=state,Values=available --query 'NatGateways[].[NatGatewayId,SubnetId]' --output table", note: "A NAT Gateway you forgot is ~$40 a month" },
-            { cmd: "aws elbv2 describe-load-balancers --query 'LoadBalancers[].[LoadBalancerName,CreatedTime]' --output table", note: "Load balancers with no traffic" },
-            { cmd: "aws logs describe-log-groups --query 'logGroups[?retentionInDays==null].[logGroupName,storedBytes]' --output table", note: "Log groups that never expire" },
-            { cmd: "for r in $(aws ec2 describe-regions --query 'Regions[].RegionName' --output text); do echo \"== $r\"; aws ec2 describe-instances --region $r --query 'Reservations[].Instances[?State.Name==`running`].InstanceId' --output text; done", note: "Running instances in EVERY region — the one you forgot in Virginia. Also the first check after any suspected compromise" },
-          ]}
-        />
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Look for</th>
+                <th>Where</th>
+                <th>Why it bills</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Unattached EBS volumes</td><td>EC2 → Volumes, state <em>available</em></td><td>Disks left behind by terminated servers. Snapshot if unsure, then delete</td></tr>
+              <tr><td>Unattached Elastic IPs</td><td>EC2 → Elastic IPs, no instance</td><td>Still billed as public IPv4</td></tr>
+              <tr><td>Old EBS and manual RDS snapshots</td><td>EC2 → Snapshots; RDS → Snapshots → Manual</td><td>Kept forever until deleted, including the drill copies</td></tr>
+              <tr><td>A forgotten NAT Gateway</td><td>VPC → NAT gateways</td><td>~$40 a month each</td></tr>
+              <tr><td>Idle load balancers</td><td>EC2 → Load balancers, no requests</td><td>Hourly charge whether used or not</td></tr>
+              <tr><td>Log groups that never expire</td><td>CloudWatch → Log groups, retention <em>Never expire</em></td><td>Storage grows every month</td></tr>
+              <tr><td>Instances in other regions</td><td>EC2 → <strong>EC2 Global View</strong></td><td>The one you forgot in Virginia. Also the first check after a suspected compromise</td></tr>
+            </tbody>
+          </table>
+        </div>
 
         <h2 id="final-architecture">The final architecture, box by box</h2>
         <p>

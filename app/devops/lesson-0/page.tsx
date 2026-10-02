@@ -2,8 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Callout from "@/components/Callout";
 import FlowChain from "@/components/FlowChain";
+import AccountSetupFlow from "@/components/figures/AccountSetupFlow";
+import ArchitectureMap from "@/components/figures/ArchitectureMap";
+import CallerIdentityAnatomy from "@/components/figures/CallerIdentityAnatomy";
 import CostCurveChart from "@/components/figures/CostCurveChart";
+import MultiTenantSaas from "@/components/figures/MultiTenantSaas";
 import PaasIaasStack from "@/components/figures/PaasIaasStack";
+import RegionLatency from "@/components/figures/RegionLatency";
+import ResponsibilityMatrix from "@/components/figures/ResponsibilityMatrix";
+import VercelWalls from "@/components/figures/VercelWalls";
 import LessonPager from "@/components/LessonPager";
 import Script from "@/components/Script";
 import { getLesson, READINGS, readingHref, SERIES } from "@/lib/lessons";
@@ -108,6 +115,11 @@ export default function LessonZeroPage() {
           everywhere, it is not tied to one company&apos;s platform.
         </p>
         <PaasIaasStack />
+        <p>
+          The same idea, job by job. Every cell marked <strong>You</strong> on the AWS side is
+          something this course teaches you to do.
+        </p>
+        <ResponsibilityMatrix />
 
         <h2 id="why-this-matters">Why this matters</h2>
         <p>Vercel is very good, no doubt. But you will face a wall when:</p>
@@ -129,6 +141,7 @@ export default function LessonZeroPage() {
             For a multi-tenant SaaS this control is very important.
           </li>
         </ul>
+        <VercelWalls />
 
         <Callout kind="note" label="One-line mental model">
           <p className="mb-1">
@@ -157,6 +170,12 @@ export default function LessonZeroPage() {
           Today you only need to recognise the names, nothing more.
         </p>
         <FlowChain nodes={architecture} />
+        <p>
+          The flow above is the path one request takes. The map below shows the same pieces as
+          they actually sit in AWS — which ones are global, which live inside your region, and
+          which are hidden inside your private network where the internet can&apos;t reach them.
+        </p>
+        <ArchitectureMap />
 
         <h3>What each name means, in one line</h3>
         <div className="table-wrap">
@@ -197,6 +216,7 @@ export default function LessonZeroPage() {
             in at month end.
           </li>
         </ul>
+        <MultiTenantSaas />
         <Callout kind="ok" label="Approximate cost">
           <p className="mb-0">
             One small EC2 instance plus one small RDS instance comes to roughly{" "}
@@ -211,6 +231,7 @@ export default function LessonZeroPage() {
           No AWS resources are created today, so nothing to pay. We only set up your identity in
           the safe way.
         </p>
+        <AccountSetupFlow />
 
         <ol className="steps">
           <li>
@@ -270,6 +291,7 @@ sudo ./aws/install`}</code>
               Choose the Mumbai region so your servers are physically near your users in India.
               This directly reduces page load time.
             </p>
+            <RegionLatency />
           </li>
           <li>
             <h3>Verify that everything is working</h3>
@@ -280,6 +302,7 @@ sudo ./aws/install`}</code>
               If this prints your IAM user&apos;s ARN and it does <em>not</em> say
               &ldquo;root&rdquo;, your setup is correct and safe. Lesson 0 is complete.
             </p>
+            <CallerIdentityAnatomy />
           </li>
         </ol>
 

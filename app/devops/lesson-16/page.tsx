@@ -183,23 +183,15 @@ export default function LessonSixteenPage() {
           title="inside redis-cli — type these"
           code={`SET greeting "hello"            # OK
 GET greeting                    # "hello"
-
-SET otp:9876 "482913" EX 60     # value that deletes itself after 60 seconds
-TTL otp:9876                    # 58   (seconds left; -2 means it is already gone)
-
-INCR page:views                 # 1
-INCR page:views                 # 2   (atomic: safe from many servers at once)
-
-HSET session:abc user 42 role admin
-HGETALL session:abc             # user / 42 / role / admin
-EXPIRE session:abc 1800         # half an hour
-
-SADD online:tenant7 42 43 42    # 2   (sets keep unique members only)
-SMEMBERS online:tenant7
-
-SCAN 0 MATCH "session:*" COUNT 100   # the SAFE way to look through keys
-# KEYS *                              # NEVER in production: blocks the server while it scans everything`}
+SET otp:9876 "482913" EX 60     # a value that deletes itself after 60 seconds
+INCR page:views                 # 1, then 2… atomic: safe from many servers at once
+# KEYS *                        # NEVER in production: blocks the server while it scans everything`}
         />
+        <p>
+          Redis also has hashes (one key holding fields, perfect for a session), sets (unique
+          members, like &ldquo;who is online&rdquo;) and a safe, step-by-step way to look through
+          keys. You will meet them in the patterns below.
+        </p>
 
         <h2 id="cache-aside">Pattern 1 — caching (cache-aside)</h2>
         <p>
@@ -311,47 +303,27 @@ export async function updateSettings(tenantId: string, data: Settings) {
         </div>
         <p>
           For a SaaS with admin panels and paid customers, being able to revoke a session immediately
-          is usually worth one millisecond. A minimal implementation:
+          is usually worth one millisecond.
         </p>
-        <Script
-          title="lib/session.ts"
-          code={`import { randomBytes } from "node:crypto";
-import { cookies } from "next/headers";
-import { redis } from "./cache";
-
-const TTL = 60 * 60 * 24 * 7; // 7 days, sliding
-
-export async function createSession(userId: string, tenantId: string) {
-  const id = randomBytes(32).toString("hex");            // unguessable: 256 bits
-  await redis.multi()
-    .hset(\`sess:\${id}\`, { userId, tenantId })
-    .expire(\`sess:\${id}\`, TTL)
-    .sadd(\`user-sessions:\${userId}\`, id)                // so we can "log out everywhere"
-    .exec();
-
-  (await cookies()).set("sid", id, {
-    httpOnly: true,        // JavaScript cannot read it (blunts XSS)
-    secure: true,          // HTTPS only
-    sameSite: "lax",       // blunts CSRF
-    maxAge: TTL,
-    path: "/",
-  });
-}
-
-export async function getSession() {
-  const id = (await cookies()).get("sid")?.value;
-  if (!id) return null;
-  const data = await redis.hgetall(\`sess:\${id}\`);
-  if (!data.userId) return null;
-  await redis.expire(\`sess:\${id}\`, TTL);              // sliding expiry: active users stay logged in
-  return data as { userId: string; tenantId: string };
-}
-
-export async function destroySession() {
-  const id = (await cookies()).get("sid")?.value;
-  if (id) await redis.del(\`sess:\${id}\`);
-}`}
-        />
+        <p>The whole implementation is three small functions:</p>
+        <ul>
+          <li>
+            <strong>Create</strong>: generate 32 random bytes as the session ID (unguessable), store{" "}
+            <code>userId</code> and <code>tenantId</code> under <code>sess:&lt;id&gt;</code> with a
+            7-day expiry, and set a cookie holding only that ID — <code>httpOnly</code> (JavaScript
+            can&apos;t read it), <code>secure</code> (HTTPS only), <code>sameSite: lax</code>{" "}
+            (blunts CSRF).
+          </li>
+          <li>
+            <strong>Read</strong>: look up the key from the cookie; if it exists, push its expiry
+            forward another 7 days, so active users stay logged in.
+          </li>
+          <li>
+            <strong>Destroy</strong>: delete the key. The user is logged out on every server,
+            instantly. Keep a set of each user&apos;s session IDs too, and &ldquo;log out
+            everywhere&rdquo; is one loop.
+          </li>
+        </ul>
         <Callout kind="warn" label="Sessions are the exception to “fail open”">
           <p className="mb-0">
             If Redis is down and you cannot read sessions, you must treat everyone as logged out, not
@@ -483,62 +455,40 @@ if (got === "OK") {
         <ol className="steps">
           <li>
             <h3>The firewall and the subnet group</h3>
-            <Script
-              title="1 · network"
-              code={`source ~/myapp-network.env
-
-CACHE_SG=$(aws ec2 create-security-group --group-name cache-sg --description "Redis" \\
-  --vpc-id $VPC_ID --query GroupId --output text)
-aws ec2 authorize-security-group-ingress --group-id $CACHE_SG --protocol tcp --port 6379 --source-group $WEB_SG
-
-aws elasticache create-cache-subnet-group \\
-  --cache-subnet-group-name myapp-private \\
-  --cache-subnet-group-description "Private subnets for the cache" \\
-  --subnet-ids $PRV_A $PRV_B`}
-            />
+            <p>
+              Create a security group <code>cache-sg</code> that accepts port 6379{" "}
+              <strong>only from <code>web-sg</code></strong>. Then ElastiCache → Subnet groups →
+              Create <code>myapp-private</code> with the two private subnets — the same idea as the
+              RDS subnet group in Lesson 8.
+            </p>
           </li>
           <li>
             <h3>Create the cluster — with TLS and a password</h3>
-            <Script
-              title="2 · replication group"
-              code={`REDIS_TOKEN=$(openssl rand -base64 32 | tr -d '/+=@:' | cut -c1-32)   # 16–128 chars, no @ / " or spaces
-echo "REDIS_TOKEN=$REDIS_TOKEN" >> ~/myapp-secrets.env
-
-aws elasticache create-replication-group \\
-  --replication-group-id myapp-cache \\
-  --replication-group-description "myapp cache and sessions" \\
-  --engine valkey \\
-  --cache-node-type cache.t4g.micro \\
-  --num-cache-clusters 1 \\
-  --cache-subnet-group-name myapp-private \\
-  --security-group-ids $CACHE_SG \\
-  --transit-encryption-enabled \\
-  --at-rest-encryption-enabled \\
-  --auth-token "$REDIS_TOKEN"
-
-aws elasticache wait replication-group-available --replication-group-id myapp-cache
-
-REDIS_HOST=$(aws elasticache describe-replication-groups --replication-group-id myapp-cache \\
-  --query 'ReplicationGroups[0].NodeGroups[0].PrimaryEndpoint.Address' --output text)
-echo $REDIS_HOST`}
-            />
+            <p>
+              ElastiCache → Create → <strong>Valkey</strong> (the open-source Redis fork AWS
+              recommends; same commands), node-based cluster, cluster mode off,{" "}
+              <code>myapp-private</code> subnet group, <code>cache-sg</code>. The settings that
+              matter:
+            </p>
             <ul>
               <li>
-                <code>--num-cache-clusters 1</code> is a single node: fine for practice and a small
-                cache. For production sessions use <strong>2</strong> (a primary and a replica in
-                another AZ) with <code>--automatic-failover-enabled --multi-az-enabled</code>.
+                <strong>Replicas: 0</strong> (a single node) is fine for practice and a small
+                cache. For production sessions use <strong>1 replica</strong> in another AZ with
+                Multi-AZ and automatic failover turned on.
               </li>
               <li>
-                <code>--transit-encryption-enabled</code>: traffic is TLS, so the URL scheme is{" "}
+                <strong>Encryption in transit: on</strong>. Traffic is TLS, so the URL scheme is{" "}
                 <code>rediss://</code> (two s). It is off by default and cannot be enabled later
                 without recreating the cluster, so decide now.
               </li>
               <li>
-                <code>--auth-token</code>: a password, on top of the Security Group. (For teams,
+                <strong>Access control: AUTH token</strong> — a long random password (16–128
+                characters, no <code>@</code>, <code>/</code> or quotes), on top of the Security
+                Group. Encryption at rest on too. (For teams,
                 ElastiCache also supports users and ACLs with per-command permissions.)
               </li>
               <li>
-                <code>cache.t4g.micro</code>: about 0.5 GB usable. More than enough to start. There is
+                Node type <code>cache.t4g.micro</code>: about 0.5 GB usable. More than enough to start. There is
                 also <strong>ElastiCache Serverless</strong>, which scales for you and bills per usage;
                 its minimum charge makes it costlier than a micro node for small workloads.
               </li>
@@ -549,10 +499,7 @@ echo $REDIS_HOST`}
             <CommandList
               title="On the EC2 server"
               commands={[
-                { cmd: "sudo apt install -y redis-tools", note: "Installs redis-cli and friends" },
-                { cmd: "nc -vz <REDIS_HOST> 6379", note: "Network check first: “succeeded” means the Security Groups are right" },
-                { cmd: "redis-cli -h <REDIS_HOST> --tls -a \"$REDIS_TOKEN\" ping", note: "PONG. If it hangs: security group. If it resets: missing --tls. If NOAUTH/WRONGPASS: the token" },
-                { cmd: "redis-cli -h <REDIS_HOST> --tls -a \"$REDIS_TOKEN\" info memory | head", note: "Memory used and the configured maximum" },
+                { cmd: "redis-cli -h <REDIS_HOST> --tls -a \"$REDIS_TOKEN\" ping", note: "PONG (install redis-tools first). If it hangs: security group. If it resets: missing --tls. If NOAUTH/WRONGPASS: the token" },
               ]}
             />
           </li>

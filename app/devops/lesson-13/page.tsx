@@ -5,7 +5,6 @@ import CommandList from "@/components/CommandList";
 import InterviewQA from "@/components/InterviewQA";
 import LessonIntro from "@/components/LessonIntro";
 import LessonPager from "@/components/LessonPager";
-import Script from "@/components/Script";
 import { getLesson, lessonHref } from "@/lib/lessons";
 
 const lesson = getLesson("lesson-13")!;
@@ -166,124 +165,62 @@ export default function LessonThirteenPage() {
         </p>
         <ol className="steps">
           <li>
-            <h3>Look up the IDs Route 53 needs</h3>
-            <Script
-              title="1 · gather"
-              code={`ZONE_ID=$(aws route53 list-hosted-zones-by-name --dns-name yourapp.com \\
-  --query 'HostedZones[0].Id' --output text | sed 's|/hostedzone/||')
-
-# An alias must name the target's own hosted zone ID, which differs per service and region
-ALB_DNS=$(aws elbv2 describe-load-balancers --names myapp-alb --query 'LoadBalancers[0].DNSName' --output text)
-ALB_ZONE=$(aws elbv2 describe-load-balancers --names myapp-alb --query 'LoadBalancers[0].CanonicalHostedZoneId' --output text)
-echo $ZONE_ID $ALB_DNS $ALB_ZONE`}
-            />
-          </li>
-          <li>
-            <h3>Write the change batch</h3>
-            <Script
-              title="2 · records.json"
-              code={`{
-  "Comment": "Production records for yourapp.com",
-  "Changes": [
-    {
-      "Action": "UPSERT",
-      "ResourceRecordSet": {
-        "Name": "yourapp.com",
-        "Type": "A",
-        "AliasTarget": {
-          "HostedZoneId": "ALB_ZONE_HERE",
-          "DNSName": "dualstack.ALB_DNS_HERE",
-          "EvaluateTargetHealth": true
-        }
-      }
-    },
-    {
-      "Action": "UPSERT",
-      "ResourceRecordSet": {
-        "Name": "*.yourapp.com",
-        "Type": "A",
-        "AliasTarget": {
-          "HostedZoneId": "ALB_ZONE_HERE",
-          "DNSName": "dualstack.ALB_DNS_HERE",
-          "EvaluateTargetHealth": true
-        }
-      }
-    },
-    {
-      "Action": "UPSERT",
-      "ResourceRecordSet": {
-        "Name": "assets.yourapp.com",
-        "Type": "A",
-        "AliasTarget": {
-          "HostedZoneId": "Z2FDTNDATAQYW2",
-          "DNSName": "d1234abcd.cloudfront.net",
-          "EvaluateTargetHealth": false
-        }
-      }
-    }
-  ]
-}`}
-            />
+            <h3>Create three alias records</h3>
+            <p>
+              Route 53 → your hosted zone → Create record. For each one, turn on{" "}
+              <strong>Alias</strong> and pick the target from the dropdown — the console fills in
+              the target&apos;s address and its hosted-zone ID for you.
+            </p>
+            <div className="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Record name</th>
+                    <th>Type</th>
+                    <th>Alias to</th>
+                    <th>Evaluate target health</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td><code>yourapp.com</code></td><td>A</td><td>Application Load Balancer → <code>myapp-alb</code></td><td>Yes</td></tr>
+                  <tr><td><code>*.yourapp.com</code></td><td>A</td><td>Application Load Balancer → <code>myapp-alb</code></td><td>Yes</td></tr>
+                  <tr><td><code>assets.yourapp.com</code></td><td>A</td><td>CloudFront distribution (Lesson 11)</td><td>No</td></tr>
+                </tbody>
+              </table>
+            </div>
             <ul>
               <li>
-                <code>UPSERT</code> = create if missing, update if present. Safe to rerun; it is what
-                Terraform does in Lesson 15.
+                The wildcard record does <em>not</em> cover the bare domain, so you create both.
               </li>
               <li>
-                <code>dualstack.</code> in front of the ALB name is the documented form and allows
-                IPv6 if the ALB has it.
+                Every CloudFront distribution shares one fixed hosted-zone ID; an ALB&apos;s differs
+                by region. That&apos;s why picking from the dropdown beats typing.
               </li>
               <li>
-                <code>Z2FDTNDATAQYW2</code> is the fixed hosted-zone ID <strong>all CloudFront
-                distributions share</strong>. An ALB&apos;s ID differs by region, which is why we
-                looked it up instead of typing it.
-              </li>
-              <li>
-                The wildcard record does <em>not</em> cover the bare domain, so we create both.
+                Changes go from <em>PENDING</em> to <em>INSYNC</em> on all Route 53 servers in
+                about 30 seconds.
               </li>
             </ul>
-          </li>
-          <li>
-            <h3>Apply it and wait for INSYNC</h3>
-            <Script
-              title="3 · apply"
-              code={`sed -i.bak "s|ALB_ZONE_HERE|$ALB_ZONE|g; s|ALB_DNS_HERE|$ALB_DNS|g" records.json
-
-CHANGE_ID=$(aws route53 change-resource-record-sets --hosted-zone-id $ZONE_ID \\
-  --change-batch file://records.json --query ChangeInfo.Id --output text)
-
-aws route53 wait resource-record-sets-changed --id $CHANGE_ID   # PENDING → INSYNC, usually ~30 s`}
-            />
           </li>
           <li>
             <h3>Check it from the outside</h3>
             <CommandList
               title="Verify"
               commands={[
-                { cmd: "dig +short yourapp.com", note: "Returns several IPs — the ALB's addresses, one per Availability Zone. You never type them; they can change" },
-                { cmd: "dig +short acme.yourapp.com", note: "Any subdomain resolves through the wildcard — multi-tenant DNS with zero per-customer work" },
-                { cmd: "curl -sI https://yourapp.com | head -3", note: "HTTP/2 200, valid certificate, served by your ASG through the ALB" },
-                { cmd: "curl -sI https://assets.yourapp.com/assets/logo.png | grep -i x-cache", note: "Through CloudFront" },
+                { cmd: "dig +short acme.yourapp.com", note: "Any subdomain resolves through the wildcard to the ALB's IPs (several, one per AZ — you never type them; they can change)" },
+                { cmd: "curl -sI https://yourapp.com", note: "HTTP/2 200 and a valid certificate, served by your Auto Scaling group through the ALB" },
               ]}
             />
           </li>
           <li>
             <h3>Redirect www to the bare domain (or the reverse)</h3>
             <p>
-              Create <code>www</code> as an alias to the ALB as well (same JSON with{" "}
-              <code>&quot;Name&quot;: &quot;www.yourapp.com&quot;</code>), then add one{" "}
-              <strong>ALB listener rule</strong> that redirects it. Search engines treat the two
-              names as separate sites, so pick one canonical name:
+              Create <code>www</code> as an alias to the ALB as well, then add one{" "}
+              <strong>rule on the ALB&apos;s HTTPS listener</strong>: if the host header is{" "}
+              <code>www.yourapp.com</code>, redirect (301) to <code>https://yourapp.com</code>,
+              keeping the path and query. Search engines treat the two names as separate sites, so
+              pick one canonical name.
             </p>
-            <Script
-              title="ALB rule: host www.yourapp.com → 301 to yourapp.com"
-              code={`LISTENER_ARN=$(aws elbv2 describe-listeners --load-balancer-arn $ALB_ARN \\
-  --query 'Listeners[?Port==\`443\`].ListenerArn' --output text)
-
-aws elbv2 create-rule --listener-arn $LISTENER_ARN --priority 10 \\
-  --conditions Field=host-header,Values=www.yourapp.com \\
-  --actions 'Type=redirect,RedirectConfig={Host=yourapp.com,Protocol=HTTPS,Port=443,Path=/#{path},Query=#{query},StatusCode=HTTP_301}'`}
-            />
           </li>
         </ol>
 
@@ -316,32 +253,24 @@ aws elbv2 create-rule --listener-arn $LISTENER_ARN --priority 10 \\
         <p>
           You have an old stack (say, the app on Vercel) and a new one (the ALB). Instead of flipping
           everyone at once, create <strong>two records with the same name</strong>, each with a
-          distinct <em>SetIdentifier</em> and a weight. Traffic splits in that ratio:
+          distinct record ID and a weight. Traffic splits in that ratio:
         </p>
-        <Script
-          title="weighted-migration.json"
-          code={`{
-  "Changes": [
-    {
-      "Action": "UPSERT",
-      "ResourceRecordSet": {
-        "Name": "yourapp.com", "Type": "A",
-        "SetIdentifier": "new-aws-stack", "Weight": 10,
-        "AliasTarget": { "HostedZoneId": "ALB_ZONE_HERE", "DNSName": "dualstack.ALB_DNS_HERE", "EvaluateTargetHealth": true }
-      }
-    },
-    {
-      "Action": "UPSERT",
-      "ResourceRecordSet": {
-        "Name": "yourapp.com", "Type": "A",
-        "SetIdentifier": "old-stack", "Weight": 90,
-        "TTL": 60,
-        "ResourceRecords": [{ "Value": "76.76.21.21" }]
-      }
-    }
-  ]
-}`}
-        />
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Record</th>
+                <th>Record ID</th>
+                <th>Weight</th>
+                <th>Points to</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><code>yourapp.com</code> A</td><td><code>new-aws-stack</code></td><td>10</td><td>alias → the ALB</td></tr>
+              <tr><td><code>yourapp.com</code> A</td><td><code>old-stack</code></td><td>90</td><td>the old host&apos;s IP, TTL 60</td></tr>
+            </tbody>
+          </table>
+        </div>
         <p>
           Start at 10, watch error rates and latency for an hour, then 50, then 100, then remove the
           old record. If anything looks wrong, set the weight to 0: rollback takes as long as your
@@ -362,19 +291,11 @@ aws elbv2 create-rule --listener-arn $LISTENER_ARN --priority 10 \\
           AWS locations — that requests a URL every 10 or 30 seconds. If enough of them see failures,
           the check turns unhealthy and any record tied to it is withdrawn from answers.
         </p>
-        <Script
-          title="a health check on the production site"
-          code={`aws route53 create-health-check --caller-reference "myapp-$(date +%s)" \\
-  --health-check-config '{
-    "Type": "HTTPS",
-    "FullyQualifiedDomainName": "yourapp.com",
-    "ResourcePath": "/api/health",
-    "Port": 443,
-    "RequestInterval": 30,
-    "FailureThreshold": 3
-  }'
-# Prints a HealthCheck Id. Attach it to a record with "HealthCheckId": "..." in the change batch.`}
-        />
+        <p>
+          You create one in Route 53 → Health checks: HTTPS, <code>yourapp.com</code>, path{" "}
+          <code>/api/health</code>, every 30 seconds, unhealthy after 3 failures. Then attach it to
+          a record.
+        </p>
         <p>
           <strong>Failover routing</strong> uses it. Two records, one marked <code>PRIMARY</code>{" "}
           (with the health check) and one <code>SECONDARY</code>. While the primary is healthy
@@ -400,26 +321,13 @@ aws elbv2 create-rule --listener-arn $LISTENER_ARN --priority 10 \\
           pasted into <code>.env</code> and SSM. When you restore a snapshot or fail over, the
           hostname changes and every config must be edited.
         </p>
-        <p>Give the database a name <em>you</em> control instead:</p>
-        <Script
-          title="internal.yourapp.com — visible only inside the VPC"
-          code={`PRIVATE_ZONE=$(aws route53 create-hosted-zone --name internal.yourapp.com \\
-  --vpc VPCRegion=ap-south-1,VPCId=$VPC_ID \\
-  --caller-reference "internal-$(date +%s)" \\
-  --hosted-zone-config Comment="Private names",PrivateZone=true \\
-  --query 'HostedZone.Id' --output text | sed 's|/hostedzone/||')
-
-DB_HOST=$(aws rds describe-db-instances --db-instance-identifier myapp-db \\
-  --query 'DBInstances[0].Endpoint.Address' --output text)
-
-aws route53 change-resource-record-sets --hosted-zone-id $PRIVATE_ZONE --change-batch '{
-  "Changes": [{ "Action": "UPSERT", "ResourceRecordSet": {
-    "Name": "db.internal.yourapp.com", "Type": "CNAME", "TTL": 60,
-    "ResourceRecords": [{ "Value": "'$DB_HOST'" }] } }]
-}'
-
-# The app now uses:  postgresql://appuser:…@db.internal.yourapp.com:5432/myapp`}
-        />
+        <p>Give the database a name <em>you</em> control instead.</p>
+        <p>
+          Create a private hosted zone <code>internal.yourapp.com</code> attached to the{" "}
+          <code>myapp</code> VPC, and in it one CNAME: <code>db.internal.yourapp.com</code> → the
+          RDS endpoint, TTL 60. The app&apos;s connection string now uses{" "}
+          <code>@db.internal.yourapp.com:5432</code>.
+        </p>
         <p>
           Restore a snapshot? Update <em>one</em> record instead of every server&apos;s config. The
           VPC needs <code>enableDnsHostnames</code> and <code>enableDnsSupport</code> (we set the
@@ -499,8 +407,7 @@ aws route53 change-resource-record-sets --hosted-zone-id $PRIVATE_ZONE --change-
             <CommandList
               title="Bypass DNS and talk to the ALB directly"
               commands={[
-                { cmd: "dig +short $ALB_DNS", note: "Get one of the ALB's IPs" },
-                { cmd: "curl -sI --resolve yourapp.com:443:<ALB-IP> https://yourapp.com/", note: "Sends the request for yourapp.com to that IP while the certificate still validates. Test login, uploads, every important page. No DNS change needed" },
+                { cmd: "curl -sI --resolve yourapp.com:443:<ALB-IP> https://yourapp.com/", note: "Sends the request for yourapp.com to one of the ALB's IPs while the certificate still validates. Test login, uploads, every important page — no DNS change needed" },
               ]}
             />
           </li>
@@ -607,16 +514,18 @@ aws route53 change-resource-record-sets --hosted-zone-id $PRIVATE_ZONE --change-
             </tbody>
           </table>
         </div>
-        <h3>The four dig commands that solve most DNS problems</h3>
+        <h3>Two lookups that solve most DNS problems</h3>
         <CommandList
           title="Debugging DNS"
           commands={[
-            { cmd: "dig NS yourapp.com +short", note: "Which nameservers does the world think are authoritative? Must equal the hosted zone's NS record" },
-            { cmd: "dig @ns-123.awsdns-45.org yourapp.com", note: "Ask Route 53 directly — the truth, ignoring all caches" },
-            { cmd: "dig @8.8.8.8 yourapp.com", note: "Ask a public resolver — what a typical user sees right now (check the TTL counting down)" },
-            { cmd: "dig +trace yourapp.com", note: "Walk the whole chain from the root servers down, showing where it breaks" },
+            { cmd: "dig NS yourapp.com +short", note: "Which nameservers does the world think are authoritative? Must equal the hosted zone's NS record — the #1 cause of “my records don't work”" },
+            { cmd: "dig @ns-123.awsdns-45.org yourapp.com", note: "Ask Route 53 directly — the truth, ignoring every cache. If this is right but users see old answers, it is TTL; wait" },
           ]}
         />
+        <p>
+          Together with <code>dig +trace</code> and asking a public resolver (Lesson 3), these
+          solve almost every DNS problem.
+        </p>
 
         <h2 id="interview">Interview corner</h2>
         <InterviewQA
@@ -711,8 +620,7 @@ aws route53 change-resource-record-sets --hosted-zone-id $PRIVATE_ZONE --change-
           </li>
           <li>
             Create two weighted records for a test subdomain (<code>canary.yourapp.com</code>), one
-            to the ALB and one to a plain IP, weights 50/50. Run{" "}
-            <code>for i in $(seq 1 20); do dig +short canary.yourapp.com @8.8.8.8; done</code> and
+            to the ALB and one to a plain IP, weights 50/50. Look it up many times in a row and
             observe the split (and the caching).
           </li>
           <li>

@@ -327,15 +327,22 @@ Content-Type: application/json
             are actually DNS or Security Group problems.
           </p>
         </Callout>
+        <p>
+          Install Certbot with its Nginx plugin, then ask for a certificate covering{" "}
+          <strong>both</strong> the bare and the www name:
+        </p>
         <CommandList
           title="On the EC2 server"
           commands={[
-            { cmd: "sudo apt update && sudo apt install certbot python3-certbot-nginx -y", note: "1. Install Certbot with the Nginx plugin" },
-            { cmd: "sudo certbot --nginx -d yourapp.com -d www.yourapp.com", note: "2. Request the certificate — include BOTH bare and www versions. Certbot asks for your email (for expiry warnings), verifies domain ownership, then edits your Nginx config automatically." },
-            { cmd: "sudo certbot renew --dry-run", note: "3. Confirm auto-renewal works" },
-            { cmd: "sudo systemctl status certbot.timer", note: "4. Check the renewal timer is active" },
+            { cmd: "sudo apt install certbot python3-certbot-nginx -y", note: "Install Certbot with the Nginx plugin" },
+            { cmd: "sudo certbot --nginx -d yourapp.com -d www.yourapp.com", note: "Request the certificate. Certbot asks for an email (for expiry warnings), proves you own the domain, then edits your Nginx config." },
           ]}
         />
+        <p>
+          Certbot also installs a timer that renews the certificate before its 90 days run out.
+          You never touch it again — but check once that renewal works, so you are not surprised
+          in three months.
+        </p>
         <Callout kind="ok" label="That is genuinely it">
           <p className="mb-0">
             Certbot writes the certificate paths into your Nginx config and adds the
@@ -345,28 +352,17 @@ Content-Type: application/json
 
         <h2 id="nginx">The Nginx config afterward</h2>
         <Script
-          title="/etc/nginx/sites-available/yourapp.com"
-          code={`# The secure server block
-server {
+          title="/etc/nginx/sites-available/yourapp.com — the parts Certbot adds"
+          code={`server {
     listen 443 ssl;
-    server_name yourapp.com www.yourapp.com;
-
     ssl_certificate     /etc/letsencrypt/live/yourapp.com/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/yourapp.com/privkey.pem;
-
-    location / {
-        proxy_pass http://localhost:3000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
+    # ...your existing location / { proxy_pass ... } stays as it was
 }
 
-# Anyone arriving on plain HTTP gets pushed to HTTPS
 server {
-    listen 80;
-    server_name yourapp.com www.yourapp.com;
-    return 301 https://$host$request_uri;
+    listen 80;                                  # plain HTTP
+    return 301 https://$host$request_uri;       # push everyone to HTTPS
 }`}
         />
         <p>
@@ -431,9 +427,7 @@ server {
         <CommandList
           title="From any machine"
           commands={[
-            { cmd: "openssl s_client -connect yourapp.com:443 -servername yourapp.com", note: "Full certificate details for any live site" },
-            { cmd: "echo | openssl s_client -connect yourapp.com:443 2>/dev/null | openssl x509 -noout -dates", note: "Just the expiry dates — quick check" },
-            { cmd: "curl -I http://yourapp.com", note: <>Confirm the HTTP → HTTPS redirect is working. Should return <code>HTTP/1.1 301 Moved Permanently</code></> },
+            { cmd: "curl -I http://yourapp.com", note: <>Should return <code>301 Moved Permanently</code> to the https:// address</> },
           ]}
         />
         <p>
@@ -467,24 +461,13 @@ server {
         </p>
         <Script
           title="practice.sh"
-          code={`# 1. Watch a real handshake and read the chain (look for "Certificate chain" and "Verify return code: 0 (ok)")
-openssl s_client -connect github.com:443 -servername github.com </dev/null
-
-# 2. Just the dates — when does it expire?
-echo | openssl s_client -connect github.com:443 2>/dev/null | openssl x509 -noout -dates
-
-# 3. Who issued it, and for which names? (look at CN and "Subject Alternative Name")
-echo | openssl s_client -connect github.com:443 2>/dev/null | openssl x509 -noout -issuer -subject -ext subjectAltName
-
-# 4. Prove that the wrong name fails check #3 of the handshake
-openssl s_client -connect github.com:443 -servername example.org </dev/null 2>&1 | grep "Verify return code"
-
-# 5. See an HTTP → HTTPS redirect in action
-curl -I http://github.com          # expect 301 and a Location: https://... header
-
-# 6. Visit https://expired.badssl.com and https://wrong.host.badssl.com in your browser
-#    and read the exact error names Chrome shows you`}
+          code={`curl -I http://github.com      # expect 301 and a Location: https://... header`}
         />
+        <p>
+          Then open <code>https://github.com</code> and click the padlock: find the issuer, the
+          expiry date and the chain. Finally visit <code>https://expired.badssl.com</code> and{" "}
+          <code>https://wrong.host.badssl.com</code> and read the exact error each one shows.
+        </p>
         <p>Then answer these in your own words:</p>
         <ol>
           <li>

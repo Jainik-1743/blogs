@@ -26,7 +26,6 @@ const outline = [
   { id: "tcp-udp", label: "TCP vs UDP — why it matters for your stack" },
   { id: "security-groups", label: "Security Groups in detail" },
   { id: "real-example", label: "Real example — a debugging story" },
-  { id: "commands", label: "Commands reference" },
   { id: "practice", label: "Practice task before Lesson 3" },
   { id: "conclusion", label: "Conclusion" },
 ];
@@ -388,28 +387,12 @@ export default function LessonTwoPage() {
           </p>
         </Callout>
 
-        <h3>Managing security groups with the AWS CLI</h3>
-        <CommandList
-          title="Security groups"
-          commands={[
-            {
-              cmd: 'aws ec2 create-security-group --group-name myapp-app-sg --description "App server"',
-              note: "Create a new security group. The output gives you its GroupId (sg-...)",
-            },
-            {
-              cmd: "aws ec2 authorize-security-group-ingress --group-id sg-0123456789abcdef0 --protocol tcp --port 443 --cidr 0.0.0.0/0",
-              note: "Allow HTTPS from anywhere",
-            },
-            {
-              cmd: "aws ec2 authorize-security-group-ingress --group-id sg-0123456789abcdef0 --protocol tcp --port 22 --cidr 103.45.12.8/32",
-              note: "Allow SSH only from your own IP",
-            },
-            {
-              cmd: "aws ec2 describe-security-groups --group-ids sg-0123456789abcdef0",
-              note: "See all current rules",
-            },
-          ]}
-        />
+        <h3>Managing security groups</h3>
+        <p>
+          You create a security group, then add one rule per door: HTTPS from anywhere, SSH only
+          from your own <code>/32</code>. You can do this in the console or the CLI — Lesson 6
+          builds the real ones step by step, so there is nothing to run yet.
+        </p>
         <Callout kind="note" label="Good to know">
           <p className="mb-0">
             A single EC2 server can have multiple security groups attached at once, and AWS
@@ -485,31 +468,6 @@ export default function LessonTwoPage() {
           </p>
         </Callout>
 
-        <h2 id="commands">Commands reference</h2>
-        <CommandList
-          title="Find your IP addresses"
-          commands={[
-            { cmd: "curl ifconfig.me", note: "Your public IP, as seen from the internet" },
-            { cmd: "hostname -I", note: "Your private IP inside the network" },
-          ]}
-        />
-        <CommandList
-          title="Reachability"
-          commands={[
-            { cmd: "ping google.com", note: "Basic reachability (often blocked in cloud — that's normal)" },
-            { cmd: "nc -zv example.com 443", note: "Is a specific port open? (Mac/Linux)" },
-            { cmd: "telnet example.com 443", note: "Older, works everywhere" },
-            { cmd: "traceroute google.com", note: "Trace the path a request takes (Windows: tracert)" },
-          ]}
-        />
-        <CommandList
-          title="What is listening"
-          commands={[
-            { cmd: "sudo ss -tulpn", note: <>Every listening port and its interface. <code>127.0.0.1:3000</code> = local only · <code>0.0.0.0:3000</code> = open to outside (if firewall allows)</> },
-            { cmd: "curl -I http://localhost:3000", note: <>Test an HTTP response directly. <code>-I</code> = headers only, fast check</> },
-            { cmd: "curl -I https://yourapp.com", note: "Same check, from the outside through the whole path" },
-          ]}
-        />
         <Callout kind="note" label="A real cost note, since it's networking-related">
           <p className="mb-0">
             AWS traffic <strong>into</strong> your server (data transfer IN) is free. Traffic{" "}
@@ -529,27 +487,15 @@ export default function LessonTwoPage() {
         </p>
         <Script
           title="practice.sh"
-          code={`# 1. Who am I on the network?
-curl ifconfig.me                       # public IP — what the internet sees
-hostname -I 2>/dev/null || ipconfig getifaddr en0   # private IP (Linux || Mac)
-
-# 2. Start your app, then look at it from the outside
-npm run dev &                          # Next.js on port 3000
-sudo ss -tulpn | grep 3000             # Linux — which interface? 127.0.0.1 or 0.0.0.0 / *?
-lsof -iTCP:3000 -sTCP:LISTEN           # Mac equivalent
-
-# 3. Knock on the door three ways
-curl -I http://localhost:3000          # from inside — expect HTTP/1.1 200
-nc -zv 127.0.0.1 3000                  # expect "succeeded"
-nc -zv 127.0.0.1 3001                  # nothing there — expect "Connection refused"
-
-# 4. Watch a real TLS website answer on 443
-nc -zv google.com 443
-curl -I https://google.com
-
-# 5. Read your own CIDR: how many addresses do these hold?
-#    10.0.0.0/16   10.0.1.0/24   103.45.12.8/32`}
+          code={`npm run dev &                 # Next.js on port 3000
+curl -I http://localhost:3000 # from inside — expect HTTP/1.1 200
+nc -zv 127.0.0.1 3000         # expect "succeeded"
+nc -zv 127.0.0.1 3001         # nothing there — expect "Connection refused"`}
         />
+        <p>
+          Then work out, on paper, how many addresses <code>10.0.0.0/16</code>,{" "}
+          <code>10.0.1.0/24</code> and <code>103.45.12.8/32</code> each hold.
+        </p>
         <p>Then answer these in your own words:</p>
         <ol>
           <li>

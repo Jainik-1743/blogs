@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Callout from "@/components/Callout";
-import CommandList from "@/components/CommandList";
 import IamBlocks from "@/components/figures/IamBlocks";
 import KeysVsRole from "@/components/figures/KeysVsRole";
 import LessonPager from "@/components/LessonPager";
@@ -371,44 +370,35 @@ await s3.send(new PutObjectCommand({
         <ol className="steps">
           <li>
             <h3>Create groups, one per job function</h3>
-            <CommandList
-              title="Groups"
-              commands={[
-                { cmd: "aws iam create-group --group-name Developers", note: "Read-mostly: can look, cannot change production" },
-                { cmd: "aws iam create-group --group-name DevOps", note: "Can build infrastructure, but not manage IAM itself" },
-              ]}
-            />
+            <p>
+              In the console: IAM → User groups → Create. Make <strong>Developers</strong>{" "}
+              (read-mostly: can look, cannot change production) and <strong>DevOps</strong> (can
+              build infrastructure, but not manage IAM itself).
+            </p>
           </li>
           <li>
             <h3>Attach policies to the group, never to individual users</h3>
-            <CommandList
-              title="Policies → groups"
-              commands={[
-                { cmd: "aws iam attach-group-policy --group-name Developers --policy-arn arn:aws:iam::aws:policy/ReadOnlyAccess", note: "AWS-managed policy: read everything, change nothing" },
-                { cmd: "aws iam attach-group-policy --group-name DevOps --policy-arn arn:aws:iam::aws:policy/PowerUserAccess", note: "AWS-managed policy: everything except IAM and account settings" },
-              ]}
-            />
+            <p>
+              Give Developers the AWS-managed <code>ReadOnlyAccess</code> policy (read
+              everything, change nothing) and DevOps <code>PowerUserAccess</code> (everything
+              except IAM and account settings). AWS maintains both, so you never write them by
+              hand.
+            </p>
           </li>
           <li>
             <h3>Create a user and put them in a group</h3>
-            <CommandList
-              title="Users → groups"
-              commands={[
-                { cmd: "aws iam create-user --user-name rahul", note: "One person, one identity" },
-                { cmd: "aws iam add-user-to-group --user-name rahul --group-name Developers", note: "Rahul inherits everything the Developers group allows" },
-              ]}
-            />
+            <p>
+              One person, one identity. Create <code>rahul</code> and add him to Developers —
+              he now inherits everything that group allows, and nothing else.
+            </p>
           </li>
           <li>
             <h3>Check who has what</h3>
-            <CommandList
-              title="Audit"
-              commands={[
-                { cmd: "aws iam list-users", note: "Every identity in the account" },
-                { cmd: "aws iam get-account-summary", note: "Counts of users, groups, policies, MFA devices" },
-                { cmd: "aws iam list-groups-for-user --user-name rahul", note: "Which departments is Rahul in?" },
-              ]}
-            />
+            <p>
+              IAM&apos;s user list and its <strong>Access advisor</strong> tab show every identity,
+              the groups each one is in, and which services they actually used recently — the
+              place to spot permissions nobody needs.
+            </p>
           </li>
         </ol>
         <Callout kind="note" label="Why groups matter">
@@ -446,22 +436,6 @@ await s3.send(new PutObjectCommand({
             email. You get a warning email long before anything becomes painful.
           </p>
         </Callout>
-        <p>Or through the CLI, after enabling billing alerts in Billing preferences:</p>
-        <Script
-          title="billing-alarm.sh"
-          code={`aws cloudwatch put-metric-alarm \\
-  --alarm-name billing-alert-10-usd \\
-  --namespace AWS/Billing \\
-  --metric-name EstimatedCharges \\
-  --dimensions Name=Currency,Value=USD \\
-  --statistic Maximum \\
-  --period 21600 \\
-  --threshold 10 \\
-  --comparison-operator GreaterThanThreshold \\
-  --evaluation-periods 1 \\
-  --alarm-actions <your-sns-topic-arn>`}
-        />
-        <p>The first ten CloudWatch alarms are free.</p>
 
         <h2 id="keys">Access key hygiene</h2>
         <p>
@@ -477,15 +451,11 @@ await s3.send(new PutObjectCommand({
           <li>Delete unused keys immediately.</li>
           <li>Turn on MFA for any user that has keys.</li>
         </ul>
-        <CommandList
-          title="Key rotation"
-          commands={[
-            { cmd: "aws iam list-access-keys --user-name admin", note: "See all keys for a user and when they were created" },
-            { cmd: "aws iam get-access-key-last-used --access-key-id AKIA...", note: "When was this key last used, and from which service?" },
-            { cmd: "aws iam create-access-key --user-name admin", note: "Rotate, step 1: create the new key and put it in aws configure" },
-            { cmd: "aws iam delete-access-key --user-name admin --access-key-id AKIA-OLD", note: "Rotate, step 2: delete the old one once everything works" },
-          ]}
-        />
+        <p>
+          Rotating a key is two steps: create the new key and switch your CLI to it, then delete
+          the old one once everything still works. IAM shows when each key was last used, which
+          tells you which keys are safe to delete.
+        </p>
         <h3>Cost</h3>
         <p>
           IAM users, groups, roles, policies and Identity Center are all{" "}
@@ -506,53 +476,37 @@ await s3.send(new PutObjectCommand({
           Everything here is free. By the end, your account has the shape a real team&apos;s
           account has — even if you are the only member.
         </p>
-        <Script
-          title="practice.sh"
-          code={`# 1. Where do you stand? (must be an IAM user, never root — Lesson 0)
-aws sts get-caller-identity
-
-# 2. Build the department structure
-aws iam create-group --group-name Developers
-aws iam attach-group-policy --group-name Developers \\
-  --policy-arn arn:aws:iam::aws:policy/ReadOnlyAccess
-
-# 3. Create a second, read-only identity and put it in the group
-aws iam create-user --user-name reader
-aws iam add-user-to-group --user-name reader --group-name Developers
-aws iam create-access-key --user-name reader        # copy the two values
-
-# 4. Become that user in a separate CLI profile and feel least privilege
-aws configure --profile reader                       # paste the reader's keys, region ap-south-1
-aws iam list-users --profile reader                  # works: ReadOnlyAccess allows it
-aws iam create-group --group-name Hack --profile reader   # AccessDenied — exactly as designed
-
-# 5. Write your first policy: one bucket, two actions, nothing else
-cat > s3-pdfs.json <<'EOF'
-{ "Version": "2012-10-17",
-  "Statement": [{ "Effect": "Allow",
-                  "Action": ["s3:PutObject", "s3:GetObject"],
-                  "Resource": "arn:aws:s3:::myapp-pdfs/*" }] }
-EOF
-aws iam create-policy --policy-name myapp-pdfs-rw --policy-document file://s3-pdfs.json
-
-# 6. Create the role EC2 will wear in Lesson 7 (the plumber's key card)
-cat > trust-ec2.json <<'EOF'
-{ "Version": "2012-10-17",
-  "Statement": [{ "Effect": "Allow",
-                  "Principal": { "Service": "ec2.amazonaws.com" },
-                  "Action": "sts:AssumeRole" }] }
-EOF
-aws iam create-role --role-name myapp-ec2-role --assume-role-policy-document file://trust-ec2.json
-aws iam attach-role-policy --role-name myapp-ec2-role \\
-  --policy-arn arn:aws:iam::$(aws sts get-caller-identity --query Account --output text):policy/myapp-pdfs-rw
-
-# 7. Clean up the practice user's key (keep the group, policy and role — Lesson 7 uses them)
-aws iam list-access-keys --user-name reader
-aws iam delete-access-key --user-name reader --access-key-id <AKIA…>
-
-# 8. The one that actually protects your wallet
-#    Console → Billing → Budgets → Create → ₹800 / month → your email`}
-        />
+        <ol>
+          <li>
+            Confirm you are an IAM user, never root (Lesson 0):{" "}
+            <code>aws sts get-caller-identity</code>.
+          </li>
+          <li>
+            In the console, create a <strong>Developers</strong> group with{" "}
+            <code>ReadOnlyAccess</code>, and a user <code>reader</code> in it with one access key.
+          </li>
+          <li>
+            Create a <strong>policy</strong> <code>myapp-pdfs-rw</code> using the{" "}
+            <code>policy.json</code> above: one bucket, two actions, nothing else.
+          </li>
+          <li>
+            Feel least privilege. Add the reader&apos;s key as a second CLI profile, then try:
+            <Script
+              title="as the reader"
+              code={`aws configure --profile reader                            # paste reader's keys
+aws iam list-users --profile reader                       # works: ReadOnlyAccess allows it
+aws iam create-group --group-name Hack --profile reader   # AccessDenied — as designed`}
+            />
+          </li>
+          <li>
+            Create the <strong>role</strong> EC2 will wear in Lesson 7: IAM → Roles → Create role
+            → trusted entity <em>AWS service: EC2</em> → attach <code>myapp-pdfs-rw</code> → name
+            it <code>myapp-ec2-role</code>. Picking &ldquo;EC2&rdquo; writes the trust document
+            for you.
+          </li>
+          <li>Delete the reader&apos;s access key. Keep the group, policy and role — Lesson 7 uses them.</li>
+          <li>Billing → Budgets → Create → ₹800 / month → your email. This one protects your wallet.</li>
+        </ol>
         <p>Then answer these in your own words:</p>
         <ol>
           <li>
@@ -561,7 +515,7 @@ aws iam delete-access-key --user-name reader --access-key-id <AKIA…>
             <code>iam:CreateGroup</code> change anything?
           </li>
           <li>
-            Explain the difference between the policy in step 5 and the trust document in step 6.
+            Explain the difference between the policy in step 3 and the role's trust document in step 5.
             Which one says <em>what</em> is allowed, and which one says <em>who</em> may wear the
             role?
           </li>

@@ -25,7 +25,7 @@ const outline = [
   { id: "ttl", label: "Why TTL matters practically" },
   { id: "real-example", label: "Real example — setting up a domain on Route 53" },
   { id: "wildcard", label: "The subdomain trick for multi-tenant SaaS" },
-  { id: "commands", label: "Commands reference" },
+  { id: "commands", label: "Looking it up yourself" },
   { id: "propagation", label: "Why “propagation takes 24–48 hours” is mostly a myth" },
   { id: "practice", label: "Practice task before Lesson 4" },
   { id: "conclusion", label: "Conclusion" },
@@ -211,46 +211,29 @@ Value: 52.66.12.9`}</code>
           </p>
         </Callout>
 
-        <h2 id="commands">Commands reference</h2>
+        <h2 id="commands">Looking it up yourself</h2>
+        <p>
+          You can ask DNS questions yourself, from any laptop. Three lookups cover almost every
+          situation: &ldquo;what IP does this name point to?&rdquo;, &ldquo;show me every step of
+          the chain&rdquo;, and &ldquo;ask Google&apos;s resolver directly, skipping my cache&rdquo;.
+          The same tool can also ask for one record type — <code>NS</code>, <code>MX</code>,{" "}
+          <code>TXT</code> — when you need it.
+        </p>
         <CommandList
           title="Looking things up"
           commands={[
-            { cmd: "dig yourapp.com", note: "Look up a domain's IP address — the basic check" },
-            { cmd: "nslookup yourapp.com", note: "Works everywhere, simpler output" },
-            { cmd: "dig yourapp.com +short", note: "See only the answer, nothing else" },
-            { cmd: "dig yourapp.com NS", note: "Check which nameservers control a domain" },
-            { cmd: "dig yourapp.com MX", note: "Check a specific record type — here, mail" },
-            { cmd: "dig yourapp.com TXT", note: "Verification and SPF records" },
-            { cmd: "dig yourapp.com +trace", note: "See the full resolution chain, step by step — root → TLD → authoritative" },
-            { cmd: "whois yourapp.com", note: "Domain registration details — owner, expiry, registrar" },
-            { cmd: "dig @8.8.8.8 yourapp.com", note: "Bypass your local DNS cache and ask a specific resolver directly" },
+            { cmd: "dig yourapp.com +short", note: "What IP does the name resolve to?" },
+            { cmd: "dig yourapp.com +trace", note: "The full chain, step by step — root → TLD → authoritative" },
+            { cmd: "dig @8.8.8.8 yourapp.com +short", note: "Skip your local cache and ask one resolver directly" },
           ]}
         />
 
-        <h3>AWS CLI — creating records in Route 53</h3>
-        <CommandList
-          title="Route 53"
-          commands={[
-            { cmd: "aws route53 list-hosted-zones", note: "List your hosted zones — you need the zone Id for the next command" },
-          ]}
-        />
-        <Script
-          title="create-a-record.sh"
-          code={`# Create an A record pointing to your EC2 IP
-aws route53 change-resource-record-sets \\
-  --hosted-zone-id Z1234567890 \\
-  --change-batch '{
-    "Changes": [{
-      "Action": "CREATE",
-      "ResourceRecordSet": {
-        "Name": "yourapp.com",
-        "Type": "A",
-        "TTL": 300,
-        "ResourceRecords": [{"Value": "52.66.12.9"}]
-      }
-    }]
-  }'`}
-        />
+        <h3>Creating a record in Route 53</h3>
+        <p>
+          In Route 53 you create a record by naming it, picking a type (<code>A</code>,{" "}
+          <code>CNAME</code>…), setting a TTL and giving the value — the same four fields as any
+          DNS provider. The console is fine for this; Lesson 13 does it properly for production.
+        </p>
 
         <h2 id="propagation">Why &ldquo;propagation takes 24–48 hours&rdquo; is mostly a myth</h2>
         <p>
@@ -276,30 +259,9 @@ aws route53 change-resource-record-sets \\
         </p>
         <Script
           title="practice.sh"
-          code={`# 1. The basic lookup — what IP does the name resolve to?
-dig github.com +short
-
-# 2. Who is authoritative? Which nameservers hold the real records?
-dig github.com NS +short
-
-# 3. Watch the whole chain: root → .com TLD → authoritative → answer
-dig github.com +trace
-
-# 4. Read the TTL — the number after the name in the ANSWER section
-dig github.com          # how many seconds until resolvers re-ask?
-dig github.com          # run again: the TTL counts down — that's the cache
-
-# 5. Ask two different resolvers and compare
-dig @8.8.8.8 github.com +short      # Google
-dig @1.1.1.1 github.com +short      # Cloudflare
-
-# 6. Different record types
-dig github.com MX +short
-dig github.com TXT +short
-dig www.github.com CNAME +short     # is www an alias or its own A record?
-
-# 7. Prove that a wildcard exists (or doesn't)
-dig anything-at-all.vercel.app +short   # Vercel uses a wildcard — any name answers`}
+          code={`dig github.com +short          # the IP it resolves to
+dig github.com +trace          # root → .com → GitHub's nameservers → answer
+dig github.com                 # run twice: the TTL in the ANSWER counts down`}
         />
         <p>Then answer these in your own words:</p>
         <ol>

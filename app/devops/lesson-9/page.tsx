@@ -183,40 +183,21 @@ export default function LessonNinePage() {
         <h3>On your laptop</h3>
         <p>
           Install <strong>Docker Desktop</strong> (Mac, Windows) or Docker Engine (Linux). On
-          Windows use the WSL 2 backend from Lesson 1. Verify:
+          Windows use the WSL 2 backend from Lesson 1. Then check it works:
         </p>
         <CommandList
           title="Laptop"
           commands={[
-            { cmd: "docker --version", note: "Prints the client version" },
-            { cmd: "docker run hello-world", note: "Downloads a tiny image and runs it. If you see “Hello from Docker!”, everything works end to end" },
+            { cmd: "docker run hello-world", note: "Downloads a tiny image and runs it. “Hello from Docker!” means everything works end to end" },
           ]}
         />
         <h3>On the Ubuntu EC2 server</h3>
-        <p>Use Docker&apos;s official repository (the Ubuntu package is older):</p>
-        <Script
-          title="on EC2"
-          code={`# 1. Prerequisites and Docker's signing key
-sudo apt update
-sudo apt install -y ca-certificates curl
-sudo install -m 0755 -d /etc/apt/keyrings
-sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-sudo chmod a+r /etc/apt/keyrings/docker.asc
-
-# 2. Add the repository
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] \\
-https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo $VERSION_CODENAME) stable" \\
-  | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-# 3. Install Engine + the compose plugin
-sudo apt update
-sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-
-# 4. Let the ubuntu user run docker without sudo (log out and back in afterwards)
-sudo usermod -aG docker ubuntu
-
-docker run --rm hello-world`}
-        />
+        <p>
+          Follow Docker&apos;s own &ldquo;Install Docker Engine on Ubuntu&rdquo; page: it adds
+          Docker&apos;s signed package repository, then installs the engine plus the Compose
+          plugin. Afterwards, add the <code>ubuntu</code> user to the <code>docker</code> group so
+          you don&apos;t need <code>sudo</code> each time, and log out and back in.
+        </p>
         <Callout kind="warn" label="Membership of the docker group equals root">
           <p className="mb-0">
             Anyone who can run <code>docker</code> can mount the host&apos;s filesystem and become
@@ -227,16 +208,16 @@ docker run --rm hello-world`}
 
         <h2 id="first">Your first containers</h2>
         <CommandList
-          title="Learn the verbs"
+          title="Your first container"
           commands={[
-            { cmd: "docker run -d --name web -p 8080:80 nginx", note: "Download the official nginx image, start it in the background (-d), name it, and map laptop port 8080 → container port 80. Visit http://localhost:8080" },
-            { cmd: "docker ps", note: "Running containers. Add -a to include stopped ones" },
-            { cmd: "docker logs -f web", note: "Follow the container's output (its stdout/stderr) — this is where app logs go" },
-            { cmd: "docker exec -it web sh", note: "Open a shell inside the running container. Type exit to leave" },
-            { cmd: "docker stop web && docker rm web", note: "Stop it, then delete it. The image stays on disk" },
-            { cmd: "docker images", note: "Images stored on this machine. Remove with docker rmi <id>" },
+            { cmd: "docker run -d --name web -p 8080:80 nginx", note: "Download the official nginx image, start it in the background (-d), and map laptop port 8080 → container port 80. Visit http://localhost:8080" },
           ]}
         />
+        <p>
+          From there the verbs are what you would guess: list running containers, follow one
+          container&apos;s logs (that is where app output goes), open a shell inside it, stop it,
+          remove it. Removing a container leaves its image on disk for next time.
+        </p>
         <p>
           <strong>Port mapping</strong> deserves a sentence, because it confuses everyone once:{" "}
           <code>-p 8080:80</code> means <em>host port : container port</em>. The container has its
@@ -369,25 +350,16 @@ CMD ["node", "server.js"]`}
           code={`node_modules
 .next
 .git
-.gitignore
-.env
-.env.*
-*.pem
-Dockerfile
-docker-compose*.yml
-README.md
-.vscode
-coverage`}
+.env*
+*.pem`}
         />
 
         <h2 id="run">Build it and run it</h2>
         <CommandList
           title="On your laptop"
           commands={[
-            { cmd: "docker build -t myapp:dev .", note: "Read the Dockerfile in this folder (.) and build an image named myapp with tag dev. First build is slow; the second, cached, takes seconds" },
-            { cmd: "docker images myapp", note: "Check the size. A standalone Next.js image should be roughly 150–250 MB" },
-            { cmd: "docker run --rm -p 3000:3000 --env-file .env.local myapp:dev", note: "Run it: --rm deletes the container on exit, -p publishes the port, --env-file loads variables at run time. Visit http://localhost:3000" },
-            { cmd: "docker history myapp:dev", note: "See every layer and its size — find what is making the image big" },
+            { cmd: "docker build -t myapp:dev .", note: "Build an image named myapp, tag dev, from the Dockerfile here. First build is slow; the cached second one takes seconds. Expect roughly 150–250 MB" },
+            { cmd: "docker run --rm -p 3000:3000 --env-file .env.local myapp:dev", note: "Run it, loading variables at run time. --rm deletes the container on exit. Visit http://localhost:3000" },
           ]}
         />
         <Callout kind="note" label="Build-time vs run-time variables">
@@ -458,43 +430,24 @@ coverage`}
           code={`services:
   app:
     build: .
-    ports:
-      - "3000:3000"
+    ports: ["3000:3000"]
     environment:
-      # The host is the SERVICE NAME "db", not localhost
-      DATABASE_URL: postgresql://appuser:devpass@db:5432/myapp
-    depends_on:
-      db:
-        condition: service_healthy    # wait until Postgres actually accepts connections
-    restart: unless-stopped
+      DATABASE_URL: postgresql://appuser:devpass@db:5432/myapp   # host is the SERVICE NAME "db"
+    depends_on: [db]
 
   db:
     image: postgres:16
-    environment:
-      POSTGRES_USER: appuser
-      POSTGRES_PASSWORD: devpass
-      POSTGRES_DB: myapp
-    volumes:
-      - pgdata:/var/lib/postgresql/data   # data survives \`docker compose down\`
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U appuser -d myapp"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
+    environment: { POSTGRES_USER: appuser, POSTGRES_PASSWORD: devpass, POSTGRES_DB: myapp }
+    volumes: [pgdata:/var/lib/postgresql/data]   # data survives \`docker compose down\`
 
 volumes:
   pgdata:`}
         />
-        <CommandList
-          title="Compose commands"
-          commands={[
-            { cmd: "docker compose up -d --build", note: "Build what needs building and start everything in the background" },
-            { cmd: "docker compose logs -f app", note: "Follow one service's logs" },
-            { cmd: "docker compose ps", note: "Status and health of each service" },
-            { cmd: "docker compose exec db psql -U appuser myapp", note: "A SQL prompt inside the database container" },
-            { cmd: "docker compose down", note: "Stop and remove containers (volumes survive). Add -v to also delete the data" },
-          ]}
-        />
+        <p>
+          <code>docker compose up -d</code> builds and starts everything in the background;{" "}
+          <code>docker compose down</code> stops and removes the containers but keeps the data
+          volume (add <code>-v</code> to delete the data too).
+        </p>
         <Callout kind="note" label="Why “db” works as a hostname">
           <p className="mb-0">
             Compose creates a private network for the project and gives each service a DNS name equal
@@ -515,17 +468,13 @@ volumes:
           installed, deploying is <em>pull and run</em>. (We copy the image over by hand this time;
           the next section uses a registry, which is the real answer.)
         </p>
+        <p>
+          Put the production variables in <code>~/myapp.env</code> on the server (set to{" "}
+          <code>600</code>, never in Git, never in the image), then:
+        </p>
         <Script
           title="on the server"
-          code={`# Production environment file — chmod 600, never in Git, never in the image
-cat > ~/myapp.env <<'EOF'
-NODE_ENV=production
-DATABASE_URL=postgresql://appuser:APP-PASSWORD@myapp-db.abc123xyz.ap-south-1.rds.amazonaws.com:5432/myapp?sslmode=require
-EOF
-chmod 600 ~/myapp.env
-
-docker run -d \\
-  --name myapp \\
+          code={`docker run -d --name myapp \\
   --restart unless-stopped \\
   --env-file ~/myapp.env \\
   -p 127.0.0.1:3000:3000 \\
@@ -561,9 +510,8 @@ docker run -d \\
             The instance metadata service (Lesson 7) answers only a limited number of network hops.
             A container is one hop further than the host, so with the default limit of 1 the AWS SDK
             inside the container fails with &ldquo;could not load credentials&rdquo; even though the
-            host works. Raise it once, keeping IMDSv2 required:{" "}
-            <code>aws ec2 modify-instance-metadata-options --instance-id $INSTANCE_ID
-            --http-put-response-hop-limit 2 --http-tokens required</code>.
+            host works. Raise it once to 2, keeping IMDSv2 required: EC2 → your instance → Actions
+            → Instance settings → <strong>Modify instance metadata options</strong>.
           </p>
         </Callout>
 
@@ -574,30 +522,28 @@ docker run -d \\
           <strong>ECR</strong> (Elastic Container Registry): private by default, integrated with IAM,
           and free to pull from inside the same region.
         </p>
-        <Script
-          title="create the repository and push — from your laptop or CI"
-          code={`ACCOUNT=$(aws sts get-caller-identity --query Account --output text)
-REGION=ap-south-1
-REPO=$ACCOUNT.dkr.ecr.$REGION.amazonaws.com/myapp
-
-# One-time: create a private repository that scans every image for known vulnerabilities on push
-aws ecr create-repository --repository-name myapp \\
-  --image-scanning-configuration scanOnPush=true --region $REGION
-
-# Log Docker in to ECR (the token lasts 12 hours)
-aws ecr get-login-password --region $REGION \\
-  | docker login --username AWS --password-stdin $ACCOUNT.dkr.ecr.$REGION.amazonaws.com
-
-# Tag with something traceable — the Git commit — then push
-SHA=$(git rev-parse --short HEAD)
-docker build -t $REPO:$SHA .
-docker push $REPO:$SHA`}
-        />
+        <p>The flow has three steps, from your laptop or (later) from CI:</p>
+        <ol>
+          <li>
+            Create a private repository in ECR named <code>myapp</code>, with{" "}
+            <strong>scan on push</strong> turned on so every image is checked for known
+            vulnerabilities.
+          </li>
+          <li>Log Docker in to ECR with a temporary token from the AWS CLI (it lasts 12 hours).</li>
+          <li>
+            Build the image, tag it with the Git commit (<code>myapp:a1b2c3d</code>), and push.
+          </li>
+        </ol>
+        <p>
+          You don&apos;t need to memorise the exact commands: the ECR console&apos;s{" "}
+          <strong>View push commands</strong> button shows them, filled in with your account and
+          region.
+        </p>
         <p>
           On the server, the <em>role</em> from Lesson 5 needs permission to pull. Attach the AWS
           managed policy <code>AmazonEC2ContainerRegistryReadOnly</code> to{" "}
-          <code>myapp-ec2-role</code>, log in the same way (no keys — the role is used) and{" "}
-          <code>docker pull $REPO:$SHA</code>.
+          <code>myapp-ec2-role</code>; the server then logs in and pulls the same way, with no
+          keys — the role is used.
         </p>
         <Callout kind="ok" label="Tag with the commit SHA, never rely on latest">
           <p className="mb-0">
@@ -782,7 +728,7 @@ docker push $REPO:$SHA`}
             the console. Read the scan results.
           </li>
           <li>
-            On the EC2 server: install Docker, stop the PM2 app (<code>pm2 delete myapp</code>),
+            On the EC2 server: install Docker, remove the app from PM2,
             pull your image and run it with the flags from this lesson. Confirm it survives{" "}
             <code>sudo reboot</code>.
           </li>

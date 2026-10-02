@@ -5,7 +5,6 @@ import Pm2Loop from "@/components/figures/Pm2Loop";
 import InterviewQA from "@/components/InterviewQA";
 import LessonIntro from "@/components/LessonIntro";
 import LessonPager from "@/components/LessonPager";
-import Script from "@/components/Script";
 import { getLesson } from "@/lib/lessons";
 
 const lesson = getLesson("lesson-7")!;
@@ -53,7 +52,7 @@ const sizes: [string, string, string, string][] = [
 ];
 
 const trouble: [string, string, string][] = [
-  ["ssh: Connection timed out", "Security Group has no port-22 rule for your current IP, or the instance has no public IP / route", "Lesson 6 checklist. Re-run the checkip command and update the /32 rule"],
+  ["ssh: Connection timed out", "Security Group has no port-22 rule for your current IP, or the instance has no public IP / route", "Lesson 6 checklist. Update the “My IP” SSH rule to your current IP"],
   ["Permission denied (publickey)", "Wrong username, wrong key, or .pem permissions too open", "Ubuntu AMIs use ubuntu. chmod 400 key.pem. Pass -i explicitly"],
   ["WARNING: UNPROTECTED PRIVATE KEY FILE", "The .pem is readable by others", "chmod 400 ~/.ssh/myapp-key.pem"],
   ["Build killed / “JavaScript heap out of memory”", "Not enough RAM on the instance", "Add a 2 GB swap file (below) or use t3.small or larger"],
@@ -176,243 +175,145 @@ export default function LessonSevenPage() {
 
         <h2 id="launch">Launch the server</h2>
         <p>
-          Every step has a console equivalent (EC2 → Launch instance), but the CLI keeps it exact
-          and repeatable. We assume the variables saved in Lesson 6.
+          EC2 → <strong>Launch instance</strong>. The form is long, but only a handful of fields
+          matter. Everything else can stay at its default.
         </p>
-        <ol className="steps">
-          <li>
-            <h3>Load your network and pick the operating system</h3>
-            <Script
-              title="1 · variables and AMI"
-              code={`source ~/myapp-network.env
-export AWS_REGION=ap-south-1
-
-# AWS publishes the current Ubuntu 24.04 image ID as a public parameter, so you never hard-code it
-AMI_ID=$(aws ssm get-parameter \\
-  --name /aws/service/canonical/ubuntu/server/24.04/stable/current/amd64/hvm/ebs-gp3/ami-id \\
-  --query Parameter.Value --output text)
-echo $AMI_ID`}
-            />
-          </li>
-          <li>
-            <h3>Create the key pair — the only copy of the private key you will ever get</h3>
-            <Script
-              title="2 · key pair"
-              code={`aws ec2 create-key-pair --key-name myapp-key --key-type ed25519 \\
-  --query KeyMaterial --output text > ~/.ssh/myapp-key.pem
-chmod 400 ~/.ssh/myapp-key.pem   # SSH refuses keys other users can read`}
-            />
-            <Callout kind="warn" label="Lose it and you are locked out">
-              <p className="mb-0">
-                AWS never shows the private key again. Back it up to a password manager. If it is
-                gone, the fix is to launch a new instance (or use SSM Session Manager — Lesson 18).
-              </p>
-            </Callout>
-          </li>
-          <li>
-            <h3>Create the instance profile for the role from Lesson 5</h3>
-            <p>
-              A role cannot be attached to a server directly; it goes inside an{" "}
-              <em>instance profile</em>. (The console creates this wrapper silently, which is why
-              many people never learn it exists.)
-            </p>
-            <Script
-              title="3 · profile"
-              code={`aws iam create-instance-profile --instance-profile-name myapp-ec2-profile
-aws iam add-role-to-instance-profile \\
-  --instance-profile-name myapp-ec2-profile --role-name myapp-ec2-role`}
-            />
-          </li>
-          <li>
-            <h3>Launch it</h3>
-            <Script
-              title="4 · run-instances"
-              code={`INSTANCE_ID=$(aws ec2 run-instances \\
-  --image-id $AMI_ID \\
-  --instance-type t3.small \\
-  --key-name myapp-key \\
-  --subnet-id $PUB_A \\
-  --security-group-ids $WEB_SG \\
-  --iam-instance-profile Name=myapp-ec2-profile \\
-  --metadata-options HttpTokens=required \\
-  --block-device-mappings 'DeviceName=/dev/sda1,Ebs={VolumeSize=20,VolumeType=gp3,Encrypted=true}' \\
-  --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=myapp-web}]' \\
-  --query 'Instances[0].InstanceId' --output text)
-
-aws ec2 wait instance-running --instance-ids $INSTANCE_ID
-echo $INSTANCE_ID`}
-            />
-            <p>What the interesting flags do:</p>
-            <ul>
-              <li>
-                <code>--subnet-id $PUB_A</code>: the public subnet from Lesson 6, so it gets a
-                public IP.
-              </li>
-              <li>
-                <code>--metadata-options HttpTokens=required</code>: forces{" "}
-                <strong>IMDSv2</strong>, the token-based version of the metadata service. It blocks
-                a whole class of attacks where a bug in your app is tricked into leaking the
-                server&apos;s credentials. Always set it.
-              </li>
-              <li>
-                <code>Encrypted=true</code>: the disk is encrypted at rest with no performance
-                cost. There is no reason not to.
-              </li>
-            </ul>
-          </li>
-          <li>
-            <h3>Give it a permanent public address</h3>
-            <Script
-              title="5 · Elastic IP"
-              code={`ALLOC_ID=$(aws ec2 allocate-address --domain vpc --query AllocationId --output text)
-aws ec2 associate-address --instance-id $INSTANCE_ID --allocation-id $ALLOC_ID
-SERVER_IP=$(aws ec2 describe-addresses --allocation-ids $ALLOC_ID --query 'Addresses[0].PublicIp' --output text)
-echo $SERVER_IP    # this is the address you will use — and later point DNS at`}
-            />
-            <p>
-              Without an Elastic IP the public address changes every time the server stops and
-              starts, breaking your DNS record. An Elastic IP{" "}
-              <strong>attached to a running instance</strong> costs the same $0.005/hour as any
-              public IPv4. One left <em>unattached</em> costs the same too — release it when you
-              delete the server.
-            </p>
-          </li>
-        </ol>
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Field</th>
+                <th>Set it to</th>
+                <th>Why</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Image (AMI)</td>
+                <td>Ubuntu Server 24.04 LTS</td>
+                <td>Long-term support; what every command in this course assumes</td>
+              </tr>
+              <tr>
+                <td>Instance type</td>
+                <td><code>t3.small</code></td>
+                <td>2 GB RAM — enough for <code>next build</code> with swap</td>
+              </tr>
+              <tr>
+                <td>Key pair</td>
+                <td>Create new, ED25519, <code>.pem</code></td>
+                <td>Your way in over SSH. AWS shows the private key <strong>once</strong></td>
+              </tr>
+              <tr>
+                <td>Network</td>
+                <td><code>myapp</code> VPC, a <strong>public</strong> subnet, <code>web-sg</code></td>
+                <td>The network from Lesson 6, so it gets a public IP</td>
+              </tr>
+              <tr>
+                <td>Storage</td>
+                <td>20 GB gp3, <strong>encrypted</strong></td>
+                <td>Encryption at rest costs nothing and slows nothing</td>
+              </tr>
+              <tr>
+                <td>Advanced → IAM instance profile</td>
+                <td><code>myapp-ec2-role</code></td>
+                <td>The role from Lesson 5 — AWS access with no keys on disk</td>
+              </tr>
+              <tr>
+                <td>Advanced → Metadata version</td>
+                <td><strong>V2 only (token required)</strong></td>
+                <td>IMDSv2 blocks a whole class of attacks that steal the server&apos;s credentials</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <Callout kind="warn" label="Lose the key and you are locked out">
+          <p className="mb-0">
+            The <code>.pem</code> file downloads once and AWS never shows it again. Move it to{" "}
+            <code>~/.ssh/</code>, set it to <code>400</code> (Lesson 1 — SSH refuses keys others
+            can read), and back it up to a password manager.
+          </p>
+        </Callout>
+        <p>
+          Then give it a permanent address: EC2 → <strong>Elastic IPs</strong> → Allocate →
+          Associate with your instance. Without it the public IP changes every time the server
+          stops and starts, breaking your DNS record. An attached Elastic IP costs the same
+          $0.005/hour as any public IPv4; an <em>unattached</em> one costs the same too, so release
+          it when you delete the server.
+        </p>
 
         <h2 id="connect">Connect with SSH</h2>
         <CommandList
           title="Log in"
           commands={[
-            { cmd: "ssh -i ~/.ssh/myapp-key.pem ubuntu@$SERVER_IP", note: "First time it asks to trust the server fingerprint — type yes. The username on Ubuntu images is always ubuntu (Amazon Linux uses ec2-user)" },
-            { cmd: "whoami && hostname && uname -a", note: "You are now typing on a computer in Mumbai" },
+            { cmd: "ssh -i ~/.ssh/myapp-key.pem ubuntu@SERVER_IP", note: "First time it asks to trust the server fingerprint — type yes. The user on Ubuntu images is always ubuntu" },
           ]}
         />
-        <p>Typing that long command gets old. Put it in a config file on your laptop:</p>
-        <Script
-          title="~/.ssh/config (on your laptop)"
-          code={`Host myapp
-  HostName 13.233.x.x            # your Elastic IP
-  User ubuntu
-  IdentityFile ~/.ssh/myapp-key.pem
-  ServerAliveInterval 60         # keeps an idle session from dropping
-
-# now simply:   ssh myapp        scp file.txt myapp:~        ssh -L 5433:... myapp`}
-        />
+        <p>
+          Tip: add a <code>Host myapp</code> entry to <code>~/.ssh/config</code> on your laptop
+          with the IP, user and key path, and from then on <code>ssh myapp</code> is enough.
+        </p>
 
         <h2 id="setup">Prepare the server</h2>
-        <p>
-          A fresh server has nothing on it but Linux. Do these once, in order. Everything runs{" "}
-          <em>on the server</em>.
-        </p>
+        <p>A fresh server has nothing on it but Linux. Do these once, in order:</p>
         <ol className="steps">
           <li>
             <h3>Update the system</h3>
-            <CommandList
-              title="Patch first"
-              commands={[
-                { cmd: "sudo apt update && sudo apt upgrade -y", note: "Security fixes released since the image was built. A kernel update may ask you to reboot: sudo reboot" },
-                { cmd: "sudo apt install -y git build-essential unzip", note: "git to fetch code; build tools some npm packages compile native code with" },
-                { cmd: "sudo snap install aws-cli --classic", note: "The AWS CLI, so you can test the IAM role from the server itself" },
-              ]}
-            />
+            <p>
+              Install the security fixes released since the image was built, plus{" "}
+              <code>git</code> and the build tools some npm packages need. A kernel update may ask
+              for a reboot.
+            </p>
           </li>
           <li>
             <h3>Add a swap file — the safety net for small servers</h3>
             <p>
               Swap uses part of the disk as emergency memory. It is slow, but it turns
               &ldquo;process killed&rdquo; into &ldquo;build took a bit longer&rdquo;, and{" "}
-              <code>next build</code> is the most memory-hungry moment of the app&apos;s life.
+              <code>next build</code> is the most memory-hungry moment of the app&apos;s life. 2 GB
+              is plenty on a t3.small.
             </p>
-            <Script
-              title="2GB swap"
-              code={`sudo fallocate -l 2G /swapfile
-sudo chmod 600 /swapfile
-sudo mkswap /swapfile
-sudo swapon /swapfile
-echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab   # survive reboots
-free -h                                                        # Swap row should show 2.0Gi`}
-            />
           </li>
           <li>
             <h3>Install Node.js</h3>
-            <Script
-              title="Node 22 LTS from NodeSource"
-              code={`curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
-sudo apt install -y nodejs
-sudo corepack enable            # gives you pnpm / yarn matching your lockfile
-node -v && npm -v && pnpm -v`}
-            />
-            <Callout kind="warn" label="Piping a script into a root shell">
-              <p className="mb-0">
-                <code>curl … | sudo bash</code> runs whatever the URL returns as root. For a
-                well-known vendor that is normal practice, but the habit to build is: download the
-                script, read it, then run it. Use the same Node major version as your laptop and CI,
-                or you will chase &ldquo;works on my machine&rdquo; bugs.
-              </p>
-            </Callout>
+            <p>
+              Install Node 22 LTS from NodeSource and enable <code>corepack</code>, which gives you
+              the pnpm or yarn version your lockfile expects. Use the same Node major version as
+              your laptop and CI, or you will chase &ldquo;works on my machine&rdquo; bugs.
+            </p>
           </li>
           <li>
             <h3>Give the server read-only access to your repository</h3>
             <p>
               A private repository needs credentials. Do <em>not</em> copy your personal SSH key
-              onto a server. Create a <strong>deploy key</strong>: a key that belongs to one
-              repository and is read-only.
-            </p>
-            <Script
-              title="deploy key"
-              code={`ssh-keygen -t ed25519 -C "myapp-server" -f ~/.ssh/deploy_key -N ""
-cat ~/.ssh/deploy_key.pub      # copy this whole line
-
-# GitHub → your repo → Settings → Deploy keys → Add deploy key
-#   Title: myapp-server     Key: (paste)     leave "Allow write access" UNCHECKED
-
-cat >> ~/.ssh/config <<'EOF'
-Host github.com
-  IdentityFile ~/.ssh/deploy_key
-  IdentitiesOnly yes
-EOF
-ssh -T git@github.com           # "Hi org/repo! You've successfully authenticated"`}
-            />
-            <p>
-              If this server is ever compromised, the attacker can read one repository — they
-              cannot push code or touch your other projects. That is least privilege, from Lesson 5,
-              applied to Git.
+              onto a server. Generate a new key on the server and add its public half in GitHub →
+              repo → Settings → <strong>Deploy keys</strong>, with &ldquo;Allow write access&rdquo;
+              left unchecked. If the server is ever compromised, the attacker can read one
+              repository — not push code, not touch your other projects. That is least privilege,
+              from Lesson 5, applied to Git.
             </p>
           </li>
         </ol>
 
         <h2 id="deploy">Deploy Next.js by hand</h2>
-        <Script
-          title="on the server"
-          code={`cd ~
-git clone git@github.com:YOUR-ORG/myapp.git
-cd myapp
-
-# 1. Environment variables. On Vercel these were in a dashboard; here they are a file.
-nano .env
-chmod 600 .env                   # only the ubuntu user may read it (Lesson 1)
-
-# 2. Install exactly what the lockfile says, then build
-pnpm install --frozen-lockfile
-pnpm build
-
-# 3. Run it once, in the foreground, to prove it works
-pnpm start                       # Ctrl+C to stop`}
-        />
-        <p>A starter <code>.env</code> for now (the database arrives in Lesson 8):</p>
-        <Script
-          title=".env"
-          code={`NODE_ENV=production
-PORT=3000
-# DATABASE_URL=postgresql://...     added in Lesson 8
-# AWS credentials: deliberately NOT here. The IAM role provides them (Lesson 5).`}
+        <p>
+          Clone the repository into your home folder and create <code>.env</code> next to it
+          (set to <code>600</code>, Lesson 1). On Vercel these values lived in a dashboard; here
+          they are a file. For now it needs only <code>NODE_ENV=production</code> and{" "}
+          <code>PORT=3000</code> — the database arrives in Lesson 8, and AWS credentials are
+          deliberately <em>not</em> in it, because the IAM role provides them. Then:
+        </p>
+        <CommandList
+          title="Build it"
+          commands={[
+            { cmd: "pnpm install --frozen-lockfile && pnpm build", note: "Install exactly what the lockfile says, then build" },
+          ]}
         />
         <Callout kind="warn" label="Two .env traps that catch everyone once">
           <ul className="mb-0">
             <li>
               Variables starting with <code>NEXT_PUBLIC_</code> are baked into the JavaScript{" "}
-              <strong>at build time</strong>. Change one and you must run <code>pnpm build</code>{" "}
-              again; restarting is not enough.
+              <strong>at build time</strong>. Change one and you must build again; restarting is
+              not enough.
             </li>
             <li>
               Never commit <code>.env</code>. If it is in Git already, treat every secret in it as
@@ -422,16 +323,11 @@ PORT=3000
         </Callout>
         <h3>See it in your browser</h3>
         <p>
-          The app listens on port 3000, but <code>web-sg</code> does not allow that port. Open it{" "}
-          <strong>only to your own IP</strong>, temporarily — from your laptop:
+          The app listens on port 3000, but <code>web-sg</code> does not allow that port. Add a
+          temporary inbound rule for port 3000 with source <strong>My IP</strong>, and{" "}
+          <code>http://SERVER_IP:3000</code> works — only for you. Delete that rule after Lesson
+          10, when Nginx takes over ports 80/443. Port 3000 must never be public.
         </p>
-        <CommandList
-          title="Temporary door for testing"
-          commands={[
-            { cmd: "aws ec2 authorize-security-group-ingress --group-id $WEB_SG --protocol tcp --port 3000 --cidr $(curl -s https://checkip.amazonaws.com)/32", note: "Now http://SERVER_IP:3000 works — but only from your IP" },
-            { cmd: "aws ec2 revoke-security-group-ingress --group-id $WEB_SG --protocol tcp --port 3000 --cidr <YOUR-IP>/32", note: "Close it again after Lesson 10, when Nginx takes over ports 80/443. Port 3000 must never be public" },
-          ]}
-        />
 
         <h2 id="pm2">Keep it alive with PM2</h2>
         <p>
@@ -440,85 +336,48 @@ PORT=3000
           process.
         </p>
         <Pm2Loop />
-        <Script
-          title="PM2 setup — one time"
-          code={`sudo npm install -g pm2
-
-pm2 start pnpm --name myapp -- start   # run "pnpm start" under PM2's supervision
-pm2 status                             # online, uptime, restarts, memory
-pm2 logs myapp                         # live logs (Ctrl+C leaves logs, not the app)
-
-# The step people forget: make PM2 itself start on boot
-pm2 startup systemd                    # PRINTS a "sudo env PATH=... pm2 startup ..." line
-# → copy that printed line and run it
-pm2 save                               # remember the current process list`}
-        />
-        <p>
-          Prove it: run <code>sudo reboot</code>, wait a minute, log back in and check{" "}
-          <code>pm2 status</code>. If <code>myapp</code> is online, it survives reboots. If not, you
-          skipped <code>pm2 startup</code> or <code>pm2 save</code>.
-        </p>
         <CommandList
-          title="PM2 commands you will use weekly"
+          title="PM2 setup — one time"
           commands={[
-            { cmd: "pm2 restart myapp", note: "Stop and start (a few seconds of downtime)" },
-            { cmd: "pm2 reload myapp", note: "Zero-downtime swap. Needs cluster mode: pm2 start ... -i max" },
-            { cmd: "pm2 logs myapp --lines 200", note: "Last 200 lines. Errors are in ~/.pm2/logs/" },
-            { cmd: "pm2 monit", note: "Live CPU/memory dashboard in the terminal" },
-            { cmd: "pm2 delete myapp", note: "Remove it from PM2 entirely" },
+            { cmd: "pm2 start pnpm --name myapp -- start", note: "Run “pnpm start” under PM2. It restarts the app whenever it crashes (install PM2 first: sudo npm install -g pm2)" },
+            { cmd: "pm2 startup", note: "Make PM2 itself start on boot. It PRINTS a sudo command — copy that line and run it" },
+            { cmd: "pm2 save", note: "Remember the current process list, so boot brings myapp back" },
           ]}
         />
+        <p>
+          Prove it: reboot the server, wait a minute, log back in and check <code>pm2 status</code>.
+          If <code>myapp</code> is online, it survives reboots. If not, you skipped{" "}
+          <code>startup</code> or <code>save</code>. Day to day you will mostly use{" "}
+          <code>pm2 logs</code>, <code>pm2 restart</code> and <code>pm2 status</code>.
+        </p>
 
         <h2 id="role">Prove the IAM role works</h2>
         <p>
           Lesson 5 promised that the server could call AWS <strong>without any access keys</strong>.
-          Verify it — this is the payoff of the identity lesson:
+          Run <code>aws sts get-caller-identity</code> on the server: the ARN now says{" "}
+          <code>assumed-role/myapp-ec2-role/i-0abc…</code>. You are wearing the role, and there is
+          no <code>~/.aws</code> credentials file anywhere.
         </p>
-        <Script
-          title="on the server"
-          code={`aws sts get-caller-identity
-# "Arn": "arn:aws:sts::123456789012:assumed-role/myapp-ec2-role/i-0abc..."
-#                                    ^^^^^^^^^^^^ you are wearing the role, no keys anywhere
-
-ls ~/.aws 2>/dev/null || echo "no credentials file — correct"
-
-# Where do those temporary credentials come from? The metadata service, using IMDSv2:
-TOKEN=$(curl -s -X PUT http://169.254.169.254/latest/api/token \\
-  -H "X-aws-ec2-metadata-token-ttl-seconds: 60")
-curl -s -H "X-aws-ec2-metadata-token: $TOKEN" \\
-  http://169.254.169.254/latest/meta-data/iam/security-credentials/
-# prints: myapp-ec2-role`}
-        />
         <p>
-          Those credentials rotate automatically every few hours. The AWS SDK inside your Node app
-          fetches them the same way, which is why the S3 upload code in Lesson 5 needed no keys.
-          Because the role only allows <code>s3:PutObject</code> and <code>s3:GetObject</code> on one
-          bucket, even a completely compromised app cannot delete your database.
+          The temporary credentials come from the <strong>instance metadata service</strong> at{" "}
+          <code>169.254.169.254</code> and rotate automatically every few hours. The AWS SDK inside
+          your Node app fetches them the same way, which is why the S3 upload code in Lesson 5
+          needed no keys. Because the role only allows <code>s3:PutObject</code> and{" "}
+          <code>s3:GetObject</code> on one bucket, even a completely compromised app cannot delete
+          your database.
         </p>
 
         <h2 id="update">Deploying a new version</h2>
         <p>
-          Now the loop you will repeat until Lesson 14 automates it. Put it in a script so you never
-          skip a step at 11 p.m.:
+          Now the loop you will repeat until Lesson 14 automates it: pull the new code, install,
+          build, then <code>pm2 reload myapp</code>. Put those four steps in a small{" "}
+          <code>deploy.sh</code> that stops at the first error, so you never skip a step at 11
+          p.m.
         </p>
-        <Script
-          title="~/deploy.sh"
-          code={`#!/usr/bin/env bash
-set -euo pipefail              # stop at the first error; never deploy half a release
-
-cd ~/myapp
-git pull --ff-only             # refuse if history diverged
-pnpm install --frozen-lockfile
-pnpm build
-pm2 reload myapp || pm2 start pnpm --name myapp -- start
-pm2 save
-echo "Deployed $(git rev-parse --short HEAD)"`}
-        />
         <p>
-          Run with <code>chmod +x ~/deploy.sh && ~/deploy.sh</code>. Notice what is wrong with this,
-          because Lesson 14 fixes each item: the build runs <em>on the production server</em>{" "}
-          (competing with live traffic), a failed build can leave the site broken, there is no easy
-          rollback, and only people with SSH access can deploy.
+          Notice what is wrong with this, because Lesson 14 fixes each item: the build runs{" "}
+          <em>on the production server</em> (competing with live traffic), a failed build can leave
+          the site broken, there is no easy rollback, and only people with SSH access can deploy.
         </p>
 
         <h2 id="storage">Disks, stop vs terminate, and the bill</h2>
@@ -526,16 +385,12 @@ echo "Deployed $(git rev-parse --short HEAD)"`}
         <p>
           The root disk is an <strong>EBS volume</strong>: a network drive, billed per GB-month
           (about $0.10 per GB for gp3 in Mumbai, so 20 GB ≈ $2). It survives stopping the server. You
-          can enlarge it later without downtime, but you can never shrink it. Watch it fill:
+          can enlarge it later without downtime, but you can never shrink it.
         </p>
-        <CommandList
-          title="Is the disk full?"
-          commands={[
-            { cmd: "df -h /", note: "Used and free space on the root disk. At 90%+, things start failing mysteriously" },
-            { cmd: "sudo du -xh / --max-depth=2 2>/dev/null | sort -h | tail -15", note: "Find what is eating it. Usually logs, node_modules or old builds" },
-            { cmd: "sudo journalctl --vacuum-time=7d", note: "Trim system logs older than a week" },
-          ]}
-        />
+        <p>
+          Check free space first whenever something fails mysteriously — at 90%+ builds and logs
+          start breaking. The usual culprits are logs, <code>node_modules</code> and old builds.
+        </p>
         <h3>Stop, terminate — and what each costs</h3>
         <div className="table-wrap">
           <table>
@@ -572,8 +427,8 @@ echo "Deployed $(git rev-parse --short HEAD)"`}
         <Callout kind="ok" label="When you finish studying for the day">
           <p className="mb-0">
             <strong>Stop</strong> the instance. A stopped t3.small costs about $2 a month (disk
-            plus IP) instead of $16. Start it tomorrow: <code>aws ec2 start-instances
-            --instance-ids $INSTANCE_ID</code>. The Elastic IP means your address does not change.
+            plus IP) instead of $16. Start it again tomorrow from the console; the Elastic IP means
+            your address does not change.
           </p>
         </Callout>
         <h3>Everything this lesson costs</h3>
@@ -701,7 +556,7 @@ echo "Deployed $(git rev-parse --short HEAD)"`}
         <h2 id="practice">Practice task before Lesson 8</h2>
         <ol>
           <li>
-            Launch the server and deploy your Next.js app with the commands above. Open{" "}
+            Launch the server and deploy your Next.js app as above. Open{" "}
             <code>http://SERVER_IP:3000</code> from your laptop.
           </li>
           <li>
@@ -713,16 +568,15 @@ echo "Deployed $(git rev-parse --short HEAD)"`}
             policy explains why?
           </li>
           <li>
-            Kill the app on purpose: <code>pm2 stop myapp</code>, then <code>kill -9</code> its
-            process ID when running. Watch PM2 restart it. Check <code>pm2 status</code> for the
-            restart counter.
+            Kill the app&apos;s process on purpose and watch PM2 restart it. Check{" "}
+            <code>pm2 status</code> for the restart counter.
           </li>
           <li>
-            Add a page to your app, push, and run <code>~/deploy.sh</code>. Time how long the site
+            Add a page to your app, push, and deploy it by hand. Time how long the site
             was unavailable, if at all. Write down two ways this process could go wrong.
           </li>
           <li>
-            When you are done for the day, stop the instance from the CLI. Start it tomorrow and
+            When you are done for the day, stop the instance. Start it tomorrow and
             confirm the IP is unchanged.
           </li>
         </ol>

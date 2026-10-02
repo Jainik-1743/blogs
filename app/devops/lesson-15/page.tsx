@@ -182,15 +182,12 @@ export default function LessonFifteenPage() {
         </Callout>
 
         <h2 id="install">Install and connect to AWS</h2>
-        <CommandList
-          title="On your laptop"
-          commands={[
-            { cmd: "brew tap hashicorp/tap && brew install hashicorp/tap/terraform", note: "macOS. On Windows use winget install Hashicorp.Terraform; on Ubuntu use HashiCorp's apt repository" },
-            { cmd: "terraform version", note: "Needs to be recent (1.10+ for the S3 native locking used below)" },
-            { cmd: "aws sts get-caller-identity", note: "Terraform uses the same credentials as the AWS CLI (Lesson 5). It must show your IAM user or SSO role, never root" },
-            { cmd: "terraform -install-autocomplete", note: "Optional: tab completion" },
-          ]}
-        />
+        <p>
+          Install the Terraform CLI (Homebrew on macOS, winget on Windows, HashiCorp&apos;s apt
+          repository on Ubuntu) — version 1.10 or newer, for the S3 locking used below. It uses the
+          same credentials as the AWS CLI from Lesson 5, so check those still show your IAM user,
+          never root.
+        </p>
         <p>
           Terraform acts as <strong>you</strong>, so its power equals your power. Later, in CI, it
           gets its own role (a broader one than the app-deploy role of Lesson 14, kept separate on
@@ -232,22 +229,13 @@ export default function LessonFifteenPage() {
           file on your laptop — one lost laptop, or two teammates, and you have a disaster. So state
           lives in an <strong>S3 bucket</strong> with versioning (undo), encryption and locking (so two
           applies cannot run at once). It is a chicken-and-egg problem — the bucket has to exist
-          before Terraform can use it — so we create <em>just this one</em> bucket by hand:
+          before Terraform can use it — so we create <em>just this one</em> bucket by hand.
         </p>
-        <Script
-          title="one-time bootstrap (by CLI, on purpose)"
-          code={`ACCOUNT=$(aws sts get-caller-identity --query Account --output text)
-STATE_BUCKET=myapp-tfstate-$ACCOUNT
-
-aws s3api create-bucket --bucket $STATE_BUCKET --region ap-south-1 \\
-  --create-bucket-configuration LocationConstraint=ap-south-1
-aws s3api put-bucket-versioning --bucket $STATE_BUCKET --versioning-configuration Status=Enabled
-aws s3api put-bucket-encryption --bucket $STATE_BUCKET \\
-  --server-side-encryption-configuration '{"Rules":[{"ApplyServerSideEncryptionByDefault":{"SSEAlgorithm":"AES256"}}]}'
-aws s3api put-public-access-block --bucket $STATE_BUCKET \\
-  --public-access-block-configuration BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true
-echo $STATE_BUCKET`}
-        />
+        <p>
+          In the S3 console, create <code>myapp-tfstate-&lt;account-id&gt;</code> in{" "}
+          <code>ap-south-1</code>, with <strong>versioning on</strong> (every old state kept),
+          default encryption, and Block Public Access left on.
+        </p>
         <p>
           Historically locking needed a separate DynamoDB table. Since Terraform 1.10 the S3 backend
           can lock with a lock file in the bucket itself (<code>use_lockfile = true</code>), which
@@ -313,127 +301,41 @@ provider "aws" {
           you <strong>commit</strong> so everyone (and CI) uses identical providers.
         </p>
         <h3>variables.tf</h3>
-        <Script
-          title="variables.tf"
-          code={`variable "project"     { type = string  default = "myapp" }
-variable "environment" { type = string }                         # no default: you must say which
-variable "region"      { type = string  default = "ap-south-1" }
-
-variable "domain"      { type = string }                         # yourapp.com
-variable "my_ip_cidr"  {
-  type        = string
-  description = "Your public IP with /32, for SSH (or leave empty to use SSM only)"
-  default     = ""
-}
-
-variable "app_instance_type" { type = string  default = "t3.small" }
-variable "db_instance_class" { type = string  default = "db.t4g.micro" }
-variable "min_size"          { type = number  default = 2 }
-variable "max_size"          { type = number  default = 6 }
-variable "image_tag"         { type = string  default = "bootstrap" }`}
-        />
+        <p>
+          Inputs with defaults: <code>project</code> (&ldquo;myapp&rdquo;),{" "}
+          <code>environment</code>, <code>region</code>, <code>domain</code>, instance sizes, and
+          the Auto Scaling <code>min_size</code> / <code>max_size</code>. Every file below refers
+          to them as <code>var.project</code> and so on, instead of repeating values.
+        </p>
         <h3>network.tf — Lesson 6, as code</h3>
-        <Script
-          title="network.tf"
-          code={`locals {
-  azs           = ["ap-south-1a", "ap-south-1b"]
-  public_cidrs  = ["10.0.1.0/24", "10.0.3.0/24"]
-  private_cidrs = ["10.0.2.0/24", "10.0.4.0/24"]
-}
-
-resource "aws_vpc" "main" {
-  cidr_block           = "10.0.0.0/16"
-  enable_dns_hostnames = true
-  tags                 = { Name = "\${var.project}-vpc" }
-}
-
-resource "aws_internet_gateway" "igw" {
-  vpc_id = aws_vpc.main.id
-  tags   = { Name = "\${var.project}-igw" }
-}
-
-resource "aws_subnet" "public" {
-  count                   = length(local.azs)
-  vpc_id                  = aws_vpc.main.id
-  cidr_block              = local.public_cidrs[count.index]
-  availability_zone       = local.azs[count.index]
-  map_public_ip_on_launch = true
-  tags                    = { Name = "\${var.project}-public-\${count.index}" }
-}
-
-resource "aws_subnet" "private" {
-  count             = length(local.azs)
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = local.private_cidrs[count.index]
-  availability_zone = local.azs[count.index]
-  tags              = { Name = "\${var.project}-private-\${count.index}" }
-}
-
-# THE row that makes a subnet public (Lesson 6)
-resource "aws_route_table" "public" {
-  vpc_id = aws_vpc.main.id
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.igw.id
-  }
-  tags = { Name = "\${var.project}-public-rt" }
-}
-
-resource "aws_route_table_association" "public" {
-  count          = length(aws_subnet.public)
-  subnet_id      = aws_subnet.public[count.index].id
-  route_table_id = aws_route_table.public.id
-}
-
-# Free S3 endpoint: private traffic to S3 without a NAT (Lesson 6)
-resource "aws_vpc_endpoint" "s3" {
-  vpc_id            = aws_vpc.main.id
-  service_name      = "com.amazonaws.\${var.region}.s3"
-  vpc_endpoint_type = "Gateway"
-  route_table_ids   = [aws_route_table.public.id]
-}`}
-        />
+        <p>
+          One <code>aws_vpc</code>, two public and two private <code>aws_subnet</code>s (made with{" "}
+          <code>count = 2</code>, one per Availability Zone), an{" "}
+          <code>aws_internet_gateway</code>, and the public route table with its{" "}
+          <code>0.0.0.0/0 → gateway</code> row plus two associations. Exactly the pieces you
+          clicked through in Lesson 6 — each becomes one block, about 50 lines in all.
+        </p>
         <Callout kind="note" label="Or use a community module">
           <p className="mb-0">
-            The whole file above is about 20 lines with the popular{" "}
+            The whole network is about 20 lines with the popular{" "}
             <code>terraform-aws-modules/vpc/aws</code> module, which also handles NAT gateways and
             flow logs. Writing it by hand once — as here — is how you understand what the module is
             doing for you. Check the registry for the current major version before using it.
           </p>
         </Callout>
         <h3>security.tf — Security Groups that reference each other</h3>
+        <p>
+          The best file to read closely, because it shows how blocks <em>refer</em> to each other.
+          Trimmed to the interesting parts:
+        </p>
         <Script
-          title="security.tf"
-          code={`resource "aws_security_group" "alb" {
-  name   = "\${var.project}-alb-sg"
-  vpc_id = aws_vpc.main.id
-}
-resource "aws_security_group" "web" {
+          title="security.tf (excerpt)"
+          code={`resource "aws_security_group" "web" {
   name   = "\${var.project}-web-sg"
-  vpc_id = aws_vpc.main.id
-}
-resource "aws_security_group" "db" {
-  name   = "\${var.project}-db-sg"
-  vpc_id = aws_vpc.main.id
+  vpc_id = aws_vpc.main.id                 # a reference: Terraform creates the VPC first
 }
 
-# Internet -> ALB
-resource "aws_vpc_security_group_ingress_rule" "alb_http" {
-  security_group_id = aws_security_group.alb.id
-  cidr_ipv4         = "0.0.0.0/0"
-  from_port         = 80
-  to_port           = 80
-  ip_protocol       = "tcp"
-}
-resource "aws_vpc_security_group_ingress_rule" "alb_https" {
-  security_group_id = aws_security_group.alb.id
-  cidr_ipv4         = "0.0.0.0/0"
-  from_port         = 443
-  to_port           = 443
-  ip_protocol       = "tcp"
-}
-
-# ALB -> app servers (source is a SECURITY GROUP, not an IP)
+# ALB -> app servers: the source is a SECURITY GROUP, not an IP
 resource "aws_vpc_security_group_ingress_rule" "web_from_alb" {
   security_group_id            = aws_security_group.web.id
   referenced_security_group_id = aws_security_group.alb.id
@@ -442,275 +344,64 @@ resource "aws_vpc_security_group_ingress_rule" "web_from_alb" {
   ip_protocol                  = "tcp"
 }
 
-# App servers -> Postgres
-resource "aws_vpc_security_group_ingress_rule" "db_from_web" {
-  security_group_id            = aws_security_group.db.id
-  referenced_security_group_id = aws_security_group.web.id
-  from_port                    = 5432
-  to_port                      = 5432
-  ip_protocol                  = "tcp"
-}
-
 # IMPORTANT: unlike the console, Terraform removes the default "allow all outbound" rule.
-# Without these the servers cannot reach ECR, SSM, S3 or the internet.
-resource "aws_vpc_security_group_egress_rule" "alb_out" {
-  security_group_id = aws_security_group.alb.id
-  cidr_ipv4         = "0.0.0.0/0"
-  ip_protocol       = "-1"
-}
+# Without an egress rule the servers cannot reach ECR, SSM, S3 or the internet.
 resource "aws_vpc_security_group_egress_rule" "web_out" {
   security_group_id = aws_security_group.web.id
   cidr_ipv4         = "0.0.0.0/0"
   ip_protocol       = "-1"
 }`}
         />
+        <p>
+          The <code>alb</code> and <code>db</code> groups and their rules follow the same pattern:
+          internet → ALB on 80/443, ALB → web on 80, web → db on 5432.
+        </p>
         <h3>database.tf — Lesson 8, as code</h3>
+        <p>
+          The same settings as Lesson 8&apos;s table, as code: a subnet group of the private
+          subnets, <code>publicly_accessible = false</code>, the <code>db</code> security group,
+          encryption, 7-day backups and <code>deletion_protection = true</code>. The admin password
+          comes from a <code>random_password</code> resource, and one extra line makes even{" "}
+          <code>terraform destroy</code> refuse to touch the database:
+        </p>
         <Script
-          title="database.tf"
-          code={`resource "random_password" "db" {
-  length  = 24
-  special = false               # keeps the connection URL simple
-}
-
-resource "aws_db_subnet_group" "main" {
-  name       = "\${var.project}-private"
-  subnet_ids = aws_subnet.private[*].id
-}
-
-resource "aws_db_instance" "main" {
-  identifier            = "\${var.project}-db"
-  engine                = "postgres"
-  engine_version        = "16"
-  instance_class        = var.db_instance_class
-  allocated_storage     = 20
-  max_allocated_storage = 100
-  storage_type          = "gp3"
-  storage_encrypted     = true
-
-  username = "dbadmin"
-  password = random_password.db.result      # ends up in state: see the warning below
-
-  db_subnet_group_name   = aws_db_subnet_group.main.name
-  vpc_security_group_ids = [aws_security_group.db.id]
-  publicly_accessible    = false
-
-  backup_retention_period   = 7
-  deletion_protection       = true
-  skip_final_snapshot       = false
-  final_snapshot_identifier = "\${var.project}-db-final"
-  copy_tags_to_snapshot     = true
-
-  lifecycle {
-    prevent_destroy = true      # even "terraform destroy" refuses to touch the database
-  }
+          title="database.tf (excerpt)"
+          code={`lifecycle {
+  prevent_destroy = true
 }`}
         />
         <h3>compute.tf — Lesson 12, as code</h3>
-        <Script
-          title="compute.tf"
-          code={`data "aws_ssm_parameter" "ubuntu_ami" {
-  name = "/aws/service/canonical/ubuntu/server/24.04/stable/current/amd64/hvm/ebs-gp3/ami-id"
-}
-
-data "aws_acm_certificate" "main" {
-  domain      = var.domain
-  statuses    = ["ISSUED"]
-  most_recent = true
-}
-
-resource "aws_lb" "app" {
-  name               = "\${var.project}-alb"
-  load_balancer_type = "application"
-  subnets            = aws_subnet.public[*].id
-  security_groups    = [aws_security_group.alb.id]
-}
-
-resource "aws_lb_target_group" "app" {
-  name                 = "\${var.project}-tg"
-  port                 = 80
-  protocol             = "HTTP"
-  vpc_id               = aws_vpc.main.id
-  deregistration_delay = 30
-
-  health_check {
-    path                = "/api/health"
-    interval            = 15
-    healthy_threshold   = 2
-    unhealthy_threshold = 3
-    matcher             = "200"
-  }
-}
-
-resource "aws_lb_listener" "https" {
-  load_balancer_arn = aws_lb.app.arn
-  port              = 443
-  protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
-  certificate_arn   = data.aws_acm_certificate.main.arn
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.app.arn
-  }
-}
-
-resource "aws_lb_listener" "http_redirect" {
-  load_balancer_arn = aws_lb.app.arn
-  port              = 80
-  protocol          = "HTTP"
-
-  default_action {
-    type = "redirect"
-    redirect {
-      port        = "443"
-      protocol    = "HTTPS"
-      status_code = "HTTP_301"
-    }
-  }
-}
-
-resource "aws_launch_template" "app" {
-  name_prefix   = "\${var.project}-"
-  image_id      = data.aws_ssm_parameter.ubuntu_ami.value
-  instance_type = var.app_instance_type
-
-  iam_instance_profile { name = "myapp-ec2-profile" }         # from Lesson 5/7; import or define it too
-  vpc_security_group_ids = [aws_security_group.web.id]
-
-  metadata_options {
-    http_tokens                 = "required"                  # IMDSv2
-    http_put_response_hop_limit = 2                           # containers can reach it
-  }
-
-  block_device_mappings {
-    device_name = "/dev/sda1"
-    ebs {
-      volume_size = 20
-      volume_type = "gp3"
-      encrypted   = true
-    }
-  }
-
-  # The same boot script as Lesson 12, with values filled in by Terraform
-  user_data = base64encode(templatefile("\${path.module}/user-data.sh.tftpl", {
-    region  = var.region
-    project = var.project
-  }))
-
-  tag_specifications {
-    resource_type = "instance"
-    tags          = { Name = "\${var.project}-web", app = var.project }
-  }
-}
-
-resource "aws_autoscaling_group" "app" {
-  name                      = "\${var.project}-asg"
-  min_size                  = var.min_size
-  max_size                  = var.max_size
-  desired_capacity          = var.min_size
-  vpc_zone_identifier       = aws_subnet.public[*].id
-  target_group_arns         = [aws_lb_target_group.app.arn]
-  health_check_type         = "ELB"
-  health_check_grace_period = 180
-
-  launch_template {
-    id      = aws_launch_template.app.id
-    version = "$Latest"
-  }
-
-  instance_refresh {
-    strategy = "Rolling"
-    preferences {
-      min_healthy_percentage = 100
-      max_healthy_percentage = 110
-    }
-  }
-
-  # The scaling policy changes this at runtime; do not let Terraform undo it
-  lifecycle {
-    ignore_changes = [desired_capacity]
-  }
-}
-
-resource "aws_autoscaling_policy" "cpu" {
-  name                   = "cpu-50"
-  autoscaling_group_name = aws_autoscaling_group.app.name
-  policy_type            = "TargetTrackingScaling"
-
-  target_tracking_configuration {
-    target_value = 50
-    predefined_metric_specification {
-      predefined_metric_type = "ASGAverageCPUUtilization"
-    }
-  }
-}`}
-        />
+        <p>
+          The largest file, because Lesson 12 had the most pieces: the ALB, its target group with
+          the <code>/api/health</code> check, the HTTPS listener (using the ACM certificate,
+          looked up with a <code>data</code> block) and the HTTP→HTTPS redirect listener, the
+          launch template (IMDSv2, hop limit 2, encrypted disk, and the user-data script filled in
+          with <code>templatefile()</code>), and the Auto Scaling group with ELB health checks and
+          a rolling <code>instance_refresh</code>. Nothing new — the same fields you set in the
+          console, now reviewable in a pull request.
+        </p>
         <h3>dns.tf and outputs.tf</h3>
-        <Script
-          title="dns.tf"
-          code={`data "aws_route53_zone" "main" {
-  name = var.domain
-}
-
-resource "aws_route53_record" "apex" {
-  zone_id = data.aws_route53_zone.main.zone_id
-  name    = var.domain
-  type    = "A"
-
-  alias {
-    name                   = aws_lb.app.dns_name
-    zone_id                = aws_lb.app.zone_id
-    evaluate_target_health = true
-  }
-}
-
-resource "aws_route53_record" "wildcard" {
-  zone_id = data.aws_route53_zone.main.zone_id
-  name    = "*.\${var.domain}"
-  type    = "A"
-
-  alias {
-    name                   = aws_lb.app.dns_name
-    zone_id                = aws_lb.app.zone_id
-    evaluate_target_health = true
-  }
-}`}
-        />
-        <Script
-          title="outputs.tf, prod.tfvars and .gitignore"
-          code={`# outputs.tf
-output "alb_dns_name" { value = aws_lb.app.dns_name }
-output "db_endpoint"  { value = aws_db_instance.main.address }
-output "db_password"  {
-  value     = random_password.db.result
-  sensitive = true                      # hidden in normal output; read with: terraform output -raw db_password
-}
-
-# prod.tfvars   (safe to commit: no secrets)
-environment = "prod"
-domain      = "yourapp.com"
-
-# .gitignore
-.terraform/
-*.tfstate
-*.tfstate.*
-*.tfplan
-crash.log
-*.auto.tfvars      # often holds secrets
-# DO commit: *.tf, .terraform.lock.hcl`}
-        />
-        <p>Now run the loop:</p>
+        <p>
+          <code>dns.tf</code> holds the alias records from Lesson 13, pointing at{" "}
+          <code>aws_lb.app.dns_name</code> — so if the ALB is ever replaced, the record follows it
+          automatically. <code>outputs.tf</code> prints the useful values after an apply (the ALB
+          name, the database endpoint), and <code>prod.tfvars</code> holds this environment&apos;s
+          values. Add <code>.terraform/</code>, <code>*.tfstate</code> and any secret{" "}
+          <code>.tfvars</code> to <code>.gitignore</code>.
+        </p>
+        <p>Now run the loop, from the <code>infra/</code> folder:</p>
         <CommandList
           title="The first apply"
           commands={[
-            { cmd: "cd infra && terraform init", note: "Downloads the AWS and random providers and connects to the S3 backend. You will see “Terraform has been successfully initialized!”" },
-            { cmd: "terraform fmt -recursive && terraform validate", note: "Style and sanity check" },
-            { cmd: "terraform plan -var-file=prod.tfvars -out=tfplan", note: "Preview. Saves the exact plan to a file so what you review is exactly what gets applied" },
-            { cmd: "terraform apply tfplan", note: "Applies that saved plan, with no second prompt. Takes ~10–15 minutes (RDS is the slow one)" },
-            { cmd: "terraform output", note: "Prints the outputs: ALB name, DB endpoint" },
-            { cmd: "terraform plan -var-file=prod.tfvars", note: "Run it again. “No changes. Your infrastructure matches the configuration.” — the sign of a healthy setup" },
+            { cmd: "terraform init", note: "Downloads the providers and connects to the S3 backend. “Terraform has been successfully initialized!”" },
+            { cmd: "terraform plan -var-file=prod.tfvars -out=tfplan", note: "Preview, saved to a file so what you review is exactly what gets applied" },
+            { cmd: "terraform apply tfplan", note: "Applies that saved plan. ~10–15 minutes (RDS is the slow one)" },
           ]}
         />
+        <p>
+          Then run the plan once more. &ldquo;No changes. Your infrastructure matches the
+          configuration.&rdquo; is the sign of a healthy setup.
+        </p>
 
         <h2 id="reading-plan">How to read a plan</h2>
         <Script
@@ -782,15 +473,11 @@ Plan: 1 to add, 1 to change, 2 to destroy.`}
             fast.
           </li>
         </ul>
-        <CommandList
-          title="Inspecting state safely"
-          commands={[
-            { cmd: "terraform state list", note: "Every resource Terraform manages" },
-            { cmd: "terraform state show aws_db_instance.main", note: "All attributes as Terraform recorded them" },
-            { cmd: "terraform plan -refresh-only", note: "Compare state with reality and show only drift, proposing no changes to your code" },
-            { cmd: "terraform apply -replace=aws_launch_template.app", note: "Force one resource to be recreated (the modern replacement for the old “taint”)" },
-          ]}
-        />
+        <p>
+          You will also meet: listing everything in state, showing one resource&apos;s recorded
+          attributes, a <em>refresh-only</em> plan that reports drift without proposing changes,
+          and <code>-replace</code> to force one resource to be recreated.
+        </p>
 
         <h2 id="gotchas">Six gotchas that bite on day one</h2>
         <div className="table-wrap">
@@ -840,13 +527,12 @@ resource "aws_s3_bucket" "uploads" {
   bucket = "myapp-uploads-abcd1234"
 }`}
         />
-        <CommandList
-          title="Import workflow"
-          commands={[
-            { cmd: "terraform plan -generate-config-out=generated.tf", note: "Terraform can even write the resource block for you from the real settings. Review and tidy generated.tf before keeping it" },
-            { cmd: "terraform apply", note: "Adopts it into state. Afterwards the plan must say “no changes” — if it shows changes, your code differs from reality; decide which is right" },
-          ]}
-        />
+        <p>
+          Terraform can even write the resource block for you from the real settings
+          (<code>-generate-config-out</code>). Review that generated file, apply, and the plan must
+          then say &ldquo;no changes&rdquo; — if it shows changes, your code differs from reality;
+          decide which is right.
+        </p>
         <p>
           Migrate in slices, not all at once: import one area (say the network), get to a clean
           &ldquo;no changes&rdquo; plan, commit, then the next. Big-bang imports are where mistakes
@@ -857,7 +543,8 @@ resource "aws_s3_bucket" "uploads" {
         <p>
           When the same shape is needed twice — a staging and a prod copy — a <strong>module</strong>{" "}
           packages it. A module is just a folder of <code>.tf</code> files with variables in and
-          outputs out; calling it is like calling a function:
+          outputs out; calling it is like calling a function. Staging becomes a few lines that
+          call the same module with smaller sizes:
         </p>
         <Script
           title="layout"
@@ -875,22 +562,6 @@ resource "aws_s3_bucket" "uploads" {
         ├── main.tf         # calls the same module with real sizes and Multi-AZ
         └── backend.tf      # prod/terraform.tfstate`}
         />
-        <Script
-          title="envs/staging/main.tf"
-          code={`module "web" {
-  source = "../../modules/web-stack"
-
-  project           = "myapp"
-  environment       = "staging"
-  domain            = "staging.yourapp.com"
-  app_instance_type = "t3.micro"
-  db_instance_class = "db.t4g.micro"
-  min_size          = 1
-  max_size          = 2
-}
-
-output "url" { value = module.web.alb_dns_name }`}
-        />
         <Callout kind="note" label="Workspaces vs folders">
           <p className="mb-0">
             Terraform also has <em>workspaces</em>, multiple states from one folder. They are handy for
@@ -907,58 +578,19 @@ output "url" { value = module.web.alb_dns_name }`}
           <code>plan</code> and posts it; merging runs <code>apply</code> after approval. Every
           infrastructure change is reviewed exactly like code, with a plan attached.
         </p>
-        <Script
-          title=".github/workflows/terraform.yml"
-          code={`name: Terraform
-
-on:
-  pull_request:
-    paths: ["infra/**"]
-  push:
-    branches: [main]
-    paths: ["infra/**"]
-
-permissions:
-  id-token: write        # OIDC, exactly as in Lesson 14
-  contents: read
-  pull-requests: write   # to post the plan as a comment
-
-concurrency:
-  group: terraform
-  cancel-in-progress: false
-
-jobs:
-  plan:
-    runs-on: ubuntu-latest
-    defaults: { run: { working-directory: infra } }
-    steps:
-      - uses: actions/checkout@v4
-      - uses: hashicorp/setup-terraform@v3
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::123456789012:role/github-terraform
-          aws-region: ap-south-1
-      - run: terraform init -input=false
-      - run: terraform fmt -check -recursive
-      - run: terraform validate
-      - run: terraform plan -input=false -var-file=prod.tfvars -out=tfplan
-
-  apply:
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    needs: plan
-    runs-on: ubuntu-latest
-    environment: production          # human approval before infrastructure changes
-    defaults: { run: { working-directory: infra } }
-    steps:
-      - uses: actions/checkout@v4
-      - uses: hashicorp/setup-terraform@v3
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::123456789012:role/github-terraform
-          aws-region: ap-south-1
-      - run: terraform init -input=false
-      - run: terraform apply -input=false -auto-approve -var-file=prod.tfvars`}
-        />
+        <ul>
+          <li>
+            <strong>On a pull request</strong> that touches <code>infra/</code>: init,{" "}
+            <code>fmt -check</code>, validate, then plan — and post the plan as a PR comment.
+          </li>
+          <li>
+            <strong>On merge to main</strong>: the same plan, then <code>apply</code>, behind the{" "}
+            <code>production</code> environment&apos;s approval.
+          </li>
+          <li>
+            Authenticated with OIDC (Lesson 14) as a role called <code>github-terraform</code>.
+          </li>
+        </ul>
         <p>
           The <code>github-terraform</code> role needs wide permissions (it creates VPCs and IAM
           roles), which is exactly why it is a <strong>separate role</strong> from the narrow{" "}
@@ -1109,7 +741,7 @@ jobs:
         <h2 id="practice">Practice task before Lesson 16</h2>
         <ol>
           <li>
-            Create the state bucket, then the <code>infra/</code> folder with the files above. Run{" "}
+            Create the state bucket, then write the <code>infra/</code> files described above. Run{" "}
             <code>init</code>, <code>plan</code> and read the whole plan top to bottom before applying.
           </li>
           <li>

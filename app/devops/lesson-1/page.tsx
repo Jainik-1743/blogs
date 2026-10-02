@@ -140,50 +140,32 @@ export default function LessonOnePage() {
 
         <hr />
 
-        <h2 id="navigation">Commands — Part A: Navigation</h2>
-        <CommandList
-          title="Moving around"
-          commands={[
-            { cmd: "pwd", note: <>print working directory — &ldquo;where am I?&rdquo;</> },
-            { cmd: "ls", note: "list files here" },
-            { cmd: "ls -la", note: "list ALL files (including hidden) with details" },
-            { cmd: "cd /var/log", note: "go to a folder" },
-            { cmd: "cd ~", note: <>go to your home folder (<code>~</code> means <code>/home/ubuntu</code>)</> },
-            { cmd: "cd ..", note: "go one folder up" },
-          ]}
-        />
-        <p>Reading files:</p>
-        <CommandList
-          title="Reading files"
-          commands={[
-            { cmd: "cat package.json", note: "print whole file" },
-            { cmd: "less error.log", note: <>scroll through a big file (press <code>q</code> to quit)</> },
-            { cmd: "head -20 app.log", note: "first 20 lines" },
-            { cmd: "tail -50 app.log", note: "last 50 lines" },
-            { cmd: "tail -f app.log", note: "LIVE view — new lines appear as they happen" },
-          ]}
-        />
+        <h2 id="navigation">Part A: Moving around and reading files</h2>
         <p>
-          <code>tail -f</code> is the single most useful debugging command in DevOps. You&apos;ll
-          live in it.
+          A terminal is always &ldquo;standing&rdquo; in one folder. You ask where you are, list
+          what is there, and step into another folder — the same as clicking through Finder, only
+          typed. <code>~</code> is a shortcut for your home folder, and <code>..</code> means
+          &ldquo;one folder up&rdquo;.
+        </p>
+        <p>
+          Reading files is where you will spend most of your time on a server, because that is
+          how you read logs. You can print a whole file, page through a big one, or look at only
+          the last few lines. The one that matters most is <strong>following</strong> a file: the
+          terminal stays open and new lines appear the moment your app writes them. That live view
+          is how you watch a bug happen.
         </p>
 
         <h2 id="files">Part B: Files and folders</h2>
-        <CommandList
-          title="Files and folders"
-          commands={[
-            { cmd: "mkdir myapp", note: "create folder" },
-            { cmd: "touch .env", note: "create empty file" },
-            { cmd: "cp file.txt backup.txt", note: "copy" },
-            { cmd: "mv old.txt new.txt", note: "move or rename" },
-            { cmd: "rm file.txt", note: "delete file" },
-            { cmd: "rm -rf folder/", note: "delete folder and everything inside" },
-          ]}
-        />
+        <p>
+          Creating, copying, moving and deleting files works exactly as you expect. The one thing
+          to respect: Linux has <strong>no recycle bin</strong>. A recursive delete removes a
+          folder and everything inside it, instantly and forever, with no &ldquo;are you
+          sure?&rdquo;.
+        </p>
         <Callout kind="warn" label="Careful">
           <p className="mb-0">
-            <code>rm -rf</code> has no recycle bin and no confirmation. Deleted is deleted forever.
-            Always run <code>pwd</code> before using it.
+            Before deleting anything recursively, check which folder you are standing in. Running
+            it one level too high is the classic way to wipe a server.
           </p>
         </Callout>
 
@@ -191,279 +173,189 @@ export default function LessonOnePage() {
         <p>
           Every file has permissions for three groups: <strong>owner</strong>,{" "}
           <strong>group</strong>, <strong>others</strong>. Each can have read (4), write (2),
-          execute (1).
-        </p>
-        <Script
-          title="ls -l output"
-          code={`ls -l app.js
-# -rw-r--r-- 1 ubuntu ubuntu 1240 Sep 18 10:22 app.js`}
-        />
-        <p>
-          Reading <code>rw-r--r--</code>: owner can read+write, group can only read, others can only
-          read.
+          execute (1). A file listing shows them as nine letters, for example{" "}
+          <code>rw-r--r--</code>: owner can read+write, group can only read, others can only read.
         </p>
         <PermissionBits />
-        <p>Numeric form — you add the values:</p>
-        <CommandList
-          title="chmod recipes"
-          commands={[
-            { cmd: "chmod 644 app.js", note: "owner rw, others read — normal files" },
-            { cmd: "chmod 600 .env", note: "owner rw, NOBODY else — secrets!" },
-            { cmd: "chmod 400 key.pem", note: "owner read only — SSH keys (required)" },
-            { cmd: "chmod 755 script.sh", note: "owner rwx, others rx — executables" },
-            { cmd: "chown ubuntu:ubuntu app.js", note: "change who owns the file" },
-          ]}
-        />
         <p>
-          <strong>You will hit this exact error in Lesson 7</strong>, guaranteed:
+          Add the numbers to get each digit, and write the three digits in the order owner, group,
+          others. Three values cover almost everything you will do:
         </p>
-        <Script
-          title="The error"
-          code={`WARNING: UNPROTECTED PRIVATE KEY FILE!
-Permissions 0644 for 'key.pem' are too open.`}
-        />
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Value</th>
+                <th>Meaning</th>
+                <th>Use it for</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>644</code></td>
+                <td>you read+write, everyone else reads</td>
+                <td>normal files, public web files</td>
+              </tr>
+              <tr>
+                <td><code>600</code></td>
+                <td>you read+write, nobody else anything</td>
+                <td><code>.env</code>, passwords, API keys</td>
+              </tr>
+              <tr>
+                <td><code>400</code></td>
+                <td>you read only, nobody else anything</td>
+                <td>SSH private keys (required)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
         <p>
-          The fix is <code>chmod 400 key.pem</code>. SSH refuses to use a key that other users on
-          the machine could read.
+          <strong>You will hit this exact error in Lesson 7</strong>, guaranteed: SSH prints
+          &ldquo;UNPROTECTED PRIVATE KEY FILE — permissions 0644 are too open&rdquo; and refuses
+          to connect. SSH will not use a key that another user on the machine could read. Setting
+          the key to <code>400</code> fixes it.
         </p>
 
         <h2 id="users">Part D: Users and sudo</h2>
-        <CommandList
-          title="Users and sudo"
-          commands={[
-            { cmd: "whoami", note: "which user am I?" },
-            { cmd: "sudo apt update", note: "run one command as admin (superuser do)" },
-            { cmd: "sudo su -", note: "become root fully (avoid this habit)" },
-          ]}
-        />
         <p>
-          Rule: use <code>sudo</code> for each command that needs it. Don&apos;t live as root — one
-          wrong <code>rm -rf</code> as root destroys the server.
+          You log in as a normal user (on EC2 that is <code>ubuntu</code>). When one command needs
+          admin power — installing software, editing system config — you put <code>sudo</code>{" "}
+          (&ldquo;superuser do&rdquo;) in front of that one command, and then you are a normal user
+          again.
+        </p>
+        <p>
+          Rule: don&apos;t switch to the root user and stay there. As root, one wrong delete
+          destroys the server, and nothing stops you.
         </p>
 
         <h2 id="processes">Part E: Processes — why your app dies</h2>
-        <CommandList
-          title="Processes"
-          commands={[
-            { cmd: "ps aux", note: "list all running processes" },
-            { cmd: "ps aux | grep node", note: "find only node processes" },
-            { cmd: "top", note: <>live CPU/memory view (<code>q</code> to quit)</> },
-            { cmd: "kill 4821", note: "politely stop process ID 4821" },
-            { cmd: "kill -9 4821", note: "force kill (last resort)" },
-          ]}
-        />
         <p>
-          The <code>|</code> is a <strong>pipe</strong> — it sends output of one command into the
-          next. <code>ps aux | grep node</code> means &ldquo;list all processes, then filter for
-          node&rdquo;.
+          Every running program is a <strong>process</strong> with a number (its PID). You can
+          list them, filter the list for <code>node</code>, watch live CPU and memory, and stop one
+          by its number. You can also ask &ldquo;which process is using port 3000?&rdquo; — the
+          first question when your app &ldquo;starts&rdquo; but nothing answers.
         </p>
-        <p>Checking ports (you&apos;ll need this constantly):</p>
-        <CommandList
-          title="Ports"
-          commands={[
-            { cmd: "sudo lsof -i :3000", note: "what is using port 3000?" },
-            { cmd: "sudo ss -tulpn", note: "all listening ports" },
-          ]}
-        />
+        <p>
+          The <code>|</code> character is a <strong>pipe</strong>: it sends the output of one
+          command into the next, so &ldquo;list everything, then keep only the lines with
+          node&rdquo; is one line.
+        </p>
 
         <h3>Solving &ldquo;my app dies when I close the terminal&rdquo;</h3>
         <p>
-          When you run <code>npm start</code> and close SSH, the process is killed because it was a
-          child of your terminal session. Three levels of fix:
+          When you run <code>npm start</code> over SSH, the app is a <em>child</em> of your
+          terminal session. Close the session and Linux stops its children too. There are three
+          levels of fix:
         </p>
-        <CommandList
-          title="Level 1 — quick test only"
-          commands={[{ cmd: "nohup npm start &", note: "survives disconnect" }]}
-        />
-        <CommandList
-          title="Level 2 — better: a session you can reattach to"
-          commands={[
-            { cmd: "tmux new -s myapp", note: <>run <code>npm start</code> inside, then press <code>Ctrl+B</code> then <code>D</code> to detach</> },
-            { cmd: "tmux attach -t myapp", note: "come back later" },
-          ]}
-        />
-        <CommandList
-          title="Level 3 — production answer: auto-restart on crash and on reboot"
-          commands={[
-            { cmd: "sudo npm install -g pm2", note: "install PM2 globally" },
-            { cmd: "pm2 start npm --name myapp -- start", note: <>run <code>npm start</code> under PM2, named <code>myapp</code></> },
-            { cmd: "pm2 startup", note: "survive server reboot" },
-            { cmd: "pm2 save", note: "remember the current process list" },
-            { cmd: "pm2 logs myapp", note: "view logs" },
-            { cmd: "pm2 restart myapp", note: "restart the app" },
-          ]}
-        />
-        <p>PM2 is what you&apos;ll actually use in Lesson 7 (and later Docker replaces it).</p>
+        <ol>
+          <li>
+            <strong>Detach it from the terminal</strong> — it survives the disconnect, but if it
+            crashes it stays dead. Fine for a quick test.
+          </li>
+          <li>
+            <strong>Run it inside a terminal session that keeps living</strong> (a tool like
+            tmux) — you can come back and look at it later. Still no restart on a crash.
+          </li>
+          <li>
+            <strong>Use a process manager (PM2)</strong> — it restarts the app when it crashes,
+            starts it again when the server reboots, and keeps its logs. This is the production
+            answer, and what you will set up in Lesson 7 (later, Docker takes over this job).
+          </li>
+        </ol>
 
         <h2 id="disk">Part F: Disk and system health</h2>
-        <CommandList
-          title="System health"
-          commands={[
-            { cmd: "df -h", note: <>disk space free (<code>-h</code> = human readable)</> },
-            { cmd: "du -sh /home/ubuntu/myapp", note: "how big is this folder?" },
-            { cmd: "free -h", note: "RAM usage" },
-            { cmd: "uptime", note: "how long has server been running + load" },
-          ]}
-        />
         <p>
-          A full disk is one of the most common production outages — <code>npm run build</code>{" "}
-          silently fails, logs stop writing. <code>df -h</code> is your first check when something
-          is weird.
+          A full disk is one of the most common production outages: <code>npm run build</code>{" "}
+          fails with a confusing error, and logs silently stop being written. So when something
+          is weird, check free disk space first, then memory, then how busy the CPU has been.
         </p>
 
         <h2 id="editing">Part G: Editing files</h2>
         <p>
-          You&apos;ll need <code>nano</code> (simple) over <code>vim</code> (steep learning curve)
-          to start:
+          On a server there is no VS Code. Use <code>nano</code> to start — it shows its
+          shortcuts at the bottom of the screen (<code>Ctrl+O</code> saves, <code>Ctrl+X</code>{" "}
+          exits). <code>vim</code> is more powerful but has a steep learning curve; you can pick it
+          up later.
+        </p>
+
+        <h3>The five commands you will actually use</h3>
+        <p>
+          Everything above is worth understanding. These five are worth memorising — they answer
+          the 2am questions from the top of this lesson.
         </p>
         <CommandList
-          title="nano"
+          title="Keep these"
           commands={[
-            { cmd: "nano .env", note: <>type your changes, then <code>Ctrl+O</code> then <code>Enter</code> to save, <code>Ctrl+X</code> to exit</> },
+            { cmd: "tail -f app.log", note: "watch a log live — new lines appear as they happen" },
+            { cmd: "chmod 600 .env", note: "only you can read your secrets" },
+            { cmd: "chmod 400 key.pem", note: "the fix SSH demands for your key in Lesson 7" },
+            { cmd: "ps aux | grep node", note: "is my app actually running?" },
+            { cmd: "df -h", note: "is the disk full? check this first when things are weird" },
           ]}
         />
 
         <hr />
 
         <h2 id="practice">Practice task before Lesson 2</h2>
-        <p>Don&apos;t launch an EC2 instance yet. Practice locally:</p>
-        <ul>
-          <li>
-            <strong>On Mac/Linux</strong>: your terminal is already Linux-like. Just use it.
-          </li>
-          <li>
-            <strong>On Windows</strong>: install WSL — open PowerShell as admin and run{" "}
-            <code>wsl --install</code>, then restart. You now have real Ubuntu.
-          </li>
-        </ul>
-        <p>Then do this exercise:</p>
+        <p>
+          Don&apos;t launch an EC2 instance yet. On Mac or Linux your terminal is already
+          Linux-like. On Windows, install WSL (<code>wsl --install</code> in an admin PowerShell,
+          then restart) and you have real Ubuntu.
+        </p>
         <Script
           title="practice.sh"
           code={`mkdir ~/practice && cd ~/practice
-touch .env app.js
-chmod 600 .env
-ls -la                      # confirm .env shows -rw-------
-echo "console.log('hello')" > app.js
-node app.js
-df -h
-ps aux | grep node`}
+touch .env && chmod 600 .env
+ls -la                      # .env should show -rw-------
+df -h`}
         />
-        <p>If every one of those makes sense, you&apos;re ready for servers.</p>
+        <p>
+          Then, without looking anything up: create a file, read it page by page, delete it, and
+          find any running <code>node</code> process. If you can, you&apos;re ready for servers.
+        </p>
 
         <hr />
 
         <h2 id="sharing">Follow-up: let one user read a file, but not another</h2>
-        <p>This is exactly where the three-group model (owner / group / others) becomes practical.</p>
-
-        <h3>The basic answer: <code>chmod 640</code></h3>
-        <CommandList
-          title="chmod 640"
-          commands={[
-            {
-              cmd: "chmod 640 report.txt",
-              note: (
-                <>
-                  owner = <code>rw-</code> (you: read + write) · group = <code>r--</code> (group
-                  members: read only) · others = <code>---</code> (everyone else: nothing)
-                </>
-              ),
-            },
-          ]}
-        />
         <p>
-          The digits are always in this order: <strong>owner, group, others</strong>. So 6=rw, 4=r,
-          0=nothing.
+          Say you want Rahul to read <code>report.txt</code>, and Amit to have no access. This is
+          exactly where the owner / group / others model becomes practical.
         </p>
+        <ol>
+          <li>Create a group for the people who may read it, and add Rahul (not Amit).</li>
+          <li>Hand the file to that group, keeping yourself as the owner.</li>
+          <li>
+            Set it to <code>640</code>: you read+write, the group reads, everyone else gets
+            nothing.
+          </li>
+        </ol>
         <p>
-          But there&apos;s a catch — permissions alone aren&apos;t enough. You must also decide{" "}
-          <strong>which group</strong> can read it, and put the right users in that group.
+          Now Rahul can read it and Amit gets &ldquo;Permission denied&rdquo;. Rahul has to log
+          out and back in before his new group counts.
         </p>
-
-        <h3>Full working example</h3>
-        <p>
-          Say you own <code>report.txt</code>, you want <code>rahul</code> to view it, and{" "}
-          <code>amit</code> to have no access at all.
-        </p>
-        <CommandList
-          title="Share with a group"
-          commands={[
-            { cmd: "sudo groupadd viewers", note: "1. Create a group for the people who should view" },
-            { cmd: "sudo usermod -aG viewers rahul", note: "2. Add rahul to that group (do NOT add amit)" },
-            { cmd: "sudo chown ubuntu:viewers report.txt", note: "3. Make the file owned by you, but grouped to viewers" },
-            { cmd: "chmod 640 report.txt", note: "4. Set the permissions" },
-            { cmd: "ls -l report.txt", note: <>5. Verify — expect <code>-rw-r----- 1 ubuntu viewers 2048 Sep 18 11:30 report.txt</code></> },
-          ]}
-        />
-        <p>
-          Now: you can read+write, rahul can read only, amit gets &ldquo;Permission denied&rdquo;.
-          Rahul must log out and back in for the new group to take effect.
-        </p>
-
         <Callout kind="warn" label="Important gotcha — the folder also needs permission">
-          <p>
-            A file inside a locked folder is still unreachable. Rahul needs <strong>execute</strong>{" "}
-            (<code>x</code>) on the folder to enter it:
-          </p>
-          <CommandList
-            title="Folder permission"
-            commands={[
-              { cmd: "chmod 750 /home/ubuntu/docs", note: "owner rwx, group r-x (can enter + list), others nothing" },
-            ]}
-          />
           <p className="mb-0">
-            On folders, <code>x</code> means &ldquo;can enter&rdquo;, <code>r</code> means &ldquo;can
-            list contents&rdquo;. Without <code>x</code>, even a readable file inside is
-            inaccessible. This trips up almost everyone the first time.
+            A readable file inside a locked folder is still unreachable. On a folder,{" "}
+            <code>x</code> means &ldquo;can enter&rdquo; and <code>r</code> means &ldquo;can list
+            what is inside&rdquo;. If the group lacks <code>x</code> on the folder, Rahul can&apos;t
+            reach the file even though the file itself allows it. This trips up almost everyone the
+            first time.
           </p>
         </Callout>
-
-        <h3>Common permission recipes</h3>
-        <CommandList
-          title="Recipes"
-          commands={[
-            { cmd: "chmod 600 .env", note: "only you — secrets, API keys, DB passwords" },
-            { cmd: "chmod 640 config.json", note: "you edit, your group reads" },
-            { cmd: "chmod 644 index.html", note: "you edit, everyone reads (public web files)" },
-            { cmd: "chmod 750 deploy.sh", note: "you run+edit, group can run, others nothing" },
-            { cmd: "chmod 700 ~/.ssh", note: "only you — SSH folder must be this" },
-          ]}
-        />
-
-        <h3>When you need per-user control (not groups): ACLs</h3>
         <p>
-          If you want &ldquo;rahul yes, amit no&rdquo; without creating groups, use ACL — Access
-          Control Lists:
-        </p>
-        <CommandList
-          title="ACLs"
-          commands={[
-            { cmd: "sudo setfacl -m u:rahul:r report.txt", note: "Give one specific user read access" },
-            { cmd: "sudo setfacl -m u:amit:--- report.txt", note: "Explicitly deny one specific user" },
-            { cmd: "getfacl report.txt", note: "See who has what" },
-            { cmd: "sudo setfacl -x u:rahul report.txt", note: "Remove a user's ACL entry" },
-          ]}
-        />
-        <p>
-          ACLs are more flexible but less standard — many teams avoid them because they&apos;re
-          invisible in <code>ls -l</code> (you only see a <code>+</code> at the end:{" "}
-          <code>-rw-r-----+</code>). <strong>For real servers, prefer groups.</strong> They&apos;re
-          cleaner and easier for the next person to understand.
+          Linux also has <strong>ACLs</strong> (access control lists), which grant or deny one
+          specific user without a group. They work, but they are invisible in a normal file
+          listing (you only see a small <code>+</code>), so the next person can&apos;t tell why
+          access behaves the way it does. <strong>On real servers, prefer groups.</strong>
         </p>
 
         <h3>Where this matters on AWS</h3>
-        <p>On your EC2 server this shows up immediately:</p>
-        <CommandList
-          title="On EC2"
-          commands={[
-            { cmd: "sudo chown -R ubuntu:www-data /home/ubuntu/myapp/.next", note: "Nginx needs to READ your built files, but never write them" },
-            { cmd: "chmod -R 750 /home/ubuntu/myapp/.next", note: "you full access, the www-data group can read + enter, nobody else" },
-            { cmd: "chmod 600 /home/ubuntu/myapp/.env", note: "Your .env with the RDS password — nobody else, ever" },
-          ]}
-        />
         <p>
-          That second one is a genuine security practice, not a formality. If your{" "}
-          <code>.env</code> is <code>644</code>, any user or compromised process on that box can
-          read your database password.
+          On your EC2 server this shows up immediately. Nginx needs to <em>read</em> your built
+          Next.js files but must never write them, so the build folder belongs to your user with
+          Nginx&apos;s group allowed to read and enter. And your <code>.env</code> holding the RDS
+          password is <code>600</code> — nobody else, ever. If it were <code>644</code>, any user
+          or compromised process on that box could read your database password.
         </p>
 
         <hr />
@@ -479,9 +371,9 @@ ps aux | grep node`}
             Your app goes in <code>/home/ubuntu</code>, logs go in <code>/var/log</code>.
           </li>
           <li>
-            <strong>Permissions</strong>: <code>chmod 600 .env</code> means only you can read it —
+            <strong>Permissions</strong>: <code>600</code> on <code>.env</code> means only you can read it —
             essential for any file holding a password. SSH will refuse to run at all until your key
-            is <code>chmod 400 key.pem</code>.
+            is <code>400</code>.
           </li>
           <li>
             <strong>sudo</strong>: run one command as admin, then go back to being a normal user.
@@ -501,17 +393,6 @@ ps aux | grep node`}
           You do not need EC2 to practise any of this — the terminal on Mac/Linux, or WSL on
           Windows, runs exactly the same commands.
         </p>
-        <Callout kind="note" label="Permissions, in one paragraph">
-          <p className="mb-0">
-            <code>chmod 640</code> means: you read+write, the group reads only, everyone else gets
-            nothing. But chmod alone is not enough — create a group with <code>groupadd</code>, add
-            the users who should have access with <code>usermod -aG</code>, and hand the file to
-            that group with <code>chown</code>. Remember that the folder containing the file also
-            needs <code>x</code> permission, otherwise nobody can enter it. If you need access for
-            one specific user only, <code>setfacl</code> works, but on real servers groups are
-            cleaner and easier for the next person to understand.
-          </p>
-        </Callout>
 
         <hr />
         <p>

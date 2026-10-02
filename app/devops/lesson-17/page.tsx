@@ -261,24 +261,17 @@ export default function LessonSeventeenPage() {
           Service) is the broadcast channel. Start with email; upgrade to Slack or a pager later
           without touching any alarm.
         </p>
-        <Script
-          title="an alerts topic"
-          code={`export AWS_REGION=ap-south-1
-
-TOPIC_ARN=$(aws sns create-topic --name myapp-alerts --query TopicArn --output text)
-aws sns subscribe --topic-arn $TOPIC_ARN --protocol email --notification-endpoint you@yourapp.com
-echo "export TOPIC_ARN=$TOPIC_ARN" >> ~/myapp-network.env
-
-# IMPORTANT: AWS sends a confirmation email. Until you click "Confirm subscription", you get nothing.
-aws sns list-subscriptions-by-topic --topic-arn $TOPIC_ARN \\
-  --query 'Subscriptions[].[Endpoint,SubscriptionArn]' --output table   # "PendingConfirmation" = not yet clicked`}
-        />
+        <p>
+          SNS → Topics → Create a <em>Standard</em> topic called <code>myapp-alerts</code>, then
+          Create subscription → protocol <strong>Email</strong> → your address. AWS sends a
+          confirmation email; until you click &ldquo;Confirm subscription&rdquo;, you get nothing.
+        </p>
         <Callout kind="note" label="Use a team address, and test the channel">
           <p className="mb-0">
             Send alerts to a group mailbox, not one person&apos;s inbox: people go on holiday. Then
-            prove the whole path works before you need it:{" "}
-            <code>aws sns publish --topic-arn $TOPIC_ARN --message &quot;test alert&quot;</code>. An
-            alerting channel that has never been tested is broken more often than not.
+            prove the whole path works before you need it: the topic&apos;s{" "}
+            <strong>Publish message</strong> button sends a test. An alerting channel that has never
+            been tested is broken more often than not.
           </p>
         </Callout>
 
@@ -309,38 +302,14 @@ aws sns list-subscriptions-by-topic --topic-arn $TOPIC_ARN \\
             </tbody>
           </table>
         </div>
-        <p>First, look up the dimension values that identify your load balancer and target group:</p>
-        <Script
-          title="find the dimension values"
-          code={`# CloudWatch identifies the ALB by the tail of its ARN:  app/myapp-alb/50dc6c495c0c9188
-ALB_DIM=$(aws elbv2 describe-load-balancers --names myapp-alb \\
-  --query 'LoadBalancers[0].LoadBalancerArn' --output text | sed 's|.*:loadbalancer/||')
-
-# ...and the target group by:  targetgroup/myapp-tg/73e2d6bc24d8a067
-TG_DIM=$(aws elbv2 describe-target-groups --names myapp-tg \\
-  --query 'TargetGroups[0].TargetGroupArn' --output text | sed 's|.*:||')
-
-echo $ALB_DIM $TG_DIM`}
-        />
-        <p>Now the alarms. The first one, read carefully; the others are variations:</p>
-        <Script
-          title="alarm 1 — users are getting server errors"
-          code={`aws cloudwatch put-metric-alarm \\
-  --alarm-name myapp-alb-5xx \\
-  --alarm-description "Application is returning 5xx errors. Runbook: check /myapp/web logs, recent deploy" \\
-  --namespace AWS/ApplicationELB \\
-  --metric-name HTTPCode_Target_5XX_Count \\
-  --dimensions Name=LoadBalancer,Value=$ALB_DIM \\
-  --statistic Sum \\
-  --period 60 \\
-  --evaluation-periods 3 \\
-  --datapoints-to-alarm 2 \\
-  --threshold 5 \\
-  --comparison-operator GreaterThanOrEqualToThreshold \\
-  --treat-missing-data notBreaching \\
-  --alarm-actions $TOPIC_ARN \\
-  --ok-actions $TOPIC_ARN`}
-        />
+        <p>Build the first one carefully; the others are variations.</p>
+        <p>
+          CloudWatch → Alarms → <strong>Create alarm</strong> → Select metric → ApplicationELB →
+          Per-AppELB Metrics → <code>HTTPCode_Target_5XX_Count</code> for <code>myapp-alb</code>.
+          Statistic <em>Sum</em>, threshold <em>≥ 5</em>, notification to{" "}
+          <code>myapp-alerts</code>. Under &ldquo;Additional configuration&rdquo; are the settings
+          that make an alarm trustworthy:
+        </p>
         <div className="table-wrap">
           <table>
             <thead>
@@ -350,54 +319,20 @@ echo $ALB_DIM $TG_DIM`}
               </tr>
             </thead>
             <tbody>
-              <tr><td><code>--period 60</code></td><td>Look at one-minute buckets.</td></tr>
-              <tr><td><code>--evaluation-periods 3 --datapoints-to-alarm 2</code></td><td>&ldquo;2 out of the last 3 minutes must breach.&rdquo; Ignores a single blip; still reacts within about two minutes.</td></tr>
-              <tr><td><code>--treat-missing-data notBreaching</code></td><td>No errors means no data points. Treat silence as fine, not as an alarm. (For the &ldquo;no traffic&rdquo; alarm we use <code>breaching</code>, because silence <em>is</em> the problem.)</td></tr>
-              <tr><td><code>--ok-actions</code></td><td>Also tell me when it recovers, so nobody wonders.</td></tr>
-              <tr><td><code>--alarm-description</code></td><td>Written for the person woken at 3 a.m.: what it means and where to look first.</td></tr>
+              <tr><td>Period: 1 minute</td><td>Look at one-minute buckets.</td></tr>
+              <tr><td>Datapoints to alarm: 2 out of 3</td><td>&ldquo;2 out of the last 3 minutes must breach.&rdquo; Ignores a single blip; still reacts within about two minutes.</td></tr>
+              <tr><td>Missing data: treat as good</td><td>No errors means no data points. Treat silence as fine, not as an alarm. (For the &ldquo;no traffic&rdquo; alarm choose <em>bad</em>, because silence <em>is</em> the problem.)</td></tr>
+              <tr><td>Also notify on OK</td><td>Tell me when it recovers, so nobody wonders.</td></tr>
+              <tr><td>Description</td><td>Written for the person woken at 3 a.m.: what it means and where to look first.</td></tr>
             </tbody>
           </table>
         </div>
-        <Script
-          title="alarms 2–6"
-          code={`# 2. Slow: p95 latency over 1 second (extended statistics use --extended-statistic, not --statistic)
-aws cloudwatch put-metric-alarm --alarm-name myapp-alb-slow-p95 \\
-  --namespace AWS/ApplicationELB --metric-name TargetResponseTime \\
-  --dimensions Name=LoadBalancer,Value=$ALB_DIM \\
-  --extended-statistic p95 --period 60 --evaluation-periods 5 --datapoints-to-alarm 4 \\
-  --threshold 1 --comparison-operator GreaterThanThreshold \\
-  --treat-missing-data notBreaching --alarm-actions $TOPIC_ARN --ok-actions $TOPIC_ARN
-
-# 3. A server is failing its health check
-aws cloudwatch put-metric-alarm --alarm-name myapp-unhealthy-hosts \\
-  --namespace AWS/ApplicationELB --metric-name UnHealthyHostCount \\
-  --dimensions Name=LoadBalancer,Value=$ALB_DIM Name=TargetGroup,Value=$TG_DIM \\
-  --statistic Maximum --period 60 --evaluation-periods 3 \\
-  --threshold 1 --comparison-operator GreaterThanOrEqualToThreshold \\
-  --treat-missing-data notBreaching --alarm-actions $TOPIC_ARN
-
-# 4. Nobody at all can reach the site: no requests for 10 minutes (silence IS the problem here)
-aws cloudwatch put-metric-alarm --alarm-name myapp-no-traffic \\
-  --namespace AWS/ApplicationELB --metric-name RequestCount \\
-  --dimensions Name=LoadBalancer,Value=$ALB_DIM \\
-  --statistic Sum --period 300 --evaluation-periods 2 \\
-  --threshold 1 --comparison-operator LessThanThreshold \\
-  --treat-missing-data breaching --alarm-actions $TOPIC_ARN
-
-# 5. Database disk under 5 GB (the value is in BYTES)
-aws cloudwatch put-metric-alarm --alarm-name myapp-db-free-storage \\
-  --namespace AWS/RDS --metric-name FreeStorageSpace \\
-  --dimensions Name=DBInstanceIdentifier,Value=myapp-db \\
-  --statistic Minimum --period 300 --evaluation-periods 1 \\
-  --threshold 5368709120 --comparison-operator LessThanThreshold --alarm-actions $TOPIC_ARN
-
-# 6. Database CPU above 80% for 10 minutes
-aws cloudwatch put-metric-alarm --alarm-name myapp-db-cpu \\
-  --namespace AWS/RDS --metric-name CPUUtilization \\
-  --dimensions Name=DBInstanceIdentifier,Value=myapp-db \\
-  --statistic Average --period 300 --evaluation-periods 2 \\
-  --threshold 80 --comparison-operator GreaterThanThreshold --alarm-actions $TOPIC_ARN`}
-        />
+        <p>
+          The other rows of the table are the same screen with a different metric, statistic and
+          threshold. Two to watch for: latency uses the <em>p95</em> statistic, not the average;
+          and the database disk threshold is in <strong>bytes</strong> (5 GB is{" "}
+          <code>5368709120</code>).
+        </p>
         <p>
           Then prove an alarm works — do not trust it until it has fired once. Force it into the alarm
           state without breaking anything:
@@ -406,7 +341,6 @@ aws cloudwatch put-metric-alarm --alarm-name myapp-db-cpu \\
           title="Fire a test alarm"
           commands={[
             { cmd: "aws cloudwatch set-alarm-state --alarm-name myapp-alb-5xx --state-value ALARM --state-reason \"Testing the alert path\"", note: "Sends the real notification to your email. It flips back to OK at the next evaluation" },
-            { cmd: "aws cloudwatch describe-alarms --state-value ALARM --query 'MetricAlarms[].[AlarmName,StateReason]' --output table", note: "Everything currently in trouble, at a glance" },
           ]}
         />
 
@@ -417,17 +351,11 @@ aws cloudwatch put-metric-alarm --alarm-name myapp-db-cpu \\
           want to read it. Docker&apos;s <code>awslogs</code> driver ships each line to CloudWatch Logs
           instead, in near real time.
         </p>
-        <Script
-          title="permissions for the instance role"
-          code={`{
-  "Version": "2012-10-17",
-  "Statement": [{
-    "Effect": "Allow",
-    "Action": ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents", "logs:DescribeLogStreams"],
-    "Resource": "arn:aws:logs:ap-south-1:123456789012:log-group:/myapp/*"
-  }]
-}`}
-        />
+        <p>
+          Give <code>myapp-ec2-role</code> permission to create log streams and put log events in
+          log groups under <code>/myapp/*</code>, then change one thing in the boot script — the
+          log driver:
+        </p>
         <Script
           title="user-data.sh — the docker run line from Lesson 12, now logging to CloudWatch"
           code={`docker run -d --name myapp --restart unless-stopped \\
@@ -436,20 +364,21 @@ aws cloudwatch put-metric-alarm --alarm-name myapp-db-cpu \\
   --log-opt awslogs-region=ap-south-1 \\
   --log-opt awslogs-group=/myapp/web \\
   --log-opt awslogs-create-group=true \\
-  --log-opt tag='{{.Name}}/{{.ID}}' \\
-  -p 80:3000 \\
-  $REGISTRY/myapp:$TAG`}
+  -p 80:3000 $REGISTRY/myapp:$TAG`}
         />
         <p>
           Each container becomes a <em>log stream</em> inside the <code>/myapp/web</code> group, so you
           can read one server or all of them together. Now the most important log setting of all:
         </p>
+        <p>
+          Log groups keep data <strong>forever</strong> by default and bill for storage every month.
+          The day you create the group, set its retention (Actions → Edit retention setting) to
+          14, 30 or 90 days. Then you can watch every server at once from your terminal:
+        </p>
         <CommandList
-          title="Set retention — the default is forever"
+          title="Live tail"
           commands={[
-            { cmd: "aws logs put-retention-policy --log-group-name /myapp/web --retention-in-days 30", note: "Log groups keep data indefinitely and bill for storage every month. Choose a retention (14, 30, 90 days) the day you create the group" },
-            { cmd: "aws logs tail /myapp/web --follow --since 10m", note: "Live tail from your terminal, like docker logs -f but for every server at once" },
-            { cmd: "aws logs tail /myapp/web --filter-pattern ERROR --since 1h", note: "Only lines containing ERROR, from the last hour" },
+            { cmd: "aws logs tail /myapp/web --follow --since 10m", note: "Like docker logs -f, but for every server at once. Add --filter-pattern ERROR to see only errors" },
           ]}
         />
         <Callout kind="note" label="ALB access logs to S3">
@@ -532,33 +461,22 @@ export const log = pino({
           time range → paste a query. JSON fields are discovered automatically.
         </p>
         <Script
-          title="queries worth saving"
-          code={`# 1. Recent errors
+          title="two queries worth saving"
+          code={`# Recent errors
 fields @timestamp, msg, route, tenantId, err
 | filter level = "error"
 | sort @timestamp desc
 | limit 50
 
-# 2. Everything that happened to one request (the ID a user or an alert gave you)
-fields @timestamp, level, msg, route
-| filter requestId like "1c9d"
-| sort @timestamp asc
-
-# 3. Which endpoints are slow?
+# Which endpoints are slow?
 filter ispresent(durationMs)
-| stats count() as requests, avg(durationMs) as avg_ms, pct(durationMs, 95) as p95_ms by route
-| sort p95_ms desc
-| limit 20
-
-# 4. Status codes over time (spot the moment errors started)
-filter ispresent(status)
-| stats count() as n by status, bin(5m)
-
-# 5. Which tenant is generating the errors?
-filter level = "error"
-| stats count() as errors by tenantId
-| sort errors desc`}
+| stats count() as requests, pct(durationMs, 95) as p95_ms by route
+| sort p95_ms desc`}
         />
+        <p>
+          Save a few more: everything for one <code>requestId</code>, status codes over time in
+          5-minute bins, and errors grouped by <code>tenantId</code>.
+        </p>
         <p>
           Insights bills by data scanned (about $0.005 per GB), so narrow the time range and the log
           group before running a query over weeks of data.
@@ -568,33 +486,24 @@ filter level = "error"
         <p>
           A <strong>metric filter</strong> watches a log group and increments a metric whenever a line
           matches — so an error <em>in your code</em> can trigger an alarm even though AWS never sees a
-          5xx (perhaps you handled it and returned a friendly 200):
+          5xx (perhaps you handled it and returned a friendly 200).
         </p>
-        <Script
-          title="count application errors, then alarm on them"
-          code={`aws logs put-metric-filter \\
-  --log-group-name /myapp/web \\
-  --filter-name app-errors \\
-  --filter-pattern '{ $.level = "error" }' \\
-  --metric-transformations metricName=AppErrors,metricNamespace=MyApp,metricValue=1,defaultValue=0
-
-aws cloudwatch put-metric-alarm --alarm-name myapp-app-errors \\
-  --namespace MyApp --metric-name AppErrors \\
-  --statistic Sum --period 300 --evaluation-periods 1 \\
-  --threshold 10 --comparison-operator GreaterThanOrEqualToThreshold \\
-  --treat-missing-data notBreaching --alarm-actions $TOPIC_ARN`}
-        />
+        <p>
+          In the log group: Actions → <strong>Create metric filter</strong>, pattern{" "}
+          <code>{'{ $.level = "error" }'}</code>, metric <code>MyApp/AppErrors</code>, value 1.
+          Then create an alarm on that metric like any other — for example, 10 or more in five
+          minutes.
+        </p>
         <p>
           The same trick monitors <strong>the business</strong>, which is often what really matters.
           Technical health can be green while signups have silently stopped. Emit a metric for the
-          events you care about:
+          events you care about.
         </p>
-        <CommandList
-          title="Business metrics"
-          commands={[
-            { cmd: "aws cloudwatch put-metric-data --namespace MyApp --metric-name PaymentFailed --value 1 --unit Count", note: "One data point from any script or service. In application code use the AWS SDK's PutMetricData, or log in Embedded Metric Format, which creates metrics from a log line for free of extra API calls" },
-          ]}
-        />
+        <p>
+          Send one data point per event from your code (the AWS SDK&apos;s{" "}
+          <code>PutMetricData</code>), or — cheaper — log it in <em>Embedded Metric Format</em>,
+          which turns a log line into a metric with no extra API call.
+        </p>
         <p>
           Good candidates: signups, logins, payments succeeded/failed, emails sent, background jobs
           completed, queue depth. An alarm on &ldquo;zero signups for an hour during business
@@ -608,36 +517,16 @@ aws cloudwatch put-metric-alarm --alarm-name myapp-app-errors \\
           server has it automatically. Attach the AWS-managed policy{" "}
           <code>CloudWatchAgentServerPolicy</code> to the instance role first.
         </p>
-        <Script
-          title="cloudwatch-agent.json"
-          code={`{
-  "agent": { "metrics_collection_interval": 60, "run_as_user": "root" },
-  "metrics": {
-    "namespace": "MyApp/EC2",
-    "append_dimensions": {
-      "AutoScalingGroupName": "\${aws:AutoScalingGroupName}",
-      "InstanceId": "\${aws:InstanceId}"
-    },
-    "aggregation_dimensions": [["AutoScalingGroupName"]],
-    "metrics_collected": {
-      "mem":  { "measurement": ["mem_used_percent"] },
-      "disk": { "measurement": ["used_percent"], "resources": ["/"] }
-    }
-  }
-}`}
-        />
-        <Script
-          title="added to user-data.sh"
-          code={`curl -fsSL -o /tmp/cwagent.deb https://amazoncloudwatch-agent.s3.amazonaws.com/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb
-dpkg -i /tmp/cwagent.deb
-
-# Keep the config in SSM Parameter Store so all servers read the same one
-aws ssm get-parameter --region ap-south-1 --name /myapp/cloudwatch-agent --query Parameter.Value --output text \\
-  > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
-
-/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \\
-  -a fetch-config -m ec2 -s -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json`}
-        />
+        <p>
+          The agent&apos;s config is a small JSON file: collect <code>mem_used_percent</code> and
+          the root disk&apos;s <code>used_percent</code> every 60 seconds, into the namespace{" "}
+          <code>MyApp/EC2</code>, grouped by Auto Scaling group. Keep it in SSM Parameter Store as{" "}
+          <code>/myapp/cloudwatch-agent</code>, so every server reads the same one.
+        </p>
+        <p>
+          In the user-data script, three extra steps: install the agent package, fetch that
+          config from SSM, and start the agent with it.
+        </p>
         <p>
           Aggregating by Auto Scaling group means one graph for &ldquo;memory across all servers&rdquo;
           rather than one line per short-lived instance ID. Then add the memory and disk alarms from

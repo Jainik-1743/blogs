@@ -223,35 +223,21 @@ export default function LessonElevenPage() {
         <p>Nobody else. Not the internet. That is what &ldquo;private&rdquo; means.</p>
 
         <h2 id="create">Create a bucket and use it</h2>
-        <Script
-          title="on your laptop"
-          code={`export AWS_REGION=ap-south-1
-
-# Bucket names are global: add something random so yours is unique
-BUCKET=myapp-uploads-$(openssl rand -hex 4)
-echo $BUCKET
-
-aws s3api create-bucket --bucket $BUCKET \\
-  --create-bucket-configuration LocationConstraint=ap-south-1
-# (Only us-east-1 omits the --create-bucket-configuration line.)
-
-# Belt and braces: block public access on this bucket too
-aws s3api put-public-access-block --bucket $BUCKET \\
-  --public-access-block-configuration BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true
-
-# Encrypt at rest by default (this is already the default now, but making it explicit documents intent)
-aws s3api put-bucket-encryption --bucket $BUCKET \\
-  --server-side-encryption-configuration '{"Rules":[{"ApplyServerSideEncryptionByDefault":{"SSEAlgorithm":"AES256"}}]}'`}
-        />
+        <p>
+          S3 → <strong>Create bucket</strong>. Bucket names are global across every AWS account,
+          so add something random: <code>myapp-uploads-7f3a</code>. Region{" "}
+          <code>ap-south-1</code>. Leave <strong>Block all public access</strong> switched on and
+          default encryption as it is — both are already the safe choice. That&apos;s it.
+        </p>
+        <p>
+          From your laptop the CLI can copy files in and out, list a prefix, sync a whole folder
+          and delete. One command is worth trying straight away, because it shows the
+          &ldquo;private by default&rdquo; idea in action:
+        </p>
         <CommandList
-          title="Everyday S3 commands"
+          title="Try it"
           commands={[
-            { cmd: "aws s3 cp logo.png s3://$BUCKET/assets/logo.png", note: "Upload one file" },
-            { cmd: "aws s3 ls s3://$BUCKET/assets/", note: "List a prefix (trailing slash matters)" },
-            { cmd: "aws s3 sync ./public/uploads s3://$BUCKET/uploads --delete", note: "Make S3 match a local folder. --delete removes remote files that no longer exist locally — powerful, read the dry run first (--dryrun)" },
-            { cmd: "aws s3 cp s3://$BUCKET/assets/logo.png ./logo-copy.png", note: "Download" },
-            { cmd: "aws s3 rm s3://$BUCKET/assets/logo.png", note: "Delete one object (add --recursive for a prefix)" },
-            { cmd: "aws s3 presign s3://$BUCKET/assets/logo.png --expires-in 300", note: "Generate a link valid for 5 minutes. Try it in a browser, then try the plain object URL — that one is denied" },
+            { cmd: "aws s3 presign s3://myapp-uploads-7f3a/assets/logo.png --expires-in 300", note: "Upload any file in the console first. This link works for 5 minutes; the plain object URL is denied" },
           ]}
         />
 
@@ -289,14 +275,12 @@ aws s3api put-bucket-encryption --bucket $BUCKET \\
             <code>AccessDenied</code> even though the policy &ldquo;looks right&rdquo;.
           </p>
         </Callout>
-        <CommandList
-          title="Attach and verify"
-          commands={[
-            { cmd: "aws iam create-policy --policy-name myapp-uploads-rw --policy-document file://s3-app-policy.json", note: "Create the policy" },
-            { cmd: "aws iam attach-role-policy --role-name myapp-ec2-role --policy-arn arn:aws:iam::<ACCOUNT>:policy/myapp-uploads-rw", note: "Attach to the role the server wears. No restart needed; credentials refresh within minutes" },
-            { cmd: "aws s3 ls s3://$BUCKET/", note: "On the EC2 server, no keys configured: this should work. Try another bucket: it should be denied" },
-          ]}
-        />
+        <p>
+          Create this as a policy (<code>myapp-uploads-rw</code>) and attach it to{" "}
+          <code>myapp-ec2-role</code>. No restart needed — the server&apos;s credentials refresh
+          within minutes. On the server, with no keys configured, listing your bucket now works
+          and listing any other bucket is denied.
+        </p>
 
         <h2 id="presigned">Presigned URLs — uploads that skip your server</h2>
         <p>
@@ -403,12 +387,10 @@ export async function POST(req: Request) {
   ]
 }`}
         />
-        <CommandList
-          title="Apply it"
-          commands={[
-            { cmd: "aws s3api put-bucket-cors --bucket $BUCKET --cors-configuration file://cors.json", note: "List only origins you own. Never use * for a bucket that accepts uploads" },
-          ]}
-        />
+        <p>
+          Paste it in the bucket&apos;s Permissions → <strong>CORS</strong>. List only origins you
+          own; never use <code>*</code> for a bucket that accepts uploads.
+        </p>
 
         <h2 id="lifecycle">Versioning, lifecycle and storage classes</h2>
         <h3>Versioning — the undo button</h3>
@@ -418,26 +400,10 @@ export async function POST(req: Request) {
           restored. It is the cheapest insurance you can buy for user data (and Lesson 18&apos;s
           backup story).
         </p>
-        <Script
-          title="versioning + cleanup rules"
-          code={`aws s3api put-bucket-versioning --bucket $BUCKET --versioning-configuration Status=Enabled
-
-cat > lifecycle.json <<'EOF'
-{
-  "Rules": [
-    {
-      "ID": "tidy-up",
-      "Status": "Enabled",
-      "Filter": {},
-      "NoncurrentVersionExpiration": { "NoncurrentDays": 30 },
-      "AbortIncompleteMultipartUpload": { "DaysAfterInitiation": 7 },
-      "Transitions": [{ "Days": 90, "StorageClass": "STANDARD_IA" }]
-    }
-  ]
-}
-EOF
-aws s3api put-bucket-lifecycle-configuration --bucket $BUCKET --lifecycle-configuration file://lifecycle.json`}
-        />
+        <p>
+          Both are switches in the console: <strong>Properties → Bucket versioning</strong>, and{" "}
+          <strong>Management → Create lifecycle rule</strong> with the three actions below.
+        </p>
         <p>What that lifecycle rule does, in plain English:</p>
         <ul>
           <li>Old versions of files are deleted after 30 days (otherwise versioning grows forever).</li>
@@ -537,13 +503,14 @@ aws s3api put-bucket-lifecycle-configuration --bucket $BUCKET --lifecycle-config
           </li>
           <li>
             <h3>Test the two paths</h3>
+            <p>
+              Upload a test file. Then compare the direct S3 URL with the CloudFront one:
+            </p>
             <CommandList
               title="Direct S3 is denied, CloudFront works"
               commands={[
-                { cmd: "aws s3 cp logo.png s3://$BUCKET/assets/logo.png --cache-control 'public, max-age=31536000, immutable'", note: "Upload a test file, telling caches how long to keep it" },
-                { cmd: "curl -I https://$BUCKET.s3.ap-south-1.amazonaws.com/assets/logo.png", note: "Direct to S3: 403 Forbidden — correct, the bucket is private" },
-                { cmd: "curl -I https://d1234abcd.cloudfront.net/assets/logo.png", note: "Through CloudFront: 200 OK. Look for x-cache: Miss from cloudfront" },
-                { cmd: "curl -I https://d1234abcd.cloudfront.net/assets/logo.png", note: "Run it again: x-cache: Hit from cloudfront — served from the edge, the bucket was not touched" },
+                { cmd: "curl -I https://myapp-uploads-7f3a.s3.ap-south-1.amazonaws.com/assets/logo.png", note: "Direct to S3: 403 Forbidden — correct, the bucket is private" },
+                { cmd: "curl -I https://d1234abcd.cloudfront.net/assets/logo.png", note: "Through CloudFront: 200 OK. Run it twice — the second says x-cache: Hit from cloudfront, served from the edge" },
               ]}
             />
           </li>
@@ -591,7 +558,7 @@ aws s3api put-bucket-lifecycle-configuration --bucket $BUCKET --lifecycle-config
               </tr>
               <tr>
                 <td><strong>Invalidate</strong></td>
-                <td><code>aws cloudfront create-invalidation --distribution-id E1… --paths &quot;/assets/logo.png&quot;</code></td>
+                <td>Create an <strong>invalidation</strong> for <code>/assets/logo.png</code> on the distribution</td>
                 <td>Works. First 1,000 paths/month free, then $0.005 each. Takes a minute or two. A fix, not a habit</td>
               </tr>
               <tr>
@@ -645,10 +612,8 @@ export default nextConfig;`}
         </p>
         <Script
           title="deploy step"
-          code={`pnpm build
-aws s3 sync .next/static s3://$BUCKET/_next/static \\
-  --cache-control "public, max-age=31536000, immutable"
-aws s3 sync public s3://$BUCKET --exclude "*.html"        # images, fonts, favicon`}
+          code={`aws s3 sync .next/static s3://myapp-uploads-7f3a/_next/static \\
+  --cache-control "public, max-age=31536000, immutable"`}
         />
         <Callout kind="note" label="Order matters when deploying">
           <p className="mb-0">

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Callout from "@/components/Callout";
-import CommandList from "@/components/CommandList";
 import CdnFlow from "@/components/figures/CdnFlow";
 import DeployPipeline from "@/components/figures/DeployPipeline";
 import FullStackMap from "@/components/figures/FullStackMap";
@@ -98,8 +97,8 @@ export default function ThePiecesPage() {
           <p className="mb-0">
             Each section has the same four parts: <strong>what it is</strong> (one analogy),{" "}
             <strong>the problem</strong> it solves, <strong>where it sits</strong> (a flow), and{" "}
-            <strong>the minimal how</strong> — real config or commands, short enough to recognise
-            later. You do not need to run anything today. Come back to any section the moment a
+            <strong>the minimal how</strong> — in plain words, with the lesson that does it for
+            real. You do not need to run anything today. Come back to any section the moment a
             lesson mentions the piece and you have forgotten it.
           </p>
         </Callout>
@@ -141,54 +140,16 @@ export default function ThePiecesPage() {
         <NginxFlow />
         <h3>The minimal how</h3>
         <p>
-          A complete, production-shaped config is about twenty lines. Everything you will see in
-          Lesson 10 is a refinement of this:
+          One <code>server</code> block per site: listen on 443 with the certificate, and send every
+          request on to <code>http://127.0.0.1:3000</code> with <code>proxy_pass</code>, adding
+          headers that say who the real visitor was. A second tiny block on port 80 redirects to
+          HTTPS. About twenty lines in all — Lesson 10 builds it line by line.
         </p>
-        <Script
-          title="/etc/nginx/sites-available/yourapp.com"
-          code={`server {
-    listen 443 ssl;
-    server_name yourapp.com www.yourapp.com;
-
-    ssl_certificate     /etc/letsencrypt/live/yourapp.com/fullchain.pem;   # from Lesson 4
-    ssl_certificate_key /etc/letsencrypt/live/yourapp.com/privkey.pem;
-
-    gzip on;                                   # compress text responses
-    client_max_body_size 20m;                  # allow 20 MB uploads
-
-    # Static files: Nginx serves these itself, never waking the app
-    location /_next/static/ {
-        alias /home/ubuntu/myapp/.next/static/;
-        expires 1y;
-        add_header Cache-Control "public, immutable";
-    }
-
-    # Everything else: hand to the app on the private port
-    location / {
-        proxy_pass http://127.0.0.1:3000;
-        proxy_set_header Host              $host;
-        proxy_set_header X-Real-IP         $remote_addr;
-        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-
-server {                                       # plain HTTP → redirect
-    listen 80;
-    server_name yourapp.com www.yourapp.com;
-    return 301 https://$host$request_uri;
-}`}
-        />
-        <CommandList
-          title="The four Nginx commands you actually use"
-          commands={[
-            { cmd: "sudo apt install nginx -y", note: "Install. It starts immediately and serves a welcome page on port 80." },
-            { cmd: "sudo ln -s /etc/nginx/sites-available/yourapp.com /etc/nginx/sites-enabled/", note: "Enable a site config (sites-available holds files, sites-enabled holds links to the active ones)" },
-            { cmd: "sudo nginx -t", note: "Test the config for syntax errors — ALWAYS before reloading" },
-            { cmd: "sudo systemctl reload nginx", note: "Apply the config with zero dropped connections" },
-            { cmd: "sudo tail -f /var/log/nginx/error.log", note: "When something is wrong, this is where it says so (Lesson 1: /var/log)" },
-          ]}
-        />
+        <p>
+          Day to day there are only four moves: install it, <strong>test the config</strong>{" "}
+          (<code>nginx -t</code>), <strong>reload</strong> without dropping connections, and read
+          its access and error logs.
+        </p>
         <Callout kind="note" label="Why the X-Forwarded-* headers matter">
           <p className="mb-0">
             Your app only ever sees a connection from 127.0.0.1 — Nginx. Without those headers it
@@ -218,36 +179,15 @@ server {                                       # plain HTTP → redirect
         </p>
         <Pm2Loop />
         <h3>The minimal how</h3>
-        <CommandList
-          title="PM2 in six commands"
-          commands={[
-            { cmd: "sudo npm install -g pm2", note: "Install globally, once per server" },
-            { cmd: "pm2 start npm --name myapp -- start", note: <>Run <code>npm start</code> as a managed process called <code>myapp</code></> },
-            { cmd: "pm2 startup && pm2 save", note: "Register PM2 with systemd so it — and your app — come back after a reboot. Run the command it prints." },
-            { cmd: "pm2 logs myapp", note: "Live stdout/stderr of your app (what you used to see in the terminal)" },
-            { cmd: "pm2 reload myapp", note: "After a deploy: restart with zero downtime (old process serves until the new one is ready)" },
-            { cmd: "pm2 status", note: "Is it online? How many restarts? How much memory?" },
-          ]}
-        />
         <p>
-          For a real app you keep this in a file instead of remembering flags —{" "}
-          <code>ecosystem.config.js</code> — and run <code>pm2 start ecosystem.config.js</code>:
+          Start the app under PM2 with a name, tell PM2 to start itself on boot, save the process
+          list — then it restarts the app on every crash and every reboot. Lesson 7 does it in
+          three commands.
         </p>
-        <Script
-          title="ecosystem.config.js"
-          code={`module.exports = {
-  apps: [{
-    name: "myapp",
-    script: "npm",
-    args: "start",
-    cwd: "/home/ubuntu/myapp",
-    instances: "max",          // one process per CPU core
-    exec_mode: "cluster",      // share port 3000 between them
-    env: { NODE_ENV: "production", PORT: 3000 },
-    max_memory_restart: "500M" // restart if a leak grows past this
-  }]
-};`}
-        />
+        <p>
+          For a real app you keep the settings (name, start command, how many copies) in a small
+          file, <code>ecosystem.config.js</code>, instead of remembering flags.
+        </p>
         <Callout kind="note" label="PM2 vs Docker vs systemd">
           <p className="mb-0">
             All three can keep a process alive. PM2 is the easiest for a single Node app on one
@@ -350,21 +290,19 @@ server {                                       # plain HTTP → redirect
         <h3>Where it sits</h3>
         <p>
           In the private subnet, with a Security Group that only accepts port 5432 from the app
-          server&apos;s Security Group. From the app it looks like any Postgres:
+          server&apos;s Security Group. From the app it looks like any Postgres.
         </p>
-        <Script
-          title=".env  (chmod 600 — Lesson 1)"
-          code={`DATABASE_URL=postgresql://appuser:S3cret@myapp-db.abc123xyz.ap-south-1.rds.amazonaws.com:5432/myapp`}
-        />
+        <p>
+          The app connects with one line in <code>.env</code>:{" "}
+          <code>DATABASE_URL=postgresql://user:password@host:5432/myapp</code>.
+        </p>
         <h3>The minimal how</h3>
-        <CommandList
-          title="What Lesson 8 does, compressed"
-          commands={[
-            { cmd: "aws rds create-db-instance --db-instance-identifier myapp-db --engine postgres --db-instance-class db.t4g.micro --allocated-storage 20 --master-username appuser --master-user-password 'S3cret' --no-publicly-accessible --vpc-security-group-ids sg-db123 --db-subnet-group-name private", note: "Create the smallest Postgres, private, in the private subnet group" },
-            { cmd: "aws rds describe-db-instances --query 'DBInstances[0].Endpoint.Address'", note: "Get the hostname to put in DATABASE_URL" },
-            { cmd: "psql \"$DATABASE_URL\" -c 'select now();'", note: "From the EC2 box (not your laptop — it's private): prove the connection works" },
-          ]}
-        />
+        <p>
+          Create the smallest Postgres instance, <strong>not publicly accessible</strong>, in the
+          private subnets, with the database security group. Copy its endpoint into{" "}
+          <code>DATABASE_URL</code> and test the connection from the app server — not from your
+          laptop, because it is private. Lesson 8 walks through every field.
+        </p>
         <Callout kind="note" label="Three RDS words you will meet">
           <p className="mb-0">
             <strong>Multi-AZ</strong> = a hot standby copy in a second data centre, automatic
@@ -396,15 +334,11 @@ server {                                       # plain HTTP → redirect
         <h3>Where they sit</h3>
         <CdnFlow />
         <h3>The minimal how</h3>
-        <CommandList
-          title="S3 in four commands"
-          commands={[
-            { cmd: "aws s3 mb s3://myapp-uploads-prod", note: "Make a bucket (name must be globally unique)" },
-            { cmd: "aws s3 cp ./invoice.pdf s3://myapp-uploads-prod/tenants/acme/invoice.pdf", note: "Upload one file" },
-            { cmd: "aws s3 sync .next/static s3://myapp-assets-prod/_next/static --cache-control 'public,max-age=31536000,immutable'", note: "Upload your built assets with a one-year cache header — the CDN keeps them forever" },
-            { cmd: "aws s3 presign s3://myapp-uploads-prod/tenants/acme/invoice.pdf --expires-in 300", note: "A link that works for 5 minutes, so private files stay private but a user can download theirs" },
-          ]}
-        />
+        <p>
+          Create a bucket with public access blocked, then copy files in, list them, sync a folder,
+          and hand out <strong>pre-signed links</strong> that work for a few minutes. Lesson 11
+          puts CloudFront in front.
+        </p>
         <p>
           From code you use the SDK (<code>@aws-sdk/client-s3</code>) with the same verbs:{" "}
           <code>PutObject</code>, <code>GetObject</code>, and pre-signed URLs so the browser
@@ -511,16 +445,10 @@ export async function getTenantSettings(tenantId: string) {
   return fresh;
 }`}
         />
-        <CommandList
-          title="Talking to Redis by hand"
-          commands={[
-            { cmd: "redis-cli -h myapp-cache.abc.ap-south-1.cache.amazonaws.com", note: "Open a shell to it (from the EC2 box — it's in the private subnet)" },
-            { cmd: "SET greeting hello EX 30", note: "Store a value that expires in 30 seconds" },
-            { cmd: "GET greeting", note: "Read it back — (nil) after 30 s" },
-            { cmd: "INCR ratelimit:203.0.113.5", note: "Atomic counter — safe even when four servers call it at once" },
-            { cmd: "KEYS 'tenant:*'", note: "Peek at what is cached (never in production on a big instance — use SCAN)" },
-          ]}
-        />
+        <p>
+          You can open a shell to Redis and set, read, count and expire keys by hand — useful for
+          seeing what the app stored. Lesson 16 does it locally first, then on ElastiCache.
+        </p>
 
         {/* ───────────────────────── Docker ───────────────────────── */}
         <h2 id="docker">Docker — the same box everywhere</h2>
@@ -541,36 +469,16 @@ export async function getTenantSettings(tenantId: string) {
           into a file that is built once and shipped as a unit.
         </p>
         <h3>The minimal how</h3>
-        <Script
-          title="Dockerfile  — a production Next.js image"
-          code={`# 1. Build stage: has everything needed to compile
-FROM node:22-alpine AS build
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-COPY . .
-RUN npm run build
-
-# 2. Runtime stage: only what is needed to run (small, fewer holes)
-FROM node:22-alpine
-WORKDIR /app
-ENV NODE_ENV=production
-COPY --from=build /app/.next/standalone ./
-COPY --from=build /app/.next/static ./.next/static
-COPY --from=build /app/public ./public
-EXPOSE 3000
-CMD ["node", "server.js"]`}
-        />
-        <CommandList
-          title="The Docker loop"
-          commands={[
-            { cmd: "docker build -t myapp:1.4.0 .", note: "Turn the Dockerfile into an image, tagged with a version" },
-            { cmd: "docker run -p 3000:3000 --env-file .env myapp:1.4.0", note: "Run it locally — exactly as it will run on the server" },
-            { cmd: "docker push 123456789012.dkr.ecr.ap-south-1.amazonaws.com/myapp:1.4.0", note: "Upload the image to a registry (ECR) so servers can pull it" },
-            { cmd: "docker run -d --restart unless-stopped -p 127.0.0.1:3000:3000 --env-file .env myapp:1.4.0", note: "On EC2: run detached, auto-restart (this replaces PM2), bound to localhost for Nginx" },
-            { cmd: "docker compose up -d", note: "Locally: app + Postgres + Redis together from one compose.yml, so dev matches prod" },
-          ]}
-        />
+        <p>
+          A <strong>Dockerfile</strong> is a recipe: start from a Node image, install
+          dependencies, build, then copy only the built output into a small final image that runs{" "}
+          <code>node server.js</code>. Lesson 9 explains every line.
+        </p>
+        <p>
+          The loop is: <strong>build</strong> an image with a version tag,{" "}
+          <strong>run</strong> it locally, <strong>push</strong> it to a registry (ECR), and on the
+          server <strong>pull</strong> and run that exact tag.
+        </p>
         <Callout kind="note" label="Image vs container, once and for all">
           <p className="mb-0">
             Image = the recipe and all ingredients, frozen (a file). Container = one dish cooked
@@ -598,43 +506,15 @@ CMD ["node", "server.js"]`}
           turns &ldquo;deploy&rdquo; from a person&apos;s job into a merge button.
         </p>
         <h3>The minimal how</h3>
-        <Script
-          title=".github/workflows/deploy.yml"
-          code={`name: deploy
-on:
-  push:
-    branches: [main]
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: 22, cache: npm }
-      - run: npm ci
-      - run: npm run lint
-      - run: npm test
-      - run: npm run build
-
-  deploy:
-    needs: test                       # only if every step above passed
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::123456789012:role/github-deploy   # IAM role, no long-lived keys (Lesson 5)
-          aws-region: ap-south-1
-      - run: |
-          docker build -t $ECR/myapp:$GITHUB_SHA .
-          docker push $ECR/myapp:$GITHUB_SHA
-      - run: aws ssm send-command --targets Key=tag:app,Values=myapp \\
-               --document-name AWS-RunShellScript \\
-               --parameters commands="/home/ubuntu/deploy.sh $GITHUB_SHA"`}
-        />
+        <p>A deploy workflow is a list of steps that run on every push to <code>main</code>:</p>
+        <ol>
+          <li>check out the code, install, lint and test — stop if anything fails;</li>
+          <li>log in to AWS (with OIDC, no stored keys);</li>
+          <li>build the Docker image and push it to ECR;</li>
+          <li>tell the servers to switch to the new image, one at a time.</li>
+        </ol>
         <p>
-          Read it top to bottom and it is exactly Lesson 7&apos;s manual sequence, written down.
+          That is exactly Lesson 7&apos;s manual sequence, written down.
           That is the whole trick: you cannot automate a deploy you have never done by hand, which
           is why Lesson 7 comes before Lesson 14.
         </p>
@@ -657,36 +537,17 @@ jobs:
           production?&rdquo; a question you answer by reading a folder.
         </p>
         <h3>The minimal how</h3>
-        <Script
-          title="main.tf  — the Security Group from Lesson 2, as code"
-          code={`resource "aws_security_group" "app" {
-  name   = "myapp-app-sg"
-  vpc_id = aws_vpc.main.id
-
-  ingress { from_port = 443, to_port = 443, protocol = "tcp", cidr_blocks = ["0.0.0.0/0"] }
-  ingress { from_port = 80,  to_port = 80,  protocol = "tcp", cidr_blocks = ["0.0.0.0/0"] }
-  ingress { from_port = 22,  to_port = 22,  protocol = "tcp", cidr_blocks = ["103.45.12.8/32"] }
-
-  egress  { from_port = 0, to_port = 0, protocol = "-1", cidr_blocks = ["0.0.0.0/0"] }
-}
-
-resource "aws_instance" "app" {
-  ami                    = "ami-0abcdef1234567890"
-  instance_type          = "t4g.small"
-  subnet_id              = aws_subnet.public.id
-  vpc_security_group_ids = [aws_security_group.app.id]
-  tags                   = { app = "myapp" }
-}`}
-        />
-        <CommandList
-          title="The Terraform loop"
-          commands={[
-            { cmd: "terraform init", note: "Download the AWS provider, once per folder" },
-            { cmd: "terraform plan", note: "Show what would change — read this like a diff, every time" },
-            { cmd: "terraform apply", note: "Make it so (asks for a yes). Creates / changes / deletes only what the plan showed." },
-            { cmd: "terraform destroy", note: "Tear everything in this folder down — how you stop paying for a staging environment at night" },
-          ]}
-        />
+        <p>
+          Each piece of infrastructure becomes a block of code. A security group, for example,
+          is a <code>resource &quot;aws_security_group&quot;</code> block listing its inbound
+          rules; a server is a <code>resource &quot;aws_instance&quot;</code> block that refers to
+          that group by name.
+        </p>
+        <p>
+          The loop is <code>init</code> (once), <code>plan</code> (show what would change),{" "}
+          <code>apply</code> (make it so), and — for a practice account —{" "}
+          <code>destroy</code>. Read every plan before you apply it.
+        </p>
         <Callout kind="warn" label="State">
           <p className="mb-0">
             Terraform keeps a <code>terraform.tfstate</code> file recording what it created and
@@ -714,15 +575,11 @@ resource "aws_instance" "app" {
           the system looks for you, all the time, on every server at once.
         </p>
         <h3>The minimal how</h3>
-        <CommandList
-          title="Logs and one alarm"
-          commands={[
-            { cmd: "sudo apt install amazon-cloudwatch-agent -y", note: "The agent ships /var/log/nginx/*.log and PM2 logs to CloudWatch Logs" },
-            { cmd: "aws logs tail /myapp/app --follow", note: <>The cloud version of <code>tail -f</code> — across every server, from your laptop</> },
-            { cmd: "aws logs filter-log-events --log-group-name /myapp/app --filter-pattern 'ERROR'", note: "grep, across all servers, for the last 24 h" },
-            { cmd: "aws cloudwatch put-metric-alarm --alarm-name myapp-5xx --metric-name HTTPCode_Target_5XX_Count --namespace AWS/ApplicationELB --statistic Sum --period 60 --evaluation-periods 5 --threshold 10 --comparison-operator GreaterThanThreshold --alarm-actions arn:aws:sns:ap-south-1:123456789012:oncall", note: "If the ALB sees more than 10 errors a minute for 5 minutes, message the on-call SNS topic (email / Slack / phone)" },
-          ]}
-        />
+        <p>
+          Ship every server&apos;s logs to CloudWatch Logs, so you can read and search all of them
+          from one place, and create one alarm to start: if the load balancer sees more than ten
+          errors a minute for five minutes, notify the on-call channel.
+        </p>
         <Callout kind="ok" label="The four alarms every small production setup needs">
           <p className="mb-0">
             ALB 5xx rate · healthy host count below minimum · RDS free storage below 10% · EC2
