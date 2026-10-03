@@ -233,10 +233,10 @@ export default function JsLessonEightPage() {
           are all hoisted, and the difference is what happens next — <code>var</code> starts as{" "}
           <code>undefined</code>, <code>let</code>/<code>const</code> start <em>locked</em> in the
           Temporal Dead Zone (TDZ). This lesson is the full picture. Every axis on which the three
-          keywords differ, in one grid. Function scope versus block scope, including the one place
-          it bites hardest: loops. Exactly which lines the TDZ covers, why it is called{" "}
+          keywords differ, in one grid. Function scope versus block scope, including the place where
+          it matters most: loops. Exactly which lines the TDZ covers, why it is called{" "}
           <em>temporal</em> rather than positional, and the two places it hides where you would
-          not expect it. Then the parts that trip up even experienced developers: redeclaration,
+          not expect it. Then the parts that confuse even experienced developers: redeclaration,
           errors that stop your whole file before a single line runs, the five distinct error
           messages, and the one real exception to &ldquo;<code>typeof</code> is always safe&rdquo;.
         </p>
@@ -275,8 +275,8 @@ export default function JsLessonEightPage() {
             applies to which mistake proves real understanding, not memorized keywords.
           </li>
           <li>
-            The <code>typeof</code> TDZ exception is a genuine gotcha that catches even experienced
-            developers off guard.
+            The <code>typeof</code> TDZ exception is a real pitfall that surprises even experienced
+            developers.
           </li>
         </ul>
 
@@ -518,7 +518,7 @@ export default function JsLessonEightPage() {
             <strong>doesn&apos;t exist at all</strong>. It offers zero protection against a name
             that exists but is still locked in the TDZ — that still throws, safety net or not. This
             single case is genuinely easy to get wrong, including for experienced developers
-            who&apos;ve internalized &ldquo;typeof is always safe&rdquo; a little too literally.
+            who rely on the rule &ldquo;typeof is always safe&rdquo; without exception.
           </p>
         </Callout>
 
@@ -596,7 +596,7 @@ export default function JsLessonEightPage() {
             <p>
               Remove the duplicate declaration, and now the first line correctly throws a{" "}
               <em>different</em> error — a TDZ <code>ReferenceError</code> from the{" "}
-              <code>typeof</code> gotcha — since <code>roomReady</code> hasn&apos;t been declared
+              <code>typeof</code> pitfall — since <code>roomReady</code> hasn&apos;t been declared
               yet at that point.
             </p>
           </li>

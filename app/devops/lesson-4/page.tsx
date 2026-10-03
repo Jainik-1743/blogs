@@ -118,7 +118,7 @@ export default function LessonFourPage() {
         <h2 id="leak">What actually leaks without HTTPS</h2>
         <p>
           Say your app is live on EC2 with no HTTPS, and a customer logs in from a café WiFi. Here
-          is literally what travels across that network:
+          is exactly what travels across that network:
         </p>
         <pre className="border-l-red-400">
           <code>{`POST /api/login HTTP/1.1
@@ -418,7 +418,7 @@ server {
           </table>
         </div>
         <p>
-          The mixed-content one catches almost everyone on their first HTTPS migration — the page
+          Mixed content is the most common problem in a first HTTPS migration — the page
           loads fine, but images silently vanish and the padlock shows a warning instead of a
           clean lock.
         </p>

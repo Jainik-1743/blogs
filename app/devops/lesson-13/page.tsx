@@ -301,7 +301,7 @@ export default function LessonThirteenPage() {
           (with the health check) and one <code>SECONDARY</code>. While the primary is healthy
           everyone gets it; when it fails, DNS answers switch to the secondary. The classic, cheap
           secondary is a static <strong>&ldquo;we&apos;ll be right back&rdquo; page in S3 behind
-          CloudFront</strong> — a graceful degradation for pennies.
+          CloudFront</strong> — a graceful degradation at very low cost.
         </p>
         <Callout kind="warn" label="What DNS failover cannot do">
           <p className="mb-0">

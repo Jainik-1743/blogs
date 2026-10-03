@@ -321,7 +321,7 @@ export default function JsLessonTenPage() {
             <p>Open the Scope panel while paused inside the function.</p>
           </li>
           <li>
-            <h3>Look for a section literally called &ldquo;Closure&rdquo;</h3>
+            <h3>Look for a section named &ldquo;Closure&rdquo;</h3>
             <p>
               Chrome DevTools labels it by the outer function&apos;s name — you&apos;ll see{" "}
               <code>Closure (makeRoomKey)</code> listing <code>roomNumber: 305</code>, proving

@@ -126,7 +126,7 @@ export default function SdLessonTwoOnePage() {
             correct transactions. It's <strong>not</strong> the same "consistency" as in CAP (post 27).
           </p>
           <p>
-            <strong>I: Isolation (concurrent transactions don't mess each other up).</strong> Ideally each transaction
+            <strong>I: Isolation (concurrent transactions do not interfere with each other).</strong> Ideally each transaction
             behaves <strong>as if it ran alone</strong>. In practice, databases offer different <strong>levels</strong>{" "}
             of isolation (below), trading safety for speed.
           </p>

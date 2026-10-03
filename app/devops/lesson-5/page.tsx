@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 /** In-page index. Each entry links to a section heading below. */
 const outline = [
   { id: "concept", label: "Concept: who is allowed to do what" },
-  { id: "why-this-matters", label: "Why this matters — the AWS horror stories" },
+  { id: "why-this-matters", label: "Why this matters — costly AWS mistakes" },
   { id: "hotel", label: "The hotel — the whole idea in one story" },
   { id: "blocks", label: "The four building blocks" },
   { id: "root", label: "Owner vs staff — root user vs IAM user" },
@@ -99,8 +99,8 @@ export default function LessonFivePage() {
 
         <h2 id="why-this-matters">Why this matters</h2>
         <p>
-          This is the lesson that protects you from the AWS horror stories. These are real things
-          that happen to beginners:
+          This lesson protects you from the most costly AWS mistakes. These are real incidents
+          that happen to new users:
         </p>
         <ul>
           <li>

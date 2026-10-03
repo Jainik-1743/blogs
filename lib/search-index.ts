@@ -1,3 +1,5 @@
+import { DSA_GLOSSARY } from "./dsa-glossary";
+import { DSA_LESSONS, DSA_SERIES, dsaLessonHref } from "./dsa";
 import { DEVOPS_GLOSSARY, glossaryHref, glossaryLessonHref, type Glossary } from "./glossary";
 import { JS_GLOSSARY } from "./js-glossary";
 import { JS_LESSONS, JS_READINGS, JS_SERIES, jsLessonHref, jsReadingHref } from "./javascript";
@@ -29,7 +31,7 @@ function termItems(g: Glossary): SearchItem[] {
   }));
 }
 
-/** Every lesson, reading and glossary term across the three series. */
+/** Every lesson, reading and glossary term across all series. */
 export function buildSearchIndex(): SearchItem[] {
   const items: SearchItem[] = [];
 
@@ -49,6 +51,10 @@ export function buildSearchIndex(): SearchItem[] {
     items.push({ kind: "Lesson", series: SD_SERIES.slug, seriesTitle: SD_SERIES.title, title: `Lesson ${l.number}: ${l.title}`, text: `${l.tags.join(" ")} ${l.summary}`, href: sdLessonHref(l) });
   }
 
-  for (const g of [DEVOPS_GLOSSARY, JS_GLOSSARY, SD_GLOSSARY]) items.push(...termItems(g));
+  for (const l of DSA_LESSONS.filter((l) => l.published)) {
+    items.push({ kind: "Lesson", series: DSA_SERIES.slug, seriesTitle: DSA_SERIES.title, title: `Lesson ${l.number}: ${l.title}`, text: l.summary, href: dsaLessonHref(l) });
+  }
+
+  for (const g of [DEVOPS_GLOSSARY, JS_GLOSSARY, SD_GLOSSARY, DSA_GLOSSARY]) items.push(...termItems(g));
   return items;
 }

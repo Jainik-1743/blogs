@@ -524,7 +524,7 @@ export async function POST(req: Request) {
               <li>
                 Request an <strong>ACM certificate for <code>assets.yourapp.com</code> in{" "}
                 <code>us-east-1</code> (N. Virginia)</strong>. CloudFront is a global service and only
-                reads certificates from that one region — the classic gotcha, since everything else
+                reads certificates from that one region — a common mistake, since everything else
                 lives in Mumbai.
               </li>
               <li>Add it as an Alternate domain name on the distribution and select the certificate.</li>

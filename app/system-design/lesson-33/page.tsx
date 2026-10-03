@@ -125,7 +125,7 @@ export default function SdLessonThreeThreePage() {
           <CodeBlock lang="js" code={code1} />
           <ul>
             <li>
-              ✅ <strong>Dead simple.</strong> It works everywhere, with any backend, load balancer and CDN.
+              ✅ <strong>Very simple.</strong> It works everywhere, with any backend, load balancer and CDN.
             </li>
             <li>
               ❌ <strong>Wasteful.</strong> Most requests return nothing.

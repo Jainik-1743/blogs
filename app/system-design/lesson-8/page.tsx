@@ -54,7 +54,7 @@ export default function SdLessonEightPage() {
             tickets keep coming in: "The app is so slow!", "Checkout froze for 5 seconds!"
           </p>
           <p>
-            Both are true. The average hides the painful truth:{" "}
+            Both are true. The average hides an important problem:{" "}
             <strong>most requests are fast, but a few are very slow</strong>, and your busiest, most valuable users hit
             those slow requests all the time.
           </p>

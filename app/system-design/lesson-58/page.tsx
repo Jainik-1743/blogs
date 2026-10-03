@@ -114,7 +114,7 @@ export default function SdLessonFiveEightPage() {
           <ul>
             <li>
               <strong>Trunk-based development:</strong> short-lived branches (hours to a couple of days), merged to main
-              often. Long-lived branches create painful "merge hell".
+              often. Long-lived branches create large, difficult merge conflicts.
             </li>
             <li>
               <strong>Fast pipelines:</strong> aim for minutes, not hours. Slow CI makes people batch changes.

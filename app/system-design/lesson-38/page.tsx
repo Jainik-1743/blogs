@@ -364,7 +364,7 @@ export default function SdLessonThreeEightPage() {
           <Backoff caption="Forty jobs fail at the same moment and retry five times. Compare fixed retries, exponential backoff, and backoff with jitter by the spikes they send at a recovering service." />
           <p>
             Add <strong>random jitter</strong> (for example, wait between 0 and 8 seconds instead of exactly 8), so
-            thousands of failed jobs <strong>don't all retry at the same instant</strong> and hammer the recovering
+            thousands of failed jobs <strong>don't all retry at the same instant</strong> and overload the recovering
             service. (Post 41 covers this in depth.)
           </p>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Retry storms</h4>

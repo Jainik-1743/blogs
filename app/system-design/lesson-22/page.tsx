@@ -44,8 +44,8 @@ export default function SdLessonTwoTwoPage() {
       <div className="lesson">
         <Section id="the-problem" title="The Problem" kind="problem">
           <p>
-            In post 5 we saw a query go from <strong>812 ms to 0.09 ms</strong> after adding an index. It looked like
-            magic. But questions remain:
+            In post 5 we saw a query go from <strong>812 ms to 0.09 ms</strong> after adding an index. The improvement
+            was dramatic. But questions remain:
           </p>
           <ul>
             <li>Why does an index make reads fast?</li>

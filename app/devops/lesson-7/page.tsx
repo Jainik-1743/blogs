@@ -308,7 +308,7 @@ export default function LessonSevenPage() {
             { cmd: "pnpm install --frozen-lockfile && pnpm build", note: "Install exactly what the lockfile says, then build" },
           ]}
         />
-        <Callout kind="warn" label="Two .env traps that catch everyone once">
+        <Callout kind="warn" label="Two common .env mistakes">
           <ul className="mb-0">
             <li>
               Variables starting with <code>NEXT_PUBLIC_</code> are baked into the JavaScript{" "}

@@ -103,7 +103,7 @@ export default function LessonFourteenPage() {
               <tr><td>Build happens on the production server</td><td>Slow, competes with live traffic, differs from staging</td><td>Building once in a clean runner</td></tr>
               <tr><td>Only two people know how to deploy</td><td>Releases wait; the team fears deploy day</td><td>Anyone merges → it ships</td></tr>
               <tr><td>No record of who deployed what</td><td>&ldquo;What changed at 14:00?&rdquo; has no answer</td><td>A history: commit → run → image tag → deployment</td></tr>
-              <tr><td>Rollback is improvised</td><td>Panic under pressure</td><td>A rehearsed one-click rollback</td></tr>
+              <tr><td>Rollback is improvised</td><td>Rushed decisions under pressure</td><td>A rehearsed one-click rollback</td></tr>
               <tr><td>SSH keys and AWS keys shared around</td><td>Leaks, ex-employees with access</td><td>No humans and no long-lived keys in the path</td></tr>
             </tbody>
           </table>
@@ -111,7 +111,7 @@ export default function LessonFourteenPage() {
         <p>
           The teams that ship most often break least. Small, frequent, automated releases are easier
           to test, easier to reason about, and trivially easy to revert — the opposite of the
-          &ldquo;big scary Friday release&rdquo;.
+          &ldquo;large, risky Friday release&rdquo;.
         </p>
 
         <h2 id="vocabulary">CI, continuous delivery and continuous deployment</h2>
@@ -461,7 +461,7 @@ jobs:
 
         <h2 id="migrate">Step 4 — database migrations from CI</h2>
         <p>
-          Here is a trap that catches every team once. The runner is on GitHub&apos;s network. The
+          Here is a problem almost every team runs into. The runner is on GitHub&apos;s network. The
           database is in a <strong>private subnet</strong> (Lesson 8) and, by design, unreachable from
           it. So <code>prisma migrate deploy</code> from the runner cannot connect. There are three
           ways out:

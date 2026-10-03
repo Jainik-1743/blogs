@@ -79,7 +79,7 @@ export default function LessonOnePage() {
           processes</strong>.
         </p>
         <p>
-          Good news: as a Next.js developer you already use a terminal daily (<code>npm run dev</code>,{" "}
+          As a Next.js developer, you already use a terminal daily (<code>npm run dev</code>,{" "}
           <code>git push</code>). You&apos;re not starting from zero — you&apos;re just learning
           what&apos;s <em>underneath</em> those commands.
         </p>
@@ -136,7 +136,7 @@ export default function LessonOnePage() {
             <p>needs: understanding background processes</p>
           </li>
         </ol>
-        <p>Step 6 catches every beginner. We&apos;ll fix it properly today.</p>
+        <p>Step 6 is where most people get stuck. This lesson shows the proper fix.</p>
 
         <hr />
 
@@ -210,7 +210,7 @@ export default function LessonOnePage() {
           </table>
         </div>
         <p>
-          <strong>You will hit this exact error in Lesson 7</strong>, guaranteed: SSH prints
+          <strong>You will hit this exact error in Lesson 7</strong>: SSH prints
           &ldquo;UNPROTECTED PRIVATE KEY FILE — permissions 0644 are too open&rdquo; and refuses
           to connect. SSH will not use a key that another user on the machine could read. Setting
           the key to <code>400</code> fixes it.
@@ -267,7 +267,7 @@ export default function LessonOnePage() {
         <p>
           A full disk is one of the most common production outages: <code>npm run build</code>{" "}
           fails with a confusing error, and logs silently stop being written. So when something
-          is weird, check free disk space first, then memory, then how busy the CPU has been.
+          seems wrong, check free disk space first, then memory, then how busy the CPU has been.
         </p>
 
         <h2 id="editing">Part G: Editing files</h2>
@@ -290,7 +290,7 @@ export default function LessonOnePage() {
             { cmd: "chmod 600 .env", note: "only you can read your secrets" },
             { cmd: "chmod 400 key.pem", note: "the fix SSH demands for your key in Lesson 7" },
             { cmd: "ps aux | grep node", note: "is my app actually running?" },
-            { cmd: "df -h", note: "is the disk full? check this first when things are weird" },
+            { cmd: "df -h", note: "is the disk full? check this first when something seems wrong" },
           ]}
         />
 
@@ -333,13 +333,13 @@ df -h`}
           Now Rahul can read it and Amit gets &ldquo;Permission denied&rdquo;. Rahul has to log
           out and back in before his new group counts.
         </p>
-        <Callout kind="warn" label="Important gotcha — the folder also needs permission">
+        <Callout kind="warn" label="Important: the folder also needs permission">
           <p className="mb-0">
             A readable file inside a locked folder is still unreachable. On a folder,{" "}
             <code>x</code> means &ldquo;can enter&rdquo; and <code>r</code> means &ldquo;can list
             what is inside&rdquo;. If the group lacks <code>x</code> on the folder, Rahul can&apos;t
-            reach the file even though the file itself allows it. This trips up almost everyone the
-            first time.
+            reach the file even though the file itself allows it. This is a very common source
+            of confusion.
           </p>
         </Callout>
         <p>

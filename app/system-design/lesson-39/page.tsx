@@ -331,7 +331,7 @@ export default function SdLessonThreeNinePage() {
           <p>Important points:</p>
           <ul>
             <li>
-              Compensations are <strong>business actions</strong>, not magic rollbacks: "refund", "release", "cancel",
+              Compensations are <strong>business actions</strong>, not automatic rollbacks: "refund", "release", "cancel",
               "send apology email".
             </li>
             <li>

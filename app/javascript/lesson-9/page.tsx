@@ -339,7 +339,7 @@ export default function JsLessonNinePage() {
         <p>
           In chain terms: the block environment has its own <code>discount</code>, so any lookup
           from inside the block stops at the first level — nearest match wins — and the outer
-          binding is never consulted. It is not hidden by magic; it is one link further down a
+          binding is never consulted. It is not hidden by any special rule; it is one link further down a
           chain the lookup never walks.
         </p>
 

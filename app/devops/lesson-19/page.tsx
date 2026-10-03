@@ -24,7 +24,7 @@ const outline = [
   { id: "how-aws-bills", label: "The five ways AWS charges you" },
   { id: "estimate", label: "What the final architecture costs" },
   { id: "levers", label: "The cost levers, ranked by payoff" },
-  { id: "transfer", label: "Data transfer: the line item nobody expects" },
+  { id: "transfer", label: "Data transfer: the most overlooked cost" },
   { id: "commitments", label: "Savings Plans and Reserved Instances" },
   { id: "visibility", label: "Seeing the bill: tags, Cost Explorer, budgets, anomalies" },
   { id: "unit", label: "Unit economics: what does one customer cost?" },
@@ -148,7 +148,7 @@ export default function LessonNineteenPage() {
           </p>
         </Callout>
         <p>
-          We will not treat cost as an afterthought to be optimised in a panic, but as a property of the
+          We will not treat cost as an afterthought to be optimised in a hurry, but as a property of the
           design, like latency: measured, budgeted and reviewed.
         </p>
 
@@ -294,7 +294,7 @@ export default function LessonNineteenPage() {
           mislead, and memory-bound apps often need the same RAM at a cheaper vCPU ratio.
         </p>
 
-        <h2 id="transfer">Data transfer: the line item nobody expects</h2>
+        <h2 id="transfer">Data transfer: the most overlooked cost</h2>
         <div className="table-wrap">
           <table>
             <thead>
@@ -396,7 +396,7 @@ export default function LessonNineteenPage() {
               Free. It learns your normal spend per service and alerts when something departs from it
               (a runaway log group, a crypto-miner in an unused region). Create a monitor for all
               services in Billing → Cost Anomaly Detection, and point the alert at the same SNS topic as
-              your operational alarms. It would have caught most horror stories in Lesson 5 within a day.
+              your operational alarms. It would have caught most of the costly mistakes described in Lesson 5 within a day.
             </p>
           </li>
         </ol>

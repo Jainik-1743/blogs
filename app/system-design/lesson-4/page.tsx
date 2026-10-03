@@ -89,7 +89,7 @@ export default function SdLessonFourPage() {
               flip the pancake, check the oven.
             </li>
             <li>
-              <strong>Parallelism</strong> is several cooks literally working at the same time.
+              <strong>Parallelism</strong> is several cooks working at the same time.
             </li>
           </ul>
           <blockquote>

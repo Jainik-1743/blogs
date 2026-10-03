@@ -381,7 +381,7 @@ export default function LessonTwoPage() {
           <p className="mb-0">
             Setting SSH (port 22) source to <code>0.0.0.0/0</code> — &ldquo;anyone in the world
             can attempt to log in.&rdquo; The moment an EC2 server goes live with this setting,
-            automated bots start hammering it with login attempts within minutes. Always restrict
+            automated bots start sending it login attempts within minutes. Always restrict
             SSH to your own IP address, using <code>/32</code> to mean &ldquo;exactly this one
             address, nothing else.&rdquo;
           </p>

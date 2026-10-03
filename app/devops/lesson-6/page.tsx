@@ -22,7 +22,7 @@ const outline = [
   { id: "pieces", label: "The seven pieces of a VPC" },
   { id: "public-private", label: "What makes a subnet public or private" },
   { id: "security", label: "Security Groups vs Network ACLs" },
-  { id: "nat", label: "NAT Gateway — and why it can wreck your bill" },
+  { id: "nat", label: "NAT Gateway — and why it can raise your bill" },
   { id: "default-vpc", label: "The default VPC — and why we do not use it" },
   { id: "build", label: "Build it: the full VPC, step by step" },
   { id: "debugging", label: "When something cannot connect — the checklist" },
@@ -309,8 +309,8 @@ export default function LessonSixPage() {
           subnet <strong>and</strong> a public IP address (auto-assigned, or an Elastic IP from
           Lesson 7). A server in a public subnet with no public IP can talk to other servers inside
           the VPC, but it cannot reach the internet and the internet cannot reach it, because the
-          IGW only translates addresses for instances that have a public one. This trips up many
-          people, so remember: route <em>and</em> public IP, both.
+          IGW only translates addresses for instances that have a public one. This is a common mistake,
+          so remember: route <em>and</em> public IP, both.
         </p>
 
         <h2 id="security">Security Groups vs Network ACLs</h2>
@@ -388,7 +388,7 @@ cache-sg inbound: 6379      from web-sg           # only app servers may reach R
           both say no.
         </p>
 
-        <h2 id="nat">NAT Gateway — and why it can wreck your bill</h2>
+        <h2 id="nat">NAT Gateway — and why it can raise your bill</h2>
         <p>
           Here is a real problem. Your database server in the private subnet needs to download
           operating-system security updates. But it has no route to the internet — that was the
@@ -461,7 +461,7 @@ cache-sg inbound: 6379      from web-sg           # only app servers may reach R
 
         <h2 id="build">Build it: the full VPC, step by step</h2>
         <p>
-          The console builds most of this in one screen. Go slowly and read each field — every
+          The console builds most of this in one screen. Take your time and read each field — every
           box maps to one piece from the diagram above. Lesson 15 turns the same network into
           Terraform.
         </p>
@@ -604,7 +604,7 @@ cache-sg inbound: 6379      from web-sg           # only app servers may reach R
             </tbody>
           </table>
         </div>
-        <Callout kind="ok" label="A superpower: VPC Reachability Analyzer">
+        <Callout kind="ok" label="A useful tool: VPC Reachability Analyzer">
           <p className="mb-0">
             In the console, VPC → Reachability Analyzer. Pick a source and a destination and AWS
             tells you <em>exactly which component</em> (Security Group, route, NACL) blocks the

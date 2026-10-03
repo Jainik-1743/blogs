@@ -12,7 +12,7 @@ const hops: Hop[] = [
 
 export default function DeployPipeline() {
   return (
-    <Figure caption="From git push to live: the automated pipeline Lessons 9, 14 and 15 build. Lesson 7 does the same thing by hand first, so you understand every step the robot later performs.">
+    <Figure caption="From git push to live: the automated pipeline Lessons 9, 14 and 15 build. Lesson 7 does the same thing by hand first, so you understand every step the automation later performs.">
       <HopChain hops={hops} label="Deploy pipeline" />
     </Figure>
   );

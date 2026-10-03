@@ -153,7 +153,7 @@ export default function LessonEightPage() {
         </div>
         <p>
           Notice that <strong>a slow query, a missing index and a leaked password are still
-          yours</strong>. Managed does not mean magic.
+          yours</strong>. Managed does not mean automatic.
         </p>
 
         <h2 id="options">The choices you make: class, storage, Multi-AZ</h2>
@@ -325,7 +325,7 @@ export default function LessonEightPage() {
                   <tr><td>Security group</td><td><code>db-sg</code> (remove <code>default</code>)</td><td>Accepts 5432 only from <code>web-sg</code> (Lesson 6)</td></tr>
                   <tr><td>Backups</td><td>7 days retention</td><td>Point-in-time restore to any second in that window</td></tr>
                   <tr><td>Encryption</td><td>On</td><td>Free, and can&apos;t be added later</td></tr>
-                  <tr><td>Deletion protection</td><td><strong>On</strong></td><td>Delete is refused until you switch it off. It has saved many careers</td></tr>
+                  <tr><td>Deletion protection</td><td><strong>On</strong></td><td>Delete is refused until you switch it off. It prevents costly accidental deletions</td></tr>
                 </tbody>
               </table>
             </div>

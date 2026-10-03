@@ -364,7 +364,7 @@ add_header X-Frame-Options "SAMEORIGIN" always;                # block clickjack
 add_header Referrer-Policy "strict-origin-when-cross-origin" always;
 server_tokens off;                                             # hide the Nginx version number`}
         />
-        <Callout kind="warn" label="Two gotchas">
+        <Callout kind="warn" label="Two common mistakes">
           <ul className="mb-0">
             <li>
               <code>add_header</code> in a <code>location</code> block <strong>replaces</strong>{" "}
@@ -397,7 +397,7 @@ server_tokens off;                                             # hide the Nginx 
           — the thing that stops the 3 a.m. &ldquo;certificate expired&rdquo; outage. Run a dry-run
           renewal once to be sure it works.
         </p>
-        <p>Open your config afterwards and read what Certbot did — never treat generated config as magic:</p>
+        <p>Open your config afterwards and read what Certbot changed. Always review generated configuration:</p>
         <p>
           It added a <code>listen 443 ssl</code> block with the two certificate paths, and turned
           the port-80 block into a one-line redirect to https — the same shape as Lesson 4.

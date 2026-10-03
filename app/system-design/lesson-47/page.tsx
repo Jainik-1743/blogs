@@ -324,7 +324,7 @@ export default function SdLessonFourSevenPage() {
             </li>
           </ul>
           <p>
-            The magic: <strong>product and reliability teams now share one goal</strong>. Nobody argues about feelings.
+            The result: <strong>product and reliability teams now share one goal</strong>. Nobody argues about feelings.
             They look at the budget. And spending the budget on <strong>innovation</strong> is a <em>good</em> thing: an
             unused budget may mean you're being too cautious.
           </p>

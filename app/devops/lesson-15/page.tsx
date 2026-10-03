@@ -24,7 +24,7 @@ const outline = [
   { id: "project", label: "Build the project, file by file" },
   { id: "reading-plan", label: "How to read a plan" },
   { id: "state", label: "State: the part everyone gets wrong" },
-  { id: "gotchas", label: "Six gotchas that bite on day one" },
+  { id: "gotchas", label: "Six common pitfalls on day one" },
   { id: "import", label: "Adopting the things you already built by hand" },
   { id: "modules", label: "Modules and environments" },
   { id: "ci", label: "Terraform in a pipeline" },
@@ -216,7 +216,7 @@ export default function LessonFifteenPage() {
         </div>
         <Callout kind="warn" label="Plan is the safety net. Read it.">
           <p className="mb-0">
-            The single habit that separates safe Terraform users from people with horror stories:{" "}
+            The single habit that separates safe Terraform users from those who lose infrastructure by mistake:{" "}
             <strong>read the plan before typing yes</strong>, looking especially for anything marked
             for destroy or replacement. In teams, the plan is posted on the pull request so a
             reviewer reads it too.
@@ -479,12 +479,12 @@ Plan: 1 to add, 1 to change, 2 to destroy.`}
           and <code>-replace</code> to force one resource to be recreated.
         </p>
 
-        <h2 id="gotchas">Six gotchas that bite on day one</h2>
+        <h2 id="gotchas">Six common pitfalls on day one</h2>
         <div className="table-wrap">
           <table>
             <thead>
               <tr>
-                <th>Gotcha</th>
+                <th>Pitfall</th>
                 <th>What happens</th>
                 <th>Fix</th>
               </tr>
@@ -623,7 +623,7 @@ resource "aws_s3_bucket" "uploads" {
             </tbody>
           </table>
         </div>
-        <Callout kind="ok" label="The cost superpower">
+        <Callout kind="ok" label="The biggest cost saving">
           <p className="mb-0">
             <code>terraform destroy</code> removes the ALB, servers and NAT-like extras when you are
             not studying, and <code>apply</code> brings the identical stack back. (The database has{" "}

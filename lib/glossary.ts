@@ -1,3 +1,4 @@
+import { DSA_GLOSSARY } from "./dsa-glossary";
 import { JS_GLOSSARY } from "./js-glossary";
 import { SD_GLOSSARY } from "./sd-glossary";
 
@@ -200,9 +201,10 @@ export function findEntry(glossary: Glossary, text: string): GlossaryEntry | und
 export const glossaryHref = (g: Glossary) => `/${g.series}/glossary`;
 export const glossaryLessonHref = (g: Glossary, lesson: number) => `/${g.series}/lesson-${lesson}`;
 
-/** Which series' terms to mark on a page. Anything outside /javascript and /system-design uses the DevOps list. */
+/** Which series' terms to mark on a page. Anything outside /javascript, /system-design and /dsa uses the DevOps list. */
 export function glossaryFor(pathname: string): Glossary {
   if (pathname.startsWith("/javascript")) return JS_GLOSSARY;
   if (pathname.startsWith("/system-design")) return SD_GLOSSARY;
+  if (pathname.startsWith("/dsa")) return DSA_GLOSSARY;
   return DEVOPS_GLOSSARY;
 }

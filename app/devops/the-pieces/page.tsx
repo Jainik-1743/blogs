@@ -28,7 +28,7 @@ const outline = [
   { id: "alb", label: "ALB + Auto Scaling — one server becomes many" },
   { id: "redis", label: "Redis — the fast memory beside the database" },
   { id: "docker", label: "Docker — the same box everywhere" },
-  { id: "cicd", label: "CI/CD — the robot that deploys" },
+  { id: "cicd", label: "CI/CD — automated testing and deployment" },
   { id: "terraform", label: "Terraform — the cloud written down" },
   { id: "cloudwatch", label: "CloudWatch — knowing before users tell you" },
   { id: "pipeline", label: "How it all fits: from git push to a user's screen" },
@@ -47,7 +47,7 @@ const pieces: [string, string, string, number][] = [
   ["Auto Scaling", "hiring manager", "Adds servers when busy, removes them when idle", 12],
   ["Redis", "sticky notes", "In-memory store for sessions, cache, rate limits", 16],
   ["Docker", "shipping container", "App + runtime + deps in one image that runs identically anywhere", 9],
-  ["GitHub Actions", "the robot", "Runs tests, builds and deploys on every push", 14],
+  ["GitHub Actions", "the automation", "Runs tests, builds and deploys on every push", 14],
   ["Terraform", "the blueprint", "All of the above described in files, applied with one command", 15],
   ["CloudWatch", "the dashboard", "Metrics, logs and alarms for every piece", 17],
 ];
@@ -73,7 +73,7 @@ export default function ThePiecesPage() {
           Lessons 0–4 keep mentioning Nginx, PM2, load balancers, RDS, CDN, VPC and friends before
           their own lesson arrives. This is the missing chapter: what each one <em>is</em>, the
           problem it exists to solve, where it sits in the flow, and enough of the &ldquo;how&rdquo;
-          that nothing later feels like magic.
+          that every later lesson is easier to follow.
         </p>
       </header>
 
@@ -489,18 +489,18 @@ export async function getTenantSettings(tenantId: string) {
         </Callout>
 
         {/* ───────────────────────── CI/CD ───────────────────────── */}
-        <h2 id="cicd">CI/CD — the robot that deploys</h2>
+        <h2 id="cicd">CI/CD — automated testing and deployment</h2>
         <h3>What it is</h3>
         <p>
           <strong>Continuous Integration</strong>: every push runs the tests and the build on a
           clean machine, so broken code is caught before anyone merges it.{" "}
-          <strong>Continuous Deployment</strong>: when the main branch is green, the same robot
-          ships it to production. GitHub Actions is the robot: a YAML file in your repo describes
+          <strong>Continuous Deployment</strong>: when the main branch is green, the same automation
+          ships it to production. GitHub Actions provides this automation: a YAML file in your repo describes
           the steps, GitHub supplies the machines.
         </p>
         <h3>The problem it solves</h3>
         <p>
-          Manual deploys are slow, scary and inconsistent — someone SSHes in at 6pm, forgets one
+          Manual deploys are slow, risky and inconsistent — someone SSHes in at 6pm, forgets one
           step, and the fix takes an hour. A pipeline does the identical steps every time, in
           minutes, with a log, and refuses to deploy anything that failed a test. It is also what
           turns &ldquo;deploy&rdquo; from a person&apos;s job into a merge button.

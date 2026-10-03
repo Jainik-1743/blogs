@@ -15,7 +15,7 @@ const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono", displ
 
 export const metadata: Metadata = {
   title: { default: "blogs", template: "%s · blogs" },
-  description: "Lesson-style series on DevOps, JavaScript and system design, written one post at a time.",
+  description: "Lesson-style series on DevOps, JavaScript, system design and DSA, written one post at a time.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

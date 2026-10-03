@@ -180,7 +180,7 @@ export default function JsLessonOnePage() {
           line 1 and go. It first builds a container — the execution context — and only then runs
           your code inside it. Every function you call gets its own container. Understanding what
           goes into that container, and in what order, is what makes hoisting, scope, closures and{" "}
-          <code>this</code> stop feeling like magic.
+          <code>this</code> easy to understand.
         </p>
         <p>
           Imagine the execution context as a box with two halves. The left half is a table of

@@ -272,13 +272,13 @@ export default function SdLessonThreeOnePage() {
             <li>distributed tracing (Part 8),</li>
             <li>retries with backoff (Part 7).</li>
           </ul>
-          <h3 id="the-load-balancing-gotcha">The load-balancing gotcha</h3>
+          <h3 id="the-load-balancing-gotcha">The load-balancing pitfall</h3>
           <p>
             gRPC keeps <strong>long-lived HTTP/2 connections</strong> and sends many requests over each one. That
             creates a problem with <strong>L4 load balancers</strong> (post 12):
           </p>
           <Compare
-            caption="The long-lived-connection gotcha."
+            caption="The long-lived-connection pitfall."
             columns={[
               {
                 title: <>L4 balancer — per connection</>,

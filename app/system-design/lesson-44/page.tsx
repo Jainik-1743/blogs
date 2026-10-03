@@ -37,7 +37,7 @@ export default function SdLessonFourFourPage() {
             <strong>nobody</strong> can do anything: browsing, searching, adding to cart and paying all fail.
           </p>
           <p>
-            Here's the painful part. If the system had <strong>refused 30% of requests quickly</strong>, or{" "}
+            Here is the costly part. If the system had <strong>refused 30% of requests quickly</strong>, or{" "}
             <strong>switched off</strong> heavy features like personalised recommendations, the other 70% of users could
             have shopped and paid normally.
           </p>
@@ -50,7 +50,7 @@ export default function SdLessonFourFourPage() {
 
         <Section id="the-core-idea" title="The Core Idea" kind="idea">
           <p>
-            <strong>Graceful degradation is like a restaurant on a crazy-busy night.</strong> The kitchen can't make the
+            <strong>Graceful degradation is like a restaurant on a very busy night.</strong> The kitchen can't make the
             full 80-item menu for everyone. So the manager switches to a <strong>short menu</strong> of the 10 most
             popular dishes that are quick to cook. Customers get a slightly simpler experience, but{" "}
             <strong>everyone still eats</strong>.
@@ -331,7 +331,7 @@ export default function SdLessonFourFourPage() {
             <strong>
               <code>Retry-After</code>
             </strong>{" "}
-            header. Well-built clients (post 41) back off with jitter instead of hammering you.
+            header. Well-built clients (post 41) back off with jitter instead of overloading you.
           </p>
           <h3 id="brownouts-and-waiting-rooms">Brownouts and waiting rooms</h3>
           <ul>

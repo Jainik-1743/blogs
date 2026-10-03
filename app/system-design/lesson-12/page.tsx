@@ -206,7 +206,7 @@ export default function SdLessonOneTwoPage() {
           </p>
           <p>
             <strong>Least connections.</strong> Send to the server with the <strong>fewest active connections</strong>.
-            It adapts to uneven request times, which makes it good for long or variable requests. One gotcha: a newly
+            It adapts to uneven request times, which makes it good for long or variable requests. One caveat: a newly
             added server has zero connections, so it can get flooded all at once while its caches are still cold. Many
             load balancers offer <strong>slow start</strong>, which ramps up traffic to new servers gradually.
           </p>

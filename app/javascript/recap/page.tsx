@@ -209,7 +209,7 @@ repeat(3, bumpAndLog);
 // 3   (1 + 2)
 // 6   (3 + 3)
 
-// Listener gotcha
+// Listener pitfall
 const btn = document.querySelector("#bump");
 btn.addEventListener("click", bumpAndLog);
 btn.removeEventListener("click", bumpAndLog);   // works — same reference
@@ -591,7 +591,7 @@ export default function JsRecapPage() {
           <>Shadowing an outer <code>let</code> with an inner <code>var</code> → <code>SyntaxError</code> (illegal shadowing).</>,
         ]}
         say={
-          <>&ldquo;<code>var</code> isn&apos;t block scoped, so re-declaring it inside a block doesn&apos;t shadow anything — it&apos;s literally the same variable, and mutating it leaks out. With <code>let</code> the inner one is a separate variable that disappears when the block ends.&rdquo;</>
+          <>&ldquo;<code>var</code> isn&apos;t block scoped, so re-declaring it inside a block doesn&apos;t shadow anything — it is the same variable, and mutating it leaks out. With <code>let</code> the inner one is a separate variable that disappears when the block ends.&rdquo;</>
         }
       />
 

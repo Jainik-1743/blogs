@@ -426,8 +426,8 @@ export default function LessonEighteenPage() {
           <p className="mb-0">
             A secret that never changes is a secret that has been quietly copied to more places every year.
             Rotation limits the useful life of any leak, and the practice of rotating keeps you honest
-            about where secrets are used. If rotating a credential would be scary, that fear is the
-            finding.
+            about where secrets are used. If rotating a credential feels risky, that risk is itself
+            the finding.
           </p>
         </Callout>
 
@@ -676,8 +676,8 @@ export default function LessonEighteenPage() {
 
         <h2 id="incident">When a key leaks: the first hour</h2>
         <p>
-          It will happen to someone on your team eventually. Having the steps written down turns a panic
-          into a checklist. In order:
+          It will happen to someone on your team eventually. Having the steps written down turns a stressful
+          situation into a checklist. In order:
         </p>
         <ol className="steps">
           <li>

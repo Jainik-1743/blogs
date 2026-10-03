@@ -28,7 +28,7 @@ const outline = [
   { id: "policies", label: "Choosing a scaling policy" },
   { id: "deploys", label: "Deploying without downtime" },
   { id: "load-test", label: "Prove it: load test and kill a server" },
-  { id: "gotchas", label: "The gotchas that cause real 502s" },
+  { id: "gotchas", label: "The common pitfalls that cause real 502s" },
   { id: "cost", label: "What this costs" },
   { id: "troubleshooting", label: "Troubleshooting table" },
   { id: "interview", label: "Interview corner" },
@@ -55,7 +55,7 @@ const lbTypes: [string, string, string][] = [
 
 const trouble: [string, string, string][] = [
   ["Targets show “unhealthy” in the target group", "Health-check path returns non-200, wrong port, web-sg does not allow ALB, or the app is still booting", "Read the reason in the target's Health status details. curl the path from the instance itself. Check web-sg allows 80 from alb-sg"],
-  ["502 Bad Gateway from the ALB", "Target closed the connection early (keep-alive timeout shorter than the ALB idle timeout) or crashed mid-request", "Set Node keepAliveTimeout above 60 s (see gotchas). Check app logs at that time"],
+  ["502 Bad Gateway from the ALB", "Target closed the connection early (keep-alive timeout shorter than the ALB idle timeout) or crashed mid-request", "Set Node keepAliveTimeout above 60 s (see common pitfalls). Check app logs at that time"],
   ["503 Service Unavailable", "The target group has no healthy targets", "Fix health checks; check the ASG actually launched instances (Activity history)"],
   ["504 Gateway Timeout", "The app took longer than the ALB idle timeout (60 s default)", "Find the slow endpoint; move long work to a background job"],
   ["Instances are launched and terminated in a loop", "They fail the health check before the app is ready, so the ASG kills them", "Increase --health-check-grace-period beyond boot time; read /var/log/cloud-init-output.log"],
@@ -367,7 +367,7 @@ export default function LessonTwelvePage() {
               <li>
                 <code>/myapp/env</code> — a <strong>SecureString</strong> (encrypted): the whole
                 production env file, <code>DATABASE_URL</code> and all, plus{" "}
-                <code>KEEP_ALIVE_TIMEOUT=65000</code> (see the gotchas below).
+                <code>KEEP_ALIVE_TIMEOUT=65000</code> (see the common pitfalls below).
               </li>
             </ul>
             <p>
@@ -648,7 +648,7 @@ export function GET() {
           is cheap.
         </p>
 
-        <h2 id="gotchas">The gotchas that cause real 502s</h2>
+        <h2 id="gotchas">The common pitfalls that cause real 502s</h2>
         <h3>Keep-alive timeout: the intermittent 502</h3>
         <p>
           The ALB reuses connections to your servers and closes them after 60 seconds of idleness.

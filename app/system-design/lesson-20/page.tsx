@@ -180,7 +180,7 @@ export default function SdLessonTwoZeroPage() {
             <li>❌ Weaker at joins and relationships across documents.</li>
             <li>❌ Duplicated data (like the user's name inside every order) must be kept in sync.</li>
             <li>
-              ❌ "Schemaless" really means the <strong>schema lives in your code</strong>, and messy data can creep in.
+              ❌ "Schemaless" really means the <strong>schema lives in your code</strong>, and inconsistent data can creep in.
             </li>
           </ul>
           <p>
@@ -339,7 +339,7 @@ export default function SdLessonTwoZeroPage() {
             </li>
             <li>
               <strong>"NoSQL is schemaless, so it's faster to build with."</strong> It's faster at the start. Later,
-              messy, inconsistent data can slow you down.
+              inconsistent data can slow you down.
             </li>
             <li>
               <strong>"SQL can't do JSON."</strong> PostgreSQL's <code>JSONB</code> type stores and indexes JSON

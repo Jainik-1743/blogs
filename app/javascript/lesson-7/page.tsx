@@ -297,7 +297,7 @@ export default function JsLessonSevenPage() {
               You&apos;ll see it listed in order: <strong>Local</strong> (checkAvailability&apos;s
               own, empty of <code>discountRate</code>), then <strong>Closure (frontDesk)</strong> —
               the parent&apos;s scope, also without it — then <strong>Global</strong>, where{" "}
-              <code>discountRate: 10</code> finally shows up. The panel is quite literally showing
+              <code>discountRate: 10</code> finally shows up. The panel is showing
               you the scope chain, top to bottom, exactly as the engine walks it.
             </p>
           </li>

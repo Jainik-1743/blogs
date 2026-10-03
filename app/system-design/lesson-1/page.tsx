@@ -39,8 +39,8 @@ export default function SdLessonOnePage() {
         <Section id="the-problem" title="The Problem" kind="problem">
           <p>
             You type <code>www.amazon.com</code> into your browser, press Enter, and less than a second later the page
-            appears. It feels like magic. But if you want to design systems that serve millions of users, you can't
-            treat that second as magic. Every part of it is a place where things can be slow, break, or be improved.
+            appears. It feels instant. But if you want to design systems that serve millions of users, you need to
+            understand what happens in that second. Every part of it is a place where things can be slow, break, or be improved.
           </p>
           <p>When a website is slow or down, the cause could be in any of these places:</p>
           <ul>
