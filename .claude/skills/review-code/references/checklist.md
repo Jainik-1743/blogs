@@ -1,0 +1,9 @@
+- Meets every acceptance check (and nothing outside the ticket)
+- Bugs: null/empty, off-by-one, time zones, concurrency/races, error paths, retries, idempotency
+- Tests: one per check, meaningful assertions, failure cases, no skipped tests
+- Security: authz on every endpoint, input validation, output encoding, secrets, logging of PII
+- Data: migrations reversible, constraints match rules, indexes for new queries, N+1 queries
+- Performance: unbounded loops/queries, missing pagination, large payloads, re-renders
+- Design: uses tokens/components, 5 states, accessibility basics
+- Code: naming in glossary terms, duplication, dead code, follows existing patterns
+- Docs: README/env/API docs updated when behaviour or setup changed
