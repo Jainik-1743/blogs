@@ -10,17 +10,17 @@ export default function Questions() {
         title="Merge sorted array (in place)"
         level="Easy"
         examples={[
-          { input: "nums1 = [1, 2, 3, 0, 0, 0], m = 3, nums2 = [2, 5, 6], n = 3", output: "[1, 2, 2, 3, 5, 6]", why: "The last n slots of nums1 are empty space (zeros) for the merge." },
+          { input: "nums1 = [1, 2, 3, 0, 0, 0], m = 3, nums2 = [2, 5, 6], n = 3", output: "[1, 2, 2, 3, 5, 6]", why: "The last n slots of nums1 are empty space (filled with zeros) where the merged values will go." },
           { input: "nums1 = [0], m = 0, nums2 = [1], n = 1", output: "[1]", why: "Edge case: nums1 has no real values." },
         ]}
         hints={[
-          <>Merging from the front would overwrite values of nums1 you still need.</>,
-          <>The empty space is at the <em>end</em>. Merge from the back: place the largest remaining value at the last free position.</>,
+          <>If you merge from the front, you would overwrite values of nums1 that you still need.</>,
+          <>The empty space is at the <em>end</em>. So merge from the back. Place the largest remaining value at the last free position.</>,
         ]}
         approaches={[
           {
             name: "Merge into a new array, copy back",
-            idea: <p>The normal merge into a temporary array, then copy it into nums1.</p>,
+            idea: <p>Do the normal merge into a temporary array. Then copy the result into nums1.</p>,
             code: `function merge(nums1, m, nums2, n) {
   const out = [];
   let i = 0, j = 0;
@@ -37,7 +37,7 @@ console.log(a); // [ 1, 2, 2, 3, 5, 6 ]`,
           },
           {
             name: "Merge from the back",
-            idea: <p>Three positions: the last real value of nums1 (<code>i</code>), the last of nums2 (<code>j</code>), and the last slot to fill (<code>k</code>). Place the larger of the two values at k and move left.</p>,
+            idea: <p>Keep three positions: the last real value of nums1 (<code>i</code>), the last value of nums2 (<code>j</code>), and the last slot to fill (<code>k</code>). Place the larger of the two values at k, and move left.</p>,
             code: `function merge(nums1, m, nums2, n) {
   let i = m - 1, j = n - 1, k = m + n - 1;
   while (j >= 0) {                          // until every nums2 value is placed
@@ -63,16 +63,16 @@ console.log(b); // [ 1 ]`,
                   ["3 vs 2", "3 at 3", "[1, 2, 3, 3, 5, 6]"],
                   ["2 vs 2", "2 (nums2) at 2", "[1, 2, 2, 3, 5, 6]"],
                 ]}
-                note="Once nums2 is used up, the remaining nums1 values are already in place. The writing position k never overtakes i, so nothing is overwritten too early."
+                note="Once nums2 is used up, the remaining nums1 values are already in the right place. The writing position k never goes below i, so no value is overwritten too early."
               />
             ),
           },
         ]}
-        compare={<p>Merging from the back is the expected answer: O(m + n) time and O(1) extra space. &ldquo;Fill from the end when the free space is at the end&rdquo; is a useful trick to remember. (LeetCode 88.)</p>}
+        compare={<p>Merging from the back is the expected answer. It takes O(m + n) time and O(1) extra space. &ldquo;Fill from the end when the free space is at the end&rdquo; is a useful trick to remember. (LeetCode 88.)</p>}
       >
         <p>
-          <code>nums1</code> has length m + n: its first m values are sorted, the rest are zeros. Merge the sorted{" "}
-          <code>nums2</code> (length n) into <code>nums1</code> so that nums1 is sorted.
+          <code>nums1</code> has length m + n. Its first m values are sorted, and the rest are zeros. Merge the sorted{" "}
+          <code>nums2</code> (length n) into <code>nums1</code> so that nums1 is sorted. Change nums1 itself; do not return a new array.
         </p>
       </Problem>
 
@@ -85,13 +85,13 @@ console.log(b); // [ 1 ]`,
           { input: "[-7, -3, 2, 3, 11]", output: "[4, 9, 9, 49, 121]", why: "Negative numbers can have large squares." },
         ]}
         hints={[
-          <>Squaring then sorting is O(n log n). Can you use the fact that the input is sorted?</>,
-          <>The largest square is at one of the two <em>ends</em>. Fill the result from the back.</>,
+          <>Squaring and then sorting is O(n log n). Can you use the fact that the input is already sorted?</>,
+          <>The largest square comes from one of the two <em>ends</em> of the array. Fill the result from the back.</>,
         ]}
         approaches={[
           {
             name: "Square, then sort",
-            idea: <p>The direct way.</p>,
+            idea: <p>The simple way: square every value, then sort.</p>,
             code: `function sortedSquares(nums) {
   return nums.map((x) => x * x).sort((a, b) => a - b);
 }
@@ -101,7 +101,7 @@ console.log(sortedSquares([-4, -1, 0, 3, 10])); // [ 0, 1, 9, 16, 100 ]`,
           },
           {
             name: "Merge from both ends",
-            idea: <p>The squares of the negative part decrease from the left; the squares of the positive part increase to the right. That is two sorted sequences — merge them, largest first.</p>,
+            idea: <p>The squares of the negative part get smaller as you move right. The squares of the positive part get bigger as you move right. That gives two sorted sequences. Merge them, taking the largest first.</p>,
             code: `function sortedSquares(nums) {
   const out = new Array(nums.length);
   let left = 0, right = nums.length - 1;
@@ -116,24 +116,24 @@ console.log(sortedSquares([-4, -1, 0, 3, 10])); // [ 0, 1, 9, 16, 100 ]`,
 
 console.log(sortedSquares([-4, -1, 0, 3, 10])); // [ 0, 1, 9, 16, 100 ]
 console.log(sortedSquares([-7, -3, 2, 3, 11])); // [ 4, 9, 9, 49, 121 ]`,
-            explain: <p>O(n): each step places one value. It is the merge step from this lesson, reading two sorted sequences from their large ends.</p>,
+            explain: <p>O(n), because each step places one value. It is the merge step from this lesson, reading two sorted sequences from their large ends.</p>,
           },
         ]}
-        compare={<p>Approach 2 is the expected follow-up answer. Recognising &ldquo;two sorted sequences hidden in one array&rdquo; is the key step. (LeetCode 977.)</p>}
+        compare={<p>Approach 2 is the answer that interviewers expect as a follow-up. The key step is to see &ldquo;two sorted sequences hidden in one array&rdquo;. (LeetCode 977.)</p>}
       >
-        <p>Given an array sorted in non-decreasing order, return the squares of its values, also sorted.</p>
+        <p>Given an array sorted in non-decreasing order (each value is equal to or bigger than the one before), return the squares of its values, also sorted.</p>
       </Problem>
 
       <Problem
         n={3}
         title="Sort an array with merge sort"
         level="Medium"
-        examples={[{ input: "[5, 1, 1, 2, 0, 0]", output: "[0, 0, 1, 1, 2, 5]", why: "Up to 5 × 10⁴ values: an O(n log n) sort is required." }]}
-        hints={[<>Write <code>merge</code>, then <code>mergeSort</code> with a base case of length ≤ 1.</>, <>To avoid creating many small arrays, you can sort index ranges of one array and use one shared buffer.</>]}
+        examples={[{ input: "[5, 1, 1, 2, 0, 0]", output: "[0, 0, 1, 1, 2, 5]", why: "There can be up to 5 × 10⁴ values, so an O(n log n) sort is needed." }]}
+        hints={[<>Write <code>merge</code>, then <code>mergeSort</code> with a base case of length ≤ 1.</>, <>To avoid creating many small arrays, you can sort ranges of indexes in one array and use one shared temporary array (a buffer).</>]}
         approaches={[
           {
             name: "Merge sort with slices",
-            idea: <p>The version from the lesson.</p>,
+            idea: <p>Use the version from the lesson.</p>,
             code: `function sortArray(nums) {
   if (nums.length <= 1) return nums;
   const mid = Math.floor(nums.length / 2);
@@ -148,11 +148,11 @@ console.log(sortedSquares([-7, -3, 2, 3, 11])); // [ 4, 9, 9, 49, 121 ]`,
 }
 
 console.log(sortArray([5, 1, 1, 2, 0, 0])); // [ 0, 0, 1, 1, 2, 5 ]`,
-            explain: <p>O(n log n) time. Simple, but it creates many short-lived arrays.</p>,
+            explain: <p>O(n log n) time. It is simple, but it creates many small arrays that are thrown away soon after.</p>,
           },
           {
             name: "Merge sort on index ranges",
-            idea: <p>Sort <code>nums[lo..hi]</code> in place, using one temporary buffer for every merge.</p>,
+            idea: <p>Sort <code>nums[lo..hi]</code> in place, and use one shared temporary buffer for every merge.</p>,
             code: `function sortArray(nums) {
   const buf = new Array(nums.length);
 
@@ -174,12 +174,12 @@ console.log(sortArray([5, 1, 1, 2, 0, 0])); // [ 0, 0, 1, 1, 2, 5 ]`,
 
 console.log(sortArray([5, 1, 1, 2, 0, 0]));       // [ 0, 0, 1, 1, 2, 5 ]
 console.log(sortArray([38, 27, 43, 3, 9, 82, 10])); // [ 3, 9, 10, 27, 38, 43, 82 ]`,
-            explain: <p>Same O(n log n) time and O(n) space, but only one extra array is ever created. Working on index ranges (lo, hi) instead of copies is the style quick sort uses too.</p>,
+            explain: <p>The time is the same, O(n log n), and the space is O(n). But only one extra array is ever created. Working on index ranges (lo, hi) instead of copies is the style that quick sort uses too.</p>,
           },
         ]}
-        compare={<p>Either passes. Version 2 is closer to what a library does and avoids <code>slice</code> costs. (LeetCode 912.)</p>}
+        compare={<p>Either one passes. Version 2 is closer to what a library does, and it avoids the cost of <code>slice</code>. (LeetCode 912.)</p>}
       >
-        <p>Sort <code>nums</code> in ascending order without using the built-in sort, in O(n log n) time.</p>
+        <p>Sort <code>nums</code> in ascending order (smallest first) without the built-in sort, in O(n log n) time.</p>
       </Problem>
 
       <Problem
@@ -190,11 +190,11 @@ console.log(sortArray([38, 27, 43, 3, 9, 82, 10])); // [ 3, 9, 10, 27, 38, 43, 8
           { input: "[1, 2, 2, 3, 5], [2, 2, 4, 5]", output: "[2, 2, 5]", why: "Keep each common value as many times as it appears in both." },
           { input: "[1, 3], [2, 4]", output: "[]", why: "No common values." },
         ]}
-        hints={[<>Both arrays are sorted. Walk them together like a merge.</>, <>If the values are equal, record it and move both; otherwise move the smaller one.</>]}
+        hints={[<>Both arrays are sorted. Walk through them together, as in a merge.</>, <>If the values are equal, record the value and move both fingers. Otherwise move the finger on the smaller value.</>]}
         approaches={[
           {
             name: "Merge-style walk",
-            idea: <p>Two fingers. Equal → take it and advance both; otherwise advance the finger on the smaller value, which cannot match anything later.</p>,
+            idea: <p>Use two fingers. If the values are equal, take the value and move both fingers. Otherwise move the finger on the smaller value, because that value cannot match anything later.</p>,
             code: `function intersectSorted(a, b) {
   const out = [];
   let i = 0, j = 0;
@@ -208,12 +208,12 @@ console.log(sortArray([38, 27, 43, 3, 9, 82, 10])); // [ 3, 9, 10, 27, 38, 43, 8
 
 console.log(intersectSorted([1, 2, 2, 3, 5], [2, 2, 4, 5])); // [ 2, 2, 5 ]
 console.log(intersectSorted([1, 3], [2, 4]));                // []`,
-            explain: <p>O(n + m) time, O(1) extra space apart from the output — no Set needed because the inputs are sorted.</p>,
+            explain: <p>O(n + m) time, and O(1) extra space apart from the output. No Set is needed, because the inputs are sorted.</p>,
           },
         ]}
-        compare={<p>Compare with Lesson 12, where unsorted input needed a Set. Sorted input often removes the need for extra memory. (Related: LeetCode 350.)</p>}
+        compare={<p>Compare this with Lesson 12, where unsorted input needed a Set. Sorted input often removes the need for extra memory. (Related: LeetCode 350.)</p>}
       >
-        <p>Given two sorted arrays, return their common values (with repeats), in sorted order.</p>
+        <p>Given two sorted arrays, return their common values in sorted order. A value that appears twice in both arrays appears twice in the answer.</p>
       </Problem>
 
       <Problem
@@ -225,13 +225,13 @@ console.log(intersectSorted([1, 3], [2, 4]));                // []`,
           { input: "[5, 4, 3, 2, 1]", output: "10", why: "Every pair is inverted: 5 × 4 / 2 = 10." },
         ]}
         hints={[
-          <>The O(n²) pair count is too slow for 10<sup>5</sup> values.</>,
-          <>During a merge, when you take from the right half, how many left-half items are bigger than it?</>,
+          <>Counting every pair is O(n²), which is too slow for 10<sup>5</sup> values.</>,
+          <>During a merge, when you take an item from the right half, how many left-half items are bigger than it?</>,
         ]}
         approaches={[
           {
             name: "Merge sort that counts",
-            idea: <p>The merge step adds <code>left.length - i</code> every time a right-half item is placed before the remaining left-half items.</p>,
+            idea: <p>Every time the merge step places a right-half item before the remaining left-half items, it adds <code>left.length - i</code> to the count.</p>,
             code: `function countInversions(nums) {
   let count = 0;
   function sort(a) {
@@ -268,7 +268,7 @@ console.log(countInversions([5, 4, 3, 2, 1])); // 10`,
             ),
           },
         ]}
-        compare={<p>O(n log n) instead of O(n²). Inversion count measures &ldquo;how unsorted&rdquo; an array is — for example, how similar two people&apos;s rankings are.</p>}
+        compare={<p>O(n log n) instead of O(n²). The inversion count measures &ldquo;how unsorted&rdquo; an array is. For example, it can show how different two people&apos;s rankings are.</p>}
       >
         <p>Return the number of pairs i &lt; j with <code>nums[i] &gt; nums[j]</code>, for up to 10<sup>5</sup> values.</p>
       </Problem>
@@ -279,13 +279,13 @@ console.log(countInversions([5, 4, 3, 2, 1])); // 10`,
         level="Medium"
         examples={[{ input: "[[1, 4, 5], [1, 3, 4], [2, 6]]", output: "[1, 1, 2, 3, 4, 4, 5, 6]", why: "All values, in sorted order." }]}
         hints={[
-          <>Merging the arrays one by one into a growing result repeats a lot of copying.</>,
-          <>Merge them in pairs, like the levels of merge sort: k arrays → k/2 → k/4 … → 1.</>,
+          <>If you merge the arrays one by one into a growing result, you copy the same values again and again.</>,
+          <>Merge them in pairs, like the levels of merge sort. The number of arrays goes k → k/2 → k/4 … → 1.</>,
         ]}
         approaches={[
           {
             name: "Merge one by one",
-            idea: <p>Start with the first array and merge each next array into the result.</p>,
+            idea: <p>Start with the first array. Then merge each next array into the result.</p>,
             code: `function merge(a, b) {
   const out = [];
   let i = 0, j = 0;
@@ -300,11 +300,11 @@ function mergeK(lists) {
 }
 
 console.log(mergeK([[1, 4, 5], [1, 3, 4], [2, 6]])); // [ 1, 1, 2, 3, 4, 4, 5, 6 ]`,
-            explain: <p>With N values in total, the growing result is copied k times: O(N × k).</p>,
+            explain: <p>With N values in total, the growing result is copied up to k times. So the time is O(N × k).</p>,
           },
           {
             name: "Merge in pairs (divide and conquer)",
-            idea: <p>Merge arrays 0+1, 2+3, …, then merge those results in pairs again, until one array remains.</p>,
+            idea: <p>Merge arrays 0 and 1, then 2 and 3, and so on. Then merge those results in pairs again, until one array remains.</p>,
             code: `function merge(a, b) {
   const out = [];
   let i = 0, j = 0;
@@ -326,10 +326,10 @@ function mergeK(lists) {
 
 console.log(mergeK([[1, 4, 5], [1, 3, 4], [2, 6]])); // [ 1, 1, 2, 3, 4, 4, 5, 6 ]
 console.log(mergeK([]));                             // []`,
-            explain: <p>Each round touches every value once (O(N)), and the number of lists halves each round, so there are log k rounds: <strong>O(N log k)</strong>. The same reasoning as merge sort&apos;s O(n log n).</p>,
+            explain: <p>Each round touches every value once, which is O(N). The number of lists halves each round, so there are log k rounds. The total is <strong>O(N log k)</strong>. This is the same reasoning as merge sort&apos;s O(n log n).</p>,
           },
         ]}
-        compare={<p>Pairwise merging is the divide-and-conquer answer. Lesson 46 solves the same problem with a heap, also in O(N log k). (Related: LeetCode 23, with linked lists.)</p>}
+        compare={<p>Pairwise merging is the divide-and-conquer answer. Lesson 46 solves the same problem with a heap (a structure that always gives you the smallest item quickly), also in O(N log k). (Related: LeetCode 23, which uses linked lists.)</p>}
       >
         <p>Given k sorted arrays, merge them into one sorted array.</p>
       </Problem>

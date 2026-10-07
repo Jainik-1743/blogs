@@ -11,7 +11,7 @@ export default function Questions() {
         level="Easy"
         examples={[
           { input: "472", output: "13", why: "4 + 7 + 2 = 13." },
-          { input: "5", output: "5", why: "A single digit is its own sum — the base case." },
+          { input: "5", output: "5", why: "A single digit is its own sum. This is the base case." },
         ]}
         hints={[
           <>Smaller problem: the number without its last digit, <code>Math.floor(n / 10)</code>.</>,
@@ -20,7 +20,7 @@ export default function Questions() {
         approaches={[
           {
             name: "Recursion",
-            idea: <p>The answer is the last digit plus the digit sum of the rest. A number below 10 is its own answer.</p>,
+            idea: <p>The answer is the last digit plus the digit sum of the rest. A number below 10 has only one digit, so it is its own answer.</p>,
             code: `function sumDigits(n) {
   if (n < 10) return n;
   return (n % 10) + sumDigits(Math.floor(n / 10));
@@ -53,10 +53,10 @@ console.log(sumDigits(5));   // 5`,
 }
 
 console.log(sumDigits(472)); // 13`,
-            explain: <p>Same O(log n) time, but O(1) space instead of O(log n) stack frames.</p>,
+            explain: <p>The time is the same, O(log n). The space is O(1) instead of O(log n) stack frames.</p>,
           },
         ]}
-        compare={<p>Both are fine: the depth is only the number of digits. The recursion is a good first exercise because the smaller problem is so clear.</p>}
+        compare={<p>Both are fine. The depth is only the number of digits. The recursion is a good first exercise because the smaller problem is easy to see.</p>}
       >
         <p>Return the sum of the digits of a non-negative integer <code>n</code>, using recursion.</p>
       </Problem>
@@ -67,7 +67,7 @@ console.log(sumDigits(472)); // 13`,
         level="Easy"
         examples={[
           { input: "16", output: "true", why: "16 = 2⁴." },
-          { input: "1", output: "true", why: "1 = 2⁰ — the base case." },
+          { input: "1", output: "true", why: "1 = 2⁰. This is the base case." },
           { input: "6", output: "false", why: "6 / 2 = 3, and 3 is odd and not 1." },
           { input: "0", output: "false", why: "Edge case: 0 is not a power of two (and halving it never ends)." },
         ]}
@@ -75,7 +75,7 @@ console.log(sumDigits(472)); // 13`,
         approaches={[
           {
             name: "Recursion",
-            idea: <p>Translate the definition: base cases for 1 and for anything not positive or odd; otherwise recurse on n / 2.</p>,
+            idea: <p>Turn the definition into code. Use base cases for 1 and for any number that is not positive or is odd. Otherwise call the function on n / 2.</p>,
             code: `function isPowerOfTwo(n) {
   if (n === 1) return true;
   if (n <= 0 || n % 2 !== 0) return false;
@@ -90,7 +90,7 @@ console.log(isPowerOfTwo(0));  // false`,
           },
           {
             name: "Loop",
-            idea: <p>Keep dividing by 2 while n is even; a power of two ends at exactly 1.</p>,
+            idea: <p>Keep dividing by 2 while n is even. A power of two ends at exactly 1.</p>,
             code: `function isPowerOfTwo(n) {
   if (n <= 0) return false;
   while (n % 2 === 0) n /= 2;
@@ -99,12 +99,12 @@ console.log(isPowerOfTwo(0));  // false`,
 
 console.log(isPowerOfTwo(16)); // true
 console.log(isPowerOfTwo(6));  // false`,
-            explain: <p>Same time, O(1) space. (Lesson 58 shows a one-line bit trick for this.)</p>,
+            explain: <p>The time is the same, and the space is O(1). (Lesson 58 shows a one-line bit trick for this.)</p>,
           },
         ]}
-        compare={<p>Notice how the recursive version has <em>several</em> base cases. That is normal: list every input you can answer directly. (LeetCode 231.)</p>}
+        compare={<p>Notice that the recursive version has <em>several</em> base cases. That is normal. List every input you can answer directly. (LeetCode 231.)</p>}
       >
-        <p>Return <code>true</code> if <code>n</code> is a power of two.</p>
+        <p>A power of two is 1, 2, 4, 8, 16 and so on (2 multiplied by itself some number of times). Return <code>true</code> if <code>n</code> is a power of two.</p>
       </Problem>
 
       <Problem
@@ -112,7 +112,7 @@ console.log(isPowerOfTwo(6));  // false`,
         title="Reverse a string in place"
         level="Easy"
         examples={[{ input: `["h", "e", "l", "l", "o"]`, output: `["o", "l", "l", "e", "h"]`, why: "The characters are swapped from both ends towards the middle." }]}
-        hints={[<>Swap the first and last characters. What smaller problem is left?</>, <>Recurse with <code>left + 1</code> and <code>right - 1</code>. Stop when they meet.</>]}
+        hints={[<>Swap the first and last characters. What smaller problem is left?</>, <>Call the function again with <code>left + 1</code> and <code>right - 1</code>. Stop when they meet.</>]}
         approaches={[
           {
             name: "Recursion with two indices",
@@ -126,7 +126,7 @@ console.log(isPowerOfTwo(6));  // false`,
 const s = ["h", "e", "l", "l", "o"];
 reverseString(s);
 console.log(s); // [ 'o', 'l', 'l', 'e', 'h' ]`,
-            explain: <p>About n/2 calls, so O(n) time and O(n) stack space. Default parameters let the caller write just <code>reverseString(s)</code>.</p>,
+            explain: <p>It makes about n/2 calls, so the time is O(n) and the stack space is O(n). Default parameters (values used when the caller gives none) let the caller write just <code>reverseString(s)</code>. The line with <code>[s[left], s[right]] = [s[right], s[left]]</code> swaps two items at once.</p>,
           },
           {
             name: "Two-pointer loop",
@@ -143,12 +143,12 @@ console.log(s); // [ 'o', 'l', 'l', 'e', 'h' ]`,
 const s = ["h", "e", "l", "l", "o"];
 reverseString(s);
 console.log(s); // [ 'o', 'l', 'l', 'e', 'h' ]`,
-            explain: <p>O(n) time, O(1) space — the version LeetCode&apos;s &ldquo;O(1) extra memory&rdquo; rule asks for.</p>,
+            explain: <p>O(n) time and O(1) space. This is the version that LeetCode&apos;s &ldquo;O(1) extra memory&rdquo; rule asks for.</p>,
           },
         ]}
-        compare={<p>Compare the two: the loop&apos;s <code>left++</code> and <code>right--</code> became the recursive call&apos;s arguments. Converting between loops and recursion is often this direct. (LeetCode 344.)</p>}
+        compare={<p>Compare the two. The loop&apos;s <code>left++</code> and <code>right--</code> became the arguments of the recursive call. Changing a loop into recursion (or back) is often this direct. (LeetCode 344.)</p>}
       >
-        <p>Reverse an array of characters in place.</p>
+        <p>Reverse an array of characters in place. &ldquo;In place&rdquo; means you change the same array and do not make a new one.</p>
       </Problem>
 
       <Problem
@@ -164,7 +164,7 @@ console.log(s); // [ 'o', 'l', 'l', 'e', 'h' ]`,
         approaches={[
           {
             name: "Recursion with two indices",
-            idea: <p>Compare the ends; if they match, check the inside.</p>,
+            idea: <p>Compare the two ends. If they match, check the inside.</p>,
             code: `function isPalindrome(s, i = 0, j = s.length - 1) {
   if (i >= j) return true;
   if (s[i] !== s[j]) return false;
@@ -177,9 +177,9 @@ console.log(isPalindrome(""));        // true`,
             explain: <p>Two base cases: nothing left to compare (true), or a mismatch (false). O(n) time, O(n) stack.</p>,
           },
         ]}
-        compare={<p>Lesson 9 solved this with a loop; this version shows the same idea as a definition. Both are O(n) time.</p>}
+        compare={<p>Lesson 9 solved this with a loop. This version shows the same idea as a definition. Both are O(n) time.</p>}
       >
-        <p>Return whether the string <code>s</code> reads the same forwards and backwards, using recursion.</p>
+        <p>A palindrome is a word that reads the same forwards and backwards, like &ldquo;racecar&rdquo;. Return whether the string <code>s</code> is a palindrome, using recursion.</p>
       </Problem>
 
       <Problem
@@ -190,7 +190,7 @@ console.log(isPalindrome(""));        // true`,
           { input: "2", output: "1", why: "0, 1, 1 — fib(2) = 1." },
           { input: "10", output: "55", why: "0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55." },
         ]}
-        hints={[<>The direct recursion is correct but repeats work. For n ≤ 30 it still passes.</>, <>A loop only needs the last two values.</>]}
+        hints={[<>The direct recursion is correct, but it repeats work. For n ≤ 30 it is still fast enough.</>, <>A loop only needs the last two values.</>]}
         approaches={[
           {
             name: "Direct recursion",
@@ -202,7 +202,7 @@ console.log(isPalindrome(""));        // true`,
 
 console.log(fib(2));  // 1
 console.log(fib(10)); // 55`,
-            explain: <p>About O(2ⁿ) time because the same values are recomputed many times, and O(n) stack depth.</p>,
+            explain: <p>The time is about O(2ⁿ), because the same values are worked out many times. The stack depth is O(n).</p>,
           },
           {
             name: "Loop with two variables",
@@ -218,10 +218,10 @@ console.log(fib(10)); // 55`,
 console.log(fib(2));  // 1
 console.log(fib(10)); // 55
 console.log(fib(50)); // 12586269025`,
-            explain: <p>O(n) time, O(1) space. <code>fib(50)</code> is instant here; the recursive version would make over 40 billion calls.</p>,
+            explain: <p>O(n) time and O(1) space. <code>fib(50)</code> is instant here. The recursive version would make over 40 billion calls.</p>,
           },
         ]}
-        compare={<p>Know both: the recursion shows you understand the definition, and the loop shows you noticed the repeated work. Lesson 54 adds the middle ground — recursion with memory. (LeetCode 509.)</p>}
+        compare={<p>Know both. The recursion shows that you understand the definition. The loop shows that you noticed the repeated work. Lesson 54 adds the middle way: recursion that remembers its answers. (LeetCode 509.)</p>}
       >
         <p>Return the n-th Fibonacci number, where fib(0) = 0 and fib(1) = 1 (0 ≤ n ≤ 30).</p>
       </Problem>
@@ -239,7 +239,7 @@ console.log(fib(50)); // 12586269025`,
         approaches={[
           {
             name: "Recursion with an index",
-            idea: <p>Check one neighbouring pair, then the rest.</p>,
+            idea: <p>Check one pair of neighbours, then check the rest.</p>,
             code: `function isSorted(arr, i = 0) {
   if (i >= arr.length - 1) return true;     // 0 or 1 items left
   if (arr[i] > arr[i + 1]) return false;
@@ -249,12 +249,12 @@ console.log(fib(50)); // 12586269025`,
 console.log(isSorted([1, 2, 2, 5])); // true
 console.log(isSorted([3, 1, 4]));    // false
 console.log(isSorted([]));           // true`,
-            explain: <p>O(n) time and O(n) stack. Note the base case uses <code>arr.length - 1</code>, because each step looks at <code>i + 1</code>.</p>,
+            explain: <p>O(n) time and O(n) stack. Note that the base case uses <code>arr.length - 1</code>, because each step looks at <code>i + 1</code>.</p>,
           },
         ]}
-        compare={<p>The pattern &ldquo;check the first part, recurse on the rest&rdquo; works for any question of the form &ldquo;do all items satisfy…&rdquo;.</p>}
+        compare={<p>The pattern &ldquo;check the first part, then call the function on the rest&rdquo; works for any question of the form &ldquo;do all items satisfy a rule?&rdquo;.</p>}
       >
-        <p>Return whether the array is sorted in non-decreasing order, using recursion.</p>
+        <p>Return whether the array is sorted in non-decreasing order (each item is equal to or bigger than the one before it), using recursion.</p>
       </Problem>
 
       <Problem
@@ -269,7 +269,7 @@ console.log(isSorted([]));           // true`,
         approaches={[
           {
             name: "Return-value recursion",
-            idea: <p>Each call returns the count for its part of the array; the caller adds its own item.</p>,
+            idea: <p>Each call returns the count for its part of the array. The caller then adds its own item.</p>,
             code: `function countOf(arr, x, i = 0) {
   if (i === arr.length) return 0;
   return (arr[i] === x ? 1 : 0) + countOf(arr, x, i + 1);
@@ -277,21 +277,21 @@ console.log(isSorted([]));           // true`,
 
 console.log(countOf([3, 1, 3, 3, 2], 3)); // 3
 console.log(countOf([], 7));              // 0`,
-            explain: <p>The answer is built on the way back up: the deepest call returns 0, and each frame adds 0 or 1.</p>,
+            explain: <p>The answer is built on the way back up. The deepest call returns 0, and each frame adds 0 or 1.</p>,
           },
           {
             name: "Parameter recursion",
-            idea: <p>Carry the count so far as an argument; return it at the end.</p>,
+            idea: <p>Carry the count so far as an argument, and return it at the end.</p>,
             code: `function countOf(arr, x, i = 0, count = 0) {
   if (i === arr.length) return count;
   return countOf(arr, x, i + 1, count + (arr[i] === x ? 1 : 0));
 }
 
 console.log(countOf([3, 1, 3, 3, 2], 3)); // 3`,
-            explain: <p>Here the answer is built on the way <em>down</em>, like an accumulator in a loop. The base case simply returns it.</p>,
+            explain: <p>Here the answer is built on the way <em>down</em>. The count works like an accumulator (a variable that collects a running total) in a loop. The base case simply returns it.</p>,
           },
         ]}
-        compare={<p>These are the two styles of recursion you will meet again in Lesson 32: build the answer from returned values, or carry it in a parameter. Both are O(n).</p>}
+        compare={<p>These are the two styles of recursion that you will meet again in Lesson 32: build the answer from returned values, or carry it in a parameter. Both are O(n).</p>}
       >
         <p>Return how many times <code>x</code> appears in <code>arr</code>, using recursion.</p>
       </Problem>

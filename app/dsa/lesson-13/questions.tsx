@@ -18,7 +18,7 @@ export default function Questions() {
         approaches={[
           {
             name: "Try every candidate",
-            idea: <p>Count down from the smallest value; the first number that divides both is the GCD.</p>,
+            idea: <p>Count down from the smallest value. The first number that divides both values is the GCD.</p>,
             code: `function findGCD(nums) {
   const lo = Math.min(...nums);
   const hi = Math.max(...nums);
@@ -29,7 +29,7 @@ export default function Questions() {
 
 console.log(findGCD([2, 5, 6, 9, 10])); // 2
 console.log(findGCD([7, 5, 6, 8, 3]));  // 1`,
-            explain: <p>Correct, but O(min) for the GCD part. With values up to 1,000 (the LeetCode limit) that is fine; with values up to 10<sup>9</sup> it is not.</p>,
+            explain: <p>This is correct, but the GCD part is O(min), meaning the work grows with the smaller value. With values up to 1,000 (the LeetCode limit) that is fine. With values up to 10<sup>9</sup> it is too slow.</p>,
           },
           {
             name: "Euclid",
@@ -46,10 +46,10 @@ function findGCD(nums) {
 console.log(findGCD([2, 5, 6, 9, 10])); // 2
 console.log(findGCD([7, 5, 6, 8, 3]));  // 1
 console.log(findGCD([3, 3]));           // 3`,
-            explain: <p>O(n) for min and max, plus O(log) for the GCD. The line <code>[a, b] = [b, a % b]</code> swaps both values at once — the same three lines as the traced version, written shorter.</p>,
+            explain: <p>Finding the min and max is O(n), and the GCD is O(log). The line <code>[a, b] = [b, a % b]</code> is called destructuring assignment. It sets both variables at once. It does the same job as the three lines in the traced version, but shorter.</p>,
           },
         ]}
-        compare={<p>Use Euclid. It is just as short and does not depend on how large the values are. (LeetCode 1979.)</p>}
+        compare={<p>Use Euclid. It is just as short, and its speed hardly changes when the values are large. (LeetCode 1979.)</p>}
       >
         <p>Return the greatest common divisor of the smallest and the largest number in <code>nums</code>.</p>
       </Problem>
@@ -61,9 +61,9 @@ console.log(findGCD([3, 3]));           // 3`,
         examples={[
           { input: "4", output: "12", why: "12 is divisible by 1, 2, 3 and 4, and no smaller number is." },
           { input: "10", output: "2520", why: "The classic answer: lcm(1, 2, …, 10)." },
-          { input: "20", output: "232792560", why: "Still well inside JavaScript's safe range." },
+          { input: "20", output: "232792560", why: "Still well inside the safe range of JavaScript numbers (below 2^53)." },
         ]}
-        hints={[<>&ldquo;Divisible by all of them&rdquo; is exactly the definition of the LCM.</>, <>lcm(1 … n) = lcm(lcm(1 … n−1), n). Build it one number at a time.</>]}
+        hints={[<>&ldquo;Divisible by all of them&rdquo; is exactly what the LCM (least common multiple) means.</>, <>lcm(1 … n) = lcm(lcm(1 … n−1), n). Build the answer one number at a time.</>]}
         approaches={[
           {
             name: "Try multiples",
@@ -80,11 +80,11 @@ console.log(findGCD([3, 3]));           // 3`,
 
 console.log(smallestMultiple(4));  // 12
 console.log(smallestMultiple(10)); // 2520`,
-            explain: <p>Works for small n, but for n = 20 it tests over 11 million candidates. The answer grows very fast, so this becomes too slow quickly.</p>,
+            explain: <p>This works for small n. For n = 20 it tests over 11 million candidates. The answer grows very fast, so this soon becomes too slow.</p>,
           },
           {
             name: "Running LCM",
-            idea: <p>Start with 1 and fold in each number: <code>result = lcm(result, k)</code>.</p>,
+            idea: <p>Start with 1 and add in each number one at a time: <code>result = lcm(result, k)</code>.</p>,
             code: `function gcd(a, b) {
   while (b !== 0) [a, b] = [b, a % b];
   return a;
@@ -118,9 +118,9 @@ console.log(smallestMultiple(20)); // 232792560`,
             ),
           },
         ]}
-        compare={<p>Approach 2 is n GCD calls: about O(n log n) in total. Dividing by the GCD <em>before</em> multiplying keeps intermediate values small.</p>}
+        compare={<p>Approach 2 makes n GCD calls, so it is about O(n log n) in total. Dividing by the GCD <em>before</em> multiplying keeps the in-between values small.</p>}
       >
-        <p>Return the smallest positive number that is divisible by every number from 1 to n (1 ≤ n ≤ 20).</p>
+        <p>Return the smallest positive number that every number from 1 to n divides evenly (1 ≤ n ≤ 20). &ldquo;Divides evenly&rdquo; means the remainder is 0.</p>
       </Problem>
 
       <Problem
@@ -135,13 +135,13 @@ console.log(smallestMultiple(20)); // 232792560`,
         ]}
         hints={[
           <>Count divisors using pairs, up to √n.</>,
-          <>Divisors come in pairs. To get an <em>odd</em> count, one pair must be a single number: i × i = n.</>,
-          <>So n must be a perfect square p², and its only other divisor must be p. What does that say about p?</>,
+          <>Divisors come in pairs. To get an <em>odd</em> count, one pair must be a single number, so i × i = n.</>,
+          <>So n must be a perfect square (a number like 4, 9 or 16 that is some whole number times itself), n = p². Its only other divisor must be p. What does that say about p?</>,
         ]}
         approaches={[
           {
             name: "Count divisors in pairs",
-            idea: <p>Loop i up to √n; each divisor i adds 2 (i and n / i), or 1 if they are the same number.</p>,
+            idea: <p>Loop i up to √n. Each divisor i adds 2 to the count (i and n / i), or adds 1 if they are the same number.</p>,
             code: `function isThree(n) {
   let count = 0;
   for (let i = 1; i * i <= n; i++) {
@@ -153,11 +153,11 @@ console.log(smallestMultiple(20)); // 232792560`,
 console.log(isThree(2));  // false
 console.log(isThree(4));  // true
 console.log(isThree(12)); // false`,
-            explain: <p>O(√n) time, O(1) space. A direct use of the pairs idea from the lesson.</p>,
+            explain: <p>O(√n) time, O(1) space. This uses the pairs idea from the lesson directly.</p>,
           },
           {
             name: "Square of a prime",
-            idea: <p>Three divisors means 1, p and p² with p prime. Check that n is a perfect square and its root is prime.</p>,
+            idea: <p>Three divisors means the divisors are 1, p and p², where p is prime. So check that n is a perfect square and that its square root is prime.</p>,
             code: `function isPrime(n) {
   if (n < 2) return false;
   for (let i = 2; i * i <= n; i++) if (n % i === 0) return false;
@@ -172,10 +172,10 @@ function isThree(n) {
 console.log(isThree(4));  // true
 console.log(isThree(9));  // true
 console.log(isThree(16)); // false   (1, 2, 4, 8, 16)`,
-            explain: <p>O(n<sup>1/4</sup>): the prime check runs up to the square root of the square root. Using <code>Math.round</code> and then checking <code>r * r === n</code> protects against floating-point rounding in <code>Math.sqrt</code>.</p>,
+            explain: <p>O(n<sup>1/4</sup>): the prime check runs only up to the square root of the square root. <code>Math.sqrt</code> returns a decimal (floating-point) number that can be slightly off. So we use <code>Math.round</code> and then check <code>r * r === n</code> to be safe.</p>,
           },
         ]}
-        compare={<p>Approach 1 is what you should reach first. Approach 2 is the kind of insight interviewers enjoy: think about the <em>structure</em> of the answer, not just the loop. (LeetCode 1952.)</p>}
+        compare={<p>Approach 1 is the one to reach for first. Approach 2 shows the kind of insight interviewers like: think about the <em>shape</em> of the answer, not just the loop. (LeetCode 1952.)</p>}
       >
         <p>Return <code>true</code> if <code>n</code> has exactly three positive divisors.</p>
       </Problem>
@@ -189,14 +189,14 @@ console.log(isThree(16)); // false   (1, 2, 4, 8, 16)`,
           { input: "2", output: "false", why: "2 → 4 → 16 → 37 → 58 → 89 → 145 → 42 → 20 → 4 → … The sequence repeats forever without reaching 1." },
         ]}
         hints={[
-          <>Write a helper that returns the sum of the squares of the digits (the digit loop).</>,
-          <>The sequence either reaches 1 or repeats. How do you notice a repeat?</>,
-          <>Keep every number you have seen in a Set.</>,
+          <>Write a helper function that returns the sum of the squares of the digits (use the digit loop).</>,
+          <>The sequence either reaches 1 or repeats. How can you notice a repeat?</>,
+          <>Keep every number you have seen in a Set (a JavaScript collection that stores each value only once and can check quickly whether a value is inside).</>,
         ]}
         approaches={[
           {
             name: "Digit loop + Set of seen values",
-            idea: <p>Keep replacing n by the sum of the squares of its digits. Stop at 1 (happy) or when a value repeats (not happy).</p>,
+            idea: <p>Keep replacing n with the sum of the squares of its digits. Stop at 1 (happy) or when a value repeats (not happy).</p>,
             code: `function digitSquareSum(n) {
   let sum = 0;
   while (n > 0) {
@@ -218,11 +218,11 @@ function isHappy(n) {
 
 console.log(isHappy(19)); // true
 console.log(isHappy(2));  // false`,
-            explain: <p>Why must it repeat? Any number up to 10<sup>9</sup> has at most 10 digits, so the next value is at most 10 × 81 = 810. After the first step every value is small, so the sequence can visit only a limited number of values before one comes back.</p>,
+            explain: <p>Why must it repeat? Any number up to 10<sup>9</sup> has at most 10 digits, so the next value is at most 10 × 81 = 810. After the first step every value is small. The sequence can only visit a limited number of values, so one of them must come back.</p>,
           },
           {
             name: "Two speeds, no Set",
-            idea: <p>Move one value one step at a time and another two steps at a time. If there is a loop, the fast one catches the slow one.</p>,
+            idea: <p>Move one value one step at a time (slow) and another value two steps at a time (fast). If the sequence goes in a loop, the fast one catches the slow one.</p>,
             code: `function digitSquareSum(n) {
   let sum = 0;
   for (; n > 0; n = Math.floor(n / 10)) sum += (n % 10) ** 2;
@@ -241,14 +241,14 @@ function isHappy(n) {
 
 console.log(isHappy(19)); // true
 console.log(isHappy(2));  // false`,
-            explain: <p>O(1) extra space. This &ldquo;fast and slow pointer&rdquo; idea returns in Lesson 36, where it finds loops in linked lists.</p>,
+            explain: <p>O(1) extra space. This &ldquo;fast and slow pointer&rdquo; idea comes back in Lesson 36, where it finds loops in linked lists.</p>,
           },
         ]}
-        compare={<p>Use the Set: clear and easy to explain. Mention the fast/slow version if asked to avoid extra memory. (LeetCode 202.)</p>}
+        compare={<p>Use the Set. It is clear and easy to explain. Mention the fast and slow version if the interviewer asks you to avoid extra memory. (LeetCode 202.)</p>}
       >
         <p>
           Start with <code>n</code>. Replace it by the sum of the squares of its digits, and repeat. If
-          this reaches 1, the number is <em>happy</em>. Return whether <code>n</code> is happy.
+          this reaches 1, the number is <em>happy</em>. Return <code>true</code> if <code>n</code> is happy and <code>false</code> if it is not.
         </p>
       </Problem>
 
@@ -258,15 +258,15 @@ console.log(isHappy(2));  // false`,
         level="Easy"
         examples={[
           { input: "6", output: "true", why: "6 = 2 × 3." },
-          { input: "1", output: "true", why: "1 has no prime factors at all, so it has none other than 2, 3, 5." },
+          { input: "1", output: "true", why: "1 has no prime factors at all, so it has none other than 2, 3 and 5." },
           { input: "14", output: "false", why: "14 = 2 × 7, and 7 is not allowed." },
           { input: "0", output: "false", why: "Edge case: an ugly number must be positive." },
         ]}
-        hints={[<>Divide out every 2, then every 3, then every 5.</>, <>What is left must be 1.</>]}
+        hints={[<>Divide out every 2, then every 3, then every 5. (&ldquo;Divide out&rdquo; means keep dividing while the remainder is 0.)</>, <>What is left must be 1.</>]}
         approaches={[
           {
             name: "Divide out the allowed factors",
-            idea: <p>While n is divisible by 2, divide by 2. Do the same for 3 and 5. If n is now 1, it had no other prime factors.</p>,
+            idea: <p>While n is divisible by 2, divide it by 2. Do the same for 3 and 5. If n is now 1, it had no other prime factors.</p>,
             code: `function isUgly(n) {
   if (n <= 0) return false;
   for (const p of [2, 3, 5]) {
@@ -279,12 +279,12 @@ console.log(isUgly(6));  // true
 console.log(isUgly(1));  // true
 console.log(isUgly(14)); // false
 console.log(isUgly(0));  // false`,
-            explain: <p>Each division at least halves n, so this is O(log n). The <code>n &lt;= 0</code> check is essential: <code>0 % 2</code> is 0, so without it the loop would divide 0 by 2 forever.</p>,
+            explain: <p>Each division at least halves n, so this is O(log n). The <code>n &lt;= 0</code> check is needed. <code>0 % 2</code> is 0, so without the check the loop would divide 0 by 2 forever.</p>,
           },
         ]}
-        compare={<p>This &ldquo;divide out a factor while you can&rdquo; loop is the core of prime factorisation, which the next question builds fully. (LeetCode 263.)</p>}
+        compare={<p>The loop &ldquo;divide out a factor while you can&rdquo; is the core of prime factorisation. The next question builds the full version. (LeetCode 263.)</p>}
       >
-        <p>An <em>ugly number</em> is a positive integer whose only prime factors are 2, 3 and 5. Return whether <code>n</code> is ugly.</p>
+        <p>A <em>prime factor</em> of n is a prime number that divides n. For example, the prime factors of 12 are 2 and 3. An <em>ugly number</em> is a positive integer whose only prime factors are 2, 3 and 5. Return whether <code>n</code> is ugly.</p>
       </Problem>
 
       <Problem
@@ -297,8 +297,8 @@ console.log(isUgly(0));  // false`,
           { input: "1000000007", output: "[1000000007]", why: "A large prime: the loop must stop at √n, not at n." },
         ]}
         hints={[
-          <>Try divisors from 2 upwards. Whenever d divides n, record it and divide it out — repeatedly.</>,
-          <>You only need d up to √n. If n &gt; 1 after the loop, what must it be?</>,
+          <>Try divisors from 2 upwards. Whenever d divides n, record it and divide it out. Repeat while d still divides n.</>,
+          <>You only need d up to √n. If n is still greater than 1 after the loop, what must it be?</>,
         ]}
         approaches={[
           {
@@ -306,7 +306,7 @@ console.log(isUgly(0));  // false`,
             idea: (
               <ol>
                 <li>For d = 2, 3, 4, … while <code>d * d &lt;= n</code>: divide out d as many times as possible, recording it each time.</li>
-                <li>If n is still greater than 1 at the end, the remainder is itself a prime factor.</li>
+                <li>If n is still greater than 1 at the end, what is left of n is itself a prime factor.</li>
               </ol>
             ),
             code: `function primeFactors(n) {
@@ -339,9 +339,9 @@ console.log(primeFactors(1000000007)); // [ 1000000007 ]`,
             ),
           },
         ]}
-        compare={<p>O(√n) time. Notice that the limit <code>d * d &lt;= n</code> uses the <em>shrinking</em> n, so the loop often stops much earlier than √ of the original number.</p>}
+        compare={<p>O(√n) time. Notice that the limit <code>d * d &lt;= n</code> uses the n that keeps <em>shrinking</em>. So the loop often stops much earlier than the square root of the original number.</p>}
       >
-        <p>Return the prime factors of <code>n</code> (n ≥ 2) in increasing order, with repeats.</p>
+        <p>Prime factorisation means writing a number as a product of primes. Return the prime factors of <code>n</code> (n ≥ 2) in increasing order. Write a factor as many times as it divides n.</p>
       </Problem>
 
       <Problem
@@ -354,14 +354,14 @@ console.log(primeFactors(1000000007)); // [ 1000000007 ]`,
           { input: "a = 3, b = 200", output: "136318165", why: "Same idea." },
         ]}
         hints={[
-          <>b can be 10<sup>9</sup>, so a loop of b multiplications is too slow. Use fast power.</>,
+          <>b can be 10<sup>9</sup>, so a loop of b multiplications is too slow. Use fast power (repeated squaring) from the lesson.</>,
           <>Take <code>% M</code> after every multiplication.</>,
-          <>Remainders are up to about 10<sup>9</sup>; their product is about 10<sup>18</sup>. Which JavaScript type handles that exactly?</>,
+          <>Remainders are up to about 10<sup>9</sup>, so their product is about 10<sup>18</sup>. Which JavaScript type can handle that exactly?</>,
         ]}
         approaches={[
           {
             name: "Fast power with Number (wrong)",
-            idea: <p>The fast-power loop from the lesson, taking the remainder after each multiplication.</p>,
+            idea: <p>Use the fast-power loop from the lesson and take the remainder after each multiplication.</p>,
             code: `const M = 1_000_000_007;
 
 function powMod(a, b) {
@@ -377,11 +377,11 @@ function powMod(a, b) {
 
 console.log(powMod(2, 10));  // 1024        correct (small numbers)
 console.log(powMod(2, 100)); // 976371253   wrong — the right answer is 976371285`,
-            explain: <p>The algorithm is right but the arithmetic is not: once <code>a</code> is near 10<sup>9</sup>, <code>a * a</code> passes 2<sup>53</sup> and loses precision. No error appears — you just get a wrong answer. This is a very common JavaScript bug in interviews.</p>,
+            explain: <p>The algorithm is right, but the arithmetic is not. Once <code>a</code> is near 10<sup>9</sup>, <code>a * a</code> goes past 2<sup>53</sup> and loses its last digits (precision). No error appears. You just get a wrong answer. This is a very common JavaScript bug in interviews.</p>,
           },
           {
             name: "Fast power with BigInt",
-            idea: <p>The same loop, with every value as a BigInt so products are exact.</p>,
+            idea: <p>Use the same loop, but make every value a BigInt (a JavaScript type for whole numbers of any size), so products are exact.</p>,
             code: `const M = 1_000_000_007n;
 
 function powMod(a, b) {
@@ -400,13 +400,13 @@ console.log(powMod(2, 10));         // 1024
 console.log(powMod(2, 100));        // 976371285
 console.log(powMod(3, 200));        // 136318165
 console.log(powMod(2, 1000000000)); // 140625001`,
-            explain: <p>O(log b) time: about 30 passes for b = 10<sup>9</sup>. BigInt values cannot be mixed with normal numbers, so every constant gets an <code>n</code>: <code>2n</code>, <code>1n</code>, <code>0n</code>. Convert back with <code>Number()</code> at the end — the result is below M, so that is safe.</p>,
+            explain: <p>O(log b) time: about 30 passes for b = 10<sup>9</sup>. You cannot mix BigInt values with normal numbers, so every constant gets an <code>n</code>: <code>2n</code>, <code>1n</code>, <code>0n</code>. Convert back with <code>Number()</code> at the end. The result is below M, so this is safe.</p>,
           },
         ]}
-        compare={<p>Always use the BigInt version for multiplication under 10<sup>9</sup> + 7 in JavaScript. Test it with a large input; small tests like 2¹⁰ will pass even with the broken version.</p>}
+        compare={<p>Always use the BigInt version when you multiply under a modulus of 10<sup>9</sup> + 7 in JavaScript. Test it with a large input. Small tests like 2¹⁰ pass even with the broken version.</p>}
       >
         <p>
-          Return (a<sup>b</sup>) mod (10<sup>9</sup> + 7), for 1 ≤ a ≤ 10<sup>9</sup> and 0 ≤ b ≤ 10<sup>9</sup>.
+          Return the remainder of a<sup>b</sup> divided by 10<sup>9</sup> + 7 (written a<sup>b</sup> mod (10<sup>9</sup> + 7)), for 1 ≤ a ≤ 10<sup>9</sup> and 0 ≤ b ≤ 10<sup>9</sup>.
         </p>
       </Problem>
 
@@ -420,13 +420,13 @@ console.log(powMod(2, 1000000000)); // 140625001`,
           { input: "x = 3, n = 13", output: "1594323", why: "The example traced in the lesson." },
         ]}
         hints={[
-          <>n can be as large as 2<sup>31</sup> − 1 (about 2 billion). An O(n) loop is too slow.</>,
+          <>n can be as large as 2<sup>31</sup> − 1 (about 2 billion), so an O(n) loop is too slow.</>,
           <>For a negative n: x<sup>n</sup> = (1 / x)<sup>−n</sup>.</>,
         ]}
         approaches={[
           {
             name: "Multiply n times",
-            idea: <p>Multiply x into the result |n| times, then invert for a negative n.</p>,
+            idea: <p>Multiply x into the result |n| times (|n| means n without its minus sign). For a negative n, take 1 divided by the result.</p>,
             code: `function myPow(x, n) {
   let result = 1;
   for (let i = 0; i < Math.abs(n); i++) result *= x;
@@ -435,11 +435,11 @@ console.log(powMod(2, 1000000000)); // 140625001`,
 
 console.log(myPow(2, 10)); // 1024
 console.log(myPow(2, -2)); // 0.25`,
-            explain: <p>O(n). With n around 2 × 10<sup>9</sup> this is billions of multiplications — far too slow under the constraints.</p>,
+            explain: <p>O(n). With n around 2 × 10<sup>9</sup> this is billions of multiplications, which is far too slow for these limits.</p>,
           },
           {
             name: "Fast exponentiation",
-            idea: <p>Handle the sign first, then use repeated squaring.</p>,
+            idea: <p>Handle the sign first, then use repeated squaring (fast exponentiation).</p>,
             code: `function myPow(x, n) {
   if (n < 0) {
     x = 1 / x;
@@ -457,10 +457,10 @@ console.log(myPow(2, -2)); // 0.25`,
 console.log(myPow(2, 10)); // 1024
 console.log(myPow(2, -2)); // 0.25
 console.log(myPow(3, 13)); // 1594323`,
-            explain: <p>O(log n): about 31 passes for the largest n. No modulus here, because x is a decimal number and the result is expected as a decimal too.</p>,
+            explain: <p>O(log n): about 31 passes for the largest n. There is no modulus here, because x is a decimal number and the answer is also a decimal.</p>,
           },
         ]}
-        compare={<p>Approach 2 is the expected answer. Mention the negative-exponent edge case before you write the loop. (LeetCode 50.)</p>}
+        compare={<p>Approach 2 is the expected answer. Mention the negative exponent edge case before you write the loop. (LeetCode 50.)</p>}
       >
         <p>Compute x<sup>n</sup> without using <code>**</code> or <code>Math.pow</code>. Here x is a decimal number and n is a whole number that may be negative.</p>
       </Problem>
@@ -474,13 +474,13 @@ console.log(myPow(3, 13)); // 1594323`,
           { input: "left = 4, right = 6", output: "[-1, -1]", why: "Only one prime (5) in the range, so there is no pair." },
         ]}
         hints={[
-          <>right can be 10<sup>6</sup>. Checking each number with the √n prime test works but repeats a lot of work.</>,
-          <>Build one sieve up to <code>right</code>, then walk through the primes in [left, right] keeping the smallest gap.</>,
+          <>right can be 10<sup>6</sup>. Checking each number with the √n prime test works, but it repeats a lot of work.</>,
+          <>Build one sieve up to <code>right</code>. Then walk through the primes in [left, right] and keep the smallest gap.</>,
         ]}
         approaches={[
           {
             name: "Prime test for each number",
-            idea: <p>Walk from left to right, test each number with the √n check, and compare consecutive primes.</p>,
+            idea: <p>Walk from left to right, test each number with the √n check, and compare each prime with the previous prime.</p>,
             code: `function isPrime(n) {
   if (n < 2) return false;
   for (let i = 2; i * i <= n; i++) if (n % i === 0) return false;
@@ -500,11 +500,11 @@ function closestPrimes(left, right) {
 
 console.log(closestPrimes(10, 19)); // [ 11, 13 ]
 console.log(closestPrimes(4, 6));   // [ -1, -1 ]`,
-            explain: <p>O(n√n) for a range of size n. For a range up to 10<sup>6</sup> that is up to about 10<sup>9</sup> steps in the worst case — too slow.</p>,
+            explain: <p>O(n√n) for a range of size n. For a range up to 10<sup>6</sup> that is about 10<sup>9</sup> steps in the worst case, which is too slow.</p>,
           },
           {
             name: "Sieve once, then scan",
-            idea: <p>Mark every prime up to <code>right</code> with the sieve, then do the same scan using the array lookup.</p>,
+            idea: <p>Use the sieve to mark every prime up to <code>right</code>. Then do the same scan, but check the array instead of testing each number.</p>,
             code: `function closestPrimes(left, right) {
   const isPrime = new Array(right + 1).fill(true);
   isPrime[0] = false;
@@ -526,10 +526,10 @@ console.log(closestPrimes(4, 6));   // [ -1, -1 ]`,
 
 console.log(closestPrimes(10, 19)); // [ 11, 13 ]
 console.log(closestPrimes(4, 6));   // [ -1, -1 ]`,
-            explain: <p>O(n log log n) for the sieve plus O(n) for the scan, with O(n) space. The strict <code>&lt;</code> keeps the <em>first</em> pair when gaps are equal, as the statement asks.</p>,
+            explain: <p>The sieve takes O(n log log n) and the scan takes O(n). The space is O(n). The strict <code>&lt;</code> keeps the <em>first</em> pair when two gaps are equal, as the question asks.</p>,
           },
         ]}
-        compare={<p>When a problem needs to know about many primes, build the sieve once. (LeetCode 2523.)</p>}
+        compare={<p>When a problem needs many primes, build the sieve once. (LeetCode 2523.)</p>}
       >
         <p>
           Find two primes <code>p &lt; q</code> with <code>left ≤ p &lt; q ≤ right</code> and the smallest

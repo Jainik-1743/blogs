@@ -52,13 +52,13 @@ console.log(count[2], count[4]);`;
 function countTrace() {
   const t = tracer();
   const nums = [2, 3, 2, 5, 3, 2];
-  t.step(1, "start", "nums", "Values are between 0 and 5, so one counter per possible value is enough.", { nums }, "nums");
+  t.step(1, "start", "nums", "The values are between 0 and 5, so one counter for each possible value is enough.", { nums }, "nums");
   const count = new Array(6).fill(0);
-  t.step(2, "start", "count = [0, 0, 0, 0, 0, 0]", "count[v] will hold how many times v appears. Index = the value itself.", { nums, count: [...count] }, "count");
+  t.step(2, "start", "count = [0, 0, 0, 0, 0, 0]", "count[v] will hold how many times v appears. The index is the value itself.", { nums, count: [...count] }, "count");
   for (const x of nums) {
     t.step(3, "check", `x = ${x}`, `Next value. Its counter lives at count[${x}].`, { nums, count: [...count], x }, "x");
     count[x]++;
-    t.step(4, "update", `count[${x}]++ → ${count[x]}`, "No searching: the value tells us exactly which box to update.", { nums, count: [...count], x }, "count");
+    t.step(4, "update", `count[${x}]++ → ${count[x]}`, "No searching is needed. The value tells us exactly which box to update.", { nums, count: [...count], x }, "count");
   }
   t.print(`${count[2]} ${count[4]}`);
   t.step(6, "print", "console.log(count[2], count[4])", "Each query is now a single array read: 2 appears 3 times, 4 appears 0 times.", { nums, count: [...count] });
@@ -152,21 +152,25 @@ export default function DsaLessonFifteenPage() {
       <h2 id="concept">Count once, answer many times</h2>
       <p>
         Suppose you are given an array and then many questions: &ldquo;How many times does 2
-        appear? And 4? And 3?&rdquo; The obvious way scans the array again for every question:
+        appear? And 4? And 3?&rdquo; The obvious way is to scan the whole array again for every question:
       </p>
       <CodeBlock lang="js" code={slowQueries} />
       <p>
         With n = 100,000 values and q = 100,000 questions, that is 10<sup>10</sup> steps. The better idea
-        is <strong>pre-computation</strong>: walk the array once, record every count, and then answer each
-        question with a single lookup. Total work: O(n + q). This is called <strong>hashing</strong> in many
-        DSA courses — storing values so they can be found directly, without searching.
+        is <strong>pre-computation</strong>. Pre-computation means doing some work once, before the
+        questions come, and saving the results. Here you walk the array once and record every count. Then
+        you answer each question with a single lookup (reading one saved value). The total work is
+        O(n + q). Storing values so that you can find them directly, without searching, is called{" "}
+        <strong>hashing</strong>.
       </p>
 
       <h2 id="array">Counting with an array</h2>
       <p>
-        When the values are small whole numbers in a known range — say 0 to 1,000 — the simplest
-        store is an array where <strong>the index is the value</strong>. <code>count[7]</code> holds how
-        many 7s there are. Reading or updating it is O(1), because arrays jump straight to an index.
+        A <strong>counting array</strong> is an array where the position (index) is the value you count,
+        and the number stored there is how many times that value appears. It works when the values are
+        small whole numbers in a known range, say 0 to 1,000. <code>count[7]</code> holds how many 7s
+        there are. Reading or updating it is O(1) (it takes the same short time however big the array is),
+        because an array can jump straight to any index.
       </p>
 
       <h2 id="trace">Traced: filling a counting array</h2>
@@ -182,26 +186,31 @@ export default function DsaLessonFifteenPage() {
         caption="The finished counting array for [2, 3, 2, 5, 3, 2]: the index is the value, the box holds its count."
       />
       <p>
-        The cost is memory: the array needs one box for every <em>possible</em> value, even unused
-        ones. That is fine for 0–1,000, but values up to 10<sup>9</sup>, or negative values, do not fit.
-        Then you need a Map.
+        The cost is memory. The array needs one box for every <em>possible</em> value, even the unused
+        ones. That is fine for 0 to 1,000. But values up to 10<sup>9</sup>, or negative values, do not
+        fit. Then you need a Map.
       </p>
 
       <h2 id="letters">The 26-letter array</h2>
       <p>
-        The most common fixed range in interviews is &ldquo;lowercase English letters&rdquo;. Turn each letter
-        into an index from 0 to 25 with its character code (Lesson 9):
+        The most common fixed range in interviews is &ldquo;lowercase English letters&rdquo;. There are 26
+        of them. Turn each letter into an index from 0 to 25 with its character code (Lesson 9). The
+        character code is the number that stands for a letter: <code>&quot;a&quot;.charCodeAt(0)</code> is 97, so
+        subtracting 97 gives 0 for &ldquo;a&rdquo;, 1 for &ldquo;b&rdquo;, and so on:
       </p>
       <CodeBlock lang="js" code={lettersCode} />
       <p>
-        Two strings are anagrams exactly when their 26 counts are equal — a fixed 26-step comparison,
+        Two strings are anagrams (they use exactly the same letters, such as &ldquo;listen&rdquo; and
+        &ldquo;silent&rdquo;) exactly when their 26 counts are equal. That is a fixed 26-step comparison,
         however long the strings are.
       </p>
 
       <h2 id="map">Counting with a Map</h2>
       <p>
-        For anything else — large numbers, negative numbers, words — use the frequency map from Lesson 10.
-        It stores only the values that actually appear:
+        For anything else, such as large numbers, negative numbers or words, use the frequency map from
+        Lesson 10. A <strong>Map</strong> is a JavaScript collection that stores key and value pairs, and
+        it finds a value quickly from its key. A <strong>frequency map</strong> uses each item as the key
+        and its count as the value. It stores only the values that actually appear:
       </p>
       <CodeBlock lang="js" code={mapCode} />
       <div className="table-wrap">
@@ -224,29 +233,31 @@ export default function DsaLessonFifteenPage() {
 
       <h2 id="extremes">Highest and lowest frequency</h2>
       <p>
-        Once the counts exist, many questions become a simple pass over the map — like finding the
-        largest value in an array, but over the counts:
+        Once the counts exist, many questions become one simple pass over the map. It is like finding
+        the largest value in an array, but you look at the counts instead:
       </p>
       <CodeBlock lang="js" code={extremesCode} />
       <p>
-        Two passes: O(n) to count and O(k) to scan the k distinct values. Because the comparisons use
-        strict <code>&gt;</code> and <code>&lt;</code>, ties go to the value that was seen first.
+        There are two passes: O(n) to count, and O(k) to scan the k distinct values (the different
+        values). The comparisons use strict <code>&gt;</code> and <code>&lt;</code>, so when two values
+        have the same count, the one that was seen first wins.
       </p>
 
       <h2 id="inside">Inside a hash table</h2>
       <p>
-        How can a Map find a key without searching? A Map is a <strong>hash table</strong>. Inside, it is
-        an ordinary array of slots called <strong>buckets</strong>, plus a <strong>hash function</strong>{" "}
-        that turns any key into a bucket number:
+        How can a Map find a key without searching? A Map is built on a <strong>hash table</strong>. A hash
+        table is a data structure that stores key and value pairs in an array, and it finds a key fast.
+        Inside, it has an ordinary array of slots called <strong>buckets</strong>. It also has a{" "}
+        <strong>hash function</strong>, which is a function that turns any key into a bucket number:
       </p>
       <ol>
-        <li>To store a key, compute <code>hash(key)</code> — a number — and put the entry in that bucket.</li>
+        <li>To store a key, compute <code>hash(key)</code> (a number) and put the entry in that bucket.</li>
         <li>To look a key up, compute the same <code>hash(key)</code> and look only in that bucket.</li>
       </ol>
       <p>
-        The hash function does the same small amount of work whatever the table holds, so storing and
-        finding take O(1). Here is a very simple hash for text with 5 buckets: add up the character codes,
-        then take the remainder after dividing by 5.
+        The hash function does the same small amount of work however many entries the table holds. So
+        storing and finding take O(1). Here is a very simple hash for text with 5 buckets. Add up the
+        character codes, then take the remainder after dividing by 5.
       </p>
       <DryRun
         title="hash(key) = (sum of character codes) % 5"
@@ -262,38 +273,39 @@ export default function DsaLessonFifteenPage() {
 
       <h2 id="collisions">Collisions</h2>
       <p>
-        &ldquo;cat&rdquo; and &ldquo;act&rdquo; have the same letters, so the same sum, so the same bucket. Two
-        keys landing in one bucket is a <strong>collision</strong>, and it cannot be avoided completely — there
-        are far more possible keys than buckets. The usual fix, <strong>chaining</strong>, lets each bucket
-        hold a short list of entries. A lookup goes to the right bucket and checks the few entries there.
+        &ldquo;cat&rdquo; and &ldquo;act&rdquo; have the same letters, so they have the same sum and the same
+        bucket. When two keys land in one bucket, it is called a <strong>collision</strong>. You cannot
+        avoid collisions completely, because there are far more possible keys than buckets. The usual fix
+        is <strong>chaining</strong>: each bucket holds a short list of entries. A lookup goes to the
+        right bucket and checks the few entries there.
       </p>
       <CodeBlock lang="js" code={tableCode} />
       <p>Real hash tables keep collisions rare in two ways:</p>
       <ul>
-        <li><strong>A good hash function</strong> spreads keys evenly. Real ones mix the characters far more thoroughly than a plain sum, so anagrams do not collide.</li>
-        <li><strong>Resizing.</strong> When the table gets too full (for example, more entries than buckets), it creates a bigger bucket array and moves every entry. That occasional O(n) step happens so rarely that the <em>average</em> cost per operation stays O(1).</li>
+        <li><strong>A good hash function</strong> spreads keys evenly over the buckets. Real ones mix the characters much more than a plain sum does, so anagrams do not collide.</li>
+        <li><strong>Resizing.</strong> When the table gets too full (for example, more entries than buckets), it creates a bigger bucket array and moves every entry into it. This O(n) step is rare. So the <em>average</em> cost per operation stays O(1).</li>
       </ul>
       <Callout kind="note" label="Why we say “O(1) on average”">
         <p className="mb-0">
-          If every key landed in the same bucket, a lookup would check all n entries: O(n). With a good hash
-          function that practically never happens, so Map and Set operations are quoted as O(1) average —
-          the exception to the worst-case rule from Lesson 12.
+          If every key landed in the same bucket, a lookup would check all n entries, which is O(n). With a
+          good hash function this almost never happens. So Map and Set operations are quoted as O(1) on
+          average. This is the exception to the worst-case rule from Lesson 12.
         </p>
       </Callout>
 
       <h2 id="keys">Keys in JavaScript: what counts as “the same”</h2>
-      <p>Three details catch people in interviews:</p>
+      <p>Three details about keys surprise many people in interviews. The code shows each one:</p>
       <CodeBlock lang="js" code={keysCode} />
       <ul>
         <li><strong>Objects turn keys into text.</strong> <code>obj[1]</code> and <code>obj[&quot;1&quot;]</code> are the same property. A Map keeps them apart.</li>
-        <li><strong>Arrays and objects are compared by identity</strong>, not by contents. Two separate <code>[1, 2]</code> arrays are different keys.</li>
-        <li><strong>To use a pair or a list as a key</strong>, turn it into a string first: <code>{"`${r},${c}`"}</code> for a grid cell, or the sorted letters of a word for anagram groups (Lesson 27).</li>
+        <li><strong>Arrays and objects are compared by identity</strong>, not by contents. Identity means &ldquo;is it the very same object in memory?&rdquo;. Two separate <code>[1, 2]</code> arrays are different keys.</li>
+        <li><strong>To use a pair or a list as a key</strong>, turn it into a string first. Use <code>{"`${r},${c}`"}</code> for a grid cell (row r, column c). Use the sorted letters of a word to group anagrams (Lesson 27).</li>
       </ul>
 
       <h2 id="practice">Practice questions</h2>
       <p>
-        In each question, decide first: is the range of values small and fixed (use an array), or not (use
-        a Map)?
+        In each question, decide first whether the range of values is small and fixed (use an array) or
+        not (use a Map).
       </p>
 
       <Questions />
@@ -310,13 +322,13 @@ export default function DsaLessonFifteenPage() {
 
       <h2 id="next">Part 2 complete — what&apos;s next</h2>
       <p>
-        You can now read a problem, estimate its cost with Big-O, use basic maths, write recursion and count
-        with arrays and Maps. Those are the thinking tools for everything that follows.
+        You can now read a problem, estimate its cost with Big-O, use basic maths, write recursion, and count
+        with arrays and Maps. These are the thinking tools for everything that follows.
       </p>
       <p>
-        <strong>Part 3 — Sorting</strong> starts with three simple sorting algorithms. You will rarely write them
-        in an interview, but they show exactly what sorting does and why the faster ones in Lessons 17 and 18
-        are faster.
+        <strong>Part 3 — Sorting</strong> starts with three simple sorting algorithms. Sorting means putting
+        items in order. You will rarely write these three in an interview. But they show exactly what
+        sorting does, and they explain why the faster ones in Lessons 17 and 18 are faster.
       </p>
     </DsaLessonPage>
   );

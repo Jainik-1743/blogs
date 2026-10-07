@@ -47,7 +47,7 @@ function mergeTrace() {
   const t = tracer();
   const a = [1, 4, 7];
   const b = [2, 3, 9];
-  t.step(1, "start", "merge([1, 4, 7], [2, 3, 9])", "Both inputs are already sorted. That is the whole trick.", { a, b });
+  t.step(1, "start", "merge([1, 4, 7], [2, 3, 9])", "Both inputs are already sorted. That is the whole idea.", { a, b });
   const out: number[] = [];
   t.step(2, "start", "out = []", "The merged result, built from left to right.", { a, b, out: [...out] }, "out");
   let i = 0, j = 0;
@@ -55,7 +55,7 @@ function mergeTrace() {
   while (i < a.length && j < b.length) {
     t.step(4, "check", `Both have items left (i = ${i}, j = ${j})`, "Compare the two front items.", { a, b, out: [...out], i, j });
     if (a[i] <= b[j]) {
-      t.step(5, "check", `a[${i}] = ${a[i]} <= b[${j}] = ${b[j]}? yes`, `${a[i]} is the smallest item not yet used — nothing behind it in either array can be smaller.`, { a, b, out: [...out], i, j });
+      t.step(5, "check", `a[${i}] = ${a[i]} <= b[${j}] = ${b[j]}? yes`, `${a[i]} is the smallest item not yet used. Nothing behind it in either array can be smaller.`, { a, b, out: [...out], i, j });
       out.push(a[i++]);
       t.step(5, "update", `out.push(${out[out.length - 1]}), i = ${i}`, "Take it and move the first finger.", { a, b, out: [...out], i, j }, "out");
     } else {
@@ -64,7 +64,7 @@ function mergeTrace() {
       t.step(6, "update", `out.push(${out[out.length - 1]}), j = ${j}`, "Take it and move the second finger.", { a, b, out: [...out], i, j }, "out");
     }
   }
-  t.step(4, "stop", i === a.length ? "a is used up" : "b is used up", "One array is empty, so everything left in the other is larger than all of out — copy it across.", { a, b, out: [...out], i, j });
+  t.step(4, "stop", i === a.length ? "a is used up" : "b is used up", "One array has no items left. Everything still in the other array is larger than all the items in out, so copy it across.", { a, b, out: [...out], i, j });
   while (i < a.length) out.push(a[i++]);
   while (j < b.length) out.push(b[j++]);
   t.step(9, "update", "copy the leftovers", "Here only 9 was left.", { a, b, out: [...out], i, j }, "out");
@@ -131,24 +131,27 @@ export default function DsaLessonSeventeenPage() {
       <h2 id="concept">Divide and conquer</h2>
       <p>
         Sorting 1,000 cards is hard. Sorting two piles of 500 is easier, and sorting a pile of one card needs
-        no work at all. <strong>Divide and conquer</strong> uses this: split the problem into smaller copies,
-        solve each copy (by recursion, Lesson 14), and combine the answers.
+        no work at all. <strong>Divide and conquer</strong> is a method of solving a problem that uses this
+        idea. It splits the problem into smaller copies of itself, solves each copy (by recursion, Lesson
+        14), and then combines the answers. <strong>Merge sort</strong> is a sorting algorithm that uses
+        divide and conquer.
       </p>
       <p>For sorting, that becomes three steps:</p>
       <ol>
         <li><strong>Divide:</strong> cut the array into two halves.</li>
-        <li><strong>Conquer:</strong> sort each half — recursively, with the same method.</li>
+        <li><strong>Conquer:</strong> sort each half, using recursion (the same method again).</li>
         <li><strong>Combine:</strong> merge the two sorted halves into one sorted array.</li>
       </ol>
       <p>
-        Steps 1 and 2 are almost free to write. All the real work is in step 3, so we learn it first.
+        Steps 1 and 2 are very short to write. All the real work is in step 3, so we learn it first.
       </p>
 
       <h2 id="merge">Merging two sorted arrays</h2>
       <p>
-        Given two arrays that are <em>already sorted</em>, produce one sorted array. Put a finger at the
-        start of each. The smaller of the two front items is the smallest item overall, so take it and move
-        that finger. Repeat until one array runs out, then copy the rest of the other.
+        <strong>Merging</strong> means joining two arrays that are <em>already sorted</em> into one sorted
+        array. Put a finger at the start of each array. The smaller of the two front items is the smallest
+        item overall, so take it and move that finger forward. Repeat until one array runs out. Then copy
+        the rest of the other array.
       </p>
 
       <h2 id="trace">Traced: merge([1, 4, 7], [2, 3, 9])</h2>
@@ -160,19 +163,22 @@ export default function DsaLessonSeventeenPage() {
       <p>
         Every step places one item in <code>out</code>, so merging arrays of lengths n and m takes{" "}
         <strong>O(n + m)</strong> time. This two-finger walk is also the start of the two-pointer pattern
-        (Lesson 21).
+        (using two indexes that move through the data), which you will meet in Lesson 21.
       </p>
 
       <h2 id="sort">Merge sort: split, sort, merge</h2>
       <CodeBlock lang="js" code={sortCode} />
       <p>
-        Read <code>mergeSort</code> using the recursion rule from Lesson 14: <em>trust</em> that the two
+        Read <code>mergeSort</code> using the recursion rule from Lesson 14. <em>Trust</em> that the two
         recursive calls return sorted halves. Then <code>merge</code> combines them. The base case is an
-        array of 0 or 1 items, which is sorted already.
+        array of 0 or 1 items, because such an array is already sorted.
       </p>
 
       <h2 id="tree">The recursion tree</h2>
-      <p>Here is every call for <code>[38, 27, 43, 3, 9, 82, 10]</code>, one level per row:</p>
+      <p>
+        A recursion tree is a picture of all the recursive calls, with the biggest call at the top. Here
+        is every call for <code>[38, 27, 43, 3, 9, 82, 10]</code>, one level per row:
+      </p>
       <DryRun
         title="splitting down, then merging back up"
         cols={["Level", "Pieces"]}
@@ -186,25 +192,26 @@ export default function DsaLessonSeventeenPage() {
           ["0 (merged)", "[3, 9, 10, 27, 38, 43, 82]"],
         ]}
         highlight={6}
-        note="On the way down nothing is sorted — the array is only cut. All sorting happens in the merges on the way back up."
+        note="On the way down nothing is sorted. The array is only cut into pieces. All the sorting happens in the merges on the way back up."
       />
 
       <h2 id="cost">Why it is O(n log n)</h2>
       <p>Look at the tree level by level:</p>
       <ul>
         <li>
-          <strong>Work per level:</strong> the merges on one level together touch every item once — the pieces
-          on a level add up to the whole array. So each level costs O(n).
+          <strong>Work per level:</strong> the merges on one level together touch every item once, because the
+          pieces on a level add up to the whole array. So each level costs O(n).
         </li>
         <li>
-          <strong>Number of levels:</strong> each level halves the piece size, from n down to 1. That is the
-          halving loop from Lesson 12: about log₂ n levels.
+          <strong>Number of levels:</strong> each level halves the piece size, from n down to 1. This is the
+          halving loop from Lesson 12. It gives about log₂ n levels (log₂ n is how many times you can halve
+          n before you reach 1).
         </li>
       </ul>
       <p>
-        n work on each of log n levels gives <strong>O(n log n)</strong> — in the best, average and worst case,
-        because merge sort always splits the same way regardless of the values. For n = 1,000,000 that is about
-        20 million steps instead of the 10<sup>12</sup> of an O(n²) sort.
+        n work on each of log n levels gives <strong>O(n log n)</strong>. This is true in the best, average
+        and worst case, because merge sort always splits the array in the same way, whatever the values are.
+        For n = 1,000,000 that is about 20 million steps. An O(n²) sort needs about 10<sup>12</sup>.
       </p>
       <DryRun
         title="cost of merge sort on n = 8"
@@ -219,38 +226,41 @@ export default function DsaLessonSeventeenPage() {
 
       <h2 id="space">Extra space and stability</h2>
       <p>
-        Merge sort is not in place: <code>merge</code> builds a new array, so it needs <strong>O(n) extra
-        space</strong>, plus O(log n) for the recursion depth. That is its main disadvantage compared with quick
-        sort (Lesson 18).
+        Merge sort is not in place (Lesson 16 explained in-place sorts). <code>merge</code> builds a new
+        array, so merge sort needs <strong>O(n) extra space</strong>, plus O(log n) for the recursion depth.
+        This is its main disadvantage compared with quick sort (Lesson 18).
       </p>
       <p>
-        It is <strong>stable</strong>, thanks to one character: <code>a[i] &lt;= b[j]</code>. When the two front
-        items are equal, the one from the left half — which came first in the original array — is taken first.
-        Writing <code>&lt;</code> instead would still sort correctly but would lose stability.
+        It is <strong>stable</strong> (equal items keep their original order), thanks to one character:{" "}
+        <code>a[i] &lt;= b[j]</code>. When the two front items are equal, the item from the left half is
+        taken first, because it came first in the original array. If you wrote <code>&lt;</code> instead,
+        the array would still be sorted correctly, but the sort would no longer be stable.
       </p>
       <Callout kind="note" label="Where you meet merge sort in practice">
         <p className="mb-0">
-          JavaScript&apos;s <code>sort</code> (TimSort) is a merge sort that first finds already-sorted runs in the
-          data. Merge sort is also the standard way to sort a linked list (Lesson 37), because merging needs no
-          random access.
+          JavaScript&apos;s <code>sort</code> uses TimSort. TimSort is a mix of merge sort and insertion
+          sort. It first finds parts of the data that are already sorted (called runs) and then merges them.
+          Merge sort is also the standard way to sort a linked list (Lesson 37). This is because merging
+          needs no random access (jumping straight to the item at any index).
         </p>
       </Callout>
 
       <h2 id="inversions">Counting inversions (a preview)</h2>
       <p>
-        Lesson 16 counted <em>inversions</em> — pairs i &lt; j with arr[i] &gt; arr[j] — in O(n²). Merge sort can
-        count them almost for free. During a merge, when an item from the <strong>right</strong> half is taken,
-        it is smaller than every item still waiting in the left half — and each of those left items came
-        before it in the original array. So that step finds <code>left.length - i</code> inversions at once.
+        Lesson 16 counted <em>inversions</em> (pairs i &lt; j with arr[i] &gt; arr[j]) in O(n²). Merge sort
+        can count them with almost no extra work. During a merge, suppose an item from the{" "}
+        <strong>right</strong> half is taken. It is smaller than every item still waiting in the left
+        half. And each of those left items came before it in the original array. So that one step finds{" "}
+        <code>left.length - i</code> inversions at once.
       </p>
       <CodeBlock lang="js" code={inversionCode} />
       <p>
-        Same O(n log n) as merge sort. Changing the &ldquo;combine&rdquo; step to collect extra information is a
-        common divide-and-conquer technique.
+        This has the same O(n log n) time as merge sort. Changing the &ldquo;combine&rdquo; step so that it
+        also collects extra information is a common divide-and-conquer technique.
       </p>
 
       <h2 id="practice">Practice questions</h2>
-      <p>Most of these use only the <code>merge</code> step — it is more useful in interviews than the full sort.</p>
+      <p>Most of these use only the <code>merge</code> step. In interviews, it is more useful than the full sort.</p>
 
       <Questions />
 
@@ -266,9 +276,10 @@ export default function DsaLessonSeventeenPage() {
 
       <h2 id="next">What&apos;s next</h2>
       <p>
-        Merge sort does its work while <em>combining</em>. Quick sort does the opposite: it does its work while{" "}
-        <em>splitting</em>, and needs no merge at all. Lesson 18 covers quick sort, quickselect, and how to use
-        JavaScript&apos;s <code>sort</code> correctly — including its famous trap with numbers.
+        Merge sort does its work while <em>combining</em>. Quick sort does the opposite. It does its work
+        while <em>splitting</em>, and it needs no merge at all. Lesson 18 covers quick sort and quickselect.
+        It also shows how to use JavaScript&apos;s <code>sort</code> correctly, including its well-known
+        trap with numbers.
       </p>
     </DsaLessonPage>
   );

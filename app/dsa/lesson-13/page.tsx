@@ -28,7 +28,7 @@ const outline = [
   { id: "mod", label: "Remainders and modular arithmetic" },
   { id: "power", label: "Fast exponentiation" },
   { id: "summary", label: "The costs side by side" },
-  { id: "practice", label: "Practice questions (8)" },
+  { id: "practice", label: "Practice questions (9)" },
   { id: "recall", label: "Make it stick" },
   { id: "next", label: "What's next" },
 ];
@@ -173,37 +173,43 @@ export default function DsaLessonThirteenPage() {
     <DsaLessonPage lesson={lesson} outline={outline}>
       <h2 id="concept">A little maths, a lot less work</h2>
       <p>
-        You do not need advanced maths for coding interviews. You need about six facts, and each one
-        turns a slow loop into a fast one. Lesson 12 gave you the words to measure that: checking every
-        number up to n is O(n), and with the right fact the same job becomes O(√n) or O(log n).
+        You do not need advanced maths for coding interviews. You need about six small facts. Each one
+        turns a slow loop into a fast loop. Lesson 12 gave you the words to measure this. Checking every
+        number up to n is O(n) (the work grows in step with n). With the right fact, the same job
+        becomes O(√n) or O(log n), which is much less work.
       </p>
       <p>
-        You met some of these ideas briefly in Lessons 4, 5 and 7 — the prime check, the GCD loop,
-        the sieve and fast power. This lesson explains <em>why</em> they work and what they cost, so you
-        can rebuild them from understanding instead of memory.
+        You met some of these ideas briefly in Lessons 4, 5 and 7: the prime check, the GCD loop,
+        the sieve and fast power. This lesson explains <em>why</em> they work and what they cost. Then
+        you can rebuild them from understanding, not from memory.
       </p>
 
       <h2 id="digits">Digit problems revisited</h2>
       <p>
-        Lesson 5&apos;s digit loop takes a number apart with <code>n % 10</code> (the last digit) and{" "}
-        <code>Math.floor(n / 10)</code> (remove it). Two new observations:
+        Lesson 5&apos;s digit loop takes a number apart. The <strong>remainder operator</strong>{" "}
+        <code>%</code> gives what is left after a division, so <code>n % 10</code> is the last digit
+        (for example, 4072 % 10 is 2). <code>Math.floor(n / 10)</code> divides by 10 and drops the
+        decimal part, which removes that last digit. Two new observations:
       </p>
       <ul>
         <li>
-          <strong>It is O(log n).</strong> Each pass removes one digit, and a number n has about log₁₀ n
-          digits. Even n = 10<sup>18</sup> needs only 19 passes.
+          <strong>It is O(log n).</strong> Each pass removes one digit. A number n has about log₁₀ n
+          digits (log₁₀ n means: how many times you can divide n by 10). Even n = 10<sup>18</sup> needs
+          only 19 passes.
         </li>
         <li>
           <strong>10 is not special.</strong> Replace 10 with 2 and the same loop gives the binary
-          digits. This is how you will read bits in Lesson 58.
+          digits. Binary is the way computers write numbers, using only 0 and 1. A single 0 or 1 is
+          called a bit. You will read bits this way in Lesson 58.
         </li>
       </ul>
       <CodeBlock lang="js" code={digitTemplate} />
 
       <h2 id="divisors">All divisors in √n steps</h2>
       <p>
-        A <strong>divisor</strong> of n divides it with remainder 0. The obvious way to find them all is
-        to try every number from 1 to n — O(n). But divisors come in <strong>pairs</strong>: if{" "}
+        A <strong>divisor</strong> of n is a whole number that divides n with remainder 0. For example, the
+        divisors of 6 are 1, 2, 3 and 6. The obvious way to find them all is to try every number from 1
+        to n. That is O(n). But divisors come in <strong>pairs</strong>: if{" "}
         <code>i</code> divides n, so does <code>n / i</code>.
       </p>
       <DryRun
@@ -221,25 +227,30 @@ export default function DsaLessonThirteenPage() {
       />
       <CodeBlock lang="js" code={divisorsCode} />
       <p>
-        The loop condition <code>i * i &lt;= n</code> means &ldquo;i ≤ √n&rdquo; without using{" "}
+        The √n (square root of n) is the number that gives n when you multiply it by itself. For example,
+        √36 = 6. The loop condition <code>i * i &lt;= n</code> means &ldquo;i ≤ √n&rdquo;. It avoids{" "}
         <code>Math.sqrt</code> and its rounding. For n = 10<sup>12</sup>, that is 10<sup>6</sup> passes
-        instead of 10<sup>12</sup> — the difference between instant and several hours.
+        instead of 10<sup>12</sup>. This is the difference between an instant answer and several hours.
       </p>
 
       <h2 id="primes">Checking for a prime</h2>
       <p>
-        A <strong>prime number</strong> is greater than 1 and has no divisors except 1 and itself. The
-        pairs idea gives the fast check directly: if n has any divisor other than 1 and n, the
-        smaller one of its pair is at most √n. So if nothing up to √n divides n, nothing does.
+        A <strong>prime number</strong> is a whole number greater than 1 that has no divisors except 1 and
+        itself. For example, 7 is prime, and 8 is not (2 divides it). The pairs idea gives a fast check.
+        If n has any divisor other than 1 and n, the smaller number of its pair is at most √n. So if
+        nothing up to √n divides n, then nothing does.
       </p>
       <CodeBlock lang="js" code={isPrimeCode} />
-      <p>Time O(√n), space O(1). Remember the edge cases: 0 and 1 are not prime, and 2 is the only even prime.</p>
+      <p>Time O(√n), space O(1) (it needs no extra memory). Remember the edge cases: 0 and 1 are not prime, and 2 is the only even prime.</p>
 
       <h2 id="sieve">The Sieve of Eratosthenes</h2>
       <p>
-        To find <em>every</em> prime up to n, checking each number separately costs about n × √n. The
-        sieve does better by working the other way round: instead of asking &ldquo;is this number
-        prime?&rdquo;, it crosses out everything that is <em>not</em>.
+        The <strong>Sieve of Eratosthenes</strong> is an algorithm that finds all prime numbers up to n. To
+        find <em>every</em> prime up to n, checking each number separately costs about n × √n. The
+        sieve does better by working the other way round. It does not ask &ldquo;is this number
+        prime?&rdquo;. Instead, it crosses out every number that is <em>not</em> prime, like a
+        sieve (a kitchen strainer) that lets only the primes through. A <strong>multiple</strong> of i is
+        any number you get by multiplying i by a whole number: 3, 6, 9, 12 are multiples of 3.
       </p>
       <ol>
         <li>Start with every number from 2 to n marked as prime.</li>
@@ -259,30 +270,33 @@ export default function DsaLessonThirteenPage() {
         note="Left unmarked: 2, 3, 5, 7, 11, 13, 17, 19, 23, 29."
       />
       <p>
-        Why start crossing at <code>i * i</code>? Smaller multiples like 2 × 5 and 3 × 5 were already
-        crossed out by 2 and 3. And why stop at √n? Any non-prime up to n has a divisor at most √n, so it
-        has already been crossed out.
+        Why start crossing at <code>i * i</code>? Smaller multiples of i, like 2 × 5 and 3 × 5 (when i is
+        5), were already crossed out by 2 and 3. And why stop at √n? Any non-prime number up to n has a
+        divisor that is at most √n, so it has already been crossed out.
       </p>
       <CodeBlock lang="js" code={sieveCode} />
       <p>
-        The sieve runs in about <strong>O(n log log n)</strong> time — so close to O(n) that you can
-        treat it as linear — and uses O(n) space for the array. It is the standard answer whenever a
+        The sieve runs in about <strong>O(n log log n)</strong> time. This is so close to O(n) that you can
+        treat it as linear. It uses O(n) space for the array. It is the standard answer whenever a
         problem needs many primes, for example &ldquo;count the primes below 5,000,000&rdquo;.
       </p>
 
       <h2 id="gcd">GCD with Euclid&apos;s algorithm</h2>
       <p>
         The <strong>GCD</strong> (greatest common divisor) of two numbers is the largest number that
-        divides both: gcd(12, 18) = 6. Trying every candidate from the smaller number downwards works, but
-        is O(min(a, b)). Euclid found a much faster way more than 2,000 years ago:
+        divides both: gcd(12, 18) = 6. You can try every candidate from the smaller number downwards. That
+        works, but it is O(min(a, b)). Euclid (a Greek mathematician) found a much faster way more than
+        2,000 years ago. <strong>Euclid&apos;s algorithm</strong> finds the GCD by replacing the pair
+        (a, b) with the smaller pair (b, a % b) again and again:
       </p>
       <Callout kind="ok" label="Euclid's rule">
         <p className="mb-1">
           <code>gcd(a, b) = gcd(b, a % b)</code>, and <code>gcd(a, 0) = a</code>.
         </p>
         <p className="mb-0">
-          Why: any number that divides both a and b also divides a − b, a − 2b, … and so the remainder
-          a % b. So the pair (b, a % b) has exactly the same common divisors as (a, b) — but smaller numbers.
+          Why: any number that divides both a and b also divides a − b, a − 2b, and so on. In the end it
+          divides the remainder a % b. So the pair (b, a % b) has exactly the same common divisors as
+          (a, b), but the numbers are smaller.
         </p>
       </Callout>
 
@@ -293,63 +307,69 @@ export default function DsaLessonThirteenPage() {
         caption="Each pass replaces (a, b) with (b, a % b). The numbers shrink fast: the remainder is always smaller than b."
       />
       <p>
-        The remainder shrinks at least by half every two steps, so Euclid&apos;s algorithm is{" "}
+        The remainder becomes at most half as big every two steps. So Euclid&apos;s algorithm is{" "}
         <strong>O(log min(a, b))</strong>. For numbers around a billion, that is a few dozen passes at
         most.
       </p>
 
       <h2 id="lcm">LCM from the GCD</h2>
       <p>
-        The <strong>LCM</strong> (least common multiple) is the smallest number both a and b divide:
-        lcm(4, 6) = 12. It comes straight from the GCD, because <code>gcd(a, b) × lcm(a, b) = a × b</code>.
+        The <strong>LCM</strong> (least common multiple) is the smallest positive number that both a and b
+        divide: lcm(4, 6) = 12. It comes straight from the GCD, because{" "}
+        <code>gcd(a, b) × lcm(a, b) = a × b</code>. So lcm(a, b) = a × b / gcd(a, b).
       </p>
       <CodeBlock lang="js" code={lcmCode} />
       <p>
-        For more than two numbers, apply the function one pair at a time:{" "}
-        <code>gcd(a, b, c) = gcd(gcd(a, b), c)</code>, and the same for the LCM. In JavaScript that is a
-        single <code>reduce</code>.
+        For more than two numbers, apply the function to one pair at a time:{" "}
+        <code>gcd(a, b, c) = gcd(gcd(a, b), c)</code>, and the same for the LCM. In JavaScript you can do
+        this with one <code>reduce</code> (an array method that folds a list into one value).
       </p>
 
       <h2 id="mod">Remainders and modular arithmetic</h2>
       <p>
-        Many problems count something enormous — the number of paths in a grid, or arrangements of
-        a string — and say &ldquo;return the answer modulo 10<sup>9</sup> + 7&rdquo;. That means: return
-        only the remainder after dividing by 1,000,000,007. Working only with remainders is called{" "}
-        <strong>modular arithmetic</strong>, and it relies on these rules:
+        Many problems count something enormous, such as the number of paths in a grid or the number of
+        arrangements of a string. They then say &ldquo;return the answer modulo 10<sup>9</sup> + 7&rdquo;.
+        The <strong>remainder</strong> is what is left after a division: 17 divided by 5 is 3 with
+        remainder 2. <strong>Modulo</strong> means &ldquo;give me that remainder&rdquo;. So the problem
+        wants only the remainder after dividing by 1,000,000,007. Working only with remainders is called{" "}
+        <strong>modular arithmetic</strong>. It follows these rules:
       </p>
       <CodeBlock lang="text" code={modRules} />
       <p>
         So you can take <code>% M</code> after <em>every</em> addition or multiplication, and the numbers
-        never grow large. There are two JavaScript-specific details to watch:
+        never grow large. Watch two details that are specific to JavaScript:
       </p>
-      <p><strong>1. Negative numbers.</strong> The <code>%</code> operator keeps the sign of the left side:</p>
+      <p><strong>1. Negative numbers.</strong> In JavaScript, the <code>%</code> operator gives a result with the same sign as the left number. So a negative number gives a negative remainder:</p>
       <CodeBlock lang="js" code={negMod} />
       <p>
-        <strong>2. Multiplying two large remainders.</strong> JavaScript numbers are exact only up to
+        <strong>2. Multiplying two large remainders.</strong> A normal JavaScript number is stored as a
+        64-bit decimal (floating-point) value. It is exact for whole numbers only up to
         2<sup>53</sup> ≈ 9 × 10<sup>15</sup>. Two remainders near 10<sup>9</sup> multiply to about
-        10<sup>18</sup>, which is past that limit — the result silently loses its last digits. Use{" "}
-        <strong>BigInt</strong> (numbers written with an <code>n</code> at the end) for those
-        multiplications:
+        10<sup>18</sup>, which is past that limit. The result silently loses its last digits. Use{" "}
+        <strong>BigInt</strong> for those multiplications. BigInt is a JavaScript type for whole numbers
+        of any size, and you write one with an <code>n</code> at the end, like <code>12n</code>:
       </p>
       <CodeBlock lang="js" code={bigMod} />
       <Callout kind="warn" label="Silent and wrong">
         <p className="mb-0">
           The first answer is off by 5, and no error is shown. Addition is safe (two values below 10<sup>9</sup>{" "}
-          add to about 2 × 10<sup>9</sup>), but any <em>multiplication</em> under a large modulus in
+          add to about 2 × 10<sup>9</sup>). But any <em>multiplication</em> under a large modulus in
           JavaScript should use BigInt.
         </p>
       </Callout>
 
       <h2 id="power">Fast exponentiation</h2>
       <p>
-        Computing x<sup>n</sup> by multiplying n times is O(n). Fast exponentiation uses the fact that
-        squaring doubles the exponent: x → x² → x⁴ → x⁸. Any n can be written as a sum of these powers
-        of two — its binary digits. For 13 = 8 + 4 + 1 (binary 1101):
+        x<sup>n</sup> means x multiplied by itself n times (the exponent n says how many). Doing that with
+        n multiplications is O(n). <strong>Fast exponentiation</strong> (also called exponentiation by
+        squaring) is a method that finds x<sup>n</sup> with only about log n multiplications. It uses
+        the fact that squaring doubles the exponent: x → x² → x⁴ → x⁸. Any n can be written as a sum of
+        these powers of two. Those are its binary digits. For 13 = 8 + 4 + 1 (binary 1101):
       </p>
       <p className="text-center font-mono">3¹³ = 3⁸ × 3⁴ × 3¹</p>
       <p>
-        So walk through the bits of n with the digit loop (base 2). Keep squaring x; whenever the current
-        bit is 1, multiply it into the result.
+        So walk through the bits of n with the digit loop (base 2). Keep squaring x. Whenever the current
+        bit is 1, multiply the current x into the result.
       </p>
       <CodeBlock lang="js" code={powerCode} />
       <DryRun
@@ -365,7 +385,7 @@ export default function DsaLessonThirteenPage() {
         note="Four passes instead of thirteen multiplications. For n = 10⁹ it is about 30 passes instead of a billion: O(log n)."
       />
       <p>
-        In real problems, fast power is almost always combined with a modulus — for example
+        In real problems, fast power is almost always used together with a modulus, for example
         (2<sup>1,000,000,000</sup>) % (10<sup>9</sup> + 7). Practice question 7 builds that version, with
         BigInt.
       </p>
@@ -394,8 +414,9 @@ export default function DsaLessonThirteenPage() {
 
       <h2 id="practice">Practice questions</h2>
       <p>
-        Before each solution, read the constraints and use the table from Lesson 12 to decide which
-        growth rate is fast enough. Most of these questions are about choosing the right fact.
+        Before each solution, read the constraints (the limits on the input size) and use the table from
+        Lesson 12 to decide which growth rate is fast enough. Most of these questions are about choosing
+        the right fact.
       </p>
 
       <Questions />
@@ -413,10 +434,10 @@ export default function DsaLessonThirteenPage() {
 
       <h2 id="next">What&apos;s next</h2>
       <p>
-        Several ideas in this lesson have a natural recursive form: gcd(a, b) = gcd(b, a % b) is a function
+        Several ideas in this lesson have a natural recursive form. gcd(a, b) = gcd(b, a % b) is a rule
         defined using itself, and so is x<sup>n</sup> = (x<sup>n/2</sup>)². Lesson 14 introduces{" "}
-        <strong>recursion</strong> — functions that call themselves — and the call stack that makes them
-        work.
+        <strong>recursion</strong>, which means a function that calls itself. It also explains the call
+        stack, the list of active function calls that makes recursion work.
       </p>
     </DsaLessonPage>
   );
