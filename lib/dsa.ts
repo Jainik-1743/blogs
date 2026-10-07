@@ -137,122 +137,143 @@ const ROWS: Row[] = [
   {
     title: "How to Read a Problem",
     summary: "Input, output, constraints, examples and edge cases — and solving it by hand before writing any code.",
+    readTime: "20 min",
     topics: ["Inputs, outputs and constraints", "Working through the examples by hand", "Listing edge cases", "Brute force first, then improve", "A step-by-step method for every problem", "Explaining your thinking out loud"],
+    leetcode: ["268. Missing Number", "1464. Maximum Product of Two Elements in an Array", "414. Third Maximum Number", "389. Find the Difference", "1512. Number of Good Pairs"],
   },
   {
     title: "Big-O: Counting the Steps",
     summary: "How many times does the loop run? Reading time and space complexity from code, and from the constraints of a problem.",
+    readTime: "24 min",
     topics: ["Why we count steps, not seconds", "O(1), O(n), O(n²), O(log n), O(n log n)", "Dropping constants and smaller terms", "Space complexity", "Best, average and worst case", "Reading the constraints to choose an approach"],
+    leetcode: ["1346. Check If N and Its Double Exist", "349. Intersection of Two Arrays", "448. Find All Numbers Disappeared in an Array", "1295. Find Numbers with Even Number of Digits"],
   },
   {
     title: "Basic Maths for DSA",
     summary: "Digits, divisors, primes, the sieve, GCD and LCM, and fast powers.",
+    readTime: "26 min",
     topics: ["Digit problems revisited", "All divisors in √n steps", "Prime check and the Sieve of Eratosthenes", "GCD and LCM with Euclid", "Remainders and modular arithmetic", "Fast exponentiation"],
-    leetcode: ["204. Count Primes", "1979. Find Greatest Common Divisor of Array", "50. Pow(x, n)", "202. Happy Number"],
+    leetcode: ["1979. Find Greatest Common Divisor of Array", "1952. Three Divisors", "202. Happy Number", "263. Ugly Number", "204. Count Primes", "2523. Closest Prime Numbers in Range", "50. Pow(x, n)"],
   },
   {
     title: "Recursion Basics",
     summary: "A function that calls itself, a base case that stops it, and the call stack underneath.",
+    readTime: "24 min",
     topics: ["Base case and recursive case", "The call stack during recursion", "Printing 1 to N and N to 1", "Sum and factorial", "Recursion on arrays and strings", "Multiple recursive calls: Fibonacci", "Stack overflow and recursion vs loops"],
     leetcode: ["509. Fibonacci Number", "344. Reverse String", "231. Power of Two"],
   },
   {
     title: "Basic Hashing",
     summary: "Counting with arrays and maps, how a hash table works inside, and why lookup becomes instant.",
+    readTime: "24 min",
     topics: ["Counting with an array (fixed range, 26 letters)", "Counting with a Map (any values)", "Answering frequency queries", "Highest and lowest frequency", "How a hash table works: hash function, buckets, collisions"],
-    leetcode: ["1512. Number of Good Pairs", "1365. How Many Numbers Are Smaller Than the Current Number", "451. Sort Characters By Frequency"],
+    leetcode: ["1512. Number of Good Pairs", "1365. How Many Numbers Are Smaller Than the Current Number", "2351. First Letter to Appear Twice", "1941. Check if All Characters Have Equal Number of Occurrences", "451. Sort Characters By Frequency", "706. Design HashMap"],
   },
 
   // ── Part 3 — Sorting ───────────────────────────────────────────────────
   {
     title: "Selection, Bubble and Insertion Sort",
     summary: "Three simple sorts that show what sorting really does.",
+    readTime: "22 min",
     topics: ["What sorting means, and stability", "Selection sort", "Bubble sort and the early-exit improvement", "Insertion sort and nearly sorted data", "Comparing the three"],
-    leetcode: ["912. Sort an Array", "1051. Height Checker"],
+    leetcode: ["1051. Height Checker", "912. Sort an Array"],
   },
   {
     title: "Merge Sort",
     summary: "Split, sort the halves, merge — divide and conquer.",
+    readTime: "24 min",
     topics: ["Divide and conquer", "Merging two sorted arrays", "The recursion tree", "Why it is O(n log n)", "Extra space and stability", "Counting inversions (preview)"],
-    leetcode: ["88. Merge Sorted Array", "912. Sort an Array"],
+    leetcode: ["88. Merge Sorted Array", "977. Squares of a Sorted Array", "350. Intersection of Two Arrays II", "912. Sort an Array"],
   },
   {
     title: "Quick Sort, and When to Just Use .sort()",
     summary: "Partitioning around a pivot, quickselect, and sorting numbers and objects correctly in JavaScript.",
+    readTime: "26 min",
     topics: ["Partitioning around a pivot", "Quick sort and pivot choice", "Worst case and how to avoid it", "Quickselect for the k-th element", "JavaScript's .sort(): the default text order and comparators", "Sorting objects by a key"],
-    leetcode: ["75. Sort Colors", "215. Kth Largest Element in an Array", "912. Sort an Array"],
+    leetcode: ["215. Kth Largest Element in an Array", "75. Sort Colors", "1636. Sort Array by Increasing Frequency", "2418. Sort the People", "179. Largest Number", "2161. Partition Array According to Given Pivot", "912. Sort an Array"],
   },
 
   // ── Part 4 — Arrays and the first patterns ─────────────────────────────
   {
     title: "Array Traversal Problems",
     summary: "Largest and second largest, rotating, moving zeros, missing numbers and more — the problems every array round starts with.",
+    readTime: "22 min",
     topics: ["Largest and second largest", "Checking if an array is sorted", "Removing duplicates in place", "Rotating by k (the reversal method)", "Moving zeros", "Missing number and single number", "Union and intersection of sorted arrays"],
-    leetcode: ["26. Remove Duplicates from Sorted Array", "189. Rotate Array", "283. Move Zeroes", "268. Missing Number", "136. Single Number"],
+    leetcode: ["26. Remove Duplicates from Sorted Array", "27. Remove Element", "283. Move Zeroes", "189. Rotate Array", "136. Single Number", "1752. Check if Array Is Sorted and Rotated", "268. Missing Number"],
   },
   {
     title: "Prefix Sum",
     summary: "Pre-compute running totals so that any range sum is instant.",
+    readTime: "24 min",
     topics: ["Running sums", "Range sum queries", "Pivot index", "Prefix and suffix products", "Subarray sum equals k (prefix sum + Map)"],
-    leetcode: ["1480. Running Sum of 1d Array", "303. Range Sum Query - Immutable", "724. Find Pivot Index", "238. Product of Array Except Self", "560. Subarray Sum Equals K"],
+    leetcode: ["1480. Running Sum of 1d Array", "303. Range Sum Query - Immutable", "724. Find Pivot Index", "238. Product of Array Except Self", "560. Subarray Sum Equals K", "525. Contiguous Array", "974. Subarray Sums Divisible by K"],
   },
   {
     title: "Two Pointers",
     summary: "Two indices moving towards each other or in the same direction — pair sums, reversing, removing duplicates, 3Sum.",
+    readTime: "26 min",
     topics: ["Pointers from both ends", "Pair sum in a sorted array", "Same-direction pointers (read and write)", "3Sum", "Container with most water", "Three-way partition (Dutch national flag)"],
-    leetcode: ["167. Two Sum II - Input Array Is Sorted", "15. 3Sum", "11. Container With Most Water", "75. Sort Colors"],
+    leetcode: ["167. Two Sum II - Input Array Is Sorted", "345. Reverse Vowels of a String", "392. Is Subsequence", "15. 3Sum", "16. 3Sum Closest", "11. Container With Most Water", "881. Boats to Save People", "75. Sort Colors"],
   },
   {
     title: "Sliding Window: Fixed Size",
     summary: "Reuse the last window's work instead of recomputing it.",
+    readTime: "20 min",
     topics: ["From brute force to a sliding window", "Maximum sum of k elements", "Averages of every window", "Counting with a window (vowels, matches)"],
-    leetcode: ["643. Maximum Average Subarray I", "1456. Maximum Number of Vowels in a Substring of Given Length"],
+    leetcode: ["643. Maximum Average Subarray I", "1456. Maximum Number of Vowels in a Substring of Given Length", "1343. Number of Sub-arrays of Size K and Average Greater than or Equal to Threshold", "2090. K Radius Subarray Averages", "1052. Grumpy Bookstore Owner", "219. Contains Duplicate II"],
   },
   {
     title: "Sliding Window: Variable Size",
     summary: "Grow and shrink a window to find the longest or shortest answer.",
+    readTime: "26 min",
     topics: ["The grow-and-shrink template", "Longest window with a condition", "Shortest window with a condition", "“At most k” problems"],
-    leetcode: ["209. Minimum Size Subarray Sum", "3. Longest Substring Without Repeating Characters", "1004. Max Consecutive Ones III", "904. Fruit Into Baskets"],
+    leetcode: ["209. Minimum Size Subarray Sum", "3. Longest Substring Without Repeating Characters", "1004. Max Consecutive Ones III", "904. Fruit Into Baskets", "1493. Longest Subarray of 1s After Deleting One Element", "713. Subarray Product Less Than K", "992. Subarrays with K Different Integers"],
   },
   {
     title: "Kadane's Algorithm",
     summary: "The maximum subarray sum in a single pass, and the stock-trading problems built on the same idea.",
+    readTime: "24 min",
     topics: ["Maximum subarray: brute force to one pass", "Returning the subarray itself", "Best time to buy and sell stock", "Maximum product subarray", "Circular subarrays"],
-    leetcode: ["53. Maximum Subarray", "121. Best Time to Buy and Sell Stock", "152. Maximum Product Subarray", "918. Maximum Sum Circular Subarray"],
+    leetcode: ["53. Maximum Subarray", "121. Best Time to Buy and Sell Stock", "122. Best Time to Buy and Sell Stock II", "152. Maximum Product Subarray", "918. Maximum Sum Circular Subarray", "1749. Maximum Absolute Sum of Any Subarray"],
   },
   {
     title: "2-D Arrays and Matrices",
     summary: "Rows and columns: transpose, rotate, spiral order, set zeroes and search a matrix.",
+    readTime: "26 min",
     topics: ["Creating and looping over a matrix", "Row and column sums", "Transpose and rotate by 90°", "Spiral order", "Set matrix zeroes", "Searching a sorted matrix"],
-    leetcode: ["867. Transpose Matrix", "48. Rotate Image", "54. Spiral Matrix", "73. Set Matrix Zeroes", "74. Search a 2D Matrix"],
+    leetcode: ["1572. Matrix Diagonal Sum", "867. Transpose Matrix", "48. Rotate Image", "54. Spiral Matrix", "73. Set Matrix Zeroes", "74. Search a 2D Matrix", "240. Search a 2D Matrix II"],
   },
 
   // ── Part 5 — Hashing patterns ──────────────────────────────────────────
   {
     title: "Two Sum and “Seen Before?”",
     summary: "Trading memory for speed with a map of what you have already met.",
+    readTime: "22 min",
     topics: ["Two Sum three ways: brute force, sort + two pointers, Map", "Duplicates within a distance k", "Longest consecutive sequence", "Counting subarrays with a Map"],
-    leetcode: ["1. Two Sum", "219. Contains Duplicate II", "128. Longest Consecutive Sequence", "560. Subarray Sum Equals K"],
+    leetcode: ["1. Two Sum", "219. Contains Duplicate II", "128. Longest Consecutive Sequence", "1679. Max Number of K-Sum Pairs", "523. Continuous Subarray Sum", "1248. Count Number of Nice Subarrays"],
   },
   {
     title: "Frequency Maps and Grouping",
     summary: "Anagrams, top frequencies, the majority element and grouping by a key.",
+    readTime: "24 min",
     topics: ["Designing a good key", "Group anagrams", "Top k frequent (bucket idea)", "Majority element and Boyer–Moore voting", "Isomorphic strings"],
-    leetcode: ["49. Group Anagrams", "347. Top K Frequent Elements", "169. Majority Element", "205. Isomorphic Strings"],
+    leetcode: ["1207. Unique Number of Occurrences", "49. Group Anagrams", "347. Top K Frequent Elements", "169. Majority Element", "229. Majority Element II", "290. Word Pattern", "205. Isomorphic Strings"],
   },
 
   // ── Part 6 — Binary search ─────────────────────────────────────────────
   {
     title: "Binary Search on a Sorted Array",
     summary: "Halve the search space every step; first and last positions; rotated arrays.",
+    readTime: "26 min",
     topics: ["The binary search template", "Avoiding infinite loops and off-by-one", "Lower bound and upper bound", "First and last occurrence", "Search insert position", "Rotated sorted arrays"],
-    leetcode: ["704. Binary Search", "35. Search Insert Position", "34. Find First and Last Position of Element in Sorted Array", "33. Search in Rotated Sorted Array", "153. Find Minimum in Rotated Sorted Array"],
+    leetcode: ["704. Binary Search", "35. Search Insert Position", "34. Find First and Last Position of Element in Sorted Array", "278. First Bad Version", "33. Search in Rotated Sorted Array", "153. Find Minimum in Rotated Sorted Array", "162. Find Peak Element"],
   },
   {
     title: "Binary Search on the Answer",
     summary: "When the answer itself can be searched: square roots, eating speeds, shipping capacity.",
+    readTime: "24 min",
     topics: ["Recognising a yes/no condition that flips once", "Square root", "Minimum speed and minimum capacity", "Minimising the largest part"],
-    leetcode: ["69. Sqrt(x)", "875. Koko Eating Bananas", "1011. Capacity To Ship Packages Within D Days", "410. Split Array Largest Sum"],
+    leetcode: ["69. Sqrt(x)", "875. Koko Eating Bananas", "1283. Find the Smallest Divisor Given a Threshold", "1011. Capacity To Ship Packages Within D Days", "410. Split Array Largest Sum", "1552. Magnetic Force Between Two Balls"],
   },
 
   // ── Part 7 — Strings ───────────────────────────────────────────────────
@@ -459,7 +480,7 @@ const ROWS: Row[] = [
 ];
 
 /** Lessons with a page so far. Raise this as each part is written. */
-const PUBLISHED_UP_TO = 10;
+const PUBLISHED_UP_TO = 29;
 
 export const DSA_LESSONS: DsaLesson[] = ROWS.map((row, i) => {
   const number = i + 1;

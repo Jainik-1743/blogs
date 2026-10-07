@@ -1,0 +1,343 @@
+import DryRun from "@/components/dsa/DryRun";
+import Problem from "@/components/dsa/Problem";
+
+/** Lesson 16 practice questions: the moves of the simple sorts. */
+export default function Questions() {
+  return (
+    <>
+      <Problem
+        n={1}
+        title="Insert into a sorted array"
+        level="Easy"
+        examples={[
+          { input: "arr = [1, 3, 5, 8], x = 4", output: "[1, 3, 4, 5, 8]", why: "4 belongs between 3 and 5." },
+          { input: "arr = [2, 6], x = 9", output: "[2, 6, 9]", why: "Edge case: x is the largest, so it goes at the end." },
+          { input: "arr = [], x = 7", output: "[7]", why: "Edge case: empty array." },
+        ]}
+        hints={[<>This is exactly one step of insertion sort: x is the key.</>, <>Push x to make room, then shift bigger items right from the end.</>]}
+        approaches={[
+          {
+            name: "Shift from the end",
+            idea: <p>Make the array one longer, then walk from the end moving every item bigger than x one place right. Put x in the gap.</p>,
+            code: `function insertSorted(arr, x) {
+  let j = arr.length - 1;
+  arr.push(x);                         // make room (the value is overwritten if needed)
+  while (j >= 0 && arr[j] > x) {
+    arr[j + 1] = arr[j];
+    j--;
+  }
+  arr[j + 1] = x;
+  return arr;
+}
+
+console.log(insertSorted([1, 3, 5, 8], 4)); // [ 1, 3, 4, 5, 8 ]
+console.log(insertSorted([2, 6], 9));       // [ 2, 6, 9 ]
+console.log(insertSorted([], 7));           // [ 7 ]`,
+            explain: <p>O(n) in the worst case (x smaller than everything), O(1) when x is the largest. In-place: no second array.</p>,
+          },
+          {
+            name: "Find the position, then splice",
+            idea: <p>Find the first index whose value is bigger than x, and insert there with <code>splice</code>.</p>,
+            code: `function insertSorted(arr, x) {
+  let i = 0;
+  while (i < arr.length && arr[i] <= x) i++;
+  arr.splice(i, 0, x);
+  return arr;
+}
+
+console.log(insertSorted([1, 3, 5, 8], 4)); // [ 1, 3, 4, 5, 8 ]`,
+            explain: <p>Also O(n): the search is O(n), and <code>splice</code> shifts the later items (a hidden loop, Lesson 12). Lesson 28 finds the position in O(log n), but the shifting stays O(n).</p>,
+          },
+        ]}
+        compare={<p>Approach 1 is the insertion-sort inner loop. Understanding it makes the full sort easy to write from memory.</p>}
+      >
+        <p>Insert <code>x</code> into the sorted array <code>arr</code> so that it stays sorted.</p>
+      </Problem>
+
+      <Problem
+        n={2}
+        title="Height checker"
+        level="Easy"
+        examples={[
+          { input: "[1, 1, 4, 2, 1, 3]", output: "3", why: "Sorted is [1, 1, 1, 2, 3, 4]. Positions 2, 4 and 5 differ." },
+          { input: "[5, 1, 2, 3, 4]", output: "5", why: "Sorted is [1, 2, 3, 4, 5]: every position differs." },
+          { input: "[1, 2, 3]", output: "0", why: "Already in order." },
+        ]}
+        hints={[<>Make a sorted copy and compare position by position.</>, <>Heights are between 1 and 100. A counting array (Lesson 15) can produce the sorted order without a comparison sort.</>]}
+        approaches={[
+          {
+            name: "Sort a copy, compare",
+            idea: <p>Copy, sort with a comparator, count the differences.</p>,
+            code: `function heightChecker(heights) {
+  const expected = [...heights].sort((a, b) => a - b);
+  let count = 0;
+  for (let i = 0; i < heights.length; i++) {
+    if (heights[i] !== expected[i]) count++;
+  }
+  return count;
+}
+
+console.log(heightChecker([1, 1, 4, 2, 1, 3])); // 3
+console.log(heightChecker([5, 1, 2, 3, 4]));    // 5`,
+            explain: <p>O(n log n) for the sort. Copying with <code>[...heights]</code> matters: <code>sort</code> changes the array it is called on.</p>,
+          },
+          {
+            name: "Counting sort",
+            idea: <p>Count each height, then walk the heights from 1 upwards: that walk produces the sorted sequence, which we compare as we go.</p>,
+            code: `function heightChecker(heights) {
+  const count = new Array(101).fill(0);
+  for (const h of heights) count[h]++;
+
+  let mismatches = 0;
+  let h = 1;
+  for (const actual of heights) {
+    while (count[h] === 0) h++;        // next height in sorted order
+    if (actual !== h) mismatches++;
+    count[h]--;
+  }
+  return mismatches;
+}
+
+console.log(heightChecker([1, 1, 4, 2, 1, 3])); // 3
+console.log(heightChecker([1, 2, 3]));          // 0`,
+            explain: <p>O(n + 100) = O(n). This is <strong>counting sort</strong>: when values come from a small range, you can sort without comparing items at all.</p>,
+          },
+        ]}
+        compare={<p>Approach 1 is the normal answer. Mention counting sort when the value range is small — it beats the O(n log n) limit of comparison sorts. (LeetCode 1051.)</p>}
+      >
+        <p>Students should stand in non-decreasing order of height. Return how many positions do not match the sorted order.</p>
+      </Problem>
+
+      <Problem
+        n={3}
+        title="The k smallest, with selection passes"
+        level="Easy"
+        examples={[
+          { input: "nums = [7, 2, 9, 4, 1], k = 2", output: "[1, 2]", why: "The two smallest values, in increasing order." },
+          { input: "nums = [3, 3, 1], k = 3", output: "[1, 3, 3]", why: "k equals the length: the whole array, sorted." },
+        ]}
+        hints={[<>Each pass of selection sort fixes the next smallest value in place.</>, <>You only need k passes, not n.</>]}
+        approaches={[
+          {
+            name: "k passes of selection sort",
+            idea: <p>Run the outer loop of selection sort only k times, then return the first k items.</p>,
+            code: `function kSmallest(nums, k) {
+  const a = [...nums];
+  for (let i = 0; i < k; i++) {
+    let minIdx = i;
+    for (let j = i + 1; j < a.length; j++) {
+      if (a[j] < a[minIdx]) minIdx = j;
+    }
+    [a[i], a[minIdx]] = [a[minIdx], a[i]];
+  }
+  return a.slice(0, k);
+}
+
+console.log(kSmallest([7, 2, 9, 4, 1], 2)); // [ 1, 2 ]
+console.log(kSmallest([3, 3, 1], 3));       // [ 1, 3, 3 ]`,
+            explain: <p>O(n × k): good when k is tiny (say 3), worse than sorting when k is large.</p>,
+          },
+          {
+            name: "Sort, then slice",
+            idea: <p>Sort a copy and take the first k.</p>,
+            code: `function kSmallest(nums, k) {
+  return [...nums].sort((a, b) => a - b).slice(0, k);
+}
+
+console.log(kSmallest([7, 2, 9, 4, 1], 2)); // [ 1, 2 ]`,
+            explain: <p>O(n log n) whatever k is.</p>,
+          },
+        ]}
+        compare={<p>Compare n × k with n log n: for n = 10<sup>6</sup>, log n ≈ 20, so selection passes win only when k &lt; 20. Lesson 46 gives an O(n log k) answer with a heap.</p>}
+      >
+        <p>Return the <code>k</code> smallest values of <code>nums</code> in increasing order.</p>
+      </Problem>
+
+      <Problem
+        n={4}
+        title="How many swaps does bubble sort make?"
+        level="Medium"
+        examples={[
+          { input: "[3, 1, 2]", output: "2", why: "3↔1 gives [1, 3, 2], then 3↔2 gives [1, 2, 3]." },
+          { input: "[5, 3, 8, 1, 4]", output: "6", why: "3 swaps in the first pass, 2 in the second, 1 in the third (see the dry run in the lesson)." },
+          { input: "[1, 2, 3]", output: "0", why: "Already sorted." },
+        ]}
+        hints={[
+          <>You could simulate bubble sort and count. Is there a way to get the number without sorting?</>,
+          <>Each swap of neighbours fixes exactly one pair (i, j) with i &lt; j and nums[i] &gt; nums[j]. Such a pair is called an <em>inversion</em>.</>,
+        ]}
+        approaches={[
+          {
+            name: "Simulate and count",
+            idea: <p>Run bubble sort on a copy and add 1 for every swap.</p>,
+            code: `function bubbleSwaps(nums) {
+  const a = [...nums];
+  let swaps = 0;
+  for (let pass = 0; pass < a.length - 1; pass++) {
+    for (let j = 0; j < a.length - 1 - pass; j++) {
+      if (a[j] > a[j + 1]) {
+        [a[j], a[j + 1]] = [a[j + 1], a[j]];
+        swaps++;
+      }
+    }
+  }
+  return swaps;
+}
+
+console.log(bubbleSwaps([3, 1, 2]));       // 2
+console.log(bubbleSwaps([5, 3, 8, 1, 4])); // 6`,
+            explain: <p>O(n²) time.</p>,
+          },
+          {
+            name: "Count the inversions",
+            idea: <p>Count every pair i &lt; j with nums[i] &gt; nums[j]. Each one needs exactly one neighbour swap to fix, and each swap fixes exactly one.</p>,
+            code: `function bubbleSwaps(nums) {
+  let inversions = 0;
+  for (let i = 0; i < nums.length; i++) {
+    for (let j = i + 1; j < nums.length; j++) {
+      if (nums[i] > nums[j]) inversions++;
+    }
+  }
+  return inversions;
+}
+
+console.log(bubbleSwaps([3, 1, 2]));       // 2
+console.log(bubbleSwaps([5, 3, 8, 1, 4])); // 6
+console.log(bubbleSwaps([1, 2, 3]));       // 0`,
+            explain: (
+              <DryRun
+                title="inversions in [5, 3, 8, 1, 4]"
+                cols={["Bigger value first", "Pairs"]}
+                rows={[
+                  ["5", "(5, 3), (5, 1), (5, 4)"],
+                  ["3", "(3, 1)"],
+                  ["8", "(8, 1), (8, 4)"],
+                ]}
+                note="6 inversions = 6 swaps."
+              />
+            ),
+          },
+        ]}
+        compare={<p>Both are O(n²), but Approach 2 explains <em>why</em> the number is what it is. Lesson 17 counts inversions in O(n log n) by changing merge sort slightly.</p>}
+      >
+        <p>Return how many swaps bubble sort makes to sort <code>nums</code>.</p>
+      </Problem>
+
+      <Problem
+        n={5}
+        title="A stable sort with a comparator"
+        level="Medium"
+        examples={[
+          {
+            input: `[{Asha, B}, {Ben, A}, {Chen, B}, {Dara, A}]`,
+            output: "Ben, Dara, Asha, Chen",
+            why: "Sorted by grade. Ben comes before Dara, and Asha before Chen, as in the input.",
+          },
+        ]}
+        hints={[
+          <>Write insertion sort that takes a function <code>cmp(a, b)</code> returning a negative number, zero or a positive number — the same contract as JavaScript&apos;s <code>sort</code>.</>,
+          <>To stay stable, only shift an item when it is <em>strictly</em> greater than the key.</>,
+        ]}
+        approaches={[
+          {
+            name: "Insertion sort with cmp",
+            idea: <p>Replace <code>arr[j] &gt; key</code> with <code>cmp(arr[j], key) &gt; 0</code>.</p>,
+            code: `function insertionSort(arr, cmp) {
+  for (let i = 1; i < arr.length; i++) {
+    const key = arr[i];
+    let j = i - 1;
+    while (j >= 0 && cmp(arr[j], key) > 0) {   // strictly greater: equal items never pass each other
+      arr[j + 1] = arr[j];
+      j--;
+    }
+    arr[j + 1] = key;
+  }
+  return arr;
+}
+
+const students = [
+  { name: "Asha", grade: "B" },
+  { name: "Ben", grade: "A" },
+  { name: "Chen", grade: "B" },
+  { name: "Dara", grade: "A" },
+];
+insertionSort(students, (a, b) => a.grade.localeCompare(b.grade));
+console.log(students.map((s) => s.name).join(", ")); // Ben, Dara, Asha, Chen`,
+            explain: <p>If the condition were <code>&gt;= 0</code>, equal items would jump over each other and the sort would become unstable — Chen would end up before Asha. One character decides stability.</p>,
+          },
+        ]}
+        compare={<p>Writing sorts with a comparator is how real sorting functions work, and the next two lessons do the same.</p>}
+      >
+        <p>Write a <strong>stable</strong> sort that accepts a comparison function, and use it to sort students by grade.</p>
+      </Problem>
+
+      <Problem
+        n={6}
+        title="Sort an array (large input)"
+        level="Medium"
+        examples={[
+          { input: "[5, 2, 3, 1]", output: "[1, 2, 3, 5]", why: "Plain ascending order." },
+          { input: "[5, 1, 1, 2, 0, 0]", output: "[0, 0, 1, 1, 2, 5]", why: "Duplicates stay." },
+        ]}
+        hints={[
+          <>Read the constraints: up to 5 × 10<sup>4</sup> values. Is O(n²) fast enough? (Lesson 12.)</>,
+          <>Values are between −5 × 10<sup>4</sup> and 5 × 10<sup>4</sup> — a range of about 10<sup>5</sup>. Shift them so the smallest maps to index 0.</>,
+        ]}
+        approaches={[
+          {
+            name: "Insertion sort",
+            idea: <p>The algorithm from this lesson.</p>,
+            code: `function sortArray(nums) {
+  for (let i = 1; i < nums.length; i++) {
+    const key = nums[i];
+    let j = i - 1;
+    while (j >= 0 && nums[j] > key) {
+      nums[j + 1] = nums[j];
+      j--;
+    }
+    nums[j + 1] = key;
+  }
+  return nums;
+}
+
+console.log(sortArray([5, 2, 3, 1])); // [ 1, 2, 3, 5 ]`,
+            explain: <p>Correct, but O(n²): for 5 × 10<sup>4</sup> reversed values that is over a billion shifts. It fails LeetCode&apos;s time limit — which is the point of the question.</p>,
+          },
+          {
+            name: "Counting sort over the value range",
+            idea: <p>Count each value at index <code>value + 50000</code>, then write the values back out in order.</p>,
+            code: `function sortArray(nums) {
+  const OFFSET = 50000;
+  const count = new Array(100001).fill(0);
+  for (const x of nums) count[x + OFFSET]++;
+
+  let i = 0;
+  for (let v = 0; v < count.length; v++) {
+    while (count[v]-- > 0) nums[i++] = v - OFFSET;
+  }
+  return nums;
+}
+
+console.log(sortArray([5, 2, 3, 1]));       // [ 1, 2, 3, 5 ]
+console.log(sortArray([5, 1, 1, 2, 0, 0])); // [ 0, 0, 1, 1, 2, 5 ]
+console.log(sortArray([-3, 4, -50000]));    // [ -50000, -3, 4 ]`,
+            explain: <p>O(n + range) time and O(range) space. The offset handles negative numbers.</p>,
+          },
+          {
+            name: "Built-in sort",
+            idea: <p>Use JavaScript&apos;s sort with a numeric comparator.</p>,
+            code: `function sortArray(nums) {
+  return nums.sort((a, b) => a - b);
+}
+
+console.log(sortArray([5, 1, 1, 2, 0, 0])); // [ 0, 0, 1, 1, 2, 5 ]`,
+            explain: <p>O(n log n). In a real interview the problem would forbid this; the next two lessons build merge sort and quick sort to replace it.</p>,
+          },
+        ]}
+        compare={<p>The lesson: simple sorts are O(n²) and too slow for large inputs. Counting sort is a valid O(n) answer when the range is small; otherwise you need an O(n log n) sort. (LeetCode 912.)</p>}
+      >
+        <p>Sort <code>nums</code> in ascending order. Constraints: up to 5 × 10<sup>4</sup> values, each between −5 × 10<sup>4</sup> and 5 × 10<sup>4</sup>.</p>
+      </Problem>
+    </>
+  );
+}
