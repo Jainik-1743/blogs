@@ -114,20 +114,26 @@ export default function DsaLessonTwentyPage() {
     <DsaLessonPage lesson={lesson} outline={outline}>
       <h2 id="concept">Many range sums, one pass</h2>
       <p>
-        A <strong>subarray</strong> is a contiguous slice of an array, like <code>nums[1..3]</code>. Many problems
-        need the sum of many different subarrays. Adding them up one at a time is O(n) per question:
+        A <strong>subarray</strong> is a block of items that sit next to each other in an array, like{" "}
+        <code>nums[1..3]</code> (the items at index 1, 2 and 3). Many problems ask for the sum of many different
+        subarrays. If you add the items up one by one, each question costs O(n) steps (the steps grow with the
+        array length n):
       </p>
       <CodeBlock lang="js" code={slowCode} />
       <p>
-        With 10<sup>5</sup> queries on 10<sup>5</sup> items, that is 10<sup>10</sup> steps. The fix uses the
-        pre-computation idea from Lesson 15: spend one pass building <strong>running totals</strong>, and every
-        range sum becomes one subtraction.
+        A query is one question, such as &ldquo;what is the sum of this range?&rdquo;. With 10<sup>5</sup> queries
+        on 10<sup>5</sup> items, that is 10<sup>10</sup> steps, which is far too slow. The fix uses the
+        pre-computation idea from Lesson 15. Pre-computation means you do some work once, before the questions
+        come, and save the result. Here you spend one pass building <strong>running totals</strong>. After that,
+        every range sum is just one subtraction.
       </p>
 
       <h2 id="build">Building the prefix array</h2>
       <p>
-        The <strong>prefix sum</strong> array <code>pre</code> stores, at position i, the sum of the first i items.
-        It starts with a 0 (the sum of no items), so it is one longer than <code>nums</code>:
+        A <strong>prefix sum</strong> array is an array of running totals. In the array <code>pre</code>, the value
+        at position i is the sum of the first i items of <code>nums</code>. A running total is the sum so far, like
+        the total on a shop receipt that grows with each item. <code>pre</code> starts with a 0 (the sum of no
+        items), so it is one item longer than <code>nums</code>:
       </p>
       <ArrayBoxes values={[3, 1, 4, 1, 5]} name="nums" caption="The input." />
       <ArrayBoxes
@@ -152,9 +158,10 @@ export default function DsaLessonTwentyPage() {
         </p>
       </Callout>
       <p>
-        <code>pre[r + 1]</code> is everything from index 0 to r. <code>pre[l]</code> is everything from 0 to l − 1.
-        Subtracting removes the part before l. The leading 0 makes ranges that start at index 0 work without a
-        special case: <code>sum(0..r) = pre[r + 1] - pre[0] = pre[r + 1] - 0</code>.
+        <code>pre[r + 1]</code> is the sum of everything from index 0 to r. <code>pre[l]</code> is the sum of
+        everything from index 0 to l − 1. If you subtract the second from the first, the part before l is removed,
+        and only the range l..r is left. The leading 0 lets ranges that start at index 0 work without a special
+        case: <code>sum(0..r) = pre[r + 1] - pre[0] = pre[r + 1] - 0</code>.
       </p>
       <DryRun
         title="queries on nums = [3, 1, 4, 1, 5]"
@@ -169,18 +176,19 @@ export default function DsaLessonTwentyPage() {
 
       <h2 id="pivot">Pivot index: left sum vs right sum</h2>
       <p>
-        Sometimes you do not even need the whole prefix array — a running total is enough. The pivot index is
-        where the sum of the items to the left equals the sum of the items to the right. With the total known,
-        the right sum is <code>total - left - nums[i]</code>:
+        Sometimes you do not need the whole prefix array. One running total is enough. The pivot index is the
+        position where the sum of the items on its left equals the sum of the items on its right. If you know the
+        total of all items, the right sum is <code>total - left - nums[i]</code>:
       </p>
       <CodeBlock lang="js" code={pivotCode} />
 
       <h2 id="products">Prefix and suffix products</h2>
       <p>
-        The same idea works for multiplication, and from both directions. &ldquo;Product of every item except
-        nums[i]&rdquo; is (product of everything to the left) × (product of everything to the right). A pass from
-        the left fills in the left products; a pass from the right multiplies in the right products. No division
-        needed — so zeros cause no problem.
+        The same idea works for multiplication, and from both directions. A prefix product is a running product,
+        and a suffix product is a running product from the right end. Take the problem &ldquo;the product of every
+        item except <code>nums[i]</code>&rdquo;. The answer is (the product of everything to the left) ×
+        (the product of everything to the right). A pass from the left fills in the left products. A pass from the
+        right multiplies in the right products. You never divide, so zeros cause no problem.
       </p>
       <CodeBlock lang="js" code={productCode} />
       <DryRun
@@ -196,14 +204,15 @@ export default function DsaLessonTwentyPage() {
 
       <h2 id="count">Subarray sum equals k: prefix sums + a Map</h2>
       <p>
-        The most important prefix-sum problem: <em>how many subarrays add up to exactly k?</em> Checking every
-        subarray is O(n²). The prefix idea turns it into a lookup.
+        This is the most important prefix-sum problem: <em>how many subarrays add up to exactly k?</em> Checking
+        every subarray costs O(n²). The prefix idea turns the check into a quick lookup.
       </p>
       <p>
-        A subarray from i to j has sum <code>pre[j + 1] - pre[i]</code>. We want that to equal k, which means{" "}
-        <code>pre[i] = pre[j + 1] - k</code>. So as we walk forward with the running sum, we ask: <strong>how many
-        earlier prefix sums equal (current sum − k)?</strong> A Map of prefix-sum counts (Lesson 15) answers that in
-        O(1).
+        A subarray from i to j has the sum <code>pre[j + 1] - pre[i]</code>. We want that sum to equal k. That is
+        the same as <code>pre[i] = pre[j + 1] - k</code>. So as we walk forward with the running sum, we ask:{" "}
+        <strong>how many earlier prefix sums equal (current sum − k)?</strong> A Map is a collection of key and
+        value pairs, and it finds a key very fast. Use a Map that stores how many times each prefix sum has
+        appeared (Lesson 15). Then each question is answered in O(1), which means one quick step.
       </p>
       <CodeBlock lang="js" code={countCode} />
       <DryRun
@@ -220,14 +229,14 @@ export default function DsaLessonTwentyPage() {
       />
       <Callout kind="warn" label="Why start the Map with 0 → 1?">
         <p className="mb-0">
-          A subarray that starts at index 0 needs the &ldquo;empty prefix&rdquo; (sum 0) to subtract. Without the
-          initial entry, <code>[1, 2]</code> above would be missed. This works with negative numbers too — unlike the
-          sliding window of Lesson 23, which needs non-negative values.
+          A subarray that starts at index 0 needs the &ldquo;empty prefix&rdquo; (sum 0) to subtract. Without this
+          first entry, the subarray <code>[1, 2]</code> above would be missed. This method also works with negative
+          numbers. The sliding window of Lesson 23 does not, because it needs non-negative values.
         </p>
       </Callout>
 
       <h2 id="practice">Practice questions</h2>
-      <p>For each question, decide: do I need the whole prefix array, just a running total, or prefix sums in a Map?</p>
+      <p>For each question, decide which you need: the whole prefix array, just one running total, or prefix sums in a Map.</p>
 
       <Questions />
 
@@ -243,9 +252,9 @@ export default function DsaLessonTwentyPage() {
 
       <h2 id="next">What&apos;s next</h2>
       <p>
-        Lesson 21 covers <strong>two pointers</strong>: two indices moving through the array together — from both
-        ends towards the middle, or in the same direction — to solve pair sums, 3Sum and partitioning in a single
-        pass.
+        Lesson 21 covers <strong>two pointers</strong>. You use two indices that move through the array together.
+        They can start at both ends and move towards the middle, or they can move in the same direction. With them
+        you can solve pair sums, 3Sum and partitioning in a single pass.
       </p>
     </DsaLessonPage>
   );

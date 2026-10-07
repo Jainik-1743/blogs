@@ -14,11 +14,11 @@ export default function Questions() {
           { input: "target = 4, nums = [1, 4, 4]", output: "1", why: "[4] alone is enough." },
           { input: "target = 11, nums = [1, 1, 1, 1, 1]", output: "0", why: "Even the whole array sums to only 5." },
         ]}
-        hints={[<>All values are positive, so shrinking always lowers the sum.</>, <>Shortest-window template: shrink while the sum is still ≥ target.</>]}
+        hints={[<>All values are positive, so shrinking the window always lowers the sum.</>, <>Use the shortest-window template: shrink the window while the sum is still ≥ target.</>]}
         approaches={[
           {
             name: "Grow and shrink",
-            idea: <p>The traced algorithm. Return 0 if no window was ever valid.</p>,
+            idea: <p>This is the algorithm we traced. Return 0 if no window was ever valid.</p>,
             code: `function minSubArrayLen(target, nums) {
   let l = 0, sum = 0, best = Infinity;
   for (let r = 0; r < nums.length; r++) {
@@ -34,12 +34,12 @@ export default function Questions() {
 console.log(minSubArrayLen(7, [2, 3, 1, 2, 4, 3]));  // 2
 console.log(minSubArrayLen(4, [1, 4, 4]));           // 1
 console.log(minSubArrayLen(11, [1, 1, 1, 1, 1]));    // 0`,
-            explain: <p>O(n) time, O(1) space. The final check turns &ldquo;never found&rdquo; (Infinity) into the required 0.</p>,
+            explain: <p>O(n) time, O(1) space. The last line changes &ldquo;never found&rdquo; (Infinity) into the 0 that the question asks for.</p>,
           },
         ]}
-        compare={<p>A prefix-sum + binary-search solution also exists in O(n log n); the window is simpler and faster. (LeetCode 209.)</p>}
+        compare={<p>There is also a solution with prefix sums and binary search. It takes O(n log n). The window is simpler and faster. (LeetCode 209.)</p>}
       >
-        <p>Return the length of the shortest subarray whose sum is at least <code>target</code>, or 0 if there is none. All values are positive.</p>
+        <p>Return the length of the shortest subarray whose sum is at least <code>target</code>. If there is none, return 0. All values are positive.</p>
       </Problem>
 
       <Problem
@@ -49,16 +49,16 @@ console.log(minSubArrayLen(11, [1, 1, 1, 1, 1]));    // 0`,
         examples={[
           { input: `"abcabcbb"`, output: "3", why: "\"abc\"." },
           { input: `"bbbbb"`, output: "1", why: "\"b\"." },
-          { input: `"pwwkew"`, output: "3", why: "\"wke\". (\"pwke\" is a subsequence, not a substring.)" },
+          { input: `"pwwkew"`, output: "3", why: "\"wke\". (\"pwke\" is a subsequence, not a substring, because its letters are not next to each other.)" },
         ]}
         hints={[
-          <>The rule: no character appears twice in the window.</>,
-          <>When the new character is already in the window, shrink from the left until it is not.</>,
+          <>The rule is: no character appears twice in the window.</>,
+          <>When the new character is already in the window, shrink the window from the left until it is not.</>,
         ]}
         approaches={[
           {
             name: "Window with a Set",
-            idea: <p>Grow with <code>r</code>; while <code>s[r]</code> is already in the Set, remove <code>s[l]</code> and move <code>l</code>.</p>,
+            idea: <p>Grow the window with <code>r</code>. While <code>s[r]</code> is already in the Set, remove <code>s[l]</code> and move <code>l</code> forward.</p>,
             code: `function lengthOfLongestSubstring(s) {
   const inWindow = new Set();
   let l = 0, best = 0;
@@ -76,11 +76,11 @@ console.log(minSubArrayLen(11, [1, 1, 1, 1, 1]));    // 0`,
 console.log(lengthOfLongestSubstring("abcabcbb")); // 3
 console.log(lengthOfLongestSubstring("bbbbb"));    // 1
 console.log(lengthOfLongestSubstring("pwwkew"));   // 3`,
-            explain: <p>O(n): each character is added once and removed at most once.</p>,
+            explain: <p>O(n). Each character is added once and removed at most once.</p>,
           },
           {
             name: "Jump l with last positions",
-            idea: <p>Remember the last index of each character. On a repeat, jump <code>l</code> just past the earlier copy — no step-by-step shrinking.</p>,
+            idea: <p>Remember the last index of each character. When a character repeats, jump <code>l</code> to just after the earlier copy. You do not shrink step by step.</p>,
             code: `function lengthOfLongestSubstring(s) {
   const last = new Map();
   let l = 0, best = 0;
@@ -94,12 +94,12 @@ console.log(lengthOfLongestSubstring("pwwkew"));   // 3`,
 
 console.log(lengthOfLongestSubstring("abcabcbb")); // 3
 console.log(lengthOfLongestSubstring("pwwkew"));   // 3`,
-            explain: <p>Still O(n), with fewer steps. The check <code>&gt;= l</code> ignores old copies that are already outside the window.</p>,
+            explain: <p>It is still O(n), but with fewer steps. The check <code>&gt;= l</code> ignores old copies that are already outside the window.</p>,
           },
         ]}
-        compare={<p>One of the most asked interview questions. Lesson 31 returns to it with other string windows. (LeetCode 3.)</p>}
+        compare={<p>This is one of the most asked interview questions. Lesson 31 comes back to it with other string windows. (LeetCode 3.)</p>}
       >
-        <p>Return the length of the longest substring of <code>s</code> with no repeated characters.</p>
+        <p>Return the length of the longest substring of <code>s</code> that has no repeated characters.</p>
       </Problem>
 
       <Problem
@@ -107,14 +107,14 @@ console.log(lengthOfLongestSubstring("pwwkew"));   // 3`,
         title="Max consecutive ones III"
         level="Medium"
         examples={[
-          { input: "nums = [1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0], k = 2", output: "6", why: "Flip the zeros at indices 5 and 10: indices 5–10 become six 1s in a row." },
-          { input: "nums = [0, 0, 1, 1], k = 0", output: "2", why: "No flips allowed: the longest run is the two 1s." },
+          { input: "nums = [1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0], k = 2", output: "6", why: "Flip the zeros at indices 5 and 10 to 1. Then indices 5–10 are six 1s in a row." },
+          { input: "nums = [0, 0, 1, 1], k = 0", output: "2", why: "No flips are allowed, so the longest run is the two 1s." },
         ]}
-        hints={[<>Restate: the longest window containing at most k zeros.</>]}
+        hints={[<>Say it in other words: find the longest window that has at most k zeros.</>]}
         approaches={[
           {
             name: "Longest window with ≤ k zeros",
-            idea: <p>Count zeros in the window; shrink while there are more than k.</p>,
+            idea: <p>Count the zeros in the window. Shrink the window while it has more than k zeros.</p>,
             code: `function longestOnes(nums, k) {
   let l = 0, zeros = 0, best = 0;
   for (let r = 0; r < nums.length; r++) {
@@ -130,12 +130,12 @@ console.log(lengthOfLongestSubstring("pwwkew"));   // 3`,
 
 console.log(longestOnes([1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0], 2)); // 6
 console.log(longestOnes([0, 0, 1, 1], 0));                      // 2`,
-            explain: <p>O(n), O(1). The question says &ldquo;flip&rdquo;, but you never flip anything — restating the problem as a window rule is the real step.</p>,
+            explain: <p>O(n) time, O(1) space. The question says &ldquo;flip&rdquo;, but the code never flips anything. The real step is to say the problem again as a window rule.</p>,
           },
         ]}
-        compare={<p>Restating &ldquo;at most k changes&rdquo; as &ldquo;at most k bad items in the window&rdquo; solves a whole family of problems. (LeetCode 1004.)</p>}
+        compare={<p>If you say &ldquo;at most k changes&rdquo; as &ldquo;at most k bad items in the window&rdquo;, you can solve a whole group of problems. (LeetCode 1004.)</p>}
       >
-        <p>Return the longest run of 1s you can get by flipping at most <code>k</code> zeros to 1.</p>
+        <p>Return the longest run of 1s you can get if you flip at most <code>k</code> zeros to 1.</p>
       </Problem>
 
       <Problem
@@ -147,11 +147,11 @@ console.log(longestOnes([0, 0, 1, 1], 0));                      // 2`,
           { input: "[0, 1, 2, 2]", output: "3", why: "[1, 2, 2]." },
           { input: "[1, 2, 3, 2, 2]", output: "4", why: "[2, 3, 2, 2]." },
         ]}
-        hints={[<>Two baskets, one type each: the longest window with at most 2 distinct values.</>]}
+        hints={[<>You have two baskets, and each holds one type. So find the longest window with at most 2 distinct (different) values.</>]}
         approaches={[
           {
             name: "At most 2 distinct",
-            idea: <p>The &ldquo;at most k distinct&rdquo; window from the lesson, with k = 2.</p>,
+            idea: <p>Use the &ldquo;at most k distinct&rdquo; window from the lesson, with k = 2.</p>,
             code: `function totalFruit(fruits) {
   const freq = new Map();
   let l = 0, best = 0;
@@ -170,14 +170,13 @@ console.log(longestOnes([0, 0, 1, 1], 0));                      // 2`,
 console.log(totalFruit([1, 2, 1]));       // 3
 console.log(totalFruit([0, 1, 2, 2]));    // 3
 console.log(totalFruit([1, 2, 3, 2, 2])); // 4`,
-            explain: <p>O(n). The story about baskets hides a standard pattern — interviewers like such stories.</p>,
+            explain: <p>O(n). The story about baskets hides a standard pattern. Interviewers like to wrap a pattern in a story.</p>,
           },
         ]}
-        compare={<p>Practise translating the story into &ldquo;longest window with at most 2 distinct values&rdquo;. (LeetCode 904.)</p>}
+        compare={<p>Practise turning the story into &ldquo;the longest window with at most 2 distinct values&rdquo;. (LeetCode 904.)</p>}
       >
         <p>
-          Trees in a row produce fruit of type <code>fruits[i]</code>. You have two baskets, each holding one type. Starting at any
-          tree and moving right, you must pick one fruit from every tree until a fruit fits no basket. Return the most fruit you can pick.
+          Trees stand in a row, and tree i gives fruit of type <code>fruits[i]</code>. You have two baskets, and each basket holds only one type of fruit. You start at any tree and move to the right. You must pick one fruit from every tree, until you meet a fruit that fits in neither basket. Return the most fruit you can pick.
         </p>
       </Problem>
 
@@ -190,11 +189,11 @@ console.log(totalFruit([1, 2, 3, 2, 2])); // 4`,
           { input: "[0, 1, 1, 1, 0, 1, 1, 0, 1]", output: "5", why: "Delete the 0 at index 4: [1, 1, 1, 1, 1]." },
           { input: "[1, 1, 1]", output: "2", why: "Edge case: you must delete one element, even a 1." },
         ]}
-        hints={[<>Window with at most one 0. The answer is the window length minus 1 (the deleted element).</>]}
+        hints={[<>Use a window with at most one 0. The answer is the window length minus 1, because one element is deleted.</>]}
         approaches={[
           {
             name: "Window with ≤ 1 zero",
-            idea: <p>Same as Question 3 with k = 1; subtract 1 for the deletion.</p>,
+            idea: <p>This is the same as Question 3 with k = 1. Subtract 1 for the deleted element.</p>,
             code: `function longestSubarray(nums) {
   let l = 0, zeros = 0, best = 0;
   for (let r = 0; r < nums.length; r++) {
@@ -211,12 +210,12 @@ console.log(totalFruit([1, 2, 3, 2, 2])); // 4`,
 console.log(longestSubarray([1, 1, 0, 1]));                 // 3
 console.log(longestSubarray([0, 1, 1, 1, 0, 1, 1, 0, 1]));  // 5
 console.log(longestSubarray([1, 1, 1]));                    // 2`,
-            explain: <p>O(n). Using <code>r - l</code> instead of <code>r - l + 1</code> handles the forced deletion, including the all-1s edge case.</p>,
+            explain: <p>O(n). The code uses <code>r - l</code> instead of <code>r - l + 1</code>. This handles the forced deletion, including the edge case where all values are 1.</p>,
           },
         ]}
-        compare={<p>A one-character change from Question 3 — notice how the edge case is handled by the formula, not by an if. (LeetCode 1493.)</p>}
+        compare={<p>This is a very small change from Question 3. Notice that the formula handles the edge case, so you do not need an extra if. (LeetCode 1493.)</p>}
       >
-        <p>Delete exactly one element from a binary array. Return the length of the longest run of 1s in what remains.</p>
+        <p>Delete exactly one element from a binary array (an array of 0s and 1s). Return the length of the longest run of 1s in what is left.</p>
       </Problem>
 
       <Problem
@@ -227,11 +226,11 @@ console.log(longestSubarray([1, 1, 1]));                    // 2`,
           { input: "nums = [10, 5, 2, 6], k = 100", output: "8", why: "[10], [5], [2], [6], [10, 5], [5, 2], [2, 6], [5, 2, 6]." },
           { input: "nums = [1, 2, 3], k = 0", output: "0", why: "No product is less than 0." },
         ]}
-        hints={[<>Values are positive, so a product only grows as the window grows.</>, <>Count with <code>r - l + 1</code> for each r.</>]}
+        hints={[<>The values are positive, so a product only gets bigger as the window gets bigger.</>, <>For each r, add <code>r - l + 1</code> to the count.</>]}
         approaches={[
           {
             name: "Counting window",
-            idea: <p>Keep the window product below k; every window ending at r and starting in l..r counts.</p>,
+            idea: <p>Keep the window product below k. Every window that ends at r and starts anywhere in l..r counts.</p>,
             code: `function numSubarrayProductLessThanK(nums, k) {
   if (k <= 1) return 0;
   let l = 0, product = 1, count = 0;
@@ -260,9 +259,9 @@ console.log(numSubarrayProductLessThanK([1, 2, 3], 0));       // 0`,
             ),
           },
         ]}
-        compare={<p>O(n). The <code>count += r - l + 1</code> step is the key idea for counting with windows. (LeetCode 713.)</p>}
+        compare={<p>O(n) time. The step <code>count += r - l + 1</code> is the key idea for counting with windows. (LeetCode 713.)</p>}
       >
-        <p>Count the subarrays of positive integers whose product is strictly less than <code>k</code>.</p>
+        <p>Count the subarrays of positive integers whose product is less than <code>k</code> (not equal to <code>k</code>).</p>
       </Problem>
 
       <Problem
@@ -273,11 +272,11 @@ console.log(numSubarrayProductLessThanK([1, 2, 3], 0));       // 0`,
           { input: "nums = [1, 2, 1, 2, 3], k = 2", output: "7", why: "[1,2], [2,1], [1,2], [2,3], [1,2,1], [2,1,2], [1,2,1,2]." },
           { input: "nums = [1, 2, 1, 3, 4], k = 3", output: "3", why: "[1,2,1,3], [2,1,3], [1,3,4]." },
         ]}
-        hints={[<>Counting &ldquo;exactly&rdquo; directly with one window is awkward.</>, <>Count &ldquo;at most k&rdquo; and &ldquo;at most k − 1&rdquo;, and subtract.</>]}
+        hints={[<>It is hard to count &ldquo;exactly k&rdquo; directly with one window.</>, <>Count &ldquo;at most k&rdquo; and &ldquo;at most k − 1&rdquo;. Then subtract.</>]}
         approaches={[
           {
             name: "atMost(k) − atMost(k − 1)",
-            idea: <p>The counting window from the lesson, run twice.</p>,
+            idea: <p>Run the counting window from the lesson two times.</p>,
             code: `function atMost(nums, k) {
   const freq = new Map();
   let l = 0, count = 0;
@@ -299,12 +298,12 @@ function subarraysWithKDistinct(nums, k) {
 
 console.log(subarraysWithKDistinct([1, 2, 1, 2, 3], 2)); // 7
 console.log(subarraysWithKDistinct([1, 2, 1, 3, 4], 3)); // 3`,
-            explain: <p>O(n): two linear passes. Every subarray with exactly k distinct values is counted by atMost(k) but not by atMost(k − 1).</p>,
+            explain: <p>O(n), because it makes two passes. A subarray with exactly k distinct values is counted by atMost(k) but not by atMost(k − 1). So the subtraction leaves just those subarrays.</p>,
           },
         ]}
-        compare={<p>A hard problem that becomes short once you know the subtraction trick. The same trick counts &ldquo;exactly k odd numbers&rdquo; (LeetCode 1248) and similar problems. (LeetCode 992.)</p>}
+        compare={<p>This is a hard problem, but it becomes short when you know the subtraction trick. The same trick also counts &ldquo;exactly k odd numbers&rdquo; (LeetCode 1248) and similar problems. (LeetCode 992.)</p>}
       >
-        <p>Return the number of subarrays that contain exactly <code>k</code> different values.</p>
+        <p>Return the number of subarrays that have exactly <code>k</code> different values.</p>
       </Problem>
     </>
   );

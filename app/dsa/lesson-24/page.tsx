@@ -57,9 +57,9 @@ function kadaneTrace() {
   const t = tracer();
   const nums = [-2, 1, -3, 4, -1, 2, 1, -5, 4];
   let cur = nums[0];
-  t.step(2, "start", "cur = -2", "cur = the best sum of a subarray that ends exactly here. Only one subarray ends at index 0.", { nums, cur }, "cur");
+  t.step(2, "start", "cur = -2", "cur is the best sum of a subarray that ends exactly here. Only one subarray ends at index 0.", { nums, cur }, "cur");
   let best = nums[0];
-  t.step(3, "start", "best = -2", "The best seen anywhere so far.", { nums, cur, best }, "best");
+  t.step(3, "start", "best = -2", "The best sum seen anywhere so far.", { nums, cur, best }, "best");
   for (let i = 1; i < nums.length; i++) {
     const extend = cur + nums[i];
     const startAgain = nums[i];
@@ -145,22 +145,24 @@ export default function DsaLessonTwentyFourPage() {
     <DsaLessonPage lesson={lesson} outline={outline}>
       <h2 id="concept">The largest sum of any subarray</h2>
       <p>
-        Given an array with positive and negative numbers, find the subarray with the largest sum. For{" "}
-        <code>[-2, 1, -3, 4, -1, 2, 1, -5, 4]</code> the answer is 6, from <code>[4, -1, 2, 1]</code>. Note that it
-        includes a −1: sometimes it is worth crossing a small loss to reach more gains.
+        You get an array with positive and negative numbers. Find the subarray with the largest sum. (A subarray
+        is a block of items that sit next to each other.) For <code>[-2, 1, -3, 4, -1, 2, 1, -5, 4]</code> the
+        answer is 6, from <code>[4, -1, 2, 1]</code>. Notice that this block includes a −1. Sometimes it is worth
+        accepting a small loss to reach bigger gains later.
       </p>
       <p>
-        A sliding window does not work here (Lesson 23): with negative numbers, shrinking the window can make the sum
-        bigger or smaller. Kadane&apos;s algorithm solves it in one pass with a different idea.
+        A sliding window does not work here (Lesson 23). With negative numbers, shrinking the window can make the sum
+        bigger or smaller, so the window rules break. <strong>Kadane&apos;s algorithm</strong> solves the problem
+        in one pass with a different idea. It is named after Jay Kadane, who found it.
       </p>
 
       <h2 id="brute">Brute force: every start, every end</h2>
       <CodeBlock lang="js" code={bruteCode} />
-      <p>Using a running sum for each start already avoids an O(n³) solution, but it is still O(n²).</p>
+      <p>For each start, we keep a running sum as the end moves. This avoids an O(n³) solution (adding up every subarray from scratch). But it still costs O(n²) steps.</p>
 
       <h2 id="idea">The key question: extend or start again?</h2>
       <p>
-        Walk from left to right and keep one number: <code>cur</code>, the best sum of a subarray that{" "}
+        Walk from left to right and keep one number called <code>cur</code>. It is the best sum of a subarray that{" "}
         <strong>ends exactly at the current index</strong>. For the next item x there are only two choices:
       </p>
       <ul>
@@ -169,8 +171,8 @@ export default function DsaLessonTwentyFourPage() {
       </ul>
       <Callout kind="ok" label="Kadane's algorithm in one line">
         <p className="mb-0">
-          <code>cur = Math.max(x, cur + x)</code> — if the run so far is negative, it can only hurt, so drop it and
-          start fresh. The answer is the largest <code>cur</code> ever seen.
+          <code>cur = Math.max(x, cur + x)</code>. If the sum so far is negative, it can only make the new sum
+          smaller. So drop it and start again from x. The answer is the largest <code>cur</code> you ever see.
         </p>
       </Callout>
 
@@ -197,36 +199,37 @@ export default function DsaLessonTwentyFourPage() {
         highlight={6}
       />
       <p>
-        Starting <code>cur</code> and <code>best</code> at <code>nums[0]</code> (not 0) matters: for an all-negative
-        array like <code>[-3, -1, -2]</code> the answer is −1, and starting at 0 would wrongly return 0. This is your
-        first <strong>dynamic programming</strong> solution — the answer for each index is built from the answer for
-        the previous one (Part 14).
+        It is important to start <code>cur</code> and <code>best</code> at <code>nums[0]</code>, not at 0. Take an
+        array where every number is negative, like <code>[-3, -1, -2]</code>. The answer is −1. If you start at 0,
+        the code wrongly returns 0. This is also your first <strong>dynamic programming</strong> solution. Dynamic
+        programming means you build the answer for each step from the answer for the previous step (Part 14).
       </p>
 
       <h2 id="which">Returning the subarray itself</h2>
       <p>
-        To return where the best subarray is, remember where the current run started, and copy that start whenever a
-        new best is found:
+        Sometimes you must return the subarray itself, not just its sum. To do this, remember where the current run
+        started. Whenever you find a new best sum, save that start position:
       </p>
       <CodeBlock lang="js" code={withIndexCode} />
 
       <h2 id="stock">Best time to buy and sell stock</h2>
       <p>
-        Given daily prices, buy on one day and sell on a later day for the largest profit. The same &ldquo;best ending
-        here&rdquo; thinking applies: if you sell today, the best you can do is buy at the <strong>cheapest price seen
-        so far</strong>. Track that minimum as you walk.
+        You get the price of a stock for each day. Buy on one day and sell on a later day, to make the largest
+        profit. The same &ldquo;best ending here&rdquo; thinking works. If you sell today, the best you can do is
+        to have bought at the <strong>cheapest price seen so far</strong>. Keep track of that lowest price as you
+        walk through the prices.
       </p>
       <CodeBlock lang="js" code={stockCode} />
       <p>
-        This is Kadane in disguise: the profit from day i to day j is the sum of the daily price changes between them,
-        so the best trade is the maximum subarray of the changes.
+        This is Kadane&apos;s idea in another form. The profit from day i to day j equals the sum of the daily price
+        changes between them. So the best trade is the maximum subarray of the list of daily changes.
       </p>
 
       <h2 id="product">Maximum product: track the minimum too</h2>
       <p>
-        For the largest <em>product</em>, one number is not enough. A large negative product can become the largest
-        positive one after multiplying by another negative. So keep both the largest and the smallest product ending
-        at the current index:
+        For the largest <em>product</em>, one number is not enough. A very negative product can become the largest
+        positive product when you multiply it by another negative number. So keep two numbers: the largest product
+        and the smallest product that end at the current index:
       </p>
       <CodeBlock lang="js" code={productCode} />
       <DryRun
@@ -243,18 +246,20 @@ export default function DsaLessonTwentyFourPage() {
 
       <h2 id="circular">Circular subarrays</h2>
       <p>
-        If the array is a circle, a subarray may wrap from the end back to the start. A wrapping subarray is everything{" "}
-        <em>except</em> a middle part. So the best wrapping sum is <code>total − (the minimum subarray sum)</code>. Run
-        Kadane for the maximum and the minimum together, and take the better of the two cases:
+        Now imagine the array is a circle, so a subarray may wrap from the end back to the start. A wrapping
+        subarray is everything <em>except</em> a block in the middle. So the best wrapping sum is{" "}
+        <code>total − (the minimum subarray sum)</code>. Run Kadane for the maximum and for the minimum together.
+        Then take the better of the two cases:
       </p>
       <CodeBlock lang="js" code={circularCode} />
       <p>
-        One edge case: if every value is negative, the minimum subarray is the whole array, and{" "}
-        <code>total − bestMin</code> would be 0 — an empty subarray, which is not allowed. Return the normal maximum then.
+        There is one edge case. If every value is negative, the minimum subarray is the whole array. Then{" "}
+        <code>total − bestMin</code> would be 0, which means an empty subarray, and that is not allowed. In this
+        case, return the normal maximum.
       </p>
 
       <h2 id="practice">Practice questions</h2>
-      <p>For each question, say what &ldquo;the best answer ending at index i&rdquo; means, then write the one-line update.</p>
+      <p>For each question, first say what &ldquo;the best answer that ends at index i&rdquo; means. Then write the one-line update.</p>
 
       <Questions />
 
@@ -270,8 +275,9 @@ export default function DsaLessonTwentyFourPage() {
 
       <h2 id="next">What&apos;s next</h2>
       <p>
-        Lesson 25 finishes Part 4 with <strong>2-D arrays</strong>: grids of rows and columns. You will transpose and
-        rotate a matrix, read it in spiral order, and search a sorted matrix — all common interview questions.
+        Lesson 25 finishes Part 4 with <strong>2-D arrays</strong>. A 2-D array is a grid with rows and columns. You
+        will transpose a matrix (swap its rows and columns), rotate it, read it in a spiral, and search a sorted
+        matrix. These are all common interview questions.
       </p>
     </DsaLessonPage>
   );

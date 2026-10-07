@@ -12,13 +12,13 @@ export default function Questions() {
         examples={[
           { input: "[-2, 1, -3, 4, -1, 2, 1, -5, 4]", output: "6", why: "[4, −1, 2, 1]." },
           { input: "[1]", output: "1", why: "One item." },
-          { input: "[-3, -1, -2]", output: "-1", why: "Edge case: all negative — the best is the single largest value." },
+          { input: "[-3, -1, -2]", output: "-1", why: "Edge case: all numbers are negative. The best subarray is the single largest value." },
         ]}
-        hints={[<>Best sum ending at i = max(nums[i], best ending at i − 1 + nums[i]).</>]}
+        hints={[<>The best sum that ends at i is max(nums[i], the best sum that ends at i − 1, plus nums[i]).</>]}
         approaches={[
           {
             name: "Every start, running sum",
-            idea: <p>O(n²) brute force.</p>,
+            idea: <p>This is the brute force method. It tries every start and every end.</p>,
             code: `function maxSubArray(nums) {
   let best = -Infinity;
   for (let i = 0; i < nums.length; i++) {
@@ -29,11 +29,11 @@ export default function Questions() {
 }
 
 console.log(maxSubArray([-2, 1, -3, 4, -1, 2, 1, -5, 4])); // 6`,
-            explain: <p>O(n²) — too slow for 10<sup>5</sup> values.</p>,
+            explain: <p>O(n²). It is too slow for 10<sup>5</sup> values.</p>,
           },
           {
             name: "Kadane",
-            idea: <p>Extend or start again; keep the best.</p>,
+            idea: <p>At each item, extend the current run or start again. Keep the best sum you have seen.</p>,
             code: `function maxSubArray(nums) {
   let cur = nums[0], best = nums[0];
   for (let i = 1; i < nums.length; i++) {
@@ -46,12 +46,12 @@ console.log(maxSubArray([-2, 1, -3, 4, -1, 2, 1, -5, 4])); // 6`,
 console.log(maxSubArray([-2, 1, -3, 4, -1, 2, 1, -5, 4])); // 6
 console.log(maxSubArray([1]));                             // 1
 console.log(maxSubArray([-3, -1, -2]));                    // -1`,
-            explain: <p>O(n), O(1).</p>,
+            explain: <p>O(n) time, O(1) space.</p>,
           },
         ]}
-        compare={<p>Kadane is the expected answer; be ready to return the start and end indices as a follow-up. (LeetCode 53.)</p>}
+        compare={<p>Kadane is the answer interviewers expect. Be ready to return the start and end indices as a follow-up question. (LeetCode 53.)</p>}
       >
-        <p>Return the largest sum of any non-empty subarray.</p>
+        <p>Return the largest sum of any subarray that has at least one item.</p>
       </Problem>
 
       <Problem
@@ -60,13 +60,13 @@ console.log(maxSubArray([-3, -1, -2]));                    // -1`,
         level="Easy"
         examples={[
           { input: "[7, 1, 5, 3, 6, 4]", output: "5", why: "Buy at 1 (day 1), sell at 6 (day 4)." },
-          { input: "[7, 6, 4, 3, 1]", output: "0", why: "Prices only fall; do not trade." },
+          { input: "[7, 6, 4, 3, 1]", output: "0", why: "The prices only fall, so do not trade." },
         ]}
-        hints={[<>You must buy before you sell. For each day, what is the cheapest earlier price?</>]}
+        hints={[<>You must buy before you sell. For each day, ask: what is the cheapest earlier price?</>]}
         approaches={[
           {
             name: "Every pair of days",
-            idea: <p>Try every buy day and every later sell day.</p>,
+            idea: <p>Try every buy day with every later sell day.</p>,
             code: `function maxProfit(prices) {
   let best = 0;
   for (let i = 0; i < prices.length; i++)
@@ -80,7 +80,7 @@ console.log(maxProfit([7, 1, 5, 3, 6, 4])); // 5`,
           },
           {
             name: "Minimum so far",
-            idea: <p>Track the lowest price seen; at each day, try selling.</p>,
+            idea: <p>Keep the lowest price seen so far. On each day, try to sell.</p>,
             code: `function maxProfit(prices) {
   let minPrice = Infinity, best = 0;
   for (const p of prices) {
@@ -92,12 +92,12 @@ console.log(maxProfit([7, 1, 5, 3, 6, 4])); // 5`,
 
 console.log(maxProfit([7, 1, 5, 3, 6, 4])); // 5
 console.log(maxProfit([7, 6, 4, 3, 1]));    // 0`,
-            explain: <p>O(n), O(1). Updating the minimum first and then trying to sell means you never sell before buying (selling the same day gives profit 0).</p>,
+            explain: <p>O(n) time, O(1) space. First update the lowest price, then try to sell. This way you never sell before you buy. (If you buy and sell on the same day, the profit is 0.)</p>,
           },
         ]}
-        compare={<p>A very common first question. (LeetCode 121.)</p>}
+        compare={<p>This is a very common first question. (LeetCode 121.)</p>}
       >
-        <p>Choose one day to buy and a later day to sell. Return the maximum profit, or 0 if no profit is possible.</p>
+        <p>Choose one day to buy and a later day to sell. Return the largest profit. If you cannot make a profit, return 0.</p>
       </Problem>
 
       <Problem
@@ -108,11 +108,11 @@ console.log(maxProfit([7, 6, 4, 3, 1]));    // 0`,
           { input: "[7, 1, 5, 3, 6, 4]", output: "7", why: "Buy 1 sell 5 (+4), buy 3 sell 6 (+3)." },
           { input: "[1, 2, 3, 4, 5]", output: "4", why: "Buy 1 sell 5 — the same as collecting every daily rise." },
         ]}
-        hints={[<>With unlimited trades (holding at most one share), every upward step can be collected.</>]}
+        hints={[<>You can trade as many times as you like, and you hold at most one share. So you can collect every price rise.</>]}
         approaches={[
           {
             name: "Sum of positive daily changes",
-            idea: <p>Add <code>prices[i] − prices[i − 1]</code> whenever it is positive.</p>,
+            idea: <p>Add <code>prices[i] − prices[i − 1]</code> whenever the result is positive.</p>,
             code: `function maxProfit(prices) {
   let profit = 0;
   for (let i = 1; i < prices.length; i++) {
@@ -123,12 +123,12 @@ console.log(maxProfit([7, 6, 4, 3, 1]));    // 0`,
 
 console.log(maxProfit([7, 1, 5, 3, 6, 4])); // 7
 console.log(maxProfit([1, 2, 3, 4, 5]));    // 4`,
-            explain: <p>O(n). A long rise from 1 to 5 earns the same as its daily steps 1+1+1+1, so splitting trades never loses.</p>,
+            explain: <p>O(n) time. A long rise from 1 to 5 earns the same as its daily steps, 1+1+1+1. So splitting a trade into smaller trades never loses money.</p>,
           },
         ]}
-        compare={<p>Read the rule changes carefully: one trade (Question 2) and many trades need completely different solutions. (LeetCode 122.)</p>}
+        compare={<p>Read the rules with care. One trade (Question 2) and many trades need very different solutions. (LeetCode 122.)</p>}
       >
-        <p>You may buy and sell as many times as you like, but hold at most one share at a time. Return the maximum profit.</p>
+        <p>You may buy and sell as many times as you like, but you can hold at most one share at a time. Return the largest profit.</p>
       </Problem>
 
       <Problem
@@ -140,11 +140,11 @@ console.log(maxProfit([1, 2, 3, 4, 5]));    // 4`,
           { input: "[-2, 0, -1]", output: "0", why: "The 0 breaks any product; [0] itself gives 0." },
           { input: "[-2, 3, -4]", output: "24", why: "All three: the negatives cancel." },
         ]}
-        hints={[<>A negative number turns the smallest product into the largest. Track both.</>]}
+        hints={[<>A negative number turns the smallest product into the largest one. So keep both.</>]}
         approaches={[
           {
             name: "Kadane with max and min",
-            idea: <p>For each x, the new max and min come from x, hi × x and lo × x.</p>,
+            idea: <p>For each x, the new largest and smallest products come from three choices: x alone, hi × x and lo × x.</p>,
             code: `function maxProduct(nums) {
   let hi = nums[0], lo = nums[0], best = nums[0];
   for (let i = 1; i < nums.length; i++) {
@@ -160,12 +160,12 @@ console.log(maxProfit([1, 2, 3, 4, 5]));    // 4`,
 console.log(maxProduct([2, 3, -2, 4])); // 6
 console.log(maxProduct([-2, 0, -1]));   // 0
 console.log(maxProduct([-2, 3, -4]));   // 24`,
-            explain: <p>O(n), O(1). Computing <code>a</code> and <code>b</code> before changing <code>hi</code> matters: the new <code>lo</code> must use the old <code>hi</code>.</p>,
+            explain: <p>O(n) time, O(1) space. Work out <code>a</code> and <code>b</code> before you change <code>hi</code>. The new <code>lo</code> must use the old <code>hi</code>.</p>,
           },
         ]}
-        compare={<p>A classic follow-up to Question 1. (LeetCode 152.)</p>}
+        compare={<p>This is a classic follow-up to Question 1. (LeetCode 152.)</p>}
       >
-        <p>Return the largest product of any non-empty subarray.</p>
+        <p>Return the largest product of any subarray that has at least one item.</p>
       </Problem>
 
       <Problem
@@ -175,13 +175,13 @@ console.log(maxProduct([-2, 3, -4]));   // 24`,
         examples={[
           { input: "[1, -2, 3, -2]", output: "3", why: "[3]." },
           { input: "[5, -3, 5]", output: "10", why: "Wrap around: [5, 5]." },
-          { input: "[-3, -2, -3]", output: "-2", why: "All negative: the best is −2 on its own." },
+          { input: "[-3, -2, -3]", output: "-2", why: "All numbers are negative, so the best is −2 on its own." },
         ]}
-        hints={[<>Either the best subarray does not wrap (normal Kadane), or it does — then it is the total minus the smallest middle part.</>]}
+        hints={[<>The best subarray either does not wrap (use normal Kadane), or it wraps. If it wraps, its sum is the total minus the smallest middle part.</>]}
         approaches={[
           {
             name: "Max Kadane and min Kadane together",
-            idea: <p>One pass computing the total, the best maximum and the best minimum.</p>,
+            idea: <p>Make one pass. Work out the total, the best maximum and the best minimum.</p>,
             code: `function maxSubarraySumCircular(nums) {
   let total = 0, curMax = 0, bestMax = -Infinity, curMin = 0, bestMin = Infinity;
   for (const x of nums) {
@@ -207,9 +207,9 @@ console.log(maxSubarraySumCircular([-3, -2, -3]));   // -2`,
             ),
           },
         ]}
-        compare={<p>O(n), O(1). Turning &ldquo;wraps around&rdquo; into &ldquo;everything except a middle part&rdquo; is the key idea. (LeetCode 918.)</p>}
+        compare={<p>O(n) time, O(1) space. The key idea is to change &ldquo;wraps around&rdquo; into &ldquo;everything except a middle part&rdquo;. (LeetCode 918.)</p>}
       >
-        <p>The array is circular: the end connects back to the start. Return the largest sum of a non-empty subarray, which may wrap around.</p>
+        <p>The array is circular, so the end connects back to the start. Return the largest sum of a subarray that has at least one item. The subarray may wrap around.</p>
       </Problem>
 
       <Problem
@@ -217,14 +217,14 @@ console.log(maxSubarraySumCircular([-3, -2, -3]));   // -2`,
         title="Maximum absolute sum of any subarray"
         level="Medium"
         examples={[
-          { input: "[1, -3, 2, 3, -4]", output: "5", why: "[2, 3] has sum 5; no subarray has a sum below −5." },
+          { input: "[1, -3, 2, 3, -4]", output: "5", why: "[2, 3] has sum 5. The most negative subarray sum is only −4, so 5 is the answer." },
           { input: "[2, -5, 1, -4, 3, -2]", output: "8", why: "[−5, 1, −4] has sum −8, and |−8| = 8." },
         ]}
-        hints={[<>The largest absolute value is either the largest sum or the smallest (most negative) sum.</>]}
+        hints={[<>The absolute value of a sum is its size without the minus sign. The largest one comes from either the largest sum or the smallest (most negative) sum.</>]}
         approaches={[
           {
             name: "Max and min Kadane",
-            idea: <p>Run both versions in one pass; return the larger of best max and −(best min).</p>,
+            idea: <p>Run both versions in one pass. Return the larger of the best maximum and −(the best minimum).</p>,
             code: `function maxAbsoluteSum(nums) {
   let curMax = 0, curMin = 0, best = 0;
   for (const x of nums) {
@@ -237,12 +237,12 @@ console.log(maxSubarraySumCircular([-3, -2, -3]));   // -2`,
 
 console.log(maxAbsoluteSum([1, -3, 2, 3, -4]));     // 5
 console.log(maxAbsoluteSum([2, -5, 1, -4, 3, -2])); // 8`,
-            explain: <p>O(n), O(1). Another view: it equals (largest prefix sum) − (smallest prefix sum), using Lesson 20.</p>,
+            explain: <p>O(n) time, O(1) space. There is another way to see it. The answer equals (largest prefix sum) − (smallest prefix sum), using Lesson 20.</p>,
           },
         ]}
-        compare={<p>Once you know max Kadane and min Kadane, many variations take only a few lines. (LeetCode 1749.)</p>}
+        compare={<p>When you know the max version and the min version of Kadane, many variations take only a few lines. (LeetCode 1749.)</p>}
       >
-        <p>Return the largest absolute value of the sum of any subarray (the empty subarray, with sum 0, is allowed).</p>
+        <p>Return the largest absolute value of the sum of any subarray. The empty subarray, with sum 0, is allowed.</p>
       </Problem>
     </>
   );

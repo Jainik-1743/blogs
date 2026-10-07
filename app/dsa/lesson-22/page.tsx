@@ -137,9 +137,9 @@ export default function DsaLessonTwentyTwoPage() {
     <DsaLessonPage lesson={lesson} outline={outline}>
       <h2 id="concept">Every block of k items</h2>
       <p>
-        A large family of problems asks about every <strong>window</strong> — every block of k neighbouring items —
-        in an array or string: the largest sum of 3 consecutive days, the average of every 5 readings, the most
-        vowels in any 4 letters. There are n − k + 1 such windows.
+        Many problems ask about every <strong>window</strong>. A window is a block of k items that sit next to each
+        other in an array or a string. Examples: the largest sum of 3 days in a row, the average of every 5
+        readings, or the most vowels in any 4 letters in a row. An array of n items has n − k + 1 such windows.
       </p>
       <ArrayBoxes
         values={[2, 1, 5, 1, 3, 2]}
@@ -153,18 +153,20 @@ export default function DsaLessonTwentyTwoPage() {
       <p>Computing each window from scratch costs k steps per window:</p>
       <CodeBlock lang="js" code={bruteCode} />
       <p>
-        That is O(n × k). With n = 10<sup>5</sup> and k = 5 × 10<sup>4</sup>, it is billions of steps. But
-        neighbouring windows share k − 1 items. Re-adding them is the wasted work Lesson 11 told us to look for.
+        That costs O(n × k) steps. With n = 10<sup>5</sup> and k = 5 × 10<sup>4</sup>, it is billions of steps. But
+        two windows that sit next to each other share k − 1 items. Adding those items again and again is wasted
+        work. Lesson 11 told us to look for this kind of waste.
       </p>
 
       <h2 id="slide">Slide: add one, remove one</h2>
       <p>
-        Moving the window one step to the right changes only two items: one enters on the right, one leaves on the
-        left. So update the sum instead of recomputing it:
+        When the window moves one step to the right, only two items change. One item enters on the right and one
+        item leaves on the left. So do not add everything again. Just update the sum:
       </p>
       <Callout kind="ok" label="Sliding window update">
         <p className="mb-0">
-          <code>sum = sum + nums[i] − nums[i − k]</code> — the new item in, the item k positions back out.
+          <code>sum = sum + nums[i] − nums[i − k]</code>. Add the new item, and take away the item that is k
+          positions back.
         </p>
       </Callout>
 
@@ -172,7 +174,7 @@ export default function DsaLessonTwentyTwoPage() {
       <CodeTrace
         code={slideCode}
         steps={slideTrace()}
-        caption="The first window is built normally; every later window costs O(1). Total O(n), whatever k is."
+        caption="The first window is built the normal way. Every later window costs O(1), which is one quick step. The total is O(n), whatever the value of k is."
       />
       <DryRun
         title="the four windows of size 3"
@@ -188,29 +190,34 @@ export default function DsaLessonTwentyTwoPage() {
 
       <h2 id="template">The fixed-window template</h2>
       <p>
-        You can avoid building the first window separately. Walk once; at each index, add the entering item, remove
-        the leaving one (once the window is full), and use the window when it is complete:
+        You do not need to build the first window separately. Walk through the array once. At each index, add the
+        item that enters. Remove the item that leaves, but only once the window is full. Use the window when it is
+        complete:
       </p>
       <CodeBlock lang="js" code={templateCode} />
       <p>
-        The three numbered steps are the whole pattern. Only the <em>state</em> changes from problem to problem: a sum,
-        a count, or a frequency map. Check the two conditions carefully — <code>i &gt;= k</code> (something must leave)
-        and <code>i &gt;= k - 1</code> (a full window exists) — they are the usual off-by-one spots.
+        The three numbered steps are the whole pattern. Only the <em>state</em> changes from problem to problem. The
+        state is the information you keep about the window, such as a sum, a count, or a frequency map (a Map that
+        counts each value). Check the two conditions with care. <code>i &gt;= k</code> means &ldquo;an item must
+        leave&rdquo;. <code>i &gt;= k - 1</code> means &ldquo;a full window exists&rdquo;. These are the places where
+        off-by-one mistakes (being wrong by exactly one) usually happen.
       </p>
 
       <h2 id="averages">Averages of every window</h2>
-      <p>A moving average — common for prices or sensor readings — is the window sum divided by k:</p>
+      <p>A moving average is the average of the last k values, and it updates as the window moves. People use it for prices or sensor readings. It is the window sum divided by k:</p>
       <CodeBlock lang="js" code={avgCode} />
 
       <h2 id="counting">Counting inside a window</h2>
-      <p>The state can be a count instead of a sum. Here: the most vowels in any k consecutive letters.</p>
+      <p>The state can be a count instead of a sum. In this example we find the most vowels (a, e, i, o, u) in any k letters in a row.</p>
       <CodeBlock lang="js" code={vowelCode} />
 
       <h2 id="map">A window with a frequency map</h2>
       <p>
-        When the question is about <em>which</em> values are in the window — distinct values, anagrams, duplicates — the
-        state is a frequency map (Lesson 15). Add the entering value, decrease the leaving one, and delete keys whose
-        count reaches 0 so that <code>freq.size</code> stays equal to the number of distinct values.
+        Sometimes the question is about <em>which</em> values are in the window. For example: how many distinct
+        (different) values, anagrams, or duplicates. Then the state is a frequency map (Lesson 15). A frequency map
+        is a Map that stores how many times each value appears. Add one to the count of the value that enters.
+        Subtract one from the count of the value that leaves. Delete a key when its count reaches 0. This keeps{" "}
+        <code>freq.size</code> equal to the number of distinct values.
       </p>
       <CodeBlock lang="js" code={distinctCode} />
       <DryRun
@@ -226,7 +233,7 @@ export default function DsaLessonTwentyTwoPage() {
       />
 
       <h2 id="practice">Practice questions</h2>
-      <p>For each question, name the window state first (sum, count or map), then fill in the template.</p>
+      <p>For each question, first decide what the window state is (a sum, a count or a map). Then fill in the template.</p>
 
       <Questions />
 
@@ -241,9 +248,9 @@ export default function DsaLessonTwentyTwoPage() {
 
       <h2 id="next">What&apos;s next</h2>
       <p>
-        Here the window size was fixed. In Lesson 23 the window <strong>grows and shrinks</strong>: it expands while a
-        condition holds and contracts when it breaks — the technique behind &ldquo;longest substring without repeating
-        characters&rdquo; and many other favourites.
+        In this lesson the window size was fixed. In Lesson 23 the window <strong>grows and shrinks</strong>. It
+        gets bigger while a rule is true, and it gets smaller when the rule breaks. This is the technique behind
+        &ldquo;longest substring without repeating characters&rdquo; and many other popular problems.
       </p>
     </DsaLessonPage>
   );

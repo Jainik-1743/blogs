@@ -20,11 +20,11 @@ export default function Questions() {
 }
 
 console.log(runningSum([1, 2, 3, 4])); // [ 1, 3, 6, 10 ]`,
-            explain: <p>O(n²): the slice and the sum are hidden loops.</p>,
+            explain: <p>This is O(n²). The slice and the sum each run a loop that you cannot see.</p>,
           },
           {
             name: "Carry the total",
-            idea: <p>Add each value to the one before it, in place.</p>,
+            idea: <p>Add the previous value to each value, in place (inside the same array).</p>,
             code: `function runningSum(nums) {
   for (let i = 1; i < nums.length; i++) nums[i] += nums[i - 1];
   return nums;
@@ -32,10 +32,10 @@ console.log(runningSum([1, 2, 3, 4])); // [ 1, 3, 6, 10 ]`,
 
 console.log(runningSum([1, 2, 3, 4]));    // [ 1, 3, 6, 10 ]
 console.log(runningSum([3, 1, 2, 10, 1])); // [ 3, 4, 6, 16, 17 ]`,
-            explain: <p>O(n), O(1) extra space. This is a prefix array without the leading 0.</p>,
+            explain: <p>O(n) time, O(1) extra space. The result is a prefix array without the leading 0.</p>,
           },
         ]}
-        compare={<p>The whole lesson in one line: reuse the previous total instead of recomputing it. (LeetCode 1480.)</p>}
+        compare={<p>The whole lesson in one line: reuse the previous total, do not work it out again. (LeetCode 1480.)</p>}
       >
         <p>Return the running sum of <code>nums</code>.</p>
       </Problem>
@@ -47,7 +47,7 @@ console.log(runningSum([3, 1, 2, 10, 1])); // [ 3, 4, 6, 16, 17 ]`,
         examples={[
           { input: "nums = [-2, 0, 3, -5, 2, -1]; sumRange(0, 2), sumRange(2, 5), sumRange(0, 5)", output: "1, -1, -3", why: "−2 + 0 + 3 = 1; 3 − 5 + 2 − 1 = −1; the whole array is −3." },
         ]}
-        hints={[<>Build the prefix array in the constructor. Each query is then one subtraction.</>]}
+        hints={[<>Build the prefix array in the constructor (the setup method of a class). Then each query is one subtraction.</>]}
         approaches={[
           {
             name: "Prefix array in a class",
@@ -66,12 +66,12 @@ const na = new NumArray([-2, 0, 3, -5, 2, -1]);
 console.log(na.sumRange(0, 2)); // 1
 console.log(na.sumRange(2, 5)); // -1
 console.log(na.sumRange(0, 5)); // -3`,
-            explain: <p>O(n) to build, O(1) per query, O(n) space. Negative values work exactly the same.</p>,
+            explain: <p>O(n) to build, O(1) per query, O(n) space. Negative values work in the same way.</p>,
           },
         ]}
-        compare={<p>The standard prefix-sum design question. If the array could also be <em>updated</em>, a prefix array would need O(n) per update — a different structure (a Fenwick or segment tree) is used then. (LeetCode 303.)</p>}
+        compare={<p>This is the standard prefix-sum design question. If the array could also be <em>changed</em> later, a prefix array would need O(n) work for each change. Then people use a different structure, such as a Fenwick tree or a segment tree. (LeetCode 303.)</p>}
       >
-        <p>Design a class that is given an array once and then answers many &ldquo;sum of nums[left..right]&rdquo; queries quickly.</p>
+        <p>Design a class that receives an array once. After that, it must answer many &ldquo;sum of nums[left..right]&rdquo; queries quickly.</p>
       </Problem>
 
       <Problem
@@ -87,7 +87,7 @@ console.log(na.sumRange(0, 5)); // -3`,
         approaches={[
           {
             name: "Total and a running left sum",
-            idea: <p>Compute the total once, then walk with a left sum.</p>,
+            idea: <p>Work out the total once. Then walk through the array and keep a left sum.</p>,
             code: `function pivotIndex(nums) {
   const total = nums.reduce((a, b) => a + b, 0);
   let left = 0;
@@ -101,12 +101,12 @@ console.log(na.sumRange(0, 5)); // -3`,
 console.log(pivotIndex([1, 7, 3, 6, 5, 6])); // 3
 console.log(pivotIndex([1, 2, 3]));          // -1
 console.log(pivotIndex([2, 1, -1]));         // 0`,
-            explain: <p>O(n) time, O(1) space. Checking before adding <code>nums[i]</code> to <code>left</code> keeps the pivot itself out of both sides.</p>,
+            explain: <p>O(n) time, O(1) space. You check before you add <code>nums[i]</code> to <code>left</code>. This keeps the pivot item itself out of both sides.</p>,
           },
         ]}
-        compare={<p>Note the edge case in example 3: an index can be the pivot even when one side is empty. (LeetCode 724.)</p>}
+        compare={<p>Look at the edge case in example 3. An index can be the pivot even when one side is empty. (LeetCode 724.)</p>}
       >
-        <p>Return the leftmost index where the sum of the values strictly to its left equals the sum strictly to its right, or −1.</p>
+        <p>Return the leftmost index where the sum of the values to its left equals the sum of the values to its right. If there is no such index, return −1.</p>
       </Problem>
 
       <Problem
@@ -115,16 +115,16 @@ console.log(pivotIndex([2, 1, -1]));         // 0`,
         level="Medium"
         examples={[
           { input: "[1, 2, 3, 4]", output: "[24, 12, 8, 6]", why: "For index 0: 2 × 3 × 4 = 24, and so on." },
-          { input: "[-1, 1, 0, -3, 3]", output: "[0, 0, 9, 0, 0]", why: "Only index 2 (the zero) has a product of non-zero values: −1 × 1 × −3 × 3 = 9." },
+          { input: "[-1, 1, 0, -3, 3]", output: "[0, 0, 9, 0, 0]", why: "Only index 2 (the zero) has a non-zero answer. It is the product of the other values: −1 × 1 × −3 × 3 = 9. Every other answer includes the zero, so it is 0." },
         ]}
         hints={[
-          <>Division is not allowed (and would fail with zeros).</>,
+          <>Division is not allowed. It would also fail when the array has zeros.</>,
           <>out[i] = (product of everything left of i) × (product of everything right of i).</>,
         ]}
         approaches={[
           {
             name: "Two passes with running products",
-            idea: <p>Left pass stores the left product; right pass multiplies in the right product.</p>,
+            idea: <p>The left pass stores the left product at each place. The right pass multiplies in the right product.</p>,
             code: `function productExceptSelf(nums) {
   const n = nums.length;
   const out = new Array(n);
@@ -137,12 +137,12 @@ console.log(pivotIndex([2, 1, -1]));         // 0`,
 
 console.log(productExceptSelf([1, 2, 3, 4]));      // [ 24, 12, 8, 6 ]
 console.log(productExceptSelf([-1, 1, 0, -3, 3])); // [ -0, 0, 9, -0, 0 ]`,
-            explain: <p>O(n) time, O(1) extra space besides the output. JavaScript prints <code>-0</code> where a negative was multiplied by 0; <code>-0 === 0</code> is true, so it is the correct answer.</p>,
+            explain: <p>O(n) time, O(1) extra space (the output array does not count). JavaScript prints <code>-0</code> (&ldquo;negative zero&rdquo;) when a negative number is multiplied by 0. In JavaScript <code>-0 === 0</code> is true, so it is still the correct answer.</p>,
           },
         ]}
-        compare={<p>A classic: prefix and suffix products without division. (LeetCode 238.)</p>}
+        compare={<p>This is a classic: prefix and suffix products, with no division. (LeetCode 238.)</p>}
       >
-        <p>Return an array where each position holds the product of every other value. Do it in O(n) without division.</p>
+        <p>Return an array where each position holds the product of all the other values. Do it in O(n) time, without division.</p>
       </Problem>
 
       <Problem
@@ -154,13 +154,13 @@ console.log(productExceptSelf([-1, 1, 0, -3, 3])); // [ -0, 0, 9, -0, 0 ]`,
           { input: "nums = [1, 2, 3], k = 3", output: "2", why: "[1, 2] and [3]." },
         ]}
         hints={[
-          <>Brute force: every start, every end. O(n²).</>,
-          <>A subarray ending here sums to k exactly when an earlier prefix sum equals (current prefix − k). Count earlier prefix sums in a Map.</>,
+          <>Brute force: try every start and every end. That is O(n²).</>,
+          <>A subarray that ends here has sum k exactly when an earlier prefix sum equals (current prefix − k). Count the earlier prefix sums in a Map.</>,
         ]}
         approaches={[
           {
             name: "Every start, running sum",
-            idea: <p>For each start, extend the end one by one while keeping a running sum.</p>,
+            idea: <p>For each start, move the end one step at a time and keep a running sum.</p>,
             code: `function subarraySum(nums, k) {
   let count = 0;
   for (let i = 0; i < nums.length; i++) {
@@ -174,7 +174,7 @@ console.log(productExceptSelf([-1, 1, 0, -3, 3])); // [ -0, 0, 9, -0, 0 ]`,
 }
 
 console.log(subarraySum([1, 1, 1], 2)); // 2`,
-            explain: <p>O(n²) time — too slow for 2 × 10<sup>4</sup> values with many queries, but a correct baseline.</p>,
+            explain: <p>O(n²) time. It is too slow for 2 × 10<sup>4</sup> values, but it gives the right answer, so it is a good first version.</p>,
           },
           {
             name: "Prefix sums in a Map",
@@ -192,12 +192,12 @@ console.log(subarraySum([1, 1, 1], 2)); // 2`,
 
 console.log(subarraySum([1, 1, 1], 2)); // 2
 console.log(subarraySum([1, 2, 3], 3)); // 2`,
-            explain: <p>O(n) time, O(n) space. Works with negative numbers and zeros.</p>,
+            explain: <p>O(n) time, O(n) space. It works with negative numbers and zeros.</p>,
           },
         ]}
-        compare={<p>One of the most important medium problems. Learn the four lines inside the loop by heart. (LeetCode 560.)</p>}
+        compare={<p>This is one of the most important medium problems. Learn the lines inside the loop by heart. (LeetCode 560.)</p>}
       >
-        <p>Return the number of subarrays whose values add up to exactly <code>k</code>. Values may be negative.</p>
+        <p>Return the number of subarrays whose values add up to exactly <code>k</code>. The values can be negative.</p>
       </Problem>
 
       <Problem
@@ -210,13 +210,13 @@ console.log(subarraySum([1, 2, 3], 3)); // 2`,
           { input: "[0, 0, 1, 0, 0, 0, 1, 1]", output: "6", why: "Indices 2–7: [1, 0, 0, 0, 1, 1] has three of each." },
         ]}
         hints={[
-          <>Treat each 0 as −1. Then &ldquo;equal counts&rdquo; means &ldquo;sum is 0&rdquo;.</>,
-          <>A subarray has sum 0 when two prefix sums are equal. For the <em>longest</em>, remember the <em>first</em> index of each prefix sum.</>,
+          <>Treat each 0 as −1. Then &ldquo;equal numbers of 0s and 1s&rdquo; means &ldquo;the sum is 0&rdquo;.</>,
+          <>A subarray has sum 0 when two prefix sums are equal. To get the <em>longest</em> one, remember the <em>first</em> index where each prefix sum appeared.</>,
         ]}
         approaches={[
           {
             name: "Prefix sum → first index",
-            idea: <p>Running sum with 0 as −1. If the same sum was seen before at index j, the part after j sums to 0.</p>,
+            idea: <p>Keep a running sum, and count each 0 as −1. If you saw the same sum before at index j, the part after j has sum 0.</p>,
             code: `function findMaxLength(nums) {
   const first = new Map([[0, -1]]);    // sum 0 "seen" just before index 0
   let sum = 0, best = 0;
@@ -245,9 +245,9 @@ console.log(findMaxLength([0, 0, 1, 0, 0, 0, 1, 1])); // 6`,
             ),
           },
         ]}
-        compare={<p>Two changes from Question 5: store the first <em>index</em> (not a count), and transform the values (0 → −1). O(n) time and space. (LeetCode 525.)</p>}
+        compare={<p>There are two changes from Question 5. First, store the first <em>index</em> (not a count). Second, change the values (0 becomes −1). It takes O(n) time and O(n) space. (LeetCode 525.)</p>}
       >
-        <p>Given an array of 0s and 1s, return the length of the longest subarray with an equal number of each.</p>
+        <p>You get an array of 0s and 1s. Return the length of the longest subarray that has the same number of 0s and 1s.</p>
       </Problem>
 
       <Problem
@@ -259,13 +259,13 @@ console.log(findMaxLength([0, 0, 1, 0, 0, 0, 1, 1])); // 6`,
           { input: "nums = [5], k = 9", output: "0", why: "5 is not divisible by 9." },
         ]}
         hints={[
-          <>A subarray sum is divisible by k when two prefix sums have the <em>same remainder</em> modulo k.</>,
-          <>Count remainders in a Map. Remember from Lesson 13: in JavaScript, <code>-7 % 5</code> is <code>-2</code>, so normalise.</>,
+          <>A subarray sum is divisible by k when two prefix sums have the <em>same remainder</em> after dividing by k (the remainder is also called &ldquo;modulo k&rdquo;).</>,
+          <>Count the remainders in a Map. Remember from Lesson 13 that in JavaScript <code>-7 % 5</code> is <code>-2</code> (a negative remainder). So you must change it to a non-negative one.</>,
         ]}
         approaches={[
           {
             name: "Count prefix remainders",
-            idea: <p>Like Question 5, but the Map key is <code>sum mod k</code>, made non-negative.</p>,
+            idea: <p>This is like Question 5, but the Map key is the remainder <code>sum mod k</code>, made non-negative.</p>,
             code: `function subarraysDivByK(nums, k) {
   const seen = new Map([[0, 1]]);
   let sum = 0, count = 0;
@@ -280,10 +280,10 @@ console.log(findMaxLength([0, 0, 1, 0, 0, 0, 1, 1])); // 6`,
 
 console.log(subarraysDivByK([4, 5, 0, -2, -3, 1], 5)); // 7
 console.log(subarraysDivByK([5], 9));                  // 0`,
-            explain: <p>O(n) time, O(k) space. Without the <code>+ k</code> fix, the remainders −2 and 3 would be counted as different, and the answer would be wrong.</p>,
+            explain: <p>O(n) time, O(k) space. Without the <code>+ k</code> fix, the remainders −2 and 3 would count as different, but they mean the same thing when k = 5. The answer would be wrong.</p>,
           },
         ]}
-        compare={<p>Prefix sums combined with modular arithmetic — two earlier lessons in one problem. (LeetCode 974.)</p>}
+        compare={<p>This problem joins prefix sums with modular arithmetic (working with remainders). It uses two earlier lessons together. (LeetCode 974.)</p>}
       >
         <p>Return the number of non-empty subarrays whose sum is divisible by <code>k</code>.</p>
       </Problem>

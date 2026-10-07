@@ -56,12 +56,12 @@ function shortestTrace() {
   const t = tracer();
   const nums = [2, 3, 1, 2, 4, 3], target = 7;
   let l = 0, sum = 0, best = Infinity;
-  t.step(2, "start", "l = 0, sum = 0, best = Infinity", "No window yet. Infinity means “no valid window found”.", { nums, l, sum, best });
+  t.step(2, "start", "l = 0, sum = 0, best = Infinity", "No window yet. Infinity (bigger than any number) means “no valid window found yet”.", { nums, l, sum, best });
   for (let r = 0; r < nums.length; r++) {
     sum += nums[r];
     t.step(4, "update", `r = ${r}: sum += ${nums[r]} → ${sum}`, `Grow: the window is now ${l}..${r}.`, { nums, l, r, sum, best }, "sum");
     if (sum < target) {
-      t.step(5, "check", `${sum} >= 7? no`, "Not enough yet — keep growing.", { nums, l, r, sum, best });
+      t.step(5, "check", `${sum} >= 7? no`, "Not enough yet, so keep growing.", { nums, l, r, sum, best });
     }
     while (sum >= target) {
       t.step(5, "check", `${sum} >= 7? yes`, `Window ${l}..${r} is valid. Record it, then try to make it shorter.`, { nums, l, r, sum, best });
@@ -73,7 +73,7 @@ function shortestTrace() {
     }
   }
   t.print(best);
-  t.step(11, "print", "console.log(best)", "[4, 3] is the shortest window with sum ≥ 7. Each index entered once and left once: O(n).", { nums, best });
+  t.step(11, "print", "console.log(best)", "[4, 3] is the shortest window with sum ≥ 7. Each index entered the window once and left once, so the time is O(n).", { nums, best });
   return t.steps;
 }
 
@@ -136,43 +136,45 @@ export default function DsaLessonTwentyThreePage() {
     <DsaLessonPage lesson={lesson} outline={outline}>
       <h2 id="concept">When the window size is the answer</h2>
       <p>
-        In Lesson 22, k was given. Now the question asks for the size: <em>the longest</em> substring without
-        repeated letters, <em>the shortest</em> subarray with sum at least 7. Trying every start and every end is
-        O(n²). A <strong>variable-size window</strong> finds the answer in O(n) with two pointers, <code>l</code>{" "}
-        and <code>r</code>, that only ever move forward.
+        In Lesson 22 the window size k was given. Now the size is the thing you must find. Examples: <em>the
+        longest</em> substring without repeated letters, or <em>the shortest</em> subarray with a sum of at least 7.
+        (A substring is a block of letters in a row, and a subarray is a block of array items in a row.) Trying
+        every start and every end costs O(n²). A <strong>variable-size window</strong> is a window that can grow
+        and shrink. It finds the answer in O(n). It uses two pointers, <code>l</code> (left) and <code>r</code>{" "}
+        (right), and they only move forward.
       </p>
 
       <h2 id="template">The grow-and-shrink template</h2>
       <p>
-        Move <code>r</code> one step at a time to <strong>grow</strong> the window. Whenever the window breaks the
-        rule, move <code>l</code> forward to <strong>shrink</strong> it until it follows the rule again. Then the
-        window <code>l..r</code> is valid, and you can use it.
+        Move <code>r</code> one step at a time to <strong>grow</strong> the window. Sometimes the window breaks the
+        rule of the problem. When that happens, move <code>l</code> forward to <strong>shrink</strong> the window,
+        until it follows the rule again. Now the window <code>l..r</code> is valid, and you can use it.
       </p>
       <CodeBlock lang="js" code={templateCode} />
       <p>
         It looks like a loop inside a loop, but <code>l</code> never moves backwards. Over the whole run,{" "}
-        <code>r</code> moves n times and <code>l</code> moves at most n times — at most 2n steps, so{" "}
-        <strong>O(n)</strong>.
+        <code>r</code> moves n times and <code>l</code> moves at most n times. That is at most 2n steps in total, so
+        the time is <strong>O(n)</strong>.
       </p>
 
       <h2 id="shortest">Shortest window with a condition</h2>
       <p>
-        For &ldquo;shortest&rdquo; problems, the logic flips slightly: grow until the window <em>is</em> good, then
-        shrink it as long as it stays good, recording the length each time.
+        For &ldquo;shortest&rdquo; problems, the logic is the other way round. Grow the window until it <em>is</em>
+        good. Then shrink it for as long as it stays good, and record its length each time.
       </p>
 
       <h2 id="trace">Traced: shortest subarray with sum ≥ 7</h2>
       <CodeTrace
         code={shortestCode}
         steps={shortestTrace()}
-        caption="Grow until the sum reaches 7, then shrink while it stays at 7 or more, recording each valid length."
+        caption="Grow the window until the sum reaches 7. Then shrink it while the sum stays at 7 or more, and record each valid length."
       />
 
       <h2 id="longest">Longest window with a condition</h2>
       <p>
-        For &ldquo;longest&rdquo; problems, shrink only while the window is <em>bad</em>, and record after the
-        shrinking. A common example: the longest run of 1s if you may flip at most k zeros. The rule is &ldquo;at
-        most k zeros inside the window&rdquo;:
+        For &ldquo;longest&rdquo; problems, shrink the window only while it is <em>bad</em>. Record the length after
+        the shrinking is done. A common example is: find the longest run of 1s if you may flip (change) at most k
+        zeros into 1s. The rule is &ldquo;at most k zeros inside the window&rdquo;:
       </p>
       <CodeBlock lang="js" code={longestCode} />
       <div className="table-wrap">
@@ -194,34 +196,37 @@ export default function DsaLessonTwentyThreePage() {
 
       <h2 id="atmost">“At most k” problems</h2>
       <p>
-        Many problems have the form &ldquo;longest window with at most k of something&rdquo; — k zeros, k distinct
-        values, k replaced characters. The window state is a count or a frequency map, and the rule is
-        &ldquo;that count ≤ k&rdquo;.
+        Many problems have the form &ldquo;the longest window with at most k of something&rdquo;. The something can
+        be zeros, distinct (different) values, or replaced characters. The window state is a count or a frequency
+        map (a Map that stores how many times each value appears). The rule is &ldquo;that count must be ≤ k&rdquo;.
       </p>
       <CodeBlock lang="js" code={atMostCode} />
 
       <h2 id="counting">Counting windows, and “exactly k”</h2>
       <p>
-        To <em>count</em> valid subarrays instead of finding the longest, notice: if <code>l..r</code> is valid and
-        the rule is &ldquo;at most&rdquo;, then every shorter window ending at r is valid too. There are{" "}
-        <code>r − l + 1</code> of them, so add that each step.
+        Sometimes you must <em>count</em> the valid subarrays, not find the longest one. Look at this fact. If{" "}
+        <code>l..r</code> is valid and the rule is &ldquo;at most&rdquo;, then every shorter window that ends at r is
+        valid too. There are <code>r − l + 1</code> of them. So add <code>r − l + 1</code> to the count at each step.
       </p>
       <p>
-        &ldquo;Exactly k&rdquo; is harder to slide directly, because adding an item can make the window invalid
-        and then valid again. The trick: <strong>exactly k = at most k − at most (k − 1)</strong>.
+        &ldquo;Exactly k&rdquo; is harder to do with one window. When you add an item, the window can become invalid
+        and then valid again, so the shrink rule does not work. Use this trick instead:{" "}
+        <strong>exactly k = at most k − at most (k − 1)</strong>. &ldquo;At most k&rdquo; counts the windows
+        that have k or fewer different values. &ldquo;At most k − 1&rdquo; counts the windows that have fewer than
+        k. So the difference leaves only the windows with exactly k.
       </p>
       <CodeBlock lang="js" code={countCode} />
 
       <h2 id="when">When a sliding window works — and when it does not</h2>
       <p>
-        The window only works when shrinking always helps. For sums, that needs <strong>non-negative values</strong>:
-        removing an item must never increase the sum. With negative numbers, a longer window can have a smaller sum,
-        and the grow-and-shrink logic gives wrong answers.
+        A window works only when shrinking always helps in the same direction. For sums, this needs{" "}
+        <strong>non-negative values</strong> (zero or bigger). Removing an item must never make the sum bigger. With
+        negative numbers, a longer window can have a smaller sum. Then the grow-and-shrink logic gives wrong answers.
       </p>
       <Callout kind="warn" label="Negative numbers → use prefix sums instead">
         <p className="mb-0">
-          &ldquo;Count subarrays with sum exactly k&rdquo; on an array that may contain negative values cannot be
-          solved with a sliding window. Use prefix sums with a Map (Lesson 20).
+          Suppose you must &ldquo;count the subarrays with a sum of exactly k&rdquo;, and the array may have negative
+          values. A sliding window cannot solve this. Use prefix sums with a Map (Lesson 20) instead.
         </p>
       </Callout>
       <DryRun
@@ -236,7 +241,7 @@ export default function DsaLessonTwentyThreePage() {
       />
 
       <h2 id="practice">Practice questions</h2>
-      <p>For each, decide: is it a &ldquo;longest&rdquo;, &ldquo;shortest&rdquo; or &ldquo;count&rdquo; question, and what is the rule that makes a window valid?</p>
+      <p>For each question, decide two things. Is it a &ldquo;longest&rdquo;, &ldquo;shortest&rdquo; or &ldquo;count&rdquo; question? What rule makes a window valid?</p>
 
       <Questions />
 
@@ -252,8 +257,9 @@ export default function DsaLessonTwentyThreePage() {
 
       <h2 id="next">What&apos;s next</h2>
       <p>
-        Lesson 24 solves &ldquo;the largest sum of any subarray&rdquo; — a problem where windows do not work because
-        values can be negative — with Kadane&apos;s algorithm: one pass and one simple decision per item.
+        Lesson 24 solves &ldquo;the largest sum of any subarray&rdquo;. Windows do not work for this problem,
+        because the values can be negative. Instead we use Kadane&apos;s algorithm. It needs one pass and one simple
+        choice for each item.
       </p>
     </DsaLessonPage>
   );

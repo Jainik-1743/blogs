@@ -143,21 +143,22 @@ export default function DsaLessonTwentyOnePage() {
     <DsaLessonPage lesson={lesson} outline={outline}>
       <h2 id="concept">Two indices instead of two loops</h2>
       <p>
-        Many array problems look at <em>pairs</em> of items. The obvious solution is a loop inside a loop:
-        O(n²). The <strong>two-pointer</strong> pattern replaces the two loops with two indices that each move
-        through the array only once — O(n) in total. It comes in two forms:
+        Many array problems look at <em>pairs</em> of items. The obvious solution is a loop inside a loop, which
+        costs O(n²) steps. The <strong>two-pointer</strong> technique uses two indices (called pointers) instead
+        of two loops. Each pointer moves through the array only once, so the total is O(n). It comes in two forms:
       </p>
       <ul>
-        <li><strong>From both ends</strong>, moving towards each other — usually on a sorted array.</li>
-        <li><strong>In the same direction</strong>, one ahead of the other — the read/write pattern from Lesson 19.</li>
+        <li><strong>From both ends</strong>. The pointers start at the two ends and move towards each other. You usually use this on a sorted array.</li>
+        <li><strong>In the same direction</strong>. One pointer stays ahead of the other. This is the read/write pattern from Lesson 19.</li>
       </ul>
-      <p>The skill is knowing <em>which pointer to move</em>, and being able to explain why that move cannot skip the answer.</p>
+      <p>The main skill is knowing <em>which pointer to move</em>. You must also be able to explain why that move cannot skip the answer.</p>
 
       <h2 id="pair">Pair sum in a sorted array</h2>
       <p>
-        Find two values in a <strong>sorted</strong> array that add up to a target. Put <code>l</code> at the start
-        and <code>r</code> at the end. If the sum is too small, the only way to increase it is to move{" "}
-        <code>l</code> right. If it is too big, move <code>r</code> left.
+        Find two values in a <strong>sorted</strong> array (smallest first) that add up to a target. Put{" "}
+        <code>l</code> (left) at the start and <code>r</code> (right) at the end. If the sum is too small, the only
+        way to make it bigger is to move <code>l</code> to the right. If the sum is too big, move <code>r</code> to
+        the left.
       </p>
 
       <h2 id="trace">Traced: find two values adding to 10</h2>
@@ -170,50 +171,55 @@ export default function DsaLessonTwentyOnePage() {
 
       <h2 id="why">Why it never misses the answer</h2>
       <p>
-        This is the question interviewers ask. When <code>nums[l] + nums[r]</code> is too small, every other
-        partner for <code>nums[l]</code> is at most <code>nums[r]</code> (the array is sorted), so every pair using{" "}
-        <code>nums[l]</code> is also too small. <code>nums[l]</code> cannot be part of the answer, and moving{" "}
-        <code>l</code> loses nothing. The &ldquo;too big&rdquo; case is the mirror image. Each move removes one value
-        that provably cannot be used.
+        Interviewers often ask this question. Say <code>nums[l] + nums[r]</code> is too small. Because the array is
+        sorted, every other partner for <code>nums[l]</code> is at most <code>nums[r]</code>. So every pair that
+        uses <code>nums[l]</code> is also too small. This means <code>nums[l]</code> cannot be part of the answer,
+        and moving <code>l</code> loses nothing. The &ldquo;too big&rdquo; case is the same idea from the other
+        side. Each move removes one value that we can prove is not needed.
       </p>
       <Callout kind="note" label="Two Sum without sorting">
         <p className="mb-0">
-          If the array is not sorted and you must return the original indices, sorting would scramble them. Then the
-          Map approach from Lesson 26 is better: O(n) without sorting.
+          Sometimes the array is not sorted and you must return the original indices. Sorting would change the
+          positions. In that case, the Map approach from Lesson 26 is better. It takes O(n) time and needs no sorting.
         </p>
       </Callout>
 
       <h2 id="same">Same-direction pointers</h2>
       <p>
         In the second form, both pointers move forward, but at different speeds. Lesson 19 used it to remove
-        duplicates and move zeros. Another classic: checking whether one string is a <strong>subsequence</strong> of
-        another — its letters appear in order, though not necessarily side by side.
+        duplicates and to move zeros. Here is another classic problem. A <strong>subsequence</strong> of a string
+        is made by taking some of its letters in the same order. The letters do not have to be next to each other.
+        For example, &ldquo;ace&rdquo; is a subsequence of &ldquo;abcde&rdquo;. The task is to check whether one
+        string is a subsequence of another.
       </p>
       <CodeBlock lang="js" code={subseqCode} />
       <p>
-        <code>j</code> moves every step; <code>i</code> moves only when it finds a match. O(n + m) instead of trying
-        every way to pick letters. The sliding windows in Lessons 22 and 23 are also same-direction pointers.
+        <code>j</code> moves at every step. <code>i</code> moves only when it finds a match. This takes O(n + m)
+        steps (n and m are the two string lengths). You do not have to try every way of picking letters. The sliding
+        windows in Lessons 22 and 23 also use pointers that move in the same direction.
       </p>
 
       <h2 id="threesum">3Sum: fix one, two-pointer the rest</h2>
       <p>
-        Find all <em>unique</em> triples that add up to 0. Three nested loops are O(n³). Instead: sort, fix the first
-        value <code>nums[i]</code>, and use the pair-sum two pointers on the rest to find two values adding up to{" "}
-        <code>-nums[i]</code>.
+        Find all <em>unique</em> triples (groups of three values) that add up to 0. Three nested loops cost O(n³).
+        Do this instead. First sort the array. Then fix the first value <code>nums[i]</code>. Then use the pair-sum
+        two pointers on the rest of the array, to find two values that add up to <code>-nums[i]</code>.
       </p>
       <CodeBlock lang="js" code={threeSumCode} />
       <p>
-        O(n log n) to sort plus O(n) two-pointer passes for each of n first values: <strong>O(n²)</strong>. Duplicate
-        triples are avoided by skipping a value equal to the one just used, both for <code>i</code> and for{" "}
-        <code>l</code> — the sort is what puts equal values next to each other.
+        Sorting costs O(n log n). Then you run one O(n) two-pointer pass for each of the n first values. The total
+        is <strong>O(n²)</strong>. To avoid repeated triples, skip a value that is equal to the one you just used.
+        Do this for <code>i</code> and for <code>l</code>. The sort makes this easy, because it puts equal values
+        next to each other.
       </p>
 
       <h2 id="water">Container with most water</h2>
       <p>
-        Lines of different heights stand at each index. Choose two; the water between them is{" "}
-        <code>min(height[l], height[r]) × (r − l)</code>. Start with the widest pair. Then move the{" "}
-        <strong>shorter</strong> line inwards: keeping it can never help, because any narrower container that still
-        uses it is limited by the same short height and is narrower.
+        A vertical line of a different height stands at each index. Choose two lines. The water they can hold is{" "}
+        <code>min(height[l], height[r]) × (r − l)</code>. (The water level is set by the shorter line, and the
+        width is the distance between the lines.) Start with the widest pair. Then move the{" "}
+        <strong>shorter</strong> line inwards. Keeping it cannot help. Any narrower container that still uses it is
+        limited by the same short height, and it is also narrower.
       </p>
       <CodeBlock lang="js" code={waterCode} />
       <DryRun
@@ -231,13 +237,15 @@ export default function DsaLessonTwentyOnePage() {
 
       <h2 id="flag">Three-way partition (Dutch national flag)</h2>
       <p>
-        Lesson 18 partitioned around a pivot into two groups. With three pointers you can split into three groups in
-        one pass — for example, sorting an array of only 0s, 1s and 2s:
+        Lesson 18 partitioned (split) an array around a pivot into two groups. With three pointers you can split an
+        array into three groups in one pass. A common example is sorting an array that has only 0s, 1s and 2s. It is
+        called the Dutch national flag problem because the flag has three colour bands. The meaning of the pointers:
       </p>
       <ul>
         <li>everything before <code>low</code> is 0;</li>
         <li>everything after <code>high</code> is 2;</li>
-        <li>between <code>low</code> and <code>mid</code> is 1; <code>mid</code> is the item being checked.</li>
+        <li>everything between <code>low</code> and <code>mid</code> is 1;</li>
+        <li><code>mid</code> is the item we are checking now.</li>
       </ul>
       <CodeBlock lang="js" code={flagCode} />
       <DryRun
@@ -252,7 +260,7 @@ export default function DsaLessonTwentyOnePage() {
           ["1", "move mid", "[0, 0, 1, 1, 2, 2]", "2", "4", "3"],
         ]}
         highlight={5}
-        note="mid passes high, so every item has been placed."
+        note="mid has passed high, so every item is in its place."
       />
 
       <h2 id="templates">The templates side by side</h2>
@@ -275,7 +283,7 @@ export default function DsaLessonTwentyOnePage() {
       </div>
 
       <h2 id="practice">Practice questions</h2>
-      <p>For every two-pointer answer, be ready to explain in one sentence why the pointer you move cannot be part of a better answer.</p>
+      <p>For every two-pointer answer, be ready to say in one sentence why the pointer you move cannot be part of a better answer.</p>
 
       <Questions />
 
@@ -291,8 +299,9 @@ export default function DsaLessonTwentyOnePage() {
 
       <h2 id="next">What&apos;s next</h2>
       <p>
-        Lesson 22 turns same-direction pointers into a <strong>sliding window</strong>: a block of k items that moves
-        one step at a time, updating its sum or count in O(1) instead of recomputing it.
+        Lesson 22 turns same-direction pointers into a <strong>sliding window</strong>. A sliding window is a block
+        of k items that moves one step at a time. Each time it moves, you update its sum or count in O(1) (one quick
+        step) and you do not need to count it again from the start.
       </p>
     </DsaLessonPage>
   );
