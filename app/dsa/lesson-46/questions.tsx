@@ -560,7 +560,7 @@ function mergeKLists(lists) {
 
 console.log(toArray(mergeKLists([fromArray([1, 4, 5]), fromArray([1, 3, 4]), fromArray([2, 6])]))); // [1, 1, 2, 3, 4, 4, 5, 6]
 console.log(toArray(mergeKLists([])));                                                               // []`,
-            explain: <p>There are about log₂ k rounds. Every round touches each node at most once. So the time is O(N log k), with only O(1) extra space beyond the lists. If you merged them one after another into a growing result, it would cost O(N·k) instead.</p>,
+            explain: <p>There are about log₂ k rounds. Every round touches each node at most once. So the time is O(N log k). It relinks the existing nodes, and the only extra space is the small array of list heads, which is O(k). If you merged them one after another into a growing result, it would cost O(N·k) instead.</p>,
           },
         ]}
         compare={<p>The heap is the most common answer. Merging in pairs reaches the same time without a heap. (LeetCode 23.)</p>}

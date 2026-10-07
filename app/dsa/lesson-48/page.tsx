@@ -309,7 +309,7 @@ export default function DsaLessonFortyEightPage() {
       <h2 id="arrows">Minimum arrows</h2>
       <p>
         Balloons are intervals along the x-axis (the line going left to right). An arrow shot straight up at position <code>x</code>{" "}
-        bursts every balloon with <code>start &lt;= x &lt;= end</code>. Find the fewest arrows. It is the same sweep again. Sort by
+        bursts every balloon with <code>start &lt;= x &lt;= end</code>. Find the fewest arrows. It is the same sort-then-scan idea again. Sort by
         end. Shoot at the <em>end</em> of the first balloon. This is as far right as possible while still hitting it, so it catches
         the most later balloons. Skip every balloon that this arrow also hits. Then shoot again at the first balloon it misses. The
         test is <code>start &gt; arrowAt</code>. It is strict, because balloons that only touch can share one arrow.
@@ -323,7 +323,7 @@ export default function DsaLessonFortyEightPage() {
       </p>
       <p>
         <strong>Meeting rooms II:</strong> what is the fewest rooms you need? Another way to ask: what is the largest number of
-        meetings at the same moment? A classic answer uses a min-heap of end times. But JavaScript has no built-in heap, so here is a
+        meetings at the same moment? A classic answer uses a min-heap (lesson 46) of end times. But JavaScript has no built-in heap, so here is a
         neat trick that needs only sorting. Sort the <em>starts</em> and the <em>ends</em> as two separate lists. Walk through the
         starts in order. If a meeting starts before the earliest end that is still waiting, nobody has left yet, so you need a new
         room. Otherwise someone just left. Reuse their room by moving past that end.

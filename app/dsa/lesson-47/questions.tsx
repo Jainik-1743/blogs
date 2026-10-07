@@ -68,7 +68,7 @@ console.log(findContentChildren([], [5]));           // 0`,
         level="Easy"
         examples={[
           { input: "[5, 5, 5, 10, 20]", output: "true", why: "The 10 takes one 5 as change. The 20 takes the 10 and one 5 as change." },
-          { input: "[5, 5, 10, 10, 20]", output: "false", why: "" },
+          { input: "[5, 5, 10, 10, 20]", output: "false", why: "After the two 10s you hold no 5s and two 10s. The 20 needs 15 back, and 10 + 5 or 5 + 5 + 5 is not possible without 5s." },
         ]}
         hints={[
           <>Only the 20 bill needs a choice. What can you use to make 15 in change?</>,
@@ -217,7 +217,7 @@ console.log(canJump([3, 2, 1, 0, 4])); // false`,
 
 console.log(jump([2, 3, 1, 1, 4])); // 2
 console.log(jump([2, 3, 0, 1, 4])); // 2`,
-            explain: <p>It takes O(n²) time. That is fine for small inputs, but too slow for 10⁴ items or more.</p>,
+            explain: <p>It takes O(n²) time. That is fine for small inputs, but too slow when there are very many items (for example 10⁵).</p>,
           },
           {
             name: "Greedy waves (a hidden breadth-first search)",
@@ -409,7 +409,7 @@ console.log(partitionLabels("eccbbbbdec"));               // [10]`,
 console.log(partitionLabels("ababcbacadefegdehijhklij")); // [9, 7, 8]
 console.log(partitionLabels("eccbbbbdec"));               // [10]
 console.log(partitionLabels("a"));                         // [1]`,
-            explain: <p>To make as many pieces as possible, close each piece at the first moment you can. That is the greedy rule. It takes O(n) time and O(1) space, because there are at most 26 letters.</p>,
+            explain: <p>To make as many pieces as possible, close each piece at the first moment you can. That is the greedy rule. It takes O(n) time and O(1) space, because the table holds at most 26 letters (the problem uses only lowercase English letters).</p>,
           },
           {
             name: "Merge the span of each letter",

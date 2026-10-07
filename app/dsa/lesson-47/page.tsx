@@ -211,8 +211,9 @@ export default function DsaLessonFortySevenPage() {
         note="Taking the 4 felt best. But it left 2, and 2 can only be made from two 1s."
       />
       <Callout kind="warn" label="A choice that is best locally is not always best overall">
-        When greedy fails like this, the right tool is usually <strong>dynamic programming</strong>. This means you remember the best
-        answer for every smaller amount, and build up from there. You will meet it later in the series. This coin example is its
+        When greedy fails like this, the right tool is usually <strong>dynamic programming</strong>. This is a method that solves each
+        smaller version of the problem once, remembers its answer, and builds the big answer from those. Here you would remember the
+        fewest coins for every smaller amount. You will meet it later in the series. This coin example is its
         classic first problem. For now, learn this habit: before you trust a greedy idea, try to break it with a small example.
       </Callout>
 
@@ -272,7 +273,7 @@ export default function DsaLessonFortySevenPage() {
         &quot;waves&quot;. With 0 jumps, you only cover index 0. With 1 jump, you cover the indexes up to <code>currentEnd</code>.
         While you look at the indexes inside the current wave, remember the farthest place the <em>next</em> jump could land. When
         you reach the end of the wave, you must use a jump. The next wave ends at that farthest place. This is a breadth-first search
-        (checking everything one step away, then everything two steps away, and so on) without a queue.
+        (checking everything one step away, then everything two steps away, and so on) without a queue. (A queue is a waiting line that normal breadth-first search uses to remember what to visit next. Here two numbers are enough.)
       </p>
       <CodeBlock lang="js" code={jumpTwoCode} />
       <DryRun

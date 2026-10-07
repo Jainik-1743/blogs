@@ -44,7 +44,7 @@ console.log(merge([[1, 4], [4, 5]]));                    // [[1, 5]]`,
             explain: <p>It is correct but slow. Every merge restarts the search, so the worst case is O(n³).</p>,
           },
           {
-            name: "Sort by start, then sweep",
+            name: "Sort by start, then scan",
             idea: <p>Sort by start. Push the first interval. Then look at each next interval. If it starts at or before the end of the last interval, make that end longer. Otherwise, push it as a new interval.</p>,
             code: `function merge(intervals) {
   const sorted = intervals.map((x) => [...x]).sort((a, b) => a[0] - b[0]);
@@ -63,7 +63,7 @@ console.log(merge([[1, 10], [2, 3], [4, 5]]));           // [[1, 10]]`,
             explain: <p>After sorting, only the last merged interval can overlap the next one, so one pass is enough. Taking the larger of the two ends handles an interval that lies completely inside the last one. It takes O(n log n) time and O(n) space.</p>,
           },
         ]}
-        compare={<p>Use the sort and sweep. (LeetCode 56.)</p>}
+        compare={<p>Use the sort and scan. (LeetCode 56.)</p>}
       >
         <p>You get an array of intervals <code>[start, end]</code>. Merge all overlapping intervals. Return the intervals that do not overlap and cover the same ranges.</p>
       </Problem>
@@ -304,7 +304,7 @@ console.log(canAttendMeetings([[0, 30], [5, 10], [15, 20]])); // false
 console.log(canAttendMeetings([[7, 10], [2, 4]]));            // true
 console.log(canAttendMeetings([[1, 5], [5, 9]]));             // true
 console.log(canAttendMeetings([]));                           // true`,
-            explain: <p>Say meeting k clashes with some earlier meeting j. Then k starts before j ends. Walk from j to k. The meetings are in order of start. So either one of them already clashes with its own neighbour, or j and k are neighbours. Either way, a clash between neighbours exists. It takes O(n log n) time.</p>,
+            explain: <p>Say meeting k clashes with some earlier meeting j, so k starts before j ends. Look at the meeting right after j. It starts no later than k, so it also starts before j ends. That means j clashes with its own neighbour. So if any clash exists, a clash between neighbours exists too. It takes O(n log n) time.</p>,
           },
         ]}
         compare={<p>Sort and check neighbours. This problem is only for paying members on LeetCode (252, &quot;Meeting Rooms&quot;), so the full problem is written out here.</p>}
@@ -345,7 +345,7 @@ console.log(minMeetingRooms([[7, 10], [2, 4]]));            // 1`,
           },
           {
             name: "Event sweep: +1 at starts, −1 at ends",
-            idea: <p>Make a list of events: a time, with +1 for a start and −1 for an end. Sort by time. If times are equal, put ends before starts. Keep a running total. The answer is the highest value it reaches.</p>,
+            idea: <p>A sweep walks along the time line once, from left to right, and handles the events in order. Make a list of events: a time, with +1 for a start and −1 for an end. Sort by time. If times are equal, put ends before starts. Keep a running total. The answer is the highest value it reaches.</p>,
             code: `function minMeetingRooms(meetings) {
   const events = [];
   for (const [s, e] of meetings) { events.push([s, 1]); events.push([e, -1]); }

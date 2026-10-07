@@ -406,12 +406,12 @@ export default function DsaLessonFortySixPage() {
       </ul>
       <p>
         Either way, one of the two jobs is slow (O(n) means the work grows with the number of items). A <strong>heap</strong> makes{" "}
-        <em>both</em> jobs O(log n), which is much faster. Looking at the best item is O(1), which means one step. A heap is the
-        standard way to build a priority queue.
+        <em>both</em> jobs O(log n), which is much faster. Looking at the best item is O(1), which means it takes the same small
+        number of steps, however many items there are. A heap is the standard way to build a priority queue.
       </p>
       <Callout kind="note" label="JavaScript has no built-in heap">
         Python has <code>heapq</code> and Java has <code>PriorityQueue</code>, but standard JavaScript has neither. In an interview you
-        write your own, so this lesson builds one from scratch. It is only about 35 lines. You will paste the same class into every
+        write your own, so this lesson builds one from scratch. It is only about 40 lines. You will paste the same class into every
         solution in this lesson.
       </Callout>
 
@@ -431,7 +431,8 @@ export default function DsaLessonFortySixPage() {
         </li>
       </ul>
       <p>
-        Notice what the rule does <em>not</em> say. It does not put brothers, sisters or cousins in order. A heap is only partly
+        Notice what the rule does <em>not</em> say. It does not say how items on the same level compare with each other. For
+        example, in a min-heap the left child may be bigger or smaller than the right child. A heap is only partly
         sorted. It is sorted just enough to know the minimum. That is why it is cheaper to keep than a fully sorted list.
       </p>
       <p>
@@ -449,7 +450,7 @@ export default function DsaLessonFortySixPage() {
           ["4", "9", "1  (value 3)", "9 and 10  (neither exists)"],
           ["5", "8", "2  (value 2)", "11 and 12  (neither exists)"],
         ]}
-        note="The expression (i − 1) >> 1 means 'divide by two and drop the decimal part'. It moves the bits one place to the right. So (5 − 1) >> 1 = 2 and (4 − 1) >> 1 = 1. Math.floor((i − 1) / 2) means the same thing."
+        note="The expression (i − 1) >> 1 means 'divide by two and drop the decimal part'. (It shifts the bits of the number one place to the right.) So (5 − 1) >> 1 = 2 and (4 − 1) >> 1 = 1. Math.floor((i − 1) / 2) means the same thing."
       />
       <p>
         A complete tree with n items has a height of about log₂ n (the number of times you can halve n). Every operation below walks
@@ -528,14 +529,15 @@ export default function DsaLessonFortySixPage() {
       <CodeBlock lang="js" code={kthCode} />
       <p>
         Each of the n items costs O(log k) to push and maybe pop. So the total is <strong>O(n log k)</strong> time and{" "}
-        <strong>O(k)</strong> space. When k is small, this is much better than sorting. It also works on a stream (items that keep
-        arriving) where you cannot store everything. Remember the rule: <em>for the k largest, use a min-heap of size k. For the k
+        <strong>O(k)</strong> space. When k is small, this is much better than sorting. It also works on a <strong>stream</strong> (items that keep
+        arriving one at a time, so you cannot store everything). Remember the rule: <em>for the k largest, use a min-heap of size k. For the k
         smallest, use a max-heap of size k</em>.
       </p>
 
       <h2 id="frequent">Top k frequent elements</h2>
       <p>
-        First count how often each value appears, using a Map. Then use the same size-k trick on the counts. The heap holds{" "}
+        First count how often each value appears, using a <code>Map</code> (a lookup table that stores key and value pairs, here
+        value and count). Then use the same size-k trick on the counts. The heap holds{" "}
         <code>[value, count]</code> pairs, and the comparator looks at the count. So the least frequent of the current candidates is
         always on top, ready to be thrown out.
       </p>
@@ -548,7 +550,7 @@ export default function DsaLessonFortySixPage() {
 
       <h2 id="merge">Merge k sorted lists</h2>
       <p>
-        Lesson 37 merged two sorted linked lists by repeatedly taking the smaller front node. With k lists, the next node of the
+        Lesson 37 merged two sorted linked lists (chains of nodes, where each node points to the next one) by repeatedly taking the smaller front node. With k lists, the next node of the
         answer is the smallest of k front nodes. Comparing all k fronts each time costs O(k) per node. A min-heap of the current
         fronts finds the smallest in O(log k). Pop the smallest, attach it to the answer, and push the next node from the same list.
       </p>
