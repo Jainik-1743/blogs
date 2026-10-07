@@ -9,18 +9,18 @@ export default function Questions() {
         title="Binary tree preorder traversal"
         level="Easy"
         examples={[
-          { input: "root = [1, null, 2, 3]", output: "[1, 2, 3]", why: "Visit 1, then its left side (nothing), then its right side: node 2, whose left child 3 comes next." },
-          { input: "root = [1, 2, 3, 4, 5]", output: "[1, 2, 4, 5, 3]", why: "Node first, then the entire left subtree (2, 4, 5), then the right subtree (3)." },
+          { input: "root = [1, null, 2, 3]", output: "[1, 2, 3]", why: "Visit 1, then its left side (nothing), then its right side. The right side is node 2, and its left child 3 comes next." },
+          { input: "root = [1, 2, 3, 4, 5]", output: "[1, 2, 4, 5, 3]", why: "Node first, then the whole left side (2, 4, 5), then the right side (3)." },
           { input: "root = []", output: "[]", why: "An empty tree has nothing to visit." },
         ]}
         hints={[
-          <>Preorder means &quot;node, left subtree, right subtree&quot;. Write the node down <em>before</em> the recursive calls.</>,
-          <>Without recursion, use a stack. Which child must you push first so the other comes out first?</>,
+          <>Preorder means &quot;node, left side, right side&quot;. Write the node down <em>before</em> the recursive calls (the calls to the same function).</>,
+          <>Without recursion, use a stack (a pile where you add and remove only at the top). Which child must you push first, so that the other one comes out first?</>,
         ]}
         approaches={[
           {
             name: "Recursion",
-            idea: <p>If the node is null, stop. Otherwise push its value, then walk the left subtree, then the right subtree.</p>,
+            idea: <p>If the node is null, stop. Otherwise add its value to the answer, then walk the left side, then the right side.</p>,
             code: `class TreeNode {
   constructor(val, left = null, right = null) {
     this.val = val;
@@ -59,7 +59,7 @@ function preorderTraversal(root) {
 console.log(preorderTraversal(buildTree([1, null, 2, 3])));  // [1, 2, 3]
 console.log(preorderTraversal(buildTree([1, 2, 3, 4, 5]))); // [1, 2, 4, 5, 3]
 console.log(preorderTraversal(buildTree([])));              // []`,
-            explain: <p>O(n) time, O(h) space for the call stack, where h is the height (up to n for a chain).</p>,
+            explain: <p>O(n) time. O(h) space for the call stack (the pile of open calls), where h is the height of the tree. h can be as big as n for a tree that is one long chain.</p>,
           },
           {
             name: "Explicit stack",
@@ -67,7 +67,7 @@ console.log(preorderTraversal(buildTree([])));              // []`,
               <ol>
                 <li>Start with the root on a stack.</li>
                 <li>Pop a node, record it, then push its right child and then its left child.</li>
-                <li>The left child is on top, so it is processed next, and the whole left subtree is finished before the right one is touched.</li>
+                <li>The left child is on top, so it is handled next. The whole left side is finished before we touch the right side.</li>
               </ol>
             ),
             code: `class TreeNode {
@@ -108,12 +108,12 @@ function preorderTraversal(root) {
 
 console.log(preorderTraversal(buildTree([1, null, 2, 3])));  // [1, 2, 3]
 console.log(preorderTraversal(buildTree([1, 2, 3, 4, 5]))); // [1, 2, 4, 5, 3]`,
-            explain: <p>O(n) time. Each level of the tree leaves at most one waiting sibling on the stack, so it holds at most about h + 1 nodes: O(h) space, and no recursion depth limit to worry about.</p>,
+            explain: <p>O(n) time. Each level of the tree leaves at most one waiting sibling (the other child of the same parent) on the stack. So the stack holds at most about h + 1 nodes, which is O(h) space. There is no limit on recursion depth to worry about.</p>,
           },
         ]}
-        compare={<p>Write the recursive one first; it is three lines. If asked &quot;without recursion&quot;, switch to the stack. (LeetCode 144.)</p>}
+        compare={<p>Write the recursive one first. It is only three lines. If the interviewer says &quot;without recursion&quot;, switch to the stack. (LeetCode 144.)</p>}
       >
-        <p>Return the preorder traversal of a binary tree&apos;s node values.</p>
+        <p>Return the preorder traversal (the list of node values in preorder) of a binary tree.</p>
       </Problem>
 
       <Problem
@@ -121,13 +121,13 @@ console.log(preorderTraversal(buildTree([1, 2, 3, 4, 5]))); // [1, 2, 4, 5, 3]`,
         title="Binary tree inorder traversal"
         level="Easy"
         examples={[
-          { input: "root = [1, null, 2, 3]", output: "[1, 3, 2]", why: "1 has no left side, so it is first. Then the left subtree of 2 (just 3), then 2 itself." },
-          { input: "root = [1, 2, 3, 4, 5]", output: "[4, 2, 5, 1, 3]", why: "Left subtree (4, 2, 5), then the root 1, then the right subtree (3)." },
+          { input: "root = [1, null, 2, 3]", output: "[1, 3, 2]", why: "1 has no left side, so it comes first. Then the left side of 2 (just 3), then 2 itself." },
+          { input: "root = [1, 2, 3, 4, 5]", output: "[4, 2, 5, 1, 3]", why: "Left side (4, 2, 5), then the root 1, then the right side (3)." },
         ]}
         hints={[
-          <>Inorder means &quot;left subtree, node, right subtree&quot;. Record the node <em>between</em> the two recursive calls.</>,
-          <>Iteratively: dive left, pushing nodes. When you cannot go further left, pop, record, and move to the right child.</>,
-          <>For O(1) extra space there is a clever trick (Morris traversal) that temporarily links each node&apos;s in-order predecessor back to it.</>,
+          <>Inorder means &quot;left side, node, right side&quot;. Record the node <em>between</em> the two recursive calls.</>,
+          <>Without recursion: go left and push each node. When you cannot go further left, pop a node, record it, and move to its right child.</>,
+          <>For O(1) extra space there is a clever trick called Morris traversal. It temporarily links the node that comes just before the current node in inorder (its &quot;predecessor&quot;) back to the current node.</>,
         ]}
         approaches={[
           {
@@ -178,7 +178,7 @@ console.log(inorderTraversal(buildTree([1, 2, 3, 4, 5]))); // [4, 2, 5, 1, 3]`,
               <ol>
                 <li>Keep a pointer <code>cur</code> and a stack.</li>
                 <li>While <code>cur</code> exists, push it and move to its left child.</li>
-                <li>When it is null, pop the top of the stack: that is the next node in order. Record it and set <code>cur</code> to its right child.</li>
+                <li>When it is null, pop the top of the stack. That is the next node in order. Record it and set <code>cur</code> to its right child.</li>
                 <li>Stop when both <code>cur</code> is null and the stack is empty.</li>
               </ol>
             ),
@@ -230,9 +230,9 @@ console.log(inorderTraversal(buildTree([1, 2, 3, 4, 5]))); // [4, 2, 5, 1, 3]`,
             idea: (
               <ol>
                 <li>If the current node has no left child, record it and go right.</li>
-                <li>Otherwise find its <em>predecessor</em>: the rightmost node of its left subtree.</li>
-                <li>If the predecessor&apos;s right link is empty, point it back at the current node (a temporary thread) and go left.</li>
-                <li>If it already points at the current node, we have just finished the left side: remove the thread, record the current node, and go right.</li>
+                <li>Otherwise find its <em>predecessor</em>. This is the node that comes just before it in inorder: the rightmost node of its left side.</li>
+                <li>If the predecessor&apos;s right link is empty, point it back at the current node (a temporary link, like a thread) and go left.</li>
+                <li>If it already points at the current node, we have just finished the left side. Remove the thread, record the current node, and go right.</li>
               </ol>
             ),
             code: `class TreeNode {
@@ -269,10 +269,10 @@ function inorderTraversal(root) {
       let pred = cur.left;
       while (pred.right !== null && pred.right !== cur) pred = pred.right;
       if (pred.right === null) {
-        pred.right = cur;          // thread: a way back once the left side is done
+        pred.right = cur;          // temporary link: a way back once the left side is done
         cur = cur.left;
       } else {
-        pred.right = null;         // second arrival: undo the thread
+        pred.right = null;         // second visit: remove the temporary link
         out.push(cur.val);
         cur = cur.right;
       }
@@ -283,12 +283,12 @@ function inorderTraversal(root) {
 
 console.log(inorderTraversal(buildTree([1, null, 2, 3])));  // [1, 3, 2]
 console.log(inorderTraversal(buildTree([1, 2, 3, 4, 5]))); // [4, 2, 5, 1, 3]`,
-            explain: <p>Still O(n) time (each edge is walked at most twice) but only O(1) extra space, and the tree is restored by the end. It briefly modifies the tree, so it is not safe if other code reads the tree at the same time. Know it exists; the stack version is what interviews expect.</p>,
+            explain: <p>Still O(n) time (each edge, or link, is walked at most twice). But it uses only O(1) extra space, and the tree is back to normal at the end. While it runs, it changes the tree for a short time. So it is not safe if other code reads the tree at the same moment. Know that it exists. Interviews usually expect the stack version.</p>,
           },
         ]}
-        compare={<p>Recursive first, iterative stack if recursion is not allowed, and mention Morris if they ask for O(1) space. (LeetCode 94.)</p>}
+        compare={<p>Start with recursion. Use the stack version if recursion is not allowed. Mention Morris if they ask for O(1) space. (LeetCode 94.)</p>}
       >
-        <p>Return the inorder traversal of a binary tree&apos;s node values.</p>
+        <p>Return the inorder traversal (the list of node values in inorder) of a binary tree.</p>
       </Problem>
 
       <Problem
@@ -296,12 +296,12 @@ console.log(inorderTraversal(buildTree([1, 2, 3, 4, 5]))); // [4, 2, 5, 1, 3]`,
         title="Binary tree postorder traversal"
         level="Easy"
         examples={[
-          { input: "root = [1, null, 2, 3]", output: "[3, 2, 1]", why: "Finish the subtree of 2 (3, then 2) before the root 1." },
+          { input: "root = [1, null, 2, 3]", output: "[3, 2, 1]", why: "Finish the whole side of 2 first (3, then 2), and only then the root 1." },
           { input: "root = [1, 2, 3, 4, 5]", output: "[4, 5, 2, 3, 1]", why: "Both children before their parent, all the way up." },
         ]}
         hints={[
           <>Record the node <em>after</em> both recursive calls.</>,
-          <>Postorder (left, right, node) reversed is (node, right, left). That is preorder with the children swapped.</>,
+          <>Postorder (left, right, node) written backwards is (node, right, left). That is preorder with the two children swapped.</>,
         ]}
         approaches={[
           {
@@ -348,7 +348,7 @@ console.log(postorderTraversal(buildTree([1, 2, 3, 4, 5]))); // [4, 5, 2, 3, 1]`
           },
           {
             name: "Reverse a modified preorder",
-            idea: <p>Run an iterative preorder that goes node, then <em>right</em>, then left (push left first). Reverse the output to get left, right, node.</p>,
+            idea: <p>Run a stack-based preorder that goes node, then <em>right</em>, then left (push left first). Reverse the output to get left, right, node.</p>,
             code: `class TreeNode {
   constructor(val, left = null, right = null) {
     this.val = val;
@@ -387,15 +387,15 @@ function postorderTraversal(root) {
 
 console.log(postorderTraversal(buildTree([1, null, 2, 3])));  // [3, 2, 1]
 console.log(postorderTraversal(buildTree([1, 2, 3, 4, 5]))); // [4, 5, 2, 3, 1]`,
-            explain: <p>O(n) time and space. Simple and hard to get wrong, but it records nodes in the wrong order and fixes it at the end.</p>,
+            explain: <p>O(n) time and space. It is simple and hard to get wrong. It records the nodes in the wrong order and fixes the order at the end.</p>,
           },
           {
             name: "One stack, remember the last node visited",
             idea: (
               <ol>
-                <li>Dive left, pushing nodes, as in iterative inorder.</li>
-                <li>Peek at the top. If it has a right child we have not handled yet, move to that child.</li>
-                <li>Otherwise both sides are done: record the node, pop it, and remember it in <code>last</code>.</li>
+                <li>Go left and push each node, like the stack version of inorder.</li>
+                <li>Look at the top node without removing it. If it has a right child we have not handled yet, move to that child.</li>
+                <li>Otherwise both sides are done. Record the node, pop it, and remember it in <code>last</code>.</li>
               </ol>
             ),
             code: `class TreeNode {
@@ -444,12 +444,12 @@ function postorderTraversal(root) {
 
 console.log(postorderTraversal(buildTree([1, null, 2, 3])));  // [3, 2, 1]
 console.log(postorderTraversal(buildTree([1, 2, 3, 4, 5]))); // [4, 5, 2, 3, 1]`,
-            explain: <p>O(n) time, O(h) space, and the output is built in the right order. The <code>last</code> pointer is what tells us we are returning from the right child rather than arriving for the first time.</p>,
+            explain: <p>O(n) time, O(h) space, and the output is built in the right order. The <code>last</code> variable tells us that we are coming back from the right child, not arriving for the first time.</p>,
           },
         ]}
-        compare={<p>Recursion by default. For the iterative version the reverse-preorder trick is the easiest to remember under pressure. (LeetCode 145.)</p>}
+        compare={<p>Use recursion by default. For the stack version, the reverse-preorder trick is the easiest to remember when you are nervous. (LeetCode 145.)</p>}
       >
-        <p>Return the postorder traversal of a binary tree&apos;s node values.</p>
+        <p>Return the postorder traversal (the list of node values in postorder) of a binary tree.</p>
       </Problem>
 
       <Problem
@@ -468,7 +468,7 @@ console.log(postorderTraversal(buildTree([1, 2, 3, 4, 5]))); // [4, 5, 2, 3, 1]`
         approaches={[
           {
             name: "Recursion (depth from the bottom)",
-            idea: <p>Depth of null is 0. Depth of a node is 1 plus the larger depth of its two children.</p>,
+            idea: <p>The depth of null is 0. The depth of a node is 1 plus the larger depth of its two children.</p>,
             code: `class TreeNode {
   constructor(val, left = null, right = null) {
     this.val = val;
@@ -500,11 +500,11 @@ function maxDepth(root) {
 console.log(maxDepth(buildTree([3, 9, 20, null, null, 15, 7]))); // 3
 console.log(maxDepth(buildTree([1, null, 2])));                  // 2
 console.log(maxDepth(buildTree([])));                            // 0`,
-            explain: <p>O(n) time, O(h) space. Each node asks its children for their answers and adds itself: this is postorder thinking.</p>,
+            explain: <p>O(n) time, O(h) space. Each node asks its children for their answers and then adds itself. This is postorder thinking: children first, then the node.</p>,
           },
           {
             name: "Explicit stack carrying the depth",
-            idea: <p>Push <code>[node, depth]</code> pairs. Every time a node is popped, update the best depth seen, then push its children with depth + 1.</p>,
+            idea: <p>Push <code>[node, depth]</code> pairs. Each time you pop a node, update the best depth seen so far. Then push its children with depth + 1.</p>,
             code: `class TreeNode {
   constructor(val, left = null, right = null) {
     this.val = val;
@@ -544,10 +544,10 @@ function maxDepth(root) {
 console.log(maxDepth(buildTree([3, 9, 20, null, null, 15, 7]))); // 3
 console.log(maxDepth(buildTree([1, null, 2])));                  // 2
 console.log(maxDepth(buildTree([])));                            // 0`,
-            explain: <p>O(n) time. Here the depth travels <em>down</em> with the stack entry instead of coming up from the recursion. Works for very deep trees.</p>,
+            explain: <p>O(n) time. Here the depth travels <em>down</em> with each stack entry, instead of coming back up from the recursion. It also works for very deep trees.</p>,
           },
         ]}
-        compare={<p>The two-line recursion. (LeetCode 104.) Lesson 42 adds a third way: count the levels with a queue.</p>}
+        compare={<p>Use the two-line recursion. (LeetCode 104.) Lesson 42 adds a third way: count the levels with a queue.</p>}
       >
         <p>Return the maximum depth of a binary tree: the number of <em>nodes</em> along the longest path from the root down to a leaf.</p>
       </Problem>
@@ -557,13 +557,13 @@ console.log(maxDepth(buildTree([])));                            // 0`,
         title="Invert binary tree"
         level="Easy"
         examples={[
-          { input: "root = [4, 2, 7, 1, 3, 6, 9]", output: "[4, 7, 2, 9, 6, 3, 1]", why: "At every node the left and right children swap places, so the tree becomes its mirror image." },
+          { input: "root = [4, 2, 7, 1, 3, 6, 9]", output: "[4, 7, 2, 9, 6, 3, 1]", why: "At every node the left and right children swap places, so the tree becomes its mirror image (like looking at it in a mirror)." },
           { input: "root = [2, 1, 3]", output: "[2, 3, 1]", why: "Only the root has children to swap." },
           { input: "root = []", output: "[]", why: "Nothing to invert." },
         ]}
         hints={[
           <>What does one node have to do? Swap its two children.</>,
-          <>Is it enough to swap at the root only? The children themselves must be inverted too.</>,
+          <>Is it enough to swap at the root only? No. The children must be inverted too.</>,
         ]}
         approaches={[
           {
@@ -571,8 +571,8 @@ console.log(maxDepth(buildTree([])));                            // 0`,
             idea: (
               <ol>
                 <li>If the node is null, return null.</li>
-                <li>Invert the left subtree and the right subtree.</li>
-                <li>Put the inverted right subtree on the left and vice versa.</li>
+                <li>Invert the left side and the right side.</li>
+                <li>Put the inverted right side on the left, and the inverted left side on the right.</li>
               </ol>
             ),
             code: `class TreeNode {
@@ -624,11 +624,11 @@ function invertTree(root) {
 console.log(toList(invertTree(buildTree([4, 2, 7, 1, 3, 6, 9])))); // [4, 7, 2, 9, 6, 3, 1]
 console.log(toList(invertTree(buildTree([2, 1, 3]))));             // [2, 3, 1]
 console.log(toList(invertTree(buildTree([]))));                    // []`,
-            explain: <p>O(n) time, O(h) space. It modifies the tree in place and returns the same root.</p>,
+            explain: <p>O(n) time, O(h) space. It changes the tree itself (no copy) and returns the same root.</p>,
           },
           {
             name: "Explicit stack",
-            idea: <p>Pop a node, swap its children, push whichever children exist. Order does not matter because every node just needs its own swap.</p>,
+            idea: <p>Pop a node, swap its children, then push the children that exist. The order does not matter, because every node only needs its own swap.</p>,
             code: `class TreeNode {
   constructor(val, left = null, right = null) {
     this.val = val;
@@ -682,10 +682,10 @@ function invertTree(root) {
 
 console.log(toList(invertTree(buildTree([4, 2, 7, 1, 3, 6, 9])))); // [4, 7, 2, 9, 6, 3, 1]
 console.log(toList(invertTree(buildTree([2, 1, 3]))));             // [2, 3, 1]`,
-            explain: <p>O(n) time, O(h) space. Any traversal order works, including the queue-based one from the next lesson.</p>,
+            explain: <p>O(n) time, O(h) space. Any walking order works, including the queue-based one from the next lesson.</p>,
           },
         ]}
-        compare={<p>Recursion: it reads exactly like the definition. (LeetCode 226.)</p>}
+        compare={<p>Use recursion. The code reads just like the definition. (LeetCode 226.)</p>}
       >
         <p>Invert a binary tree (swap the left and right child of every node) and return its root.</p>
       </Problem>
@@ -696,17 +696,17 @@ console.log(toList(invertTree(buildTree([2, 1, 3]))));             // [2, 3, 1]`
         level="Easy"
         examples={[
           { input: "p = [1, 2, 3], q = [1, 2, 3]", output: "true", why: "Same shape, same values." },
-          { input: "p = [1, 2], q = [1, null, 2]", output: "false", why: "The same values, but 2 is a left child in p and a right child in q." },
-          { input: "p = [1, 2, 1], q = [1, 1, 2]", output: "false", why: "Same shape, but the values differ in the children." },
+          { input: "p = [1, 2], q = [1, null, 2]", output: "false", why: "The values are the same, but 2 is a left child in p and a right child in q." },
+          { input: "p = [1, 2, 1], q = [1, 1, 2]", output: "false", why: "The shape is the same, but the values of the children differ." },
         ]}
         hints={[
-          <>Compare two nodes at a time, one from each tree, walking in step.</>,
-          <>There are three cases for a pair: both null, exactly one null, neither null.</>,
+          <>Compare two nodes at a time, one from each tree, and walk both trees together.</>,
+          <>A pair of nodes has three cases: both are null, exactly one is null, or neither is null.</>,
         ]}
         approaches={[
           {
-            name: "Serialise both and compare (brute force)",
-            idea: <p>Turn each tree into a string in preorder, writing a marker for every missing child so the shape is captured. Equal strings mean equal trees.</p>,
+            name: "Turn both into text and compare (brute force)",
+            idea: <p>Turn each tree into a string of text in preorder. Write a marker for every missing child, so the shape is kept too. Equal strings mean equal trees.</p>,
             code: `class TreeNode {
   constructor(val, left = null, right = null) {
     this.val = val;
@@ -742,15 +742,15 @@ function isSameTree(p, q) {
 console.log(isSameTree(buildTree([1, 2, 3]), buildTree([1, 2, 3])));       // true
 console.log(isSameTree(buildTree([1, 2]), buildTree([1, null, 2])));       // false
 console.log(isSameTree(buildTree([1, 2, 1]), buildTree([1, 1, 2])));       // false`,
-            explain: <p>O(n) time and extra space for the strings. Without the <code>#</code> markers, <code>[1,2]</code> and <code>[1,null,2]</code> would look alike, which is why markers are essential. Correct but wasteful: it builds both strings even if the roots differ.</p>,
+            explain: <p>O(n) time and extra space for the strings. Without the <code>#</code> markers, <code>[1,2]</code> and <code>[1,null,2]</code> would look the same, so the markers are a must. The answer is correct but wasteful. It builds both strings even if the roots already differ.</p>,
           },
           {
-            name: "Recursion in step",
+            name: "Recursion, walking both trees together",
             idea: (
               <ol>
-                <li>Both null: the same.</li>
-                <li>Only one null: different.</li>
-                <li>Otherwise the values must be equal and both pairs of children must be the same.</li>
+                <li>Both are null: they are the same.</li>
+                <li>Only one is null: they are different.</li>
+                <li>Otherwise the two values must be equal, and both pairs of children must be the same.</li>
               </ol>
             ),
             code: `class TreeNode {
@@ -785,11 +785,11 @@ function isSameTree(p, q) {
 console.log(isSameTree(buildTree([1, 2, 3]), buildTree([1, 2, 3])));       // true
 console.log(isSameTree(buildTree([1, 2]), buildTree([1, null, 2])));       // false
 console.log(isSameTree(buildTree([1, 2, 1]), buildTree([1, 1, 2])));       // false`,
-            explain: <p>O(n) time, O(h) space, and it stops at the first difference because <code>&amp;&amp;</code> short-circuits.</p>,
+            explain: <p>O(n) time, O(h) space. It stops at the first difference, because <code>&amp;&amp;</code> skips the rest as soon as one part is false.</p>,
           },
           {
             name: "Explicit stack of pairs",
-            idea: <p>Push the pair of roots. Pop a pair, run the same three checks, then push the left pair and the right pair.</p>,
+            idea: <p>Push the pair of roots. Pop a pair and run the same three checks. Then push the left pair and the right pair.</p>,
             code: `class TreeNode {
   constructor(val, left = null, right = null) {
     this.val = val;
@@ -827,12 +827,12 @@ function isSameTree(p, q) {
 console.log(isSameTree(buildTree([1, 2, 3]), buildTree([1, 2, 3])));       // true
 console.log(isSameTree(buildTree([1, 2]), buildTree([1, null, 2])));       // false
 console.log(isSameTree(buildTree([1, 2, 1]), buildTree([1, 1, 2])));       // false`,
-            explain: <p>The same logic with an explicit stack: O(n) time, O(h) space.</p>,
+            explain: <p>The same logic with your own stack: O(n) time, O(h) space.</p>,
           },
         ]}
-        compare={<p>The recursion; it is the clearest. (LeetCode 100.) The same pair-walking idea returns in lesson 43 for symmetric trees and subtrees.</p>}
+        compare={<p>Use the recursion. It is the clearest. (LeetCode 100.) The same idea of walking two nodes together comes back in lesson 43 for symmetric trees and subtrees.</p>}
       >
-        <p>Given the roots of two binary trees <code>p</code> and <code>q</code>, return whether they are the same: identical shape and identical values.</p>
+        <p>You get the roots of two binary trees <code>p</code> and <code>q</code>. Return whether they are the same: same shape and same values.</p>
       </Problem>
 
       <Problem
@@ -840,17 +840,17 @@ console.log(isSameTree(buildTree([1, 2, 1]), buildTree([1, 1, 2])));       // fa
         title="Leaf-similar trees"
         level="Easy"
         examples={[
-          { input: "root1 = [3, 5, 1, 6, 2, 9, 8, null, null, 7, 4], root2 = [3, 5, 1, 6, 7, 4, 2, null, null, null, null, null, null, 9, 8]", output: "true", why: "Both leaf sequences, left to right, are 6, 7, 4, 9, 8 even though the trees have different shapes." },
-          { input: "root1 = [1, 2, 3], root2 = [1, 3, 2]", output: "false", why: "The leaf sequences are 2, 3 and 3, 2: order matters." },
+          { input: "root1 = [3, 5, 1, 6, 2, 9, 8, null, null, 7, 4], root2 = [3, 5, 1, 6, 7, 4, 2, null, null, null, null, null, null, 9, 8]", output: "true", why: "Both leaf lists, read left to right, are 6, 7, 4, 9, 8, even though the trees have different shapes." },
+          { input: "root1 = [1, 2, 3], root2 = [1, 3, 2]", output: "false", why: "The leaf lists are 2, 3 and 3, 2. The order matters." },
         ]}
         hints={[
-          <>A <em>leaf</em> is a node with no children. In which traversal order do you meet leaves left to right?</>,
-          <>Any depth-first order meets leaves in left-to-right order, as long as the left subtree is explored before the right one.</>,
+          <>A <em>leaf</em> is a node with no children. In which walking order do you meet the leaves from left to right?</>,
+          <>Any depth-first order meets the leaves from left to right, as long as you explore the left side before the right side.</>,
         ]}
         approaches={[
           {
             name: "Collect both leaf lists, then compare",
-            idea: <p>Walk each tree and push the value of every leaf into an array. Compare the arrays element by element.</p>,
+            idea: <p>Walk each tree and add the value of every leaf to an array. Then compare the two arrays item by item.</p>,
             code: `class TreeNode {
   constructor(val, left = null, right = null) {
     this.val = val;
@@ -895,8 +895,8 @@ console.log(leafSimilar(buildTree([1, 2, 3]), buildTree([1, 3, 2]))); // false`,
             explain: <p>O(n + m) time and space for the two lists.</p>,
           },
           {
-            name: "Pull leaves lazily, one at a time",
-            idea: <p>Give each tree its own stack and a helper that returns its next leaf using the iterative preorder from this lesson. Compare the leaves as they come and stop at the first mismatch.</p>,
+            name: "Get leaves one at a time, only when needed",
+            idea: <p>Give each tree its own stack and a helper that returns the next leaf, using the stack-based preorder from this lesson. Compare the leaves as they come. Stop at the first mismatch.</p>,
             code: `class TreeNode {
   constructor(val, left = null, right = null) {
     this.val = val;
@@ -945,12 +945,12 @@ console.log(leafSimilar(
   buildTree([3, 5, 1, 6, 7, 4, 2, null, null, null, null, null, null, 9, 8]),
 )); // true
 console.log(leafSimilar(buildTree([1, 2, 3]), buildTree([1, 3, 2]))); // false`,
-            explain: <p>O(n + m) time in the worst case, but it can stop early, and extra space is only the two stacks (O(h)) rather than two full lists.</p>,
+            explain: <p>O(n + m) time in the worst case, but it can stop early. The extra space is only the two stacks (O(h)), not two full lists.</p>,
           },
         ]}
-        compare={<p>Collecting the lists is simpler and fine for interviews; mention the lazy version as an optimisation. (LeetCode 872.)</p>}
+        compare={<p>Collecting the lists is simpler and fine for interviews. Mention the one-leaf-at-a-time version as a way to make it faster. (LeetCode 872.)</p>}
       >
-        <p>The <em>leaf value sequence</em> of a tree is its leaf values read from left to right. Two trees are leaf-similar if their sequences are equal. Return whether <code>root1</code> and <code>root2</code> are leaf-similar.</p>
+        <p>The <em>leaf value sequence</em> of a tree is the list of its leaf values, read from left to right. Two trees are leaf-similar if their lists are equal. Return whether <code>root1</code> and <code>root2</code> are leaf-similar.</p>
       </Problem>
     </>
   );

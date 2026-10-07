@@ -9,19 +9,19 @@ export default function Questions() {
         title="Binary tree level order traversal"
         level="Medium"
         examples={[
-          { input: "root = [3, 9, 20, null, null, 15, 7]", output: "[[3], [9, 20], [15, 7]]", why: "Row 0 is the root, row 1 its two children, row 2 the children of 20." },
+          { input: "root = [3, 9, 20, null, null, 15, 7]", output: "[[3], [9, 20], [15, 7]]", why: "Row 0 is the root. Row 1 is its two children. Row 2 is the children of 20." },
           { input: "root = [1]", output: "[[1]]", why: "One node, one row." },
-          { input: "root = []", output: "[]", why: "No rows at all (not one empty row)." },
+          { input: "root = []", output: "[]", why: "There are no rows at all (not even one empty row)." },
         ]}
         hints={[
-          <>A queue gives you nodes in the right order. How do you know where one row ends and the next begins?</>,
-          <>At the start of each round the queue holds exactly one row. Count it.</>,
-          <>Alternatively, a depth-first walk that carries the depth can drop each value straight into <code>levels[depth]</code>.</>,
+          <>A queue gives you the nodes in the right order. How do you know where one row ends and the next row begins?</>,
+          <>At the start of each round the queue holds exactly one row. Count how many nodes it has.</>,
+          <>Another way: a depth-first walk that carries the depth can put each value straight into <code>levels[depth]</code>.</>,
         ]}
         approaches={[
           {
-            name: "Depth-first with a depth argument",
-            idea: <p>Walk the tree recursively, passing the current depth. If <code>levels</code> has no array for this depth yet, add one. Push the node&apos;s value into <code>levels[depth]</code>. Going left before right keeps each row in left-to-right order.</p>,
+            name: "Depth-first, passing the depth",
+            idea: <p>Walk the tree with recursion (a function that calls itself) and pass the current depth along. If <code>levels</code> has no array for this depth yet, add one. Push the value of the node into <code>levels[depth]</code>. Go left before right, so each row stays in left-to-right order.</p>,
             code: `class TreeNode {
   constructor(val, left = null, right = null) {
     this.val = val;
@@ -61,16 +61,16 @@ function levelOrder(root) {
 console.log(levelOrder(buildTree([3, 9, 20, null, null, 15, 7]))); // [[3], [9, 20], [15, 7]]
 console.log(levelOrder(buildTree([1])));                          // [[1]]
 console.log(levelOrder(buildTree([])));                           // []`,
-            explain: <p>O(n) time, O(h) call-stack space plus the output. It works because within one depth, nodes are met left to right. It is not really BFS, but it gives the same rows.</p>,
+            explain: <p>O(n) time, and O(h) space for the call stack (the pile of open calls) plus the output. It works because nodes at the same depth are met from left to right. It is not really BFS, but it gives the same rows.</p>,
           },
           {
-            name: "BFS with a size snapshot",
+            name: "BFS with a saved size",
             idea: (
               <ol>
-                <li>Put the root in a queue; keep a <code>head</code> index for the front.</li>
+                <li>Put the root in a queue. Keep a <code>head</code> number that marks the front.</li>
                 <li>While the queue is not empty, let <code>size = queue.length - head</code>.</li>
-                <li>Take <code>size</code> nodes from the front, collecting their values into one row and queuing their children.</li>
-                <li>Push the row onto the answer.</li>
+                <li>Take <code>size</code> nodes from the front. Put their values into one row, and add their children to the queue.</li>
+                <li>Add the row to the answer.</li>
               </ol>
             ),
             code: `class TreeNode {
@@ -118,11 +118,11 @@ function levelOrder(root) {
 console.log(levelOrder(buildTree([3, 9, 20, null, null, 15, 7]))); // [[3], [9, 20], [15, 7]]
 console.log(levelOrder(buildTree([1])));                          // [[1]]
 console.log(levelOrder(buildTree([])));                           // []`,
-            explain: <p>O(n) time, O(w) space for the queue where w is the widest row. This is the template for the rest of the lesson.</p>,
+            explain: <p>O(n) time. O(w) space for the queue, where w is the number of nodes in the widest row. This is the pattern for the rest of the lesson.</p>,
           },
           {
             name: "Two arrays: current row and next row",
-            idea: <p>Instead of one queue, keep the current row as an array. Build the next row by collecting the children of every node in it, then swap. No sizes or head index needed.</p>,
+            idea: <p>Instead of one queue, keep the current row as an array. Build the next row by collecting the children of every node in it, then swap the two. You do not need a size or a head number.</p>,
             code: `class TreeNode {
   constructor(val, left = null, right = null) {
     this.val = val;
@@ -165,12 +165,12 @@ function levelOrder(root) {
 console.log(levelOrder(buildTree([3, 9, 20, null, null, 15, 7]))); // [[3], [9, 20], [15, 7]]
 console.log(levelOrder(buildTree([1])));                          // [[1]]
 console.log(levelOrder(buildTree([])));                           // []`,
-            explain: <p>O(n) time, O(w) space. Very readable, and a good fit when you need the whole row as an array anyway.</p>,
+            explain: <p>O(n) time, O(w) space. It is easy to read, and a good fit when you need the whole row as an array anyway.</p>,
           },
         ]}
-        compare={<p>The size-snapshot BFS is the one to memorise; every other BFS question is a small edit of it. (LeetCode 102.)</p>}
+        compare={<p>Learn the saved-size BFS by heart. Every other BFS question is a small change to it. (LeetCode 102.)</p>}
       >
-        <p>Return the level order traversal of a binary tree&apos;s values: a list of rows, from the top row down, each row left to right.</p>
+        <p>Return the level order traversal of a binary tree: a list of rows from the top row down, with each row read left to right.</p>
       </Problem>
 
       <Problem
@@ -178,19 +178,19 @@ console.log(levelOrder(buildTree([])));                           // []`,
         title="Binary tree right side view"
         level="Medium"
         examples={[
-          { input: "root = [1, 2, 3, null, 5, null, 4]", output: "[1, 3, 4]", why: "Row 2 holds 5 and 4; 4 is rightmost, so it hides 5." },
-          { input: "root = [1, 2, 3, 4, null, null, null, 5]", output: "[1, 3, 4, 5]", why: "Row 2 has only 4 and row 3 only 5, so each is visible." },
-          { input: "root = [1, null, 3]", output: "[1, 3]", why: "A single path to the right." },
-          { input: "root = []", output: "[]", why: "Nothing to see." },
+          { input: "root = [1, 2, 3, null, 5, null, 4]", output: "[1, 3, 4]", why: "Row 2 holds 5 and 4. Node 4 is the rightmost, so it hides 5." },
+          { input: "root = [1, 2, 3, 4, null, null, null, 5]", output: "[1, 3, 4, 5]", why: "Row 2 has only 4 and row 3 has only 5, so both can be seen." },
+          { input: "root = [1, null, 3]", output: "[1, 3]", why: "There is a single path to the right." },
+          { input: "root = []", output: "[]", why: "There is nothing to see." },
         ]}
         hints={[
           <>Which node of each row is visible from the right?</>,
-          <>It need not be a right child: in the second example, 4 is a <em>left</em> child but the only node in its row.</>,
+          <>It does not have to be a right child. In the second example, 4 is a <em>left</em> child, but it is the only node in its row.</>,
         ]}
         approaches={[
           {
             name: "Full level order, then take the last of each row",
-            idea: <p>Compute every row as in the last question and keep the last element of each.</p>,
+            idea: <p>Build every row as in the last question. Keep the last value of each row.</p>,
             code: `class TreeNode {
   constructor(val, left = null, right = null) {
     this.val = val;
@@ -236,11 +236,11 @@ function rightSideView(root) {
 console.log(rightSideView(buildTree([1, 2, 3, null, 5, null, 4])));            // [1, 3, 4]
 console.log(rightSideView(buildTree([1, 2, 3, 4, null, null, null, 5])));      // [1, 3, 4, 5]
 console.log(rightSideView(buildTree([])));                                     // []`,
-            explain: <p>O(n) time but it stores every value when only one per row is needed.</p>,
+            explain: <p>O(n) time. It stores every value, even though we need only one per row.</p>,
           },
           {
             name: "BFS keeping only the last node of each row",
-            idea: <p>With the size snapshot, the node at position <code>k === size - 1</code> is the last of its row. Record only that one.</p>,
+            idea: <p>With the saved size, the node at position <code>k === size - 1</code> is the last of its row. Record only that one.</p>,
             code: `class TreeNode {
   constructor(val, left = null, right = null) {
     this.val = val;
@@ -289,7 +289,7 @@ console.log(rightSideView(buildTree([])));                                     /
           },
           {
             name: "Depth-first, right child first",
-            idea: <p>Visit the right child before the left. The first node you reach at each new depth is then the rightmost one in its row. A new depth is detected by <code>depth === view.length</code>.</p>,
+            idea: <p>Visit the right child before the left child. Then the first node you reach at each new depth is the rightmost one in its row. You know it is a new depth when <code>depth === view.length</code>.</p>,
             code: `class TreeNode {
   constructor(val, left = null, right = null) {
     this.val = val;
@@ -317,7 +317,7 @@ function rightSideView(root) {
   const view = [];
   function walk(node, depth) {
     if (node === null) return;
-    if (depth === view.length) view.push(node.val);   // first visit to this depth
+    if (depth === view.length) view.push(node.val);   // first time we reach this depth
     walk(node.right, depth + 1);
     walk(node.left, depth + 1);
   }
@@ -328,12 +328,12 @@ function rightSideView(root) {
 console.log(rightSideView(buildTree([1, 2, 3, null, 5, null, 4])));            // [1, 3, 4]
 console.log(rightSideView(buildTree([1, 2, 3, 4, null, null, null, 5])));      // [1, 3, 4, 5]
 console.log(rightSideView(buildTree([])));                                     // []`,
-            explain: <p>O(n) time, O(h) space, which is better than BFS for a wide tree. The trick of using the answer&apos;s length as the &quot;deepest depth seen so far&quot; is worth remembering.</p>,
+            explain: <p>O(n) time, O(h) space, which is better than BFS for a wide tree. Remember this trick: the length of the answer tells you the deepest depth seen so far.</p>,
           },
         ]}
-        compare={<p>Either of the last two. BFS shows you understand rows; DFS is leaner on memory for bushy trees. (LeetCode 199.)</p>}
+        compare={<p>Use either of the last two. BFS shows that you understand rows. Depth-first uses less memory for bushy trees. (LeetCode 199.)</p>}
       >
-        <p>Imagine standing on the right side of a binary tree. Return the values of the nodes you can see, from top to bottom.</p>
+        <p>Imagine you stand on the right side of a binary tree. Return the values of the nodes you can see, from top to bottom.</p>
       </Problem>
 
       <Problem
@@ -341,13 +341,13 @@ console.log(rightSideView(buildTree([])));                                     /
         title="Binary tree zigzag level order traversal"
         level="Medium"
         examples={[
-          { input: "root = [3, 9, 20, null, null, 15, 7]", output: "[[3], [20, 9], [15, 7]]", why: "Row 1 is read right to left; row 2 goes back to left to right." },
+          { input: "root = [3, 9, 20, null, null, 15, 7]", output: "[[3], [20, 9], [15, 7]]", why: "Row 1 is read from right to left. Row 2 goes back to left to right." },
           { input: "root = [1]", output: "[[1]]", why: "One row." },
           { input: "root = []", output: "[]", why: "No rows." },
         ]}
         hints={[
-          <>The order in which nodes are <em>visited</em> should stay the same. Only the way you store each row changes.</>,
-          <>Keep a boolean that flips after every row.</>,
+          <>The order in which you <em>visit</em> the nodes stays the same. Only the way you store each row changes.</>,
+          <>Keep a true/false value (a boolean) that flips after every row.</>,
         ]}
         approaches={[
           {
@@ -399,11 +399,11 @@ function zigzagLevelOrder(root) {
 console.log(zigzagLevelOrder(buildTree([3, 9, 20, null, null, 15, 7])));      // [[3], [20, 9], [15, 7]]
 console.log(zigzagLevelOrder(buildTree([1, 2, 3, 4, null, null, 5])));         // [[1], [3, 2], [4, 5]]
 console.log(zigzagLevelOrder(buildTree([])));                                  // []`,
-            explain: <p>O(n) time; each reversal is linear in the row, so the total is still O(n). Simplest to get right.</p>,
+            explain: <p>O(n) time. Each reversal takes time in proportion to the row, so the total is still O(n). This is the easiest one to get right.</p>,
           },
           {
-            name: "Write into the mirrored position",
-            idea: <p>Know the row size in advance, create <code>new Array(size)</code>, and on right-to-left rows place the k-th visited node at index <code>size - 1 - k</code>.</p>,
+            name: "Write into the mirror position",
+            idea: <p>You know the row size in advance, so create <code>new Array(size)</code>. On right-to-left rows, put the k-th visited node at index <code>size - 1 - k</code>.</p>,
             code: `class TreeNode {
   constructor(val, left = null, right = null) {
     this.val = val;
@@ -451,11 +451,11 @@ function zigzagLevelOrder(root) {
 console.log(zigzagLevelOrder(buildTree([3, 9, 20, null, null, 15, 7])));      // [[3], [20, 9], [15, 7]]
 console.log(zigzagLevelOrder(buildTree([1, 2, 3, 4, null, null, 5])));         // [[1], [3, 2], [4, 5]]
 console.log(zigzagLevelOrder(buildTree([])));                                  // []`,
-            explain: <p>O(n) time and no separate reversal pass. The size snapshot is what makes this possible.</p>,
+            explain: <p>O(n) time, and no extra pass to reverse. Saving the size is what makes this possible.</p>,
           },
           {
             name: "Depth-first, building rows from either end",
-            idea: <p>Walk depth-first, left before right, carrying the depth. On even depths <code>push</code> the value onto the row; on odd depths <code>unshift</code> it to the front.</p>,
+            idea: <p>Walk depth-first, left before right, and pass the depth along. On even depths <code>push</code> the value onto the row; on odd depths <code>unshift</code> it to the front.</p>,
             code: `class TreeNode {
   constructor(val, left = null, right = null) {
     this.val = val;
@@ -496,12 +496,12 @@ function zigzagLevelOrder(root) {
 console.log(zigzagLevelOrder(buildTree([3, 9, 20, null, null, 15, 7])));      // [[3], [20, 9], [15, 7]]
 console.log(zigzagLevelOrder(buildTree([1, 2, 3, 4, null, null, 5])));         // [[1], [3, 2], [4, 5]]
 console.log(zigzagLevelOrder(buildTree([])));                                  // []`,
-            explain: <p>Correct, but <code>unshift</code> shifts the whole row each time, so a very wide row costs O(row²). Fine for interviews; prefer the earlier two for performance.</p>,
+            explain: <p>Correct, but <code>unshift</code> moves the whole row each time, so a very wide row costs O(row²). It is fine for interviews. For speed, prefer the earlier two.</p>,
           },
         ]}
-        compare={<p>Reverse-at-the-end for clarity, or the mirrored write to avoid the extra pass. (LeetCode 103.)</p>}
+        compare={<p>Reverse at the end if you want it clear. Use the mirror write to avoid the extra pass. (LeetCode 103.)</p>}
       >
-        <p>Return the zigzag level order traversal: the first row left to right, the next right to left, and so on, alternating.</p>
+        <p>Return the zigzag level order traversal: the first row left to right, the next row right to left, and so on, switching each time.</p>
       </Problem>
 
       <Problem
@@ -509,18 +509,18 @@ console.log(zigzagLevelOrder(buildTree([])));                                  /
         title="Minimum depth of binary tree"
         level="Easy"
         examples={[
-          { input: "root = [3, 9, 20, null, null, 15, 7]", output: "2", why: "The leaf 9 is two nodes from the top (3, 9)." },
-          { input: "root = [2, null, 3, null, 4, null, 5, null, 6]", output: "5", why: "A chain; the only leaf is 6, at depth 5. The root is not a leaf even though it is missing a left child." },
+          { input: "root = [3, 9, 20, null, null, 15, 7]", output: "2", why: "The leaf 9 is the closest leaf. The path is 3, 9, which has two nodes." },
+          { input: "root = [2, null, 3, null, 4, null, 5, null, 6]", output: "5", why: "This is a chain. The only leaf is 6, at depth 5. The root is not a leaf, even though it has no left child." },
           { input: "root = []", output: "0", why: "An empty tree has depth 0." },
         ]}
         hints={[
-          <>Be careful what a leaf is: a node with <em>no</em> children at all.</>,
-          <>Which traversal reaches shallow nodes first and lets you stop early?</>,
+          <>Be careful about what a leaf is: a node with <em>no</em> children at all.</>,
+          <>Which walk reaches the nodes near the top first, so that you can stop early?</>,
         ]}
         approaches={[
           {
-            name: "Collect every leaf depth, take the minimum (brute force)",
-            idea: <p>Walk the whole tree depth-first, and each time you reach a leaf, record its depth. Return the smallest.</p>,
+            name: "Collect every leaf depth, take the smallest (brute force)",
+            idea: <p>Walk the whole tree depth-first. Each time you reach a leaf, record its depth. Return the smallest one.</p>,
             code: `class TreeNode {
   constructor(val, left = null, right = null) {
     this.val = val;
@@ -559,15 +559,15 @@ function minDepth(root) {
 console.log(minDepth(buildTree([3, 9, 20, null, null, 15, 7])));           // 2
 console.log(minDepth(buildTree([2, null, 3, null, 4, null, 5, null, 6]))); // 5
 console.log(minDepth(buildTree([])));                                      // 0`,
-            explain: <p>O(n) time, O(h) space. Always visits every node, even when a leaf sits right below the root.</p>,
+            explain: <p>O(n) time, O(h) space. It always visits every node, even when a leaf is right below the root.</p>,
           },
           {
-            name: "Recursion that respects one-child nodes",
+            name: "Recursion that handles nodes with one child",
             idea: (
               <ol>
-                <li>Null: 0.</li>
-                <li>If the left side is missing, the answer is 1 plus the right side, and vice versa.</li>
-                <li>Otherwise 1 plus the smaller of the two sides.</li>
+                <li>If the node is null, the answer is 0.</li>
+                <li>If the left side is missing, the answer is 1 plus the right side. If the right side is missing, the answer is 1 plus the left side.</li>
+                <li>Otherwise the answer is 1 plus the smaller of the two sides.</li>
               </ol>
             ),
             code: `class TreeNode {
@@ -603,11 +603,11 @@ function minDepth(root) {
 console.log(minDepth(buildTree([3, 9, 20, null, null, 15, 7])));           // 2
 console.log(minDepth(buildTree([2, null, 3, null, 4, null, 5, null, 6]))); // 5
 console.log(minDepth(buildTree([])));                                      // 0`,
-            explain: <p>O(n) time, O(h) space. The two special cases are the whole point: a missing child is not a path that ends there.</p>,
+            explain: <p>O(n) time, O(h) space. The two special cases are the whole point: a missing child is not the end of a path.</p>,
           },
           {
             name: "BFS that stops at the first leaf",
-            idea: <p>Go row by row. The first leaf met is on the shallowest row, so return the current depth immediately.</p>,
+            idea: <p>Go row by row. The first leaf you meet is on the row nearest the top. So return the current depth at once.</p>,
             code: `class TreeNode {
   constructor(val, left = null, right = null) {
     this.val = val;
@@ -652,10 +652,10 @@ function minDepth(root) {
 console.log(minDepth(buildTree([3, 9, 20, null, null, 15, 7])));           // 2
 console.log(minDepth(buildTree([2, null, 3, null, 4, null, 5, null, 6]))); // 5
 console.log(minDepth(buildTree([])));                                      // 0`,
-            explain: <p>O(n) worst case, but it can finish after looking at only the rows above the first leaf. It uses O(w) space.</p>,
+            explain: <p>O(n) in the worst case, but it can finish after looking at only the rows down to the first leaf. It uses O(w) space.</p>,
           },
         ]}
-        compare={<p>BFS is the natural fit and can stop early; the recursion is shorter if you remember the one-child case. (LeetCode 111.)</p>}
+        compare={<p>BFS is the natural fit and can stop early. The recursion is shorter if you remember the one-child case. (LeetCode 111.)</p>}
       >
         <p>Return the minimum depth of a binary tree: the number of nodes on the shortest path from the root down to a leaf.</p>
       </Problem>
@@ -666,16 +666,16 @@ console.log(minDepth(buildTree([])));                                      // 0`
         level="Easy"
         examples={[
           { input: "root = [3, 9, 20, 15, 7]", output: "[3, 14.5, 11]", why: "Row 1: (9 + 20) / 2 = 14.5. Row 2: (15 + 7) / 2 = 11." },
-          { input: "root = [3, 9, 20, null, null, 15, 7]", output: "[3, 14.5, 11]", why: "Same rows of values, different shape." },
+          { input: "root = [3, 9, 20, null, null, 15, 7]", output: "[3, 14.5, 11]", why: "The rows have the same values, but the tree has a different shape." },
         ]}
         hints={[
-          <>You need each row&apos;s sum and its size.</>,
-          <>In BFS the size snapshot is the number of nodes in the row.</>,
+          <>For each row, you need the sum and the number of nodes.</>,
+          <>In BFS, the saved size is the number of nodes in the row.</>,
         ]}
         approaches={[
           {
             name: "BFS with a running sum",
-            idea: <p>For each row, add up the values while processing <code>size</code> nodes, then push <code>sum / size</code>.</p>,
+            idea: <p>For each row, add up the values while you process <code>size</code> nodes. Then push <code>sum / size</code> to the answer.</p>,
             code: `class TreeNode {
   constructor(val, left = null, right = null) {
     this.val = val;
@@ -720,11 +720,11 @@ function averageOfLevels(root) {
 
 console.log(averageOfLevels(buildTree([3, 9, 20, 15, 7])));                 // [3, 14.5, 11]
 console.log(averageOfLevels(buildTree([3, 9, 20, null, null, 15, 7])));     // [3, 14.5, 11]`,
-            explain: <p>O(n) time, O(w) space. We never keep the values, only the sum.</p>,
+            explain: <p>O(n) time, O(w) space. We do not keep the values, only their sum.</p>,
           },
           {
-            name: "DFS accumulating sums and counts per depth",
-            idea: <p>Keep two arrays indexed by depth: the sum and the count. Walk depth-first adding each node to its depth&apos;s entries, then divide at the end.</p>,
+            name: "DFS adding up sums and counts for each depth",
+            idea: <p>Keep two arrays, with the depth as the index: one for the sum and one for the count. Walk depth-first and add each node to the entries of its depth. Divide at the end.</p>,
             code: `class TreeNode {
   constructor(val, left = null, right = null) {
     this.val = val;
@@ -764,10 +764,10 @@ function averageOfLevels(root) {
 
 console.log(averageOfLevels(buildTree([3, 9, 20, 15, 7])));                 // [3, 14.5, 11]
 console.log(averageOfLevels(buildTree([3, 9, 20, null, null, 15, 7])));     // [3, 14.5, 11]`,
-            explain: <p>O(n) time, O(h) call stack plus two arrays of length equal to the height.</p>,
+            explain: <p>O(n) time. O(h) for the call stack, plus two arrays whose length equals the height.</p>,
           },
         ]}
-        compare={<p>BFS, because the row structure is exactly what the question asks about. (LeetCode 637.)</p>}
+        compare={<p>Use BFS, because the question is exactly about rows. (LeetCode 637.)</p>}
       >
         <p>Return the average value of the nodes on each level of a binary tree, as an array from the top level down.</p>
       </Problem>
@@ -782,13 +782,13 @@ console.log(averageOfLevels(buildTree([3, 9, 20, null, null, 15, 7])));     // [
           { input: "root = []", output: "[]", why: "No rows." },
         ]}
         hints={[
-          <>The same loop as the averages question, keeping a maximum instead of a sum.</>,
-          <>Start the maximum at <code>-Infinity</code>, because values can be negative.</>,
+          <>Use the same loop as the averages question, but keep the largest value instead of the sum.</>,
+          <>Start the largest value at <code>-Infinity</code> (smaller than any number), because values can be negative.</>,
         ]}
         approaches={[
           {
             name: "BFS with a running maximum",
-            idea: <p>Per row, start at <code>-Infinity</code>, update with every value, push the result.</p>,
+            idea: <p>For each row, start at <code>-Infinity</code>, update it with every value, and push the result.</p>,
             code: `class TreeNode {
   constructor(val, left = null, right = null) {
     this.val = val;
@@ -838,8 +838,8 @@ console.log(largestValues(buildTree([])));                        // []`,
             explain: <p>O(n) time, O(w) space.</p>,
           },
           {
-            name: "DFS keeping a best value per depth",
-            idea: <p>Walk depth-first with the depth. If this is a new depth, start its entry with the node&apos;s value; otherwise keep the larger.</p>,
+            name: "DFS keeping the best value for each depth",
+            idea: <p>Walk depth-first and pass the depth. If this is a new depth, start its entry with the value of the node. Otherwise keep the larger value.</p>,
             code: `class TreeNode {
   constructor(val, left = null, right = null) {
     this.val = val;
@@ -880,10 +880,10 @@ console.log(largestValues(buildTree([1, 3, 2, 5, 3, null, 9])));   // [1, 3, 9]
 console.log(largestValues(buildTree([1, 2, 3])));                 // [1, 3]
 console.log(largestValues(buildTree([-1, -5, -2])));              // [-1, -2]
 console.log(largestValues(buildTree([])));                        // []`,
-            explain: <p>O(n) time, O(h) call stack. Seeding each depth with the first value met avoids needing <code>-Infinity</code>.</p>,
+            explain: <p>O(n) time, O(h) for the call stack. We start each depth with the first value we meet, so we do not need <code>-Infinity</code>.</p>,
           },
         ]}
-        compare={<p>BFS reads most naturally; DFS uses less memory on wide trees. (LeetCode 515.)</p>}
+        compare={<p>BFS is the most natural to read. Depth-first uses less memory on wide trees. (LeetCode 515.)</p>}
       >
         <p>Return an array of the largest value in each row of a binary tree, from the top row down.</p>
       </Problem>
@@ -893,18 +893,18 @@ console.log(largestValues(buildTree([])));                        // []`,
         title="Populating next right pointers in each node"
         level="Medium"
         examples={[
-          { input: "root = [1, 2, 3, 4, 5, 6, 7]", output: "next pointers join each row: 1 → null; 2 → 3 → null; 4 → 5 → 6 → 7 → null", why: "In each row, every next pointer leads to the right neighbour; the last node points to null." },
+          { input: "root = [1, 2, 3, 4, 5, 6, 7]", output: "next pointers join each row: 1 → null; 2 → 3 → null; 4 → 5 → 6 → 7 → null", why: "In each row, every next pointer leads to the neighbour on the right. The last node points to null." },
           { input: "root = []", output: "(nothing to connect)", why: "An empty tree." },
         ]}
         hints={[
-          <>The tree is <em>perfect</em>: every internal node has two children and all leaves are on the same row.</>,
-          <>With a size snapshot, the next of the k-th node of a row is simply the front of the queue, unless it is the last one in the row.</>,
-          <>To avoid the queue: a row already linked by <code>next</code> pointers lets you walk across it and link the row below.</>,
+          <>The tree is <em>perfect</em>: every node that is not a leaf has two children, and all leaves are on the same row.</>,
+          <>With a saved size, the <code>next</code> of a node is simply the node at the front of the queue, unless it is the last node in its row.</>,
+          <>To avoid the queue: a row that is already linked by <code>next</code> pointers lets you walk across it and link the row below.</>,
         ]}
         approaches={[
           {
-            name: "BFS with a size snapshot",
-            idea: <p>For each row, process <code>size</code> nodes. For every node except the last in the row, set <code>next</code> to the node now at the front of the queue (the following node in the same row). The last node keeps <code>null</code>.</p>,
+            name: "BFS with a saved size",
+            idea: <p>For each row, process <code>size</code> nodes. For every node except the last one in the row, set <code>next</code> to the node now at the front of the queue (the next node in the same row). The last node keeps <code>null</code>.</p>,
             code: `class Node {
   constructor(val, left = null, right = null, next = null) {
     this.val = val;
@@ -959,14 +959,14 @@ function connect(root) {
 console.log(rows(connect(buildTree([1, 2, 3, 4, 5, 6, 7])))); // [[1], [2, 3], [4, 5, 6, 7]]
 console.log(rows(connect(buildTree([1]))));                  // [[1]]
 console.log(rows(connect(buildTree([]))));                   // []`,
-            explain: <p>O(n) time and O(w) space for the queue. Works for any binary tree, not only a perfect one.</p>,
+            explain: <p>O(n) time and O(w) space for the queue. It works for any binary tree, not only a perfect one.</p>,
           },
           {
-            name: "Walk the finished row to link the next row (O(1) space)",
+            name: "Walk the finished row to link the row below (O(1) space)",
             idea: (
               <ol>
-                <li>Start at the leftmost node of a row. Its row is already linked through <code>next</code>.</li>
-                <li>For each node in that row: connect <code>node.left.next = node.right</code>, and if the node has a neighbour, connect <code>node.right.next = node.next.left</code> (across the gap between parents).</li>
+                <li>Start at the leftmost node of a row. That row is already linked through <code>next</code>.</li>
+                <li>For each node in that row, connect <code>node.left.next = node.right</code>. If the node has a neighbour, also connect <code>node.right.next = node.next.left</code> (this crosses the gap between two parents).</li>
                 <li>Drop down to the next row by moving to the leftmost node&apos;s left child.</li>
               </ol>
             ),
@@ -1020,11 +1020,11 @@ function connect(root) {
 console.log(rows(connect(buildTree([1, 2, 3, 4, 5, 6, 7])))); // [[1], [2, 3], [4, 5, 6, 7]]
 console.log(rows(connect(buildTree([1]))));                  // [[1]]
 console.log(rows(connect(buildTree([]))));                   // []`,
-            explain: <p>O(n) time and O(1) extra space: the next pointers we are creating act as the queue. It relies on every node having both children (a perfect tree) so <code>node.left</code> and <code>node.next.left</code> always exist.</p>,
+            explain: <p>O(n) time and O(1) extra space. The <code>next</code> links we are making work like the queue. It needs every node to have both children (a perfect tree), so that <code>node.left</code> and <code>node.next.left</code> always exist.</p>,
           },
           {
             name: "Recursion",
-            idea: <p>At each internal node, connect its two children to each other, and connect the right child to the left child of the node&apos;s own neighbour. Then recurse into both children. A node&apos;s neighbour has been linked by its parent before we get there.</p>,
+            idea: <p>At each node that has children, connect its two children to each other. Then connect the right child to the left child of the neighbour of the node. After that, call the function on both children. The parent has already linked the neighbour of a node before we get there.</p>,
             code: `class Node {
   constructor(val, left = null, right = null, next = null) {
     this.val = val;
@@ -1072,13 +1072,13 @@ function connect(root) {
 console.log(rows(connect(buildTree([1, 2, 3, 4, 5, 6, 7])))); // [[1], [2, 3], [4, 5, 6, 7]]
 console.log(rows(connect(buildTree([1]))));                  // [[1]]
 console.log(rows(connect(buildTree([]))));                   // []`,
-            explain: <p>O(n) time, O(h) call-stack space. Setting the children&apos;s links <em>before</em> recursing is what guarantees that <code>root.next</code> is already correct when we need it.</p>,
+            explain: <p>O(n) time, O(h) space for the call stack. We set the links of the children <em>before</em> the recursive calls. This makes sure <code>root.next</code> is already correct when we need it.</p>,
           },
         ]}
-        compare={<p>Start with BFS (it also solves the version for any tree, LeetCode 117). The O(1)-space row-walk is the follow-up the interviewer is hoping for. (LeetCode 116.)</p>}
+        compare={<p>Start with BFS (it also solves the version for any tree, LeetCode 117). The O(1)-space row walk is the follow-up the interviewer hopes you know. (LeetCode 116.)</p>}
       >
         <p>
-          You are given a <em>perfect</em> binary tree whose nodes have an extra pointer <code>next</code>. Set every <code>next</code> to point to the node on its right on the same row, or to <code>null</code> if there is none. All pointers start as <code>null</code>.
+          You get a <em>perfect</em> binary tree. Each node has an extra link called <code>next</code>. Set every <code>next</code> to point to the node on its right in the same row, or to <code>null</code> if there is none. All <code>next</code> links start as <code>null</code>.
         </p>
       </Problem>
     </>

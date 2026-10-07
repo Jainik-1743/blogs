@@ -9,14 +9,14 @@ export default function Questions() {
         title="Balanced binary tree"
         level="Easy"
         examples={[
-          { input: "root = [3, 9, 20, null, null, 15, 7]", output: "true", why: "At every node the two subtree heights differ by at most 1." },
-          { input: "root = [1, 2, 2, 3, 3, null, null, 4, 4]", output: "false", why: "The left child of the root has height 3, but the right child has height 1: a difference of 2." },
+          { input: "root = [3, 9, 20, null, null, 15, 7]", output: "true", why: "At every node, the heights of the left side and the right side differ by at most 1." },
+          { input: "root = [1, 2, 2, 3, 3, null, null, 4, 4]", output: "false", why: "The left child of the root has height 3, but the right child has height 1. The difference is 2." },
           { input: "root = []", output: "true", why: "An empty tree is balanced." },
         ]}
         hints={[
           <>&quot;Balanced&quot; must hold at <em>every</em> node, not only at the root.</>,
-          <>If you call a separate <code>height</code> function at each node, how many times is the same node visited?</>,
-          <>Let one function do both jobs: return the height normally, and return -1 as a signal that something below was unbalanced.</>,
+          <>If you call a separate <code>height</code> function at each node, how many times do you visit the same node?</>,
+          <>Let one function do both jobs. Return the height as usual. Return -1 as a warning signal when something below is unbalanced.</>,
         ]}
         approaches={[
           {
@@ -24,8 +24,8 @@ export default function Questions() {
             idea: (
               <ol>
                 <li>Write <code>height(node)</code>.</li>
-                <li>At each node, compare the heights of its two subtrees.</li>
-                <li>Recurse into both children and require them to be balanced too.</li>
+                <li>At each node, compare the heights of its left side and right side.</li>
+                <li>Call the function on both children. They must be balanced too.</li>
               </ol>
             ),
             code: `class TreeNode { constructor(val, left = null, right = null) { this.val = val; this.left = left; this.right = right; } }
@@ -56,15 +56,15 @@ function isBalanced(root) {
 
 console.log(isBalanced(buildTree([3, 9, 20, null, null, 15, 7])));          // true
 console.log(isBalanced(buildTree([1, 2, 2, 3, 3, null, null, 4, 4])));      // false`,
-            explain: <p>Correct, but each node&apos;s subtree is walked again by every ancestor&apos;s height call. O(n log n) on a bushy tree and O(n²) on a chain-like one.</p>,
+            explain: <p>Correct, but every ancestor (the parent, the grandparent, and so on) walks the same nodes again with its own height call. It takes O(n log n) on a bushy tree and O(n²) on a tree shaped like a chain.</p>,
           },
           {
-            name: "Bottom-up with a -1 sentinel",
+            name: "Bottom-up with a -1 warning value (sentinel)",
             idea: (
               <ol>
-                <li>Return the height of the subtree, or -1 if any subtree below is unbalanced.</li>
-                <li>If either child returns -1, pass -1 up immediately.</li>
-                <li>If the two heights differ by more than 1, return -1; otherwise return the height.</li>
+                <li>Return the height of this part of the tree, or -1 if anything below it is unbalanced.</li>
+                <li>If either child returns -1, pass -1 up at once.</li>
+                <li>If the two heights differ by more than 1, return -1. Otherwise return the height.</li>
                 <li>The tree is balanced when the root does not return -1.</li>
               </ol>
             ),
@@ -100,12 +100,12 @@ function isBalanced(root) {
 console.log(isBalanced(buildTree([3, 9, 20, null, null, 15, 7])));          // true
 console.log(isBalanced(buildTree([1, 2, 2, 3, 3, null, null, 4, 4])));      // false
 console.log(isBalanced(buildTree([])));                                      // true`,
-            explain: <p>Each node is visited once, so O(n) time and O(h) space for the recursion. It also stops early: the first problem found travels straight to the root.</p>,
+            explain: <p>Each node is visited once, so the time is O(n) and the space for the recursion is O(h). The first problem it finds travels straight up to the root.</p>,
           },
         ]}
-        compare={<p>The -1 sentinel version, which is the answer interviewers expect. Mention the slow version first as your starting point, then explain how you removed the repeated work. (LeetCode 110.)</p>}
+        compare={<p>Use the -1 version. Interviewers expect it. Mention the slow version first as your starting point. Then explain how you removed the repeated work. (LeetCode 110.)</p>}
       >
-        <p>A binary tree is <strong>height-balanced</strong> if, for every node, the heights of its left and right subtrees differ by at most 1. Return whether the given tree is height-balanced.</p>
+        <p>A binary tree is <strong>height-balanced</strong> if, at every node, the heights of its left side and right side differ by at most 1. Return whether the given tree is height-balanced.</p>
       </Problem>
 
       <Problem
@@ -114,17 +114,17 @@ console.log(isBalanced(buildTree([])));                                      // 
         level="Easy"
         examples={[
           { input: "root = [1, 2, 3, 4, 5]", output: "3", why: "The path 4 → 2 → 1 → 3 has three edges." },
-          { input: "root = [1, 2]", output: "1", why: "One edge between the two nodes." },
+          { input: "root = [1, 2]", output: "1", why: "There is one edge between the two nodes." },
           { input: "root = [1]", output: "0", why: "A single node has no edges." },
         ]}
         hints={[
-          <>Look at the highest node of the longest path. The path goes down its left side and down its right side.</>,
-          <>Its length in edges is the height of the left subtree plus the height of the right subtree (heights counted in nodes).</>,
-          <>The function you recurse with returns a height, but the answer is the maximum <code>left + right</code> seen at any node.</>,
+          <>Look at the highest node of the longest path. The path goes down its left side and also down its right side.</>,
+          <>Its length in edges is the height of the left side plus the height of the right side (heights counted in nodes).</>,
+          <>The function you call recursively returns a height. But the answer is the largest <code>left + right</code> seen at any node.</>,
         ]}
         approaches={[
           {
-            name: "Brute force: height of both sides at every node",
+            name: "Brute force: find the height of both sides at every node",
             idea: <p>For every node, compute the heights of its two subtrees with a separate <code>height</code> function, take the sum, and keep the maximum over all nodes.</p>,
             code: `class TreeNode { constructor(val, left = null, right = null) { this.val = val; this.left = left; this.right = right; } }
 function buildTree(arr) {                           // level-order array, null marks a missing child
@@ -154,14 +154,14 @@ function diameterOfBinaryTree(root) {
 
 console.log(diameterOfBinaryTree(buildTree([1, 2, 3, 4, 5]))); // 3
 console.log(diameterOfBinaryTree(buildTree([1, 2])));          // 1`,
-            explain: <p>Correct, but each height call walks a whole subtree again: O(n²) in the worst case.</p>,
+            explain: <p>Correct, but each height call walks a whole part of the tree again. The worst case is O(n²).</p>,
           },
           {
             name: "One pass: record left + right, return the height",
             idea: (
               <ol>
-                <li>Recurse to get the heights of both subtrees.</li>
-                <li>Update the outer <code>best</code> with <code>left + right</code>.</li>
+                <li>Call the function on both children to get their heights.</li>
+                <li>Update the outer variable <code>best</code> with <code>left + right</code>.</li>
                 <li>Return <code>1 + max(left, right)</code> to the parent.</li>
               </ol>
             ),
@@ -200,9 +200,9 @@ console.log(diameterOfBinaryTree(buildTree([1])));               // 0`,
             explain: <p>O(n) time, O(h) space. The returned value (height) and the recorded value (the bent path) are different, which is exactly why a plain recursion that returns the answer does not work.</p>,
           },
         ]}
-        compare={<p>The one-pass version. The brute force is a good starting point to say out loud, but it repeats work. (LeetCode 543.)</p>}
+        compare={<p>Use the one-pass version. The brute force is a good starting point to say out loud, but it repeats work. (LeetCode 543.)</p>}
       >
-        <p>Return the length of the longest path between any two nodes in the tree, measured in <strong>edges</strong>. The path may or may not pass through the root.</p>
+        <p>Return the length of the longest path between any two nodes in the tree, measured in <strong>edges</strong>. The path may pass through the root, or it may not.</p>
       </Problem>
 
       <Problem
@@ -210,18 +210,18 @@ console.log(diameterOfBinaryTree(buildTree([1])));               // 0`,
         title="Path sum"
         level="Easy"
         examples={[
-          { input: "root = [5, 4, 8, 11, null, 13, 4, 7, 2, null, null, null, 1], targetSum = 22", output: "true", why: "5 → 4 → 11 → 2 sums to 22 and ends at a leaf." },
-          { input: "root = [1, 2, 3], targetSum = 5", output: "false", why: "The root-to-leaf sums are 3 and 4." },
-          { input: "root = [], targetSum = 0", output: "false", why: "An empty tree has no root-to-leaf path." },
+          { input: "root = [5, 4, 8, 11, null, 13, 4, 7, 2, null, null, null, 1], targetSum = 22", output: "true", why: "5 → 4 → 11 → 2 adds up to 22 and ends at a leaf." },
+          { input: "root = [1, 2, 3], targetSum = 5", output: "false", why: "The sums from the root to the leaves are 3 and 4." },
+          { input: "root = [], targetSum = 0", output: "false", why: "An empty tree has no path from the root to a leaf." },
         ]}
         hints={[
-          <>Pass the remaining target down: subtract the node&apos;s value before going to the children.</>,
-          <>The path must end at a leaf. What identifies a leaf?</>,
+          <>Pass what is left of the target down. Subtract the value of the node before you go to the children.</>,
+          <>The path must end at a leaf. How can you tell that a node is a leaf?</>,
         ]}
         approaches={[
           {
-            name: "Brute force: collect every root-to-leaf sum",
-            idea: <p>Walk the tree, adding values along the way. At each leaf, push the total into a list. Finally check whether the target is in the list.</p>,
+            name: "Brute force: collect the sum of every root-to-leaf path",
+            idea: <p>Walk the tree and add the values along the way. At each leaf, add the total to a list. At the end, check whether the target is in the list.</p>,
             code: `class TreeNode { constructor(val, left = null, right = null) { this.val = val; this.left = left; this.right = right; } }
 function buildTree(arr) {                           // level-order array, null marks a missing child
   if (arr.length === 0 || arr[0] === null) return null;
@@ -253,15 +253,15 @@ function hasPathSum(root, targetSum) {
 
 console.log(hasPathSum(buildTree([5, 4, 8, 11, null, 13, 4, 7, 2, null, null, null, 1]), 22)); // true
 console.log(hasPathSum(buildTree([1, 2, 3]), 5));                                               // false`,
-            explain: <p>O(n) time but O(n) extra space for the list, and it keeps going after the answer is known.</p>,
+            explain: <p>O(n) time, but O(n) extra space for the list. It also keeps going after the answer is already known.</p>,
           },
           {
             name: "Recursion: subtract on the way down",
             idea: (
               <ol>
-                <li>Empty tree: false.</li>
-                <li>Leaf: return whether its value equals what remains of the target.</li>
-                <li>Otherwise: true if either child can finish the remaining sum.</li>
+                <li>Empty tree: return false.</li>
+                <li>Leaf: return whether its value equals what is left of the target.</li>
+                <li>Otherwise: return true if either child can finish the rest of the sum.</li>
               </ol>
             ),
             code: `class TreeNode { constructor(val, left = null, right = null) { this.val = val; this.left = left; this.right = right; } }
@@ -290,11 +290,11 @@ function hasPathSum(root, targetSum) {
 console.log(hasPathSum(buildTree([5, 4, 8, 11, null, 13, 4, 7, 2, null, null, null, 1]), 22)); // true
 console.log(hasPathSum(buildTree([1, 2, 3]), 5));                                               // false
 console.log(hasPathSum(buildTree([]), 0));                                                      // false`,
-            explain: <p>O(n) time, O(h) space, and the <code>||</code> stops as soon as one path works.</p>,
+            explain: <p>O(n) time, O(h) space. The <code>||</code> stops as soon as one path works.</p>,
           },
           {
-            name: "Iterative DFS with an explicit stack",
-            idea: <p>Replace the recursion with a stack of <code>[node, sum so far]</code> pairs. Pop one, add its value, and either check the target at a leaf or push the children.</p>,
+            name: "DFS with your own stack (no recursion)",
+            idea: <p>Replace the recursion with a stack of <code>[node, sum so far]</code> pairs. Pop one pair and add its value. At a leaf, check the target. Otherwise push the children.</p>,
             code: `class TreeNode { constructor(val, left = null, right = null) { this.val = val; this.left = left; this.right = right; } }
 function buildTree(arr) {                           // level-order array, null marks a missing child
   if (arr.length === 0 || arr[0] === null) return null;
@@ -326,10 +326,10 @@ function hasPathSum(root, targetSum) {
 
 console.log(hasPathSum(buildTree([5, 4, 8, 11, null, 13, 4, 7, 2, null, null, null, 1]), 22)); // true
 console.log(hasPathSum(buildTree([1, 2, 3]), 5));                                               // false`,
-            explain: <p>Same O(n) time. Useful when a very deep tree might overflow the call stack.</p>,
+            explain: <p>The time is the same, O(n). It helps when a very deep tree could overflow the call stack (run out of room for open calls).</p>,
           },
         ]}
-        compare={<p>The recursion is shortest and clearest. Mention the iterative version if the interviewer asks about very deep trees. (LeetCode 112.)</p>}
+        compare={<p>The recursion is the shortest and clearest. Mention the stack version if the interviewer asks about very deep trees. (LeetCode 112.)</p>}
       >
         <p>Given a tree and an integer <code>targetSum</code>, return <code>true</code> if there is a <strong>root-to-leaf</strong> path whose node values add up to <code>targetSum</code>. Values may be negative.</p>
       </Problem>
@@ -340,19 +340,19 @@ console.log(hasPathSum(buildTree([1, 2, 3]), 5));                               
         level="Hard"
         examples={[
           { input: "root = [1, 2, 3]", output: "6", why: "The path 2 → 1 → 3." },
-          { input: "root = [-10, 9, 20, null, null, 15, 7]", output: "42", why: "The path 15 → 20 → 7, which does not touch the root." },
+          { input: "root = [-10, 9, 20, null, null, 15, 7]", output: "42", why: "The path 15 → 20 → 7. It does not touch the root." },
           { input: "root = [-3]", output: "-3", why: "A path needs at least one node, so the answer can be negative." },
         ]}
         hints={[
-          <>Take the path&apos;s highest node as the anchor. The path goes down its left and down its right.</>,
-          <>Define <code>gain(node)</code> as the best sum of a path that <em>starts</em> at node and goes down one side only. That is what a parent can use.</>,
-          <>If a child&apos;s gain is negative, ignore it (use 0).</>,
-          <>Start the global best at -Infinity, not at 0.</>,
+          <>Look at the highest node of the path. The path goes down its left side and down its right side.</>,
+          <>Define <code>gain(node)</code> as the best sum of a path that <em>starts</em> at the node and goes down one side only. A parent can use only this.</>,
+          <>If the gain of a child is negative, ignore it (use 0).</>,
+          <>Start the global best at -Infinity (smaller than any number), not at 0.</>,
         ]}
         approaches={[
           {
             name: "Brute force: try every node as the top",
-            idea: <p>For every node, separately compute the best downward gain of its left and right subtrees (with a helper that recurses fully), combine them as <code>node.val + left + right</code>, and take the maximum over all nodes.</p>,
+            idea: <p>For every node, work out the best downward gain of its left side and right side separately, with a helper function. Combine them as <code>node.val + left + right</code>. Take the largest result over all nodes.</p>,
             code: `class TreeNode { constructor(val, left = null, right = null) { this.val = val; this.left = left; this.right = right; } }
 function buildTree(arr) {                           // level-order array, null marks a missing child
   if (arr.length === 0 || arr[0] === null) return null;
@@ -389,14 +389,14 @@ function maxPathSum(root) {
 
 console.log(maxPathSum(buildTree([1, 2, 3])));                       // 6
 console.log(maxPathSum(buildTree([-10, 9, 20, null, null, 15, 7])));  // 42`,
-            explain: <p>Correct, but <code>down</code> re-walks subtrees for every ancestor: O(n²) on a skewed tree.</p>,
+            explain: <p>Correct, but <code>down</code> walks the same nodes again for every ancestor. It takes O(n²) on a skewed tree (a tree that leans to one side, like a chain).</p>,
           },
           {
-            name: "One pass: record the bent path, return the one-sided gain",
+            name: "One pass: record the path that turns, return the one-sided gain",
             idea: (
               <ol>
-                <li><code>gain(node)</code> returns the best path sum that starts at the node and goes down one side.</li>
-                <li>Left and right gains below 0 are replaced by 0.</li>
+                <li><code>gain(node)</code> returns the best path sum that starts at the node and goes down one side only.</li>
+                <li>Replace a left or right gain below 0 with 0.</li>
                 <li>Update the global best with <code>node.val + left + right</code>.</li>
                 <li>Return <code>node.val + max(left, right)</code>.</li>
               </ol>
@@ -437,9 +437,9 @@ console.log(maxPathSum(buildTree([2, -1])));                         // 2`,
             explain: <p>O(n) time, O(h) space. On <code>[2, -1]</code> the child&apos;s gain is clamped to 0, so the best path is just the root, 2. A path that forks (using both children and then continuing to a parent) is never counted, because only the one-sided gain is returned.</p>,
           },
         ]}
-        compare={<p>The one-pass version; this is the same shape as diameter, with sums and a clamp at 0. (LeetCode 124.)</p>}
+        compare={<p>Use the one-pass version. It has the same shape as diameter, but with sums, and a negative gain is replaced by 0. (LeetCode 124.)</p>}
       >
-        <p>A <strong>path</strong> is a sequence of connected nodes where each node appears at most once; it need not pass through the root or end at a leaf. Return the maximum sum of node values over all non-empty paths. Values may be negative.</p>
+        <p>A <strong>path</strong> is a chain of connected nodes where each node appears at most once. It does not have to pass through the root or end at a leaf. Return the largest sum of node values over all paths that have at least one node. Values may be negative.</p>
       </Problem>
 
       <Problem
@@ -448,16 +448,16 @@ console.log(maxPathSum(buildTree([2, -1])));                         // 2`,
         level="Easy"
         examples={[
           { input: "root = [1, 2, 2, 3, 4, 4, 3]", output: "true", why: "The left half is the mirror image of the right half." },
-          { input: "root = [1, 2, 2, null, 3, null, 3]", output: "false", why: "Both 3s are on the right side of their parents, so they are not mirror images." },
+          { input: "root = [1, 2, 2, null, 3, null, 3]", output: "false", why: "Both 3s are on the right side of their parents. So they are not mirror images." },
         ]}
         hints={[
-          <>Compare two trees at once: the left subtree of the root and the right subtree.</>,
-          <>For mirrors, the left child of one is compared with the <em>right</em> child of the other.</>,
+          <>Compare two trees at once: the left side of the root and the right side of the root.</>,
+          <>For mirrors, compare the left child of one with the <em>right</em> child of the other.</>,
         ]}
         approaches={[
           {
             name: "Level by level: each row reads the same both ways",
-            idea: <p>Write each level as a list of values with <code>null</code> for gaps. For a mirror image, every level must read the same forwards and backwards.</p>,
+            idea: <p>Write each level as a list of values, with <code>null</code> for gaps. For a mirror image, every level must read the same forwards and backwards.</p>,
             code: `class TreeNode { constructor(val, left = null, right = null) { this.val = val; this.left = left; this.right = right; } }
 function buildTree(arr) {                           // level-order array, null marks a missing child
   if (arr.length === 0 || arr[0] === null) return null;
@@ -490,14 +490,14 @@ function isSymmetric(root) {
 
 console.log(isSymmetric(buildTree([1, 2, 2, 3, 4, 4, 3])));        // true
 console.log(isSymmetric(buildTree([1, 2, 2, null, 3, null, 3])));  // false`,
-            explain: <p>O(n) time and O(width) space. It works because the gaps are recorded as <code>null</code>.</p>,
+            explain: <p>O(n) time and O(width) space (the width is the number of nodes in the widest row). It works because we write the gaps as <code>null</code>.</p>,
           },
           {
             name: "Recursive mirror check",
             idea: (
               <ol>
-                <li>Two nulls are mirrors; one null and one node are not.</li>
-                <li>Otherwise the values must match, and <code>a.left</code> must mirror <code>b.right</code>, and <code>a.right</code> must mirror <code>b.left</code>.</li>
+                <li>Two nulls are mirrors. One null and one node are not mirrors.</li>
+                <li>Otherwise the values must match. Also <code>a.left</code> must mirror <code>b.right</code>, and <code>a.right</code> must mirror <code>b.left</code>.</li>
               </ol>
             ),
             code: `class TreeNode { constructor(val, left = null, right = null) { this.val = val; this.left = left; this.right = right; } }
@@ -530,8 +530,8 @@ console.log(isSymmetric(buildTree([1, 2, 2, null, 3, null, 3])));  // false`,
             explain: <p>O(n) time, O(h) space.</p>,
           },
           {
-            name: "Iterative with a queue of pairs",
-            idea: <p>Put the two children of the root in a queue as a pair. Repeatedly take a pair, compare it, and add the crossed child pairs.</p>,
+            name: "With a queue of pairs (no recursion)",
+            idea: <p>Put the two children of the root in a queue as a pair. Take a pair, compare it, and add the crossed child pairs. Repeat.</p>,
             code: `class TreeNode { constructor(val, left = null, right = null) { this.val = val; this.left = left; this.right = right; } }
 function buildTree(arr) {                           // level-order array, null marks a missing child
   if (arr.length === 0 || arr[0] === null) return null;
@@ -562,12 +562,12 @@ function isSymmetric(root) {
 
 console.log(isSymmetric(buildTree([1, 2, 2, 3, 4, 4, 3])));        // true
 console.log(isSymmetric(buildTree([1, 2, 2, null, 3, null, 3])));  // false`,
-            explain: <p>Same pairing as the recursion, with no call stack.</p>,
+            explain: <p>It pairs nodes in the same way as the recursion, but without a call stack.</p>,
           },
         ]}
-        compare={<p>The recursive mirror check; it is the shortest and shows the crossing idea best. (LeetCode 101.)</p>}
+        compare={<p>Use the recursive mirror check. It is the shortest and shows the crossing idea best. (LeetCode 101.)</p>}
       >
-        <p>Return whether a binary tree is a mirror image of itself (symmetric around its centre).</p>
+        <p>Return whether a binary tree is a mirror image of itself (the same on both sides of its centre).</p>
       </Problem>
 
       <Problem
@@ -575,20 +575,20 @@ console.log(isSymmetric(buildTree([1, 2, 2, null, 3, null, 3])));  // false`,
         title="Subtree of another tree"
         level="Easy"
         examples={[
-          { input: "root = [3, 4, 5, 1, 2], subRoot = [4, 1, 2]", output: "true", why: "The subtree rooted at 4 is identical to subRoot." },
-          { input: "root = [3, 4, 5, 1, 2, null, null, null, null, 0], subRoot = [4, 1, 2]", output: "false", why: "The subtree at 4 has an extra child (0) below the 2, so it is not identical." },
+          { input: "root = [3, 4, 5, 1, 2], subRoot = [4, 1, 2]", output: "true", why: "The part of the tree that starts at node 4 is identical to subRoot." },
+          { input: "root = [3, 4, 5, 1, 2, null, null, null, null, 0], subRoot = [4, 1, 2]", output: "false", why: "The part that starts at node 4 has an extra child (0) below the 2. So it is not identical." },
         ]}
         hints={[
-          <>Write a helper that says whether two trees are exactly identical.</>,
-          <>Try the helper at every node of the big tree.</>,
-          <>A subtree includes <em>all</em> descendants: both trees must end at the same place.</>,
+          <>Write a helper function that tells you whether two trees are exactly the same.</>,
+          <>Use the helper at every node of the big tree.</>,
+          <>A subtree includes <em>all</em> nodes below its top node (its descendants). Both trees must end at the same place.</>,
         ]}
         approaches={[
           {
             name: "Compare at every node",
             idea: (
               <ol>
-                <li><code>isSameTree(a, b)</code>: both null, or same value with same left and same right.</li>
+                <li><code>isSameTree(a, b)</code> is true when both are null, or when the values are the same and the left sides are the same and the right sides are the same.</li>
                 <li>For every node of <code>root</code>, check <code>isSameTree(node, subRoot)</code>.</li>
               </ol>
             ),
@@ -620,11 +620,11 @@ function isSubtree(root, subRoot) {
 
 console.log(isSubtree(buildTree([3, 4, 5, 1, 2]), buildTree([4, 1, 2])));                              // true
 console.log(isSubtree(buildTree([3, 4, 5, 1, 2, null, null, null, null, 0]), buildTree([4, 1, 2])));   // false`,
-            explain: <p>O(m · n) time in the worst case (n nodes in root, m in subRoot), O(h) space. Perfectly fine for the constraints.</p>,
+            explain: <p>O(m · n) time in the worst case (n nodes in root, m in subRoot), O(h) space. This is fine for the limits of the problem.</p>,
           },
           {
-            name: "Serialize both trees and look for a substring",
-            idea: <p>Turn each tree into a string with a preorder walk, writing a marker for every <code>null</code>, then check whether the sub-tree&apos;s string occurs inside the big one. The markers make the structure unambiguous, and each value is wrapped in brackets so <code>[2]</code> can never match inside <code>[12]</code>.</p>,
+            name: "Turn both trees into text and look for a substring",
+            idea: <p>Turn each tree into a string with a preorder walk. Write a marker for every <code>null</code>. Then check whether the string of the small tree appears inside the string of the big tree. The markers make the shape clear. Each value is wrapped in brackets, so <code>[2]</code> can never match inside <code>[12]</code>.</p>,
             code: `class TreeNode { constructor(val, left = null, right = null) { this.val = val; this.left = left; this.right = right; } }
 function buildTree(arr) {                           // level-order array, null marks a missing child
   if (arr.length === 0 || arr[0] === null) return null;
@@ -652,12 +652,12 @@ function isSubtree(root, subRoot) {
 console.log(isSubtree(buildTree([3, 4, 5, 1, 2]), buildTree([4, 1, 2])));                              // true
 console.log(isSubtree(buildTree([3, 4, 5, 1, 2, null, null, null, null, 0]), buildTree([4, 1, 2])));   // false
 console.log(isSubtree(buildTree([12]), buildTree([2])));                                                 // false`,
-            explain: <p>Building the strings is O(m + n); JavaScript&apos;s <code>includes</code> is not guaranteed to be linear, so say &quot;about O(m + n) with a good substring search&quot;. Without the brackets, tree <code>[12]</code> would wrongly contain <code>[2]</code>, and without the <code>#</code> markers two differently shaped trees could produce the same string.</p>,
+            explain: <p>Building the strings is O(m + n). JavaScript&apos;s <code>includes</code> is not promised to be linear, so say &quot;about O(m + n) with a good substring search&quot;. Without the brackets, tree <code>[12]</code> would wrongly contain <code>[2]</code>. Without the <code>#</code> markers, two trees with different shapes could give the same string.</p>,
           },
         ]}
-        compare={<p>Start with the node-by-node comparison, which is easy to write correctly. The serialization is a nice follow-up if asked for a faster approach. (LeetCode 572.)</p>}
+        compare={<p>Start with the node-by-node comparison. It is easy to write correctly. Turning the trees into strings is a nice follow-up if the interviewer asks for a faster way. (LeetCode 572.)</p>}
       >
-        <p>Return <code>true</code> if <code>subRoot</code> has exactly the same structure and node values as some subtree of <code>root</code> (a node of <code>root</code> together with <em>all</em> its descendants).</p>
+        <p>Return <code>true</code> if <code>subRoot</code> has exactly the same shape and node values as some subtree of <code>root</code>. A subtree is a node of <code>root</code> together with <em>all</em> the nodes below it.</p>
       </Problem>
 
       <Problem
@@ -669,15 +669,15 @@ console.log(isSubtree(buildTree([12]), buildTree([2])));                        
           { input: "root = [5, 4, 8, 11, null, 13, 4, 7, 2, null, null, 5, 1], targetSum = 22", output: "3", why: "5 → 4 → 11 → 2, 5 → 8 → 4 → 5 and 4 → 11 → 7 all sum to 22." },
         ]}
         hints={[
-          <>A path must go downward (parent to child) but may start and end at any node.</>,
-          <>Brute force: treat every node as a possible start and count the downward paths from it that sum to the target.</>,
-          <>Remember the prefix-sum trick from arrays: if the running sum from the root to here is S, then a path ending here with sum T exists for each earlier ancestor whose running sum was S − T.</>,
-          <>Keep a map of running sums on the current root-to-node path, and undo your entry when you leave the node.</>,
+          <>A path must go downward (from parent to child), but it can start and end at any node.</>,
+          <>Brute force: treat every node as a possible start. Count the downward paths from it that add up to the target.</>,
+          <>Remember the prefix-sum trick from arrays (a running total). Say the running sum from the root to here is S. Then a path that ends here with sum T exists for each earlier ancestor whose running sum was S − T.</>,
+          <>Keep a map of the running sums on the current path from the root to this node. Undo your entry when you leave the node.</>,
         ]}
         approaches={[
           {
             name: "Brute force: start a count at every node",
-            idea: <p>For each node, run a DFS downward counting how many paths from it reach the target, then add the answers for all nodes.</p>,
+            idea: <p>For each node, run a DFS (depth-first search) downward and count how many paths from it reach the target. Then add up the counts for all nodes.</p>,
             code: `class TreeNode { constructor(val, left = null, right = null) { this.val = val; this.left = left; this.right = right; } }
 function buildTree(arr) {                           // level-order array, null marks a missing child
   if (arr.length === 0 || arr[0] === null) return null;
@@ -706,15 +706,15 @@ function pathSum(root, targetSum) {
 
 console.log(pathSum(buildTree([10, 5, -3, 3, 2, null, 11, 3, -2, null, 1]), 8));            // 3
 console.log(pathSum(buildTree([5, 4, 8, 11, null, 13, 4, 7, 2, null, null, 5, 1]), 22));    // 3`,
-            explain: <p>You cannot stop early at a match, because negative values mean a longer path might also hit the target. O(n²) on a chain and O(n log n) on a bushy tree.</p>,
+            explain: <p>You cannot stop early at a match, because values can be negative, so a longer path might also reach the target. It takes O(n²) on a chain and O(n log n) on a bushy tree.</p>,
           },
           {
             name: "Prefix sums on the root-to-node path",
             idea: (
               <ol>
-                <li>Keep <code>running</code>, the sum from the root to the current node, and a Map from each running sum to how many times it occurs on the <em>current path</em> (starting with <code>{"{0: 1}"}</code> for the empty prefix).</li>
-                <li>At a node, the number of paths ending here is <code>map[running − target]</code>.</li>
-                <li>Add this node&apos;s running sum to the map, recurse into both children, then <strong>remove it again</strong> (backtrack) so other branches do not see it.</li>
+                <li>Keep <code>running</code>, the sum from the root to the current node. Also keep a Map (a table of key and value pairs) from each running sum to how many times it appears on the <em>current path</em>. Start with <code>{"{0: 1}"}</code> for the empty prefix (the path with no nodes).</li>
+                <li>At a node, the number of paths that end here is <code>map[running − target]</code>.</li>
+                <li>Add the running sum of this node to the map. Call the function on both children. Then <strong>remove it again</strong> (this is called backtracking: undoing a step when you go back), so other branches do not see it.</li>
               </ol>
             ),
             code: `class TreeNode { constructor(val, left = null, right = null) { this.val = val; this.left = left; this.right = right; } }
@@ -750,10 +750,10 @@ function pathSum(root, targetSum) {
 console.log(pathSum(buildTree([10, 5, -3, 3, 2, null, 11, 3, -2, null, 1]), 8));            // 3
 console.log(pathSum(buildTree([5, 4, 8, 11, null, 13, 4, 7, 2, null, null, 5, 1]), 22));    // 3
 console.log(pathSum(buildTree([1, -2, -3]), -1));                                            // 1`,
-            explain: <p>This is the &quot;subarray sum equals k&quot; trick applied to every root-to-node path. O(n) time and O(h) space. Backtracking is essential: a running sum from one branch must not be counted by a node in a sibling branch.</p>,
+            explain: <p>This is the &quot;subarray sum equals k&quot; trick, used on every path from the root to a node. O(n) time and O(h) space. Backtracking is a must: a running sum from one branch must not be counted by a node in a sibling branch (a branch next to it).</p>,
           },
         ]}
-        compare={<p>The prefix-sum map for O(n). Offer the brute force first (it is a sensible answer for small trees), then show how the array prefix-sum idea from earlier lessons removes the repeated work. (LeetCode 437.)</p>}
+        compare={<p>Use the prefix-sum map for O(n). Offer the brute force first. It is a sensible answer for small trees. Then show how the prefix-sum idea from earlier lessons removes the repeated work. (LeetCode 437.)</p>}
       >
         <p>Count the downward paths (going from parent to child, starting and ending at any node) whose node values add up to <code>targetSum</code>. Values may be negative.</p>
       </Problem>

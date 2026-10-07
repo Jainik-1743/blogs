@@ -301,26 +301,26 @@ function kthTrace() {
   const stack: TNode[] = [];
   const vals = () => stack.map((n) => n.val);
   let cur: TNode | null = root;
-  t.step(3, "start", "cur = root (5), k = 3", "We want the 3rd smallest value of the tree 5 → (3 → (2 → 1), 4), 6. Inorder order is smallest first, so we need the third value that gets popped.", { k, cur: cur.val, stack: vals() });
+  t.step(3, "start", "cur = root (5), k = 3", "We want the 3rd smallest value of the tree 5 → (3 → (2 → 1), 4), 6. Inorder gives values from smallest to largest, so we need the third value that we pop.", { k, cur: cur.val, stack: vals() });
   while (cur !== null || stack.length > 0) {
     while (cur !== null) {
       stack.push(cur);
       const pushed: number = cur.val;
       cur = cur.left;
-      t.step(7, "update", `push ${pushed}, move left`, cur ? `Remember ${pushed} for later and go to its left child, ${cur.val}.` : `Remember ${pushed} for later. It has no left child, so cur becomes null and the descent stops.`, { k, cur: cur ? cur.val : null, stack: vals() }, "stack");
+      t.step(7, "update", `push ${pushed}, move left`, cur ? `Keep ${pushed} on the stack for later, and go to its left child, ${cur.val}.` : `Keep ${pushed} on the stack for later. It has no left child, so cur becomes null and we stop going down.`, { k, cur: cur ? cur.val : null, stack: vals() }, "stack");
     }
     cur = stack.pop()!;
-    t.step(9, "update", `pop ${cur.val}`, `Nothing smaller is left to the left, so ${cur.val} is the next value in sorted order.`, { k, cur: cur.val, stack: vals() }, "cur");
+    t.step(9, "update", `pop ${cur.val}`, `There is nothing smaller on the left, so ${cur.val} is the next value in sorted order.`, { k, cur: cur.val, stack: vals() }, "cur");
     k--;
-    t.step(10, "update", `k = ${k}`, k === 0 ? `One more count and k reaches 0: ${cur.val} is the 3rd smallest.` : `${3 - k} value${3 - k === 1 ? "" : "s"} counted so far; ${k} still to go.`, { k, cur: cur.val, stack: vals() }, "k");
+    t.step(10, "update", `k = ${k}`, k === 0 ? `k reaches 0, so ${cur.val} is the 3rd smallest.` : `We have counted ${3 - k} value${3 - k === 1 ? "" : "s"} so far. ${k} more to go.`, { k, cur: cur.val, stack: vals() }, "k");
     if (k === 0) {
-      t.step(11, "run", `k is 0: return ${cur.val}`, "We stop immediately. The rest of the tree (4, 5 and 6) is never visited.", { k, cur: cur.val, stack: vals() });
+      t.step(11, "run", `k is 0: return ${cur.val}`, "We stop right away. We never visit the rest of the tree (4, 5 and 6).", { k, cur: cur.val, stack: vals() });
       t.print(cur.val);
       t.step(15, "print", `prints ${cur.val}`, "The 3rd smallest value is 3.", { k, stack: vals() });
       break;
     }
     cur = cur.right;
-    t.step(12, "update", `cur = right child: ${cur ? cur.val : "null"}`, cur ? `Now handle the right subtree of the value we just counted, starting at ${cur.val}.` : "It has no right child, so the next pop comes from the stack.", { k, cur: cur ? cur.val : null, stack: vals() }, "cur");
+    t.step(12, "update", `cur = right child: ${cur ? cur.val : "null"}`, cur ? `Now we handle the right side of the value we just counted, starting at ${cur.val}.` : "It has no right child, so the next value comes from popping the stack.", { k, cur: cur ? cur.val : null, stack: vals() }, "cur");
   }
   return t.steps;
 }
@@ -410,94 +410,95 @@ export default function DsaLessonFortyFourPage() {
         A <strong>binary search tree</strong> (BST) is a binary tree that obeys one rule at <em>every</em> node:
       </p>
       <Callout kind="note" label="The BST property">
-        Every value in the node&apos;s <strong>left</strong> subtree is <strong>smaller</strong> than the node&apos;s value, and every value in its{" "}
-        <strong>right</strong> subtree is <strong>larger</strong>. (We assume values are distinct, as LeetCode does for these
-        problems.)
+        Every value in the <strong>left</strong> side of a node (its left subtree, meaning the left child and everything below it)
+        is <strong>smaller</strong> than the value of the node. Every value in the <strong>right</strong> side is{" "}
+        <strong>larger</strong>. (We assume all values are different, as LeetCode does for these problems.)
       </Callout>
       <p>
-        Notice the word <em>every</em>: the rule covers the whole subtree, not only the direct children. That detail causes the
-        most common bug in this lesson. Two consequences make BSTs useful:
+        Notice the word <em>every</em>. The rule covers the whole left side and right side, not only the direct children. This
+        detail causes the most common bug in this lesson. Two things make BSTs useful:
       </p>
       <ul>
         <li>
-          <strong>Binary search on a tree.</strong> At each node you can discard one entire side, just as binary search discards half of
-          a sorted array. A search takes as many steps as the tree is tall.
+          <strong>Binary search on a tree.</strong> At each node you can ignore one whole side. Binary search on a sorted array
+          ignores half of the array in the same way. A search takes as many steps as the tree is tall.
         </li>
         <li>
-          <strong>Inorder gives sorted order.</strong> Visiting left subtree, then node, then right subtree (the <em>inorder</em>{" "}
-          traversal from lesson 41) lists the values from smallest to largest. Several questions below are just this fact.
+          <strong>Inorder gives sorted order.</strong> Visit the left side, then the node, then the right side. This is the{" "}
+          <em>inorder</em> walk from lesson 41. It lists the values from smallest to largest. Several questions below use just
+          this fact.
         </li>
       </ul>
       <p>
-        Most operations cost <strong>O(h)</strong>, where <em>h</em> is the tree&apos;s <strong>height</strong>. For a bushy tree
-        that is about log n; the last section shows when it is not. All samples use the same{" "}
-        <code>buildTree</code> helper as the last lesson (a level-order array, <code>null</code> for a missing child) and are
-        self-contained.
+        Most operations cost <strong>O(h)</strong>, where <em>h</em> is the <strong>height</strong> of the tree. For a bushy tree
+        h is about log n. The last section shows when it is not. All samples use the same <code>buildTree</code> helper as the
+        last lesson (a level-order array, with <code>null</code> for a missing child). Each sample is complete on its own.
       </p>
 
       <h2 id="search">Search</h2>
       <p>
-        Compare the target with the current node. Equal: found. Smaller: go left. Larger: go right. Falling off the tree (
-        <code>null</code>) means the value is not there. Here are the recursive and the iterative (loop) versions; the loop uses O(1)
-        extra space instead of O(h) for the call stack.
+        Compare the target with the current node. If they are equal, you found it. If the target is smaller, go left. If it is
+        larger, go right. If you fall off the tree (<code>null</code>), the value is not there. Here are two versions: one with
+        recursion and one with a loop. The loop uses O(1) extra space. The recursion uses O(h) for the call stack (the pile of
+        open calls).
       </p>
       <CodeBlock lang="js" code={searchCode} />
 
       <h2 id="insert">Insert</h2>
       <p>
-        Insertion is search that ends in the empty spot where the value would have been. The new node always becomes a{" "}
-        <strong>leaf</strong>; existing nodes never move. The helper <code>serialize</code> in this sample turns a tree back into a
-        level-order array so we can print it.
+        To insert, you search, and you stop at the empty spot where the value should be. The new node always becomes a{" "}
+        <strong>leaf</strong> (a node with no children). Existing nodes never move. The helper <code>serialize</code> in this
+        sample turns a tree back into a level-order array, so we can print it.
       </p>
       <CodeBlock lang="js" code={insertCode} />
       <p>
-        Many shapes are valid after an insertion, depending on where you attach the new node (a different algorithm could
-        rearrange the tree). The simple &quot;add as a leaf&quot; method is what interviewers usually expect.
+        Several tree shapes can be valid after an insertion. A different method could move nodes around. The simple &quot;add
+        as a leaf&quot; method is what interviewers usually expect.
       </p>
 
       <h2 id="delete">Delete: three cases</h2>
-      <p>Find the node first (search), then it is in one of three situations:</p>
+      <p>First find the node (search). Then it is in one of three situations:</p>
       <DryRun
         title="deleting a node"
         cols={["Case", "What to do", "Why it keeps the BST property"]}
         rows={[
           ["It is a leaf", "Remove it (return null to the parent)", "Nothing depended on it."],
-          ["It has one child", "Replace it with that child", "The child subtree is already on the correct side of the parent."],
-          ["It has two children", "Copy the inorder successor (the smallest value in the right subtree) into this node, then delete that successor from the right subtree", "The successor is larger than everything on the left and no larger than anything on the right."],
+          ["It has one child", "Replace it with that child", "The child, with everything below it, is already on the correct side of the parent."],
+          ["It has two children", "Copy the inorder successor (the next value in sorted order, which is the smallest value on the right side) into this node. Then delete that successor from the right side", "The successor is larger than everything on the left, and not larger than anything on the right."],
         ]}
-        note="The successor has no left child (otherwise it would not be the smallest), so deleting it is always case 1 or 2. The largest value on the left, the inorder predecessor, works just as well."
+        note="The successor has no left child (otherwise it would not be the smallest). So deleting it is always case 1 or 2. You can also use the largest value on the left side, the inorder predecessor (the value just before it in sorted order). It works just as well."
       />
       <CodeBlock lang="js" code={deleteCode} />
       <p>
-        The function returns the (possibly new) root of each subtree, so the parent can reattach it with{" "}
-        <code>root.left = deleteNode(root.left, key)</code>. Time <strong>O(h)</strong>: one search down, plus one more walk down for
-        the successor.
+        The function returns the root of each part of the tree (it may be a new node), so the parent can attach it again with{" "}
+        <code>root.left = deleteNode(root.left, key)</code>. Time is <strong>O(h)</strong>: one search down, plus one more walk
+        down to find the successor.
       </p>
 
       <h2 id="validate">Validate a BST</h2>
       <p>
-        <em>Is this tree a valid BST?</em> The tempting solution checks each node against its two children. It looks right and
-        it is wrong:
+        <em>Is this tree a valid BST?</em> The easy idea is to check each node against its two children. It looks right, but it
+        is wrong:
       </p>
       <CodeBlock lang="js" code={wrongValidateCode} />
       <p>
-        Here every parent-child pair is fine (1 &lt; 5, 6 &gt; 5, 3 &lt; 6, 7 &gt; 6) but 3 is in the right subtree of 5, which breaks the rule
-        for <em>every</em> node. The fix is to carry <strong>limits</strong> down the tree. Going left, the current value becomes the
-        new upper limit; going right, it becomes the new lower limit. Each node must lie strictly between the limits that all its
-        ancestors have imposed.
+        Here every parent-child pair is fine (1 &lt; 5, 6 &gt; 5, 3 &lt; 6, 7 &gt; 6). But 3 is on the right side of 5, which
+        breaks the rule for <em>every</em> node. The fix is to carry <strong>limits</strong> down the tree. When you go left, the
+        current value becomes the new upper limit. When you go right, it becomes the new lower limit. Each node must be strictly
+        between the limits set by all of its ancestors (the parent, the grandparent, and so on up to the root).
       </p>
       <CodeBlock lang="js" code={validateCode} />
       <p>
-        <strong>O(n)</strong> time, <strong>O(h)</strong> space. An equivalent test: do an inorder traversal and check that each
-        value is strictly larger than the previous one. Use <code>-Infinity</code> and <code>Infinity</code> as the starting limits rather
-        than the integer extremes, because a node may legitimately hold the smallest or largest integer allowed.
+        <strong>O(n)</strong> time, <strong>O(h)</strong> space. Another way to test: do an inorder walk and check that each
+        value is strictly larger than the one before it. Use <code>-Infinity</code> and <code>Infinity</code> as the starting
+        limits. Do not use the smallest and largest whole numbers, because a node may really hold one of those numbers.
       </p>
 
       <h2 id="kth">K-th smallest with inorder</h2>
       <p>
-        Since inorder visits values from smallest to largest, the k-th smallest is the k-th node visited. The iterative
-        version keeps its own <strong>stack</strong> of the nodes on the path back up, which lets us <strong>stop early</strong> as
-        soon as we have counted k nodes, so we only visit about h + k nodes instead of all n.
+        Inorder visits values from smallest to largest. So the k-th smallest value is the k-th node we visit. The version
+        without recursion keeps its own <strong>stack</strong> of the nodes on the way back up. This lets us{" "}
+        <strong>stop early</strong> as soon as we have counted k nodes. We visit only about h + k nodes, not all n.
       </p>
       <CodeBlock lang="js" code={kthCode} />
 
@@ -505,42 +506,45 @@ export default function DsaLessonFortyFourPage() {
       <CodeTrace
         code={traceSrc}
         steps={kthTrace()}
-        caption="The stack always holds the ancestors that are still waiting for their turn. Each pop yields the next value in sorted order: 1, 2, then 3."
+        caption="The stack always holds the ancestors that are still waiting for their turn. Each pop gives the next value in sorted order: 1, 2, then 3."
       />
 
       <h2 id="build">Build a balanced BST from a sorted array</h2>
       <p>
-        Inserting values in sorted order produces a lopsided tree (next section), so build the tree directly instead. Make the
-        <strong> middle</strong> element the root, then do the same for the left half and the right half. Every split keeps the two
-        sides within one element of each other, so the tree comes out height-balanced.
+        If you insert values in sorted order, you get a lopsided tree (see the next section). So build the tree directly
+        instead. Make the <strong>middle</strong> element the root. Then do the same for the left half and the right half. Each
+        split keeps the two sides within one element of each other. So the tree is height-balanced.
       </p>
       <CodeBlock lang="js" code={buildCode} />
       <p>
-        <strong>O(n)</strong> time (one node per element) and <strong>O(log n)</strong> recursion depth. Choosing the lower or the upper middle
-        for even-sized ranges gives different, equally valid trees.
+        <strong>O(n)</strong> time (one node per element) and <strong>O(log n)</strong> recursion depth. When the range has an
+        even number of items, you can choose the lower middle or the upper middle. You get different trees, and both are valid.
       </p>
 
       <h2 id="degenerate">Why an unbalanced BST is O(n)</h2>
       <p>
-        The O(h) promise is only as good as h. If values arrive in sorted order, each new value is the largest so far and goes to the
-        far right, producing a chain where every node has just one child. That is a linked list wearing a tree costume:
-        search, insert and delete all become <strong>O(n)</strong>. This is called a <strong>degenerate</strong> (or skewed) tree.
+        O(h) is only as good as h. Say the values arrive in sorted order. Each new value is the largest so far, so it goes far
+        to the right. The result is a chain where every node has just one child. That is really a linked list shaped like a
+        tree. Search, insert and delete all become <strong>O(n)</strong>. This is called a <strong>degenerate</strong> (or
+        skewed) tree.
       </p>
       <CodeBlock lang="js" code={degenerateCode} />
       <Callout kind="note" label="Balanced trees exist, but you rarely write them">
-        <strong>Self-balancing</strong> trees (AVL trees, red-black trees) rotate nodes after inserts and deletes to keep h about log n,
-        which guarantees O(log n) operations. Many language libraries use them inside ordered maps and sets. In interviews it is
-        enough to know that they exist, and to say &quot;O(h), which is O(log n) if the tree is balanced and O(n) in the worst case&quot;.
+        <strong>Self-balancing</strong> trees (AVL trees and red-black trees) turn nodes around (this is called rotating) after
+        each insert and delete. This keeps h about log n, so every operation takes O(log n). Many language libraries use them
+        inside ordered maps and sets. In interviews it is enough to know that they exist. You can say: &quot;O(h). That is
+        O(log n) if the tree is balanced, and O(n) in the worst case.&quot;
       </Callout>
       <p>
-        With balanced shapes the work doubles per level: a perfectly balanced tree with 1,000,000 nodes is only about 20 levels
-        tall, so a search needs about 20 comparisons; the degenerate version could need a million.
+        In a balanced tree, each level holds about twice as many nodes as the level above. So a perfectly balanced tree with
+        1,000,000 nodes is only about 20 levels tall. A search needs about 20 comparisons. The degenerate version could need a
+        million.
       </p>
 
       <h2 id="practice">Practice questions</h2>
       <p>
-        Before coding any BST question, ask: &quot;can I discard a side because of the BST property?&quot; and &quot;would inorder
-        help?&quot;
+        Before you code any BST question, ask two things. &quot;Can I ignore one side because of the BST property?&quot; And
+        &quot;Would inorder help?&quot;
       </p>
 
       <Questions />
@@ -548,19 +552,20 @@ export default function DsaLessonFortyFourPage() {
       <h2 id="recall">Make it stick</h2>
       <Recall
         items={[
-          <>State the BST property and say why &quot;every&quot; (not just the children) matters.</>,
-          <>Describe the three cases of deletion and what replaces a node with two children.</>,
-          <>Explain why checking only a node&apos;s parent fails to validate a BST, and how limits fix it.</>,
-          <>Explain how inorder gives the k-th smallest, and how the stack lets you stop early.</>,
-          <>Explain why a sorted insertion order makes a BST degenerate, and how choosing the middle prevents that.</>,
+          <>Say the BST property, and explain why &quot;every&quot; (not just the children) matters.</>,
+          <>Describe the three cases of deletion, and what replaces a node that has two children.</>,
+          <>Explain why checking only the parent of a node fails to validate a BST, and how limits fix it.</>,
+          <>Explain how inorder gives the k-th smallest value, and how the stack lets you stop early.</>,
+          <>Explain why inserting in sorted order makes a BST degenerate, and how choosing the middle prevents that.</>,
         ]}
       />
 
       <h2 id="next">What&apos;s next</h2>
       <p>
-        <strong>Lesson 45</strong> finishes the tree part with two classic families: the <strong>lowest common ancestor</strong>{" "}
-        (the lowest node that has two given nodes beneath it, easy to find quickly in a BST using today&apos;s property), and{" "}
-        <strong>rebuilding a tree from its traversals</strong>, where the inorder sequence splits the others into left and right.
+        <strong>Lesson 45</strong> finishes the tree part with two classic groups of problems. The first is the{" "}
+        <strong>lowest common ancestor</strong>: the lowest node that has two given nodes below it. In a BST it is quick to find,
+        using today&apos;s property. The second is <strong>rebuilding a tree from its walks</strong>. There, the inorder list
+        splits the other lists into a left part and a right part.
       </p>
     </DsaLessonPage>
   );

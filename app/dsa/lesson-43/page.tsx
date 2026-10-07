@@ -144,7 +144,7 @@ function diameterOfBinaryTree(root) {
     if (node === null) return 0;
     const left = height(node.left);
     const right = height(node.right);
-    best = Math.max(best, left + right);     // RECORD: the longest path that bends at this node
+    best = Math.max(best, left + right);     // RECORD: the longest path that turns at this node
     return 1 + Math.max(left, right);        // RETURN: only one side can continue upward
   }
   height(root);
@@ -176,25 +176,25 @@ function diameterTrace() {
   // Tree [1, 2, 3, 4, 5]: 1 has children 2 and 3; 2 has children 4 and 5.
   const root = mk(1, mk(2, mk(4), mk(5)), mk(3));
   let best = 0;
-  t.step(1, "start", "best = 0", "best remembers the longest path (counted in edges) that bends at some node. The tree is 1 with children 2 and 3, and 2 has children 4 and 5.", { best });
+  t.step(1, "start", "best = 0", "best remembers the longest path found so far. We count the path in edges (links between nodes). The tree is: 1 has children 2 and 3, and 2 has children 4 and 5.", { best });
   function height(node: TNode | null): number {
     if (node === null) {
-      t.step(4, "run", "empty subtree returns 0", "A missing child has height 0. This is the base case that stops the recursion.", { node: null, best });
+      t.step(4, "run", "empty subtree returns 0", "A missing child has height 0. This is the base case, the simple answer that stops the recursion.", { node: null, best });
       return 0;
     }
     const left = height(node.left);
     const right = height(node.right);
     const before = best;
     best = Math.max(best, left + right);
-    t.step(8, "update", `node ${node.val}: left ${left} + right ${right} = ${left + right}`, best > before ? `A path that bends at node ${node.val} has ${left + right} edges. That beats the old best, so best becomes ${best}.` : `A path that bends at node ${node.val} has ${left + right} edges, which does not beat best (${best}).`, { node: node.val, left, right, best }, "best");
+    t.step(8, "update", `node ${node.val}: left ${left} + right ${right} = ${left + right}`, best > before ? `A path that turns at node ${node.val} has ${left + right} edges. That is longer than the old best, so best becomes ${best}.` : `A path that turns at node ${node.val} has ${left + right} edges. That is not longer than best (${best}), so best stays.`, { node: node.val, left, right, best }, "best");
     const h = 1 + Math.max(left, right);
-    t.step(9, "run", `node ${node.val} returns ${h}`, `Only one side can continue up to the parent, so we return 1 + max(${left}, ${right}) = ${h}.`, { node: node.val, left, right, best, returned: h }, "returned");
+    t.step(9, "run", `node ${node.val} returns ${h}`, `Only one side can go on up to the parent. So we return 1 + max(${left}, ${right}) = ${h}.`, { node: node.val, left, right, best, returned: h }, "returned");
     return h;
   }
   height(root);
-  t.step(11, "run", "height(root) is finished", "Every node has been visited exactly once. Now best holds the answer.", { best });
+  t.step(11, "run", "height(root) is finished", "We visited every node exactly once. Now best holds the answer.", { best });
   t.print(best);
-  t.step(12, "print", `prints ${best}`, "The longest path is 4 → 2 → 1 → 3 (or 5 → 2 → 1 → 3): three edges. It bends at the root, where left height 2 plus right height 1 gives 3.", { best });
+  t.step(12, "print", `prints ${best}`, "The longest path is 4 → 2 → 1 → 3 (or 5 → 2 → 1 → 3). It has three edges. It turns at the root, where the left height 2 plus the right height 1 gives 3.", { best });
   return t.steps;
 }
 
@@ -249,10 +249,10 @@ function maxPathSum(root) {
   // Returns the best sum of a path that starts at "node" and goes DOWN one side only.
   function gain(node) {
     if (node === null) return 0;
-    const left = Math.max(0, gain(node.left));     // a negative branch is better dropped
+    const left = Math.max(0, gain(node.left));     // a negative branch is better left out
     const right = Math.max(0, gain(node.right));
-    best = Math.max(best, node.val + left + right);   // RECORD: a path that bends at this node
-    return node.val + Math.max(left, right);          // RETURN: continue upward through one side
+    best = Math.max(best, node.val + left + right);   // RECORD: a path that turns at this node
+    return node.val + Math.max(left, right);          // RETURN: go on upward through one side only
   }
   gain(root);
   return best;
@@ -326,92 +326,94 @@ export default function DsaLessonFortyThreePage() {
     <DsaLessonPage lesson={lesson} outline={outline}>
       <h2 id="mindset">The mindset: return a value up the tree</h2>
       <p>
-        Lesson 41 introduced binary trees and their recursive traversals, and lesson 42 visited them layer by layer with a queue.
-        This lesson uses <strong>depth-first search (DFS)</strong>, which means going all the way down one branch before backing
-        up and trying the next, to <em>answer questions about a whole tree</em>.
+        Lesson 41 introduced binary trees and walking them with recursion. Lesson 42 visited them row by row with a queue. This
+        lesson uses <strong>depth-first search (DFS)</strong> to <em>answer questions about a whole tree</em>. DFS means going
+        all the way down one branch, then backing up to try the next branch.
       </p>
       <p>
         The trick is a way of thinking. A tree is a node with two smaller trees hanging off it. So to answer a question about a
-        tree, <strong>pretend the recursion already answered it for the left and right subtrees</strong>, then combine those two
-        answers with the current node into your own answer, and <strong>return</strong> it to the parent. Every tree
-        function has the same three parts:
+        tree, <strong>pretend the recursion already gave the answer for the left side and the right side</strong>. Then join
+        those two answers with the current node to make your own answer. <strong>Return</strong> that answer to the parent.
+        Every tree function has the same three parts:
       </p>
       <ol>
-        <li><strong>Base case.</strong> What is the answer for an empty tree (<code>null</code>)? This stops the recursion.</li>
-        <li><strong>Recurse.</strong> Ask the left child and the right child. Trust the answers; do not trace them in your head.</li>
-        <li><strong>Combine.</strong> Use the two answers and <code>node.val</code> to build this node&apos;s answer.</li>
+        <li><strong>Base case.</strong> What is the answer for an empty tree (<code>null</code>)? This simple answer stops the recursion.</li>
+        <li><strong>Recurse.</strong> Call the function on the left child and the right child. Trust the answers. Do not try to follow them in your head.</li>
+        <li><strong>Combine.</strong> Use the two answers and <code>node.val</code> to make the answer for this node.</li>
       </ol>
       <p>
-        Because the answer travels from the leaves <em>up</em> to the root, this style is sometimes called <strong>bottom-up</strong>.
-        Its opposite is passing information <em>down</em> as extra arguments (we will do that for path sum). Many problems need
-        both, but start by asking: &quot;what single value should a node hand to its parent?&quot;
+        The answer travels from the leaves <em>up</em> to the root, so this style is called <strong>bottom-up</strong>. The
+        opposite is to pass information <em>down</em> as extra arguments. We do that for path sum. Many problems need both. Start
+        by asking: &quot;what one value should a node give to its parent?&quot;
       </p>
       <p>
-        All samples below build their tree with a small helper, <code>buildTree</code>, that reads a level-order array where{" "}
-        <code>null</code> marks a missing child (the same format LeetCode uses). Each sample is self-contained, so you can paste it
-        into a file and run it.
+        All samples below build their tree with a small helper called <code>buildTree</code>. It reads a level-order array (the
+        tree row by row), where <code>null</code> marks a missing child. LeetCode uses the same format. Each sample is complete
+        on its own, so you can paste it into a file and run it.
       </p>
 
       <h2 id="height">Height, the model problem</h2>
       <p>
         The <strong>height</strong> of a tree is the number of nodes on the longest path from the root down to a leaf (a{" "}
-        <strong>leaf</strong> is a node with no children). An empty tree has height 0. (Some books count edges instead, which
-        makes a single node height 0. LeetCode&apos;s &quot;maximum depth&quot; counts nodes, and so do we.)
+        <strong>leaf</strong> is a node with no children). An empty tree has height 0. Some books count edges instead, so a
+        single node has height 0. LeetCode&apos;s &quot;maximum depth&quot; counts nodes, and so do we.
       </p>
       <CodeBlock lang="js" code={heightCode} />
       <p>
-        Read it with the mindset: the base case is 0; we trust <code>height(node.left)</code> and <code>height(node.right)</code>;
-        we combine them as &quot;the taller side, plus this node&quot;. Time is <strong>O(n)</strong> because each node is visited once,
-        and space is <strong>O(h)</strong> for the recursion stack, where h is the height: about log n for a bushy tree but up to n
-        for a tree that is one long chain.
+        Read it with the three parts in mind. The base case is 0. We trust <code>height(node.left)</code> and{" "}
+        <code>height(node.right)</code>. We combine them as &quot;the taller side, plus this node&quot;. Time is{" "}
+        <strong>O(n)</strong>, because each node is visited once. Extra space is <strong>O(h)</strong> for the recursion stack
+        (the pile of open calls), where h is the height. For a bushy tree h is about log n. For a tree that is one long chain, h
+        can be as big as n.
       </p>
       <Callout kind="note" label="Depth versus height">
-        <strong>Depth</strong> counts down from the root (the root has depth 0 or 1), while <strong>height</strong> counts down from a
-        node to its deepest leaf. Information that flows <em>up</em> is a height; information that flows <em>down</em> is a depth.
+        <strong>Depth</strong> counts down from the root (the root has depth 0 or 1). <strong>Height</strong> counts down from a
+        node to its deepest leaf. Information that flows <em>up</em> is a height. Information that flows <em>down</em> is a depth.
       </Callout>
 
       <h2 id="balanced">Balanced tree and the -1 trick</h2>
       <p>
-        A tree is <strong>height-balanced</strong> if, at <em>every</em> node, the heights of the left and right subtrees differ
-        by at most 1. The direct translation checks each node by computing both heights from scratch:
+        A tree is <strong>height-balanced</strong> if, at <em>every</em> node, the heights of the left side and the right side
+        differ by at most 1. The simple way is to check each node by working out both heights from scratch:
       </p>
       <CodeBlock lang="js" code={balancedSlowCode} />
       <p>
-        This works, but <code>height</code> is recomputed again and again for the same nodes. On a chain-like tree each node
-        triggers a walk down its whole subtree, which is <strong>O(n²)</strong>. (On a perfectly bushy tree it is only O(n log n).)
+        This works, but <code>height</code> is worked out again and again for the same nodes. On a tree shaped like a chain, each
+        node starts a walk down everything below it. That takes <strong>O(n²)</strong> time. (On a perfectly bushy tree it is
+        only O(n log n).)
       </p>
       <p>
-        The fix is to do both jobs in <em>one</em> traversal. The function returns the height as usual, but if it ever finds an
-        unbalanced node it returns the special value <code>-1</code> instead. A value used as a signal like this is called a{" "}
-        <strong>sentinel</strong>. Heights are never negative, so -1 can never be confused with a real height, and every parent
-        simply passes the -1 straight up.
+        The fix is to do both jobs in <em>one</em> walk. The function returns the height as usual. But if it finds an unbalanced
+        node, it returns the special value <code>-1</code> instead. A special value that works as a warning signal is called a{" "}
+        <strong>sentinel</strong> (like a guard that raises an alarm). A height is never negative, so -1 cannot be mistaken
+        for a real height. Every parent just passes the -1 straight up.
       </p>
       <CodeBlock lang="js" code={balancedFastCode} />
       <p>
-        Now each node is visited once: <strong>O(n)</strong> time, <strong>O(h)</strong> space. The pattern is worth remembering:
-        <em> when a subtree can fail, let the returned value carry the failure upward.</em>
+        Now each node is visited once: <strong>O(n)</strong> time, <strong>O(h)</strong> space. Remember this pattern:{" "}
+        <em>when a part of the tree can fail, let the returned value carry the failure upward.</em>
       </p>
 
       <h2 id="diameter">Diameter: record one thing, return another</h2>
       <p>
-        The <strong>diameter</strong> of a tree is the length (in edges) of the longest path between <em>any</em> two nodes. The
-        path does not have to pass through the root. Think of the highest node on the path, where it &quot;bends&quot;: the path goes down
-        the left side as far as possible and down the right side as far as possible, so its length through that node is{" "}
-        <code>leftHeight + rightHeight</code>.
+        The <strong>diameter</strong> of a tree is the length (counted in edges, the links between nodes) of the longest path
+        between <em>any</em> two nodes. The path does not have to pass through the root. Look at the highest node on the path.
+        This is where the path &quot;turns&quot;. From there it goes down the left side as far as it can, and down the right
+        side as far as it can. So the length of the path through that node is <code>leftHeight + rightHeight</code>.
       </p>
       <p>
-        Here is the idea that confuses people, and it appears in the hardest problem of this lesson too. The function must{" "}
-        <strong>return</strong> something different from what it <strong>records</strong>:
+        Here is the idea that confuses many people. It also appears in the hardest problem of this lesson. The function{" "}
+        <strong>returns</strong> one thing but <strong>records</strong> another thing:
       </p>
       <ul>
         <li>
-          It <strong>records</strong> the best bent path through this node (using <em>both</em> sides) in a variable that lives
-          outside the recursion, often called a <strong>global best</strong> (here a local variable of the outer function that the inner
-          function can update).
+          It <strong>records</strong> the best path that turns at this node (using <em>both</em> sides). It saves this in a
+          variable that lives outside the recursion, often called a <strong>global best</strong>. Here it is a variable of the
+          outer function, and the inner function can update it.
         </li>
         <li>
-          It <strong>returns</strong> only the height (using <em>one</em> side), because a parent can extend only one branch
-          upward. A path cannot fork.
+          It <strong>returns</strong> only the height (using <em>one</em> side). A parent can continue only one branch upward,
+          because a path cannot split into two.
         </li>
       </ul>
       <CodeBlock lang="js" code={diameterCode} />
@@ -424,60 +426,60 @@ export default function DsaLessonFortyThreePage() {
           ["diameter", "1 + max(left, right)", "left + right at every node"],
           ["maximum path sum", "node + the better one-sided gain", "node + both gains at every node"],
         ]}
-        note="Whenever a question says 'any path' that can bend at its top node, expect a record-versus-return split."
+        note="When a question says 'any path' that can turn at its top node, expect this split: one thing recorded, another thing returned."
       />
 
       <h2 id="trace">Traced: diameter of a small tree</h2>
       <p>
-        Step through the diameter on the tree <code>[1, 2, 3, 4, 5]</code>. Watch the order: the code goes all the way down to
-        the leftmost leaf first, and values only start flowing back up once the recursion reaches empty subtrees.
+        Step through the diameter on the tree <code>[1, 2, 3, 4, 5]</code>. Watch the order. The code goes all the way down to
+        the leftmost leaf first. Values start to flow back up only after the recursion reaches empty children.
       </p>
       <CodeTrace
         code={traceSrc}
         steps={diameterTrace()}
-        caption="The best path bends at the root: two levels down the left (via 2) plus one level down the right gives 3 edges. Each node returns only its height, never the bent path."
+        caption="The best path turns at the root: two levels down the left side (via 2) plus one level down the right side gives 3 edges. Each node returns only its height, never the path that turns."
       />
 
       <h2 id="pathsum">Path sum: passing a value down</h2>
       <p>
-        <em>Does some root-to-leaf path add up to the target?</em> Here information travels <strong>down</strong>. At each node,
-        subtract <code>node.val</code> from the target and hand the remainder to the children. At a leaf, the remainder must
-        equal the leaf&apos;s own value.
+        <em>Does some path from the root to a leaf add up to the target?</em> Here the information travels{" "}
+        <strong>down</strong>. At each node, subtract <code>node.val</code> from the target and give what is left to the
+        children. At a leaf, what is left must equal the value of the leaf.
       </p>
       <CodeBlock lang="js" code={pathSumCode} />
       <Callout kind="warn" label="The leaf check matters">
-        The path must end at a <strong>leaf</strong>. If you only test <code>node.val === target</code> at every node, then a
-        target of 5 would be &quot;found&quot; at the root of the example, which is wrong because the root has children. Also note that values can be negative,
-        so you can never stop early just because the remainder drops below zero.
+        The path must end at a <strong>leaf</strong>. Suppose you only test <code>node.val === target</code> at every node. Then a
+        target of 5 would be &quot;found&quot; at the root of the example. That is wrong, because the root has children. Also,
+        values can be negative. So you cannot stop early just because what is left drops below zero.
       </Callout>
 
       <h2 id="maxpath">Maximum path sum (the hard one)</h2>
       <p>
-        Now combine everything. A <strong>path</strong> is any chain of connected nodes that never visits a node twice; it may start
-        and end anywhere and does not need to touch the root or a leaf. Find the largest sum of node values on such a path. Values
-        can be negative.
+        Now we use everything together. A <strong>path</strong> is any chain of connected nodes that never visits a node twice.
+        It can start and end anywhere. It does not need to touch the root or a leaf. Find the largest sum of node values on such a
+        path. Values can be negative.
       </p>
       <p>
-        It is the diameter pattern with sums instead of lengths:
+        It is the diameter pattern, but with sums instead of lengths:
       </p>
       <ul>
         <li>
-          <code>gain(node)</code> = the best sum of a path that starts at <code>node</code> and goes down one side. This is what we{" "}
-          <strong>return</strong>.
+          <code>gain(node)</code> is the best sum of a path that starts at <code>node</code> and goes down one side only. We{" "}
+          <strong>return</strong> this.
         </li>
         <li>
-          The best path that bends at <code>node</code> is <code>node.val + leftGain + rightGain</code>. This is what we{" "}
-          <strong>record</strong>.
+          The best path that turns at <code>node</code> is <code>node.val + leftGain + rightGain</code>. We{" "}
+          <strong>record</strong> this.
         </li>
         <li>
-          A negative gain only hurts, so we replace it by 0, meaning &quot;do not go that way&quot;. That is what{" "}
-          <code>Math.max(0, ...)</code> does.
+          A negative gain only makes the sum smaller, so we replace it with 0. That means &quot;do not go that way&quot;.{" "}
+          <code>Math.max(0, ...)</code> does this.
         </li>
       </ul>
       <CodeBlock lang="js" code={maxPathCode} />
       <DryRun
         title="tree [-10, 9, 20, null, null, 15, 7]"
-        cols={["Node", "Left gain", "Right gain", "Bent path (recorded)", "Returned"]}
+        cols={["Node", "Left gain", "Right gain", "Path that turns here (recorded)", "Returned"]}
         rows={[
           ["9", "0", "0", "9", "9"],
           ["15", "0", "0", "15", "15"],
@@ -485,39 +487,41 @@ export default function DsaLessonFortyThreePage() {
           ["20", "15", "7", "20 + 15 + 7 = 42", "20 + 15 = 35"],
           ["-10", "9", "35", "-10 + 9 + 35 = 34", "-10 + 35 = 25"],
         ]}
-        note="The best recorded value is 42: the path 15 → 20 → 7. The answer is not returned by the function at all, which is why the outer variable is needed."
+        note="The best recorded value is 42: the path 15 → 20 → 7. The function never returns this answer. That is why we need the outer variable."
       />
       <p>
-        <strong>O(n)</strong> time, <strong>O(h)</strong> space. Two classic mistakes: starting <code>best</code> at 0 (an
-        all-negative tree must answer with its largest, least-negative value, like -3 above), and returning the bent path
-        instead of the one-sided gain (the parent would then be adding a path that forks).
+        <strong>O(n)</strong> time, <strong>O(h)</strong> space. There are two classic mistakes. The first is to start{" "}
+        <code>best</code> at 0. A tree with only negative values must answer with its largest value, the one closest to zero,
+        like -3 above. The second is to return the path that turns instead of the one-sided gain. Then the parent would add a
+        path that splits in two.
       </p>
 
       <h2 id="symmetric">Symmetric tree and subtree of another tree</h2>
       <p>
-        Both of these compare <em>two</em> trees at once, so the recursive function takes two nodes and walks them together.
+        Both of these compare <em>two</em> trees at once. So the recursive function takes two nodes and walks them together.
       </p>
       <p>
         A tree is <strong>symmetric</strong> if its left half is the mirror image of its right half. Two trees <code>a</code> and{" "}
-        <code>b</code> are mirrors when their root values match, <code>a</code>&apos;s left mirrors <code>b</code>&apos;s{" "}
-        <em>right</em>, and <code>a</code>&apos;s right mirrors <code>b</code>&apos;s <em>left</em>. The crossing over is the whole
-        idea.
+        <code>b</code> are mirrors when three things are true. Their root values match. The left side of <code>a</code> mirrors
+        the <em>right</em> side of <code>b</code>. The right side of <code>a</code> mirrors the <em>left</em> side of{" "}
+        <code>b</code>. The crossing over is the whole idea.
       </p>
       <CodeBlock lang="js" code={symmetricCode} />
       <p>
-        For <em>subtree of another tree</em> we first write <code>isSameTree(a, b)</code> (the same walk, but without crossing:
-        left with left, right with right), then try it at every node of the big tree:
+        For <em>subtree of another tree</em>, we first write <code>isSameTree(a, b)</code>. It is the same walk but without
+        crossing: left with left, and right with right. Then we try it at every node of the big tree:
       </p>
       <CodeBlock lang="js" code={subtreeCode} />
       <p>
-        <code>isSameTree</code> costs O(min(size of both)) per call, and it is tried at up to n nodes, so the total is{" "}
-        <strong>O(m · n)</strong> for trees with n and m nodes. That is fine for interview limits. A faster alternative turns
-        each tree into a string and checks substring containment; question 6 shows how, and the delimiter trap you must avoid.
+        Each call of <code>isSameTree</code> costs up to the size of the smaller tree. We try it at up to n nodes. So the total is{" "}
+        <strong>O(m · n)</strong> for trees with n and m nodes. That is fine for interview limits. A faster way is to turn each
+        tree into a string and check whether one string is inside the other. Question 6 shows how, and the separator trap you
+        must avoid.
       </p>
 
       <h2 id="practice">Practice questions</h2>
       <p>
-        For each one, say aloud: &quot;what does my function return to the parent, and does it also need to record something
+        For each question, say aloud: &quot;What does my function return to the parent? Does it also need to record something
         else?&quot;
       </p>
 
@@ -526,9 +530,9 @@ export default function DsaLessonFortyThreePage() {
       <h2 id="recall">Make it stick</h2>
       <Recall
         items={[
-          <>State the three parts of a bottom-up tree function: base case, recurse, combine.</>,
-          <>Explain how returning -1 lets one traversal check balance, and why that beats recomputing heights.</>,
-          <>Explain for diameter and maximum path sum what is recorded and what is returned, and why they differ.</>,
+          <>Name the three parts of a bottom-up tree function: base case, recurse, combine.</>,
+          <>Explain how returning -1 lets one walk check the balance, and why that is better than working out heights again and again.</>,
+          <>For diameter and maximum path sum, explain what is recorded and what is returned, and why they are different.</>,
           <>Say why path sum must test for a leaf, and why a negative gain is replaced by 0.</>,
           <>Say which children are paired in the mirror check, and why.</>,
         ]}
@@ -536,9 +540,9 @@ export default function DsaLessonFortyThreePage() {
 
       <h2 id="next">What&apos;s next</h2>
       <p>
-        So far a tree could hold any values in any arrangement. <strong>Lesson 44</strong> adds one rule, &quot;smaller values to the
-        left, larger to the right&quot;, which gives us the <strong>binary search tree</strong>: a tree you can search, insert
-        into and delete from in about log n steps.
+        So far a tree could hold any values in any order. <strong>Lesson 44</strong> adds one rule: &quot;smaller values go to the
+        left, larger values go to the right&quot;. This gives us the <strong>binary search tree</strong>. You can search it, add
+        to it and delete from it in about log n steps.
       </p>
     </DsaLessonPage>
   );

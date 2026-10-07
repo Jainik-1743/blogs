@@ -150,22 +150,22 @@ function walkTrace() {
   const post: number[] = [];
   const path: number[] = [];
   const vars = (node: TNode) => ({ node: node.val, path: [...path], pre: [...pre], ino: [...ino], post: [...post] });
-  t.step(9, "start", "walk(root)", "We call walk on the root, node 1. Each call handles one node and hands its two subtrees to two more calls. The path shows the calls that are open right now.", { pre: [], ino: [], post: [] });
+  t.step(9, "start", "walk(root)", "We call walk on the root, node 1. Each call handles one node, then makes two more calls: one for the left side and one for the right side. The path shows the calls that are still open right now.", { pre: [], ino: [], post: [] });
   function walk(node: TNode | null) {
     if (node === null) return; // a null child returns at once (line 2)
     path.push(node.val);
     pre.push(node.val);
-    t.step(3, "update", `preorder: visit ${node.val}`, `Arriving at node ${node.val} for the first time: preorder writes it down now, before looking at either child.`, vars(node), "pre");
+    t.step(3, "update", `preorder: visit ${node.val}`, `We reach node ${node.val} for the first time. Preorder writes it down now, before looking at either child.`, vars(node), "pre");
     walk(node.left);
     ino.push(node.val);
-    t.step(5, "update", `inorder: visit ${node.val}`, `The whole left subtree of ${node.val} is finished (or it had none). Inorder writes the node now, between its left and right sides.`, vars(node), "ino");
+    t.step(5, "update", `inorder: visit ${node.val}`, `The whole left side of ${node.val} is done (or it had none). Inorder writes the node now, between its left and right sides.`, vars(node), "ino");
     walk(node.right);
     post.push(node.val);
-    t.step(7, "update", `postorder: visit ${node.val}`, `Both subtrees of ${node.val} are finished. Postorder writes the node last, then the call ends and we climb back to the parent.`, vars(node), "post");
+    t.step(7, "update", `postorder: visit ${node.val}`, `Both sides of ${node.val} are done. Postorder writes the node last. Then this call ends and we go back up to the parent.`, vars(node), "post");
     path.pop();
   }
   walk(root);
-  t.step(9, "done", "three orders, one walk", "Every node was reached three times: on the way down (preorder), after the left side (inorder) and on the way up (postorder). Null children returned immediately and wrote nothing.", { pre: [...pre], ino: [...ino], post: [...post] });
+  t.step(9, "done", "three orders, one walk", "We reached every node three times: on the way down (preorder), after the left side (inorder) and on the way up (postorder). Empty (null) children returned at once and wrote nothing.", { pre: [...pre], ino: [...ino], post: [...post] });
   return t.steps;
 }
 
@@ -305,13 +305,13 @@ console.log(isSameTree(buildTree([1, 2]), buildTree([1, null, 2])));            
 console.log(preorder(invertTree(buildTree([4, 2, 7, 1, 3, 6, 9]))));                  // [4, 7, 9, 6, 2, 3, 1]`;
 
 const vocabRows: string[][] = [
-  ["root", "1", "the single node at the top; the only node with no parent"],
-  ["parent / child", "2 is the parent of 4 and 5", "a parent sits directly above its children; each node has at most one parent"],
+  ["root", "1", "the one node at the top; it is the only node with no parent"],
+  ["parent / child", "2 is the parent of 4 and 5", "a parent is the node right above its children; each node has at most one parent"],
   ["leaf", "4, 5 and 3", "a node with no children"],
   ["edge", "1-2, 1-3, 2-4, 2-5", "a link between a parent and a child"],
-  ["subtree", "2, 4, 5", "any node together with everything below it; the subtree of 2 is a tree of its own"],
-  ["depth of a node", "depth(4) = 2", "how many edges from the root down to that node (the root has depth 0)"],
-  ["height of a tree", "2", "the number of edges on the longest path from the root to a leaf"],
+  ["subtree", "2, 4, 5", "a node together with everything below it; the subtree of 2 is a small tree on its own"],
+  ["depth of a node", "depth(4) = 2", "how many edges (links) you cross going from the root down to that node (the root has depth 0)"],
+  ["height of a tree", "2", "the number of edges on the longest path from the root down to a leaf"],
 ];
 
 const dryIterRows: string[][] = [
@@ -328,20 +328,22 @@ export default function DsaLessonFortyOnePage() {
     <DsaLessonPage lesson={lesson} outline={outline}>
       <h2 id="why">Why trees?</h2>
       <p>
-        So far every structure was a line: an array, a string, a linked list, a stack. A line is the wrong shape for things that
-        <em> branch</em>: a folder with sub-folders, a family tree, the nested tags of a web page, the choices in a game. A{" "}
-        <strong>tree</strong> is a structure of nodes where each node can lead to several others below it, and there are no
-        loops. In this lesson we meet the most common kind, the <strong>binary tree</strong>: every node has <em>at most two</em>{" "}
-        children, called the <strong>left</strong> child and the <strong>right</strong> child.
+        So far every structure was a straight line: an array, a string, a linked list, a stack. A line is the wrong shape for
+        things that <em>branch</em>. Think of a folder with sub-folders, a family tree, the nested tags of a web page, or the
+        choices in a game. A <strong>tree</strong> is a group of nodes (boxes that hold a value). Each node can lead to several
+        other nodes below it, and there are no loops. In this lesson we meet the most common kind, the{" "}
+        <strong>binary tree</strong>. In a binary tree every node has <em>at most two</em> children, called the{" "}
+        <strong>left</strong> child and the <strong>right</strong> child.
       </p>
       <p>
-        The big new idea: a tree is <em>recursive</em>. Look at any node and everything below it, and you see a smaller tree. So a
-        question about a whole tree can usually be answered by answering the same question for the left and right
-        parts, then combining. Almost every tree problem in this part of the series is that one trick in different clothes.
+        The big new idea: a tree is <em>recursive</em>. Recursive means made of smaller copies of itself, like a set of
+        nesting dolls. Look at any node and everything below it, and you see a smaller tree. So you can answer a question about
+        a whole tree by answering the same question for the left part and the right part, then joining the two answers.
+        Almost every tree problem in this part of the series uses this one trick.
       </p>
 
       <h2 id="words">Tree vocabulary</h2>
-      <p>We will use this example tree for the whole lesson. Read the table with the picture in mind.</p>
+      <p>We use this example tree for the whole lesson. Keep the picture in mind while you read the table.</p>
       <pre>
 {`      1
      / \\
@@ -353,42 +355,43 @@ export default function DsaLessonFortyOnePage() {
         title="the words, on the tree above"
         cols={["Word", "In this tree", "Meaning"]}
         rows={vocabRows}
-        note="Careful: some books count height and depth in nodes instead of edges. LeetCode's 'maximum depth' counts nodes (so this tree has maximum depth 3). Always check which one a problem means."
+        note="Careful: some books count height and depth in nodes, not edges. LeetCode's 'maximum depth' counts nodes, so this tree has maximum depth 3. Always check which one the problem means."
       />
 
       <h2 id="node">A node in JavaScript</h2>
       <p>
-        A node is a tiny object with a value and two links. A link is either another node or <code>null</code>, which means
-        &quot;nothing here&quot;. A whole tree is just the <strong>root node</strong>: from it you can reach everything else by
-        following links, exactly like a linked list is just its head.
+        A node is a small object with a value and two links. A link is either another node or <code>null</code>, which means
+        &quot;nothing here&quot;. A whole tree is just its <strong>root node</strong>. From the root you can reach every other
+        node by following links, just like a linked list is just its head.
       </p>
       <CodeBlock lang="js" code={nodeCode} />
       <Callout kind="note" label="null is a tree too">
-        An empty tree is represented by <code>null</code>. Almost every recursive tree function starts with{" "}
-        <code>if (node === null) return ...</code>. That line is the <strong>base case</strong>: the smallest problem, which needs
-        no further recursion.
+        An empty tree is written as <code>null</code>. Almost every recursive tree function starts with{" "}
+        <code>if (node === null) return ...</code>. That line is the <strong>base case</strong>. The base case is the smallest
+        problem, the one you can answer right away without calling the function again.
       </Callout>
 
       <h2 id="build">Building a tree from an array</h2>
       <p>
-        Wiring up nodes by hand gets tedious, and LeetCode shows trees as arrays like <code>[3, 9, 20, null, null, 15, 7]</code>.
-        This is the <strong>level-order</strong> form: read the tree row by row from the top, left to right, writing{" "}
-        <code>null</code> for a missing child. Here <code>3</code> is the root, its children are <code>9</code> and <code>20</code>;
-        <code>9</code> has no children (two nulls), and <code>20</code> has children <code>15</code> and <code>7</code>.
+        Linking nodes by hand takes a long time. LeetCode shows trees as arrays like <code>[3, 9, 20, null, null, 15, 7]</code>.
+        This is the <strong>level-order</strong> form. You read the tree row by row, from the top, left to right. You write{" "}
+        <code>null</code> where a child is missing. Here <code>3</code> is the root and its children are <code>9</code> and{" "}
+        <code>20</code>. Node <code>9</code> has no children (two nulls). Node <code>20</code> has children <code>15</code> and{" "}
+        <code>7</code>.
       </p>
       <p>
-        To build the tree, keep a queue (a first-in, first-out line, see lesson 39) of nodes that still need children. Take the next
-        waiting node and give it the next two array values as its left and right child. We use a <code>head</code> index instead
-        of <code>shift()</code> because shifting from the front of a JavaScript array is slow. We will reuse this helper in
-        most of the samples to come.
+        To build the tree, keep a queue of nodes that still need children. A queue is a first-in, first-out line, like people
+        waiting at a shop (see lesson 39). Take the next waiting node. Give it the next two array values as its left and right
+        child. We use a <code>head</code> number instead of <code>shift()</code>, because removing from the front of a
+        JavaScript array is slow. We will reuse this helper in most of the samples to come.
       </p>
       <CodeBlock lang="js" code={buildCode} />
 
       <h2 id="recursive">Three ways to walk a tree</h2>
       <p>
-        To <strong>traverse</strong> a tree means to visit every node exactly once. In a line there is one sensible order. A tree
-        offers a choice, and the three classic <strong>depth-first</strong> orders differ only in <em>when</em> you write the
-        current node down relative to its two subtrees:
+        To <strong>traverse</strong> a tree means to visit every node exactly once. A line has one natural order. A tree gives
+        you a choice. The three classic <strong>depth-first</strong> orders differ in only one thing: <em>when</em> you write
+        down the current node, compared with its two sides:
       </p>
       <ul>
         <li><strong>Preorder</strong>: node, then left subtree, then right subtree. (&quot;pre&quot; = before the children.)</li>
@@ -396,38 +399,38 @@ export default function DsaLessonFortyOnePage() {
         <li><strong>Postorder</strong>: left subtree, then right subtree, then node. (&quot;post&quot; = after the children.)</li>
       </ul>
       <p>
-        <strong>Depth-first</strong> means we go all the way down one branch before coming back to try another. Each order is the same
-        three lines in a different arrangement:
+        <strong>Depth-first</strong> means we go all the way down one branch before we come back to try another branch. Each
+        order uses the same three lines, just in a different order:
       </p>
       <CodeBlock lang="js" code={recursiveCode} />
       <p>
-        Recursion handles the bookkeeping for free: the language keeps a <strong>call stack</strong> that remembers where to
-        come back to. Time is <strong>O(n)</strong>, since each node is visited once. Space is{" "}
-        <strong>O(h)</strong> for the call stack, where <em>h</em> is the tree&apos;s height: about log n for a well-balanced tree,
-        but up to n for a tree that is one long chain.
+        Recursion keeps track of where to go back to without extra work from you. The language keeps a{" "}
+        <strong>call stack</strong>, a pile of open function calls that remembers where to return. Time is{" "}
+        <strong>O(n)</strong>, because each node is visited once. Extra space is <strong>O(h)</strong> for the call stack, where{" "}
+        <em>h</em> is the height of the tree. For a well-balanced tree (both sides about equal) h is about log n. For a tree
+        that is one long chain, h can be as big as n.
       </p>
 
       <h2 id="trace">Traced: one walk, three orders</h2>
       <p>
-        A single walk can produce all three orders at once, because every node is passed three times: on the way down, after
-        coming back from the left, and after coming back from the right. Watch the three result lists grow in different
-        rhythms.
+        One walk can build all three orders at once. We pass every node three times: on the way down, after coming back from
+        the left side, and after coming back from the right side. Watch the three result lists grow at different times.
       </p>
       <CodeTrace
         code={traceSrc}
         steps={walkTrace()}
-        caption="The same journey around the tree, recorded at three moments. Preorder gives 1 2 4 5 3, inorder gives 4 2 5 1 3, postorder gives 4 5 2 3 1."
+        caption="The same trip around the tree, written down at three different moments. Preorder gives 1 2 4 5 3, inorder gives 4 2 5 1 3, postorder gives 4 5 2 3 1."
       />
 
       <h2 id="iterative">Walking with an explicit stack</h2>
       <p>
-        Recursion can fail on a very deep tree (a chain of 100,000 nodes overflows the call stack), and interviewers love to ask
-        &quot;now do it without recursion&quot;. The answer is to do what the language was doing for you: keep your own{" "}
-        <strong>stack</strong>.
+        Recursion can fail on a very deep tree. A chain of 100,000 nodes overflows the call stack (the call stack runs out of
+        room). Interviewers also like to ask &quot;now do it without recursion&quot;. The answer is to do the job the language
+        did for you. Keep your own <strong>stack</strong>, which is a pile where you add and remove only at the top.
       </p>
       <p>
-        <strong>Preorder</strong> is the easiest: pop a node, visit it, push its children. Because a stack gives back the last
-        item first, push the <em>right</em> child before the left so the left comes out first.
+        <strong>Preorder</strong> is the easiest. Pop a node, visit it, then push its children. A stack gives back the last item
+        first. So push the <em>right</em> child before the left child, and the left child comes out first.
       </p>
       <CodeBlock lang="js" code={iterPreCode} />
       <DryRun
@@ -436,35 +439,35 @@ export default function DsaLessonFortyOnePage() {
         rows={dryIterRows}
       />
       <p>
-        <strong>Inorder</strong> needs one more idea: before you can visit a node you must finish its entire left side. So dive
-        left as far as you can, pushing each node you pass; the stack remembers the way back. Pop the leftmost node, visit it,
-        then repeat for its right subtree.
+        <strong>Inorder</strong> needs one more idea. Before you visit a node, you must finish its whole left side. So go left
+        as far as you can and push each node you pass. The stack remembers the way back. Then pop the leftmost node and visit
+        it. After that, do the same for its right side.
       </p>
       <CodeBlock lang="js" code={iterInCode} />
       <p>
-        <strong>Postorder</strong> is the awkward one, because a node is visited only after both children. A neat trick: postorder
-        (left, right, node) is exactly the <em>reverse</em> of (node, right, left), and that is just preorder with the children
-        pushed in the opposite order. So run that, then reverse the result.
+        <strong>Postorder</strong> is the hard one, because you visit a node only after both of its children. Here is a
+        trick. Postorder (left, right, node) is exactly the <em>reverse</em> of (node, right, left). And (node, right, left) is
+        just preorder with the children pushed in the opposite order. So run that, then reverse the result.
       </p>
       <CodeBlock lang="js" code={iterPostCode} />
       <p>
-        All three are O(n) time and O(h) extra space for the stack, the same as the recursive versions, but now the depth limit
-        is memory, not the call stack.
+        All three take O(n) time and O(h) extra space for the stack, the same as the recursive versions. The difference is the
+        limit on depth. Now it is your computer&apos;s memory, not the small call stack.
       </p>
 
       <h2 id="small">Depth, same tree, invert</h2>
       <p>
-        Here is the recursive mindset on three classic questions. Each follows one recipe: handle <code>null</code>, ask the
-        question of the left and right subtrees, combine the answers.
+        Here is the recursive way of thinking on three classic questions. Each one follows the same recipe. First handle{" "}
+        <code>null</code>. Then ask the question of the left and right sides. Then combine the two answers.
       </p>
       <ul>
         <li>
-          <strong>Maximum depth</strong>: an empty tree has depth 0; otherwise it is 1 (for this node) plus the larger of the two
-          subtree depths.
+          <strong>Maximum depth</strong>: an empty tree has depth 0. Otherwise the depth is 1 (for this node) plus the larger
+          depth of the two sides.
         </li>
         <li>
-          <strong>Same tree</strong>: two empty trees match; one empty and one not does not; otherwise the values must match and
-          so must both pairs of subtrees.
+          <strong>Same tree</strong>: two empty trees match. One empty tree and one non-empty tree do not match. Otherwise the
+          two values must match, and both pairs of sides must match too.
         </li>
         <li>
           <strong>Invert</strong>: swap the left and right child of every node. Invert the children first, then swap them.
@@ -473,12 +476,12 @@ export default function DsaLessonFortyOnePage() {
       <CodeBlock lang="js" code={smallCode} />
       <Callout kind="warn" label="Check null before you touch .val">
         The most common tree bug is reading <code>node.left.val</code> when <code>node.left</code> is <code>null</code>. That
-        throws &quot;Cannot read properties of null&quot;. Put the <code>null</code> check at the top of the function so the rest of
-        the body can assume a real node.
+        gives the error &quot;Cannot read properties of null&quot;. Put the <code>null</code> check at the top of the function.
+        Then the rest of the function can be sure it has a real node.
       </Callout>
 
       <h2 id="practice">Practice questions</h2>
-      <p>For each one, decide first: which moment do I need (before, between or after the children), and what does the base case return?</p>
+      <p>For each question, decide two things first. Which moment do I need: before, between or after the children? And what does the base case return?</p>
 
       <Questions />
 
@@ -487,7 +490,7 @@ export default function DsaLessonFortyOnePage() {
         items={[
           <>Define root, leaf, subtree, depth and height, and say what a binary tree is.</>,
           <>Say where the line that records the node sits in preorder, inorder and postorder.</>,
-          <>Explain why the space of a recursive traversal is O(h) and when h is as bad as n.</>,
+          <>Explain why the extra space of a recursive walk is O(h), and when h is as big as n.</>,
           <>Write iterative preorder and inorder with a stack, without looking.</>,
           <>Explain why the recursive solution always starts with the null check.</>,
         ]}
@@ -495,9 +498,9 @@ export default function DsaLessonFortyOnePage() {
 
       <h2 id="next">What&apos;s next</h2>
       <p>
-        Depth-first goes deep before it goes wide. <strong>Lesson 42</strong> does the opposite: <strong>level order</strong>, also called
-        breadth-first search, visits the tree row by row with a queue, which gives us right side views, zigzag orders and the
-        shortest path to a leaf.
+        Depth-first goes deep before it goes wide. <strong>Lesson 42</strong> does the opposite. <strong>Level order</strong>, also
+        called breadth-first search, visits the tree row by row with a queue. It helps with right side views, zigzag orders and
+        the shortest path to a leaf.
       </p>
     </DsaLessonPage>
   );

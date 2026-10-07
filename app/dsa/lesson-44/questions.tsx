@@ -9,17 +9,17 @@ export default function Questions() {
         title="Search in a binary search tree"
         level="Easy"
         examples={[
-          { input: "root = [4, 2, 7, 1, 3], val = 2", output: "[2, 1, 3]", why: "The node with value 2 is returned together with its whole subtree." },
+          { input: "root = [4, 2, 7, 1, 3], val = 2", output: "[2, 1, 3]", why: "We return the node with value 2 together with everything below it." },
           { input: "root = [4, 2, 7, 1, 3], val = 5", output: "[]", why: "5 is not in the tree, so the answer is null (an empty tree)." },
         ]}
         hints={[
           <>You do not have to look at every node. Compare the target with the current value.</>,
-          <>If the target is smaller, everything on the right is too big. If it is larger, everything on the left is too small.</>,
+          <>If the target is smaller, everything on the right is too big. If it is larger, everything on the left is too small. So you can ignore that side.</>,
         ]}
         approaches={[
           {
             name: "Brute force: visit every node",
-            idea: <p>Ignore the BST property and search the whole tree with an ordinary DFS until the value is found.</p>,
+            idea: <p>Ignore the BST property. Search the whole tree with an ordinary DFS (depth-first search) until you find the value.</p>,
             code: `class TreeNode { constructor(val, left = null, right = null) { this.val = val; this.left = left; this.right = right; } }
 function buildTree(arr) {                           // level-order array, null marks a missing child
   if (arr.length === 0 || arr[0] === null) return null;
@@ -56,11 +56,11 @@ function searchBST(root, val) {
 
 console.log(serialize(searchBST(buildTree([4, 2, 7, 1, 3]), 2))); // [2, 1, 3]
 console.log(serialize(searchBST(buildTree([4, 2, 7, 1, 3]), 5))); // []`,
-            explain: <p>Works on any binary tree but costs O(n) even when the tree is a BST.</p>,
+            explain: <p>It works on any binary tree, but it costs O(n) even when the tree is a BST.</p>,
           },
           {
             name: "Recursive: go to the one side that can hold the value",
-            idea: <p>Equal: return the node. Smaller: search the left child. Larger: search the right child. <code>null</code> means not found.</p>,
+            idea: <p>If equal, return the node. If the target is smaller, search the left child. If it is larger, search the right child. <code>null</code> means not found.</p>,
             code: `class TreeNode { constructor(val, left = null, right = null) { this.val = val; this.left = left; this.right = right; } }
 function buildTree(arr) {                           // level-order array, null marks a missing child
   if (arr.length === 0 || arr[0] === null) return null;
@@ -96,11 +96,11 @@ function searchBST(root, val) {
 
 console.log(serialize(searchBST(buildTree([4, 2, 7, 1, 3]), 2))); // [2, 1, 3]
 console.log(serialize(searchBST(buildTree([4, 2, 7, 1, 3]), 5))); // []`,
-            explain: <p>O(h) time and O(h) stack space. Each step discards a whole subtree.</p>,
+            explain: <p>O(h) time and O(h) stack space. Each step ignores a whole side of the tree.</p>,
           },
           {
-            name: "Iterative: a loop instead of recursion",
-            idea: <p>Walk down with a pointer, moving left or right, until you hit the value or fall off the tree.</p>,
+            name: "A loop instead of recursion",
+            idea: <p>Walk down with a pointer (a variable that points to the current node). Move left or right until you find the value or fall off the tree.</p>,
             code: `class TreeNode { constructor(val, left = null, right = null) { this.val = val; this.left = left; this.right = right; } }
 function buildTree(arr) {                           // level-order array, null marks a missing child
   if (arr.length === 0 || arr[0] === null) return null;
@@ -142,9 +142,9 @@ console.log(serialize(searchBST(buildTree([4, 2, 7, 1, 3]), 5))); // []`,
             explain: <p>O(h) time and O(1) extra space.</p>,
           },
         ]}
-        compare={<p>The iterative loop: shortest to write correctly and no stack. The brute force is a trap only because it ignores what the question gave you. (LeetCode 700.)</p>}
+        compare={<p>Use the loop. It is short to write correctly and needs no stack. The brute force is a trap only because it ignores the BST property that the question gave you. (LeetCode 700.)</p>}
       >
-        <p>Given the root of a BST and an integer <code>val</code>, find the node whose value equals <code>val</code> and return the subtree rooted at it, or <code>null</code> if there is none.</p>
+        <p>You get the root of a BST and an integer <code>val</code>, find the node whose value equals <code>val</code>. Return that node with everything below it, or <code>null</code> if there is none.</p>
       </Problem>
 
       <Problem
@@ -152,17 +152,17 @@ console.log(serialize(searchBST(buildTree([4, 2, 7, 1, 3]), 5))); // []`,
         title="Insert into a binary search tree"
         level="Medium"
         examples={[
-          { input: "root = [4, 2, 7, 1, 3], val = 5", output: "[4, 2, 7, 1, 3, 5]", why: "5 > 4 so go right; 5 < 7 so go left; that spot is empty, so 5 becomes the left child of 7." },
-          { input: "root = [], val = 5", output: "[5]", why: "Inserting into an empty tree creates the root." },
+          { input: "root = [4, 2, 7, 1, 3], val = 5", output: "[4, 2, 7, 1, 3, 5]", why: "5 > 4, so go right. 5 < 7, so go left. That spot is empty, so 5 becomes the left child of 7." },
+          { input: "root = [], val = 5", output: "[5]", why: "Inserting into an empty tree makes the new node the root." },
         ]}
         hints={[
-          <>Insertion is a search for the empty place where the value would have been.</>,
-          <>You can always attach the new value as a leaf. No existing node has to move.</>,
+          <>To insert, search for the empty place where the value should be.</>,
+          <>You can always attach the new value as a leaf (a node with no children). No existing node has to move.</>,
         ]}
         approaches={[
           {
             name: "Recursive",
-            idea: <p>If the node is <code>null</code>, return a new node. Otherwise recurse into the correct side and re-attach the returned subtree.</p>,
+            idea: <p>If the node is <code>null</code>, return a new node. Otherwise call the function on the correct side, and attach the result back to the node.</p>,
             code: `class TreeNode { constructor(val, left = null, right = null) { this.val = val; this.left = left; this.right = right; } }
 function buildTree(arr) {                           // level-order array, null marks a missing child
   if (arr.length === 0 || arr[0] === null) return null;
@@ -201,11 +201,11 @@ function insertIntoBST(root, val) {
 console.log(serialize(insertIntoBST(buildTree([4, 2, 7, 1, 3]), 5)));  // [4, 2, 7, 1, 3, 5]
 console.log(serialize(insertIntoBST(buildTree([]), 5)));                // [5]
 console.log(serialize(insertIntoBST(buildTree([40, 20, 60, 10, 30, 50, 70]), 25))); // [40, 20, 60, 10, 30, 50, 70, null, null, 25]`,
-            explain: <p>O(h) time and space. Re-assigning <code>root.left = ...</code> on the way back is harmless when nothing changed and does the work when a new leaf appears.</p>,
+            explain: <p>O(h) time and space. Setting <code>root.left = ...</code> again on the way back does no harm when nothing changed. It does the real work when a new leaf appears.</p>,
           },
           {
-            name: "Iterative",
-            idea: <p>Walk down to the last node on the path, and attach the new node to its empty side.</p>,
+            name: "A loop",
+            idea: <p>Walk down to the last node on the path. Attach the new node to its empty side.</p>,
             code: `class TreeNode { constructor(val, left = null, right = null) { this.val = val; this.left = left; this.right = right; } }
 function buildTree(arr) {                           // level-order array, null marks a missing child
   if (arr.length === 0 || arr[0] === null) return null;
@@ -252,12 +252,12 @@ function insertIntoBST(root, val) {
 
 console.log(serialize(insertIntoBST(buildTree([4, 2, 7, 1, 3]), 5)));  // [4, 2, 7, 1, 3, 5]
 console.log(serialize(insertIntoBST(buildTree([]), 5)));                // [5]`,
-            explain: <p>O(h) time, O(1) extra space. Handle the empty tree separately because there is no node to attach to.</p>,
+            explain: <p>O(h) time, O(1) extra space. Handle the empty tree on its own, because there is no node to attach to.</p>,
           },
         ]}
-        compare={<p>Either is fine; the recursive one is shorter. Remember that several results are valid (the judge accepts any valid BST), but adding a leaf is the simplest. (LeetCode 701.)</p>}
+        compare={<p>Either one is fine. The recursive one is shorter. Several results are valid (the judge accepts any valid BST), but adding a leaf is the simplest. (LeetCode 701.)</p>}
       >
-        <p>Insert a value (not already in the tree) into a BST and return the root. Any resulting valid BST is accepted.</p>
+        <p>Insert a value (one that is not already in the tree) into a BST and return the root. Any valid BST as a result is accepted.</p>
       </Problem>
 
       <Problem
@@ -265,19 +265,19 @@ console.log(serialize(insertIntoBST(buildTree([]), 5)));                // [5]`,
         title="Delete node in a BST"
         level="Medium"
         examples={[
-          { input: "root = [5, 3, 6, 2, 4, null, 7], key = 3", output: "[5, 4, 6, 2, null, null, 7]", why: "3 has two children; its successor 4 takes its place." },
+          { input: "root = [5, 3, 6, 2, 4, null, 7], key = 3", output: "[5, 4, 6, 2, null, null, 7]", why: "3 has two children. Its successor (the next larger value) 4 takes its place." },
           { input: "root = [5, 3, 6, 2, 4, null, 7], key = 0", output: "[5, 3, 6, 2, 4, null, 7]", why: "0 is not in the tree, so nothing changes." },
-          { input: "root = [], key = 0", output: "[]", why: "Nothing to delete." },
+          { input: "root = [], key = 0", output: "[]", why: "There is nothing to delete." },
         ]}
         hints={[
           <>First search for the key. Then think about how many children the node has.</>,
-          <>Zero or one child: replace the node with its child (or null).</>,
-          <>Two children: the smallest value of the right subtree is the next larger value. It can take this node&apos;s place.</>,
+          <>If it has zero or one child, replace the node with that child (or with null).</>,
+          <>If it has two children, the smallest value on its right side is the next larger value. That value can take the place of this node.</>,
         ]}
         approaches={[
           {
             name: "Brute force: rebuild the whole tree",
-            idea: <p>Read all the values in inorder (sorted) order, drop the key, and build a balanced BST from what is left.</p>,
+            idea: <p>Read all the values in inorder (sorted) order. Leave out the key. Build a balanced BST from the rest.</p>,
             code: `class TreeNode { constructor(val, left = null, right = null) { this.val = val; this.left = left; this.right = right; } }
 function buildTree(arr) {                           // level-order array, null marks a missing child
   if (arr.length === 0 || arr[0] === null) return null;
@@ -309,15 +309,15 @@ const result = deleteNode(buildTree([5, 3, 6, 2, 4, null, 7]), 3);
 const out = [];
 (function inorder(n) { if (n) { inorder(n.left); out.push(n.val); inorder(n.right); } })(result);
 console.log(out); // [2, 4, 5, 6, 7]`,
-            explain: <p>O(n) time and space, and it reshuffles the whole tree even when one leaf was removed. The result is a valid BST, but it is far more work than needed.</p>,
+            explain: <p>O(n) time and space. It rebuilds the whole tree even if you only remove one leaf. The result is a valid BST, but it is much more work than needed.</p>,
           },
           {
-            name: "Recursive with the inorder successor",
+            name: "Recursion with the inorder successor (the next larger value)",
             idea: (
               <ol>
-                <li>Smaller key: delete in the left subtree. Larger key: delete in the right subtree.</li>
-                <li>Found with no left child: return the right child. No right child: return the left child.</li>
-                <li>Two children: copy the smallest value of the right subtree into this node, then delete that value from the right subtree.</li>
+                <li>If the key is smaller, delete in the left side. If it is larger, delete in the right side.</li>
+                <li>If you find it and it has no left child, return the right child. If it has no right child, return the left child.</li>
+                <li>If it has two children, copy the smallest value of the right side into this node. Then delete that value from the right side.</li>
               </ol>
             ),
             code: `class TreeNode { constructor(val, left = null, right = null) { this.val = val; this.left = left; this.right = right; } }
@@ -366,11 +366,11 @@ function deleteNode(root, key) {
 console.log(serialize(deleteNode(buildTree([5, 3, 6, 2, 4, null, 7]), 3))); // [5, 4, 6, 2, null, null, 7]
 console.log(serialize(deleteNode(buildTree([5, 3, 6, 2, 4, null, 7]), 0))); // [5, 3, 6, 2, 4, null, 7]
 console.log(serialize(deleteNode(buildTree([]), 0)));                        // []`,
-            explain: <p>O(h) time. The successor never has a left child, so the recursive delete of the successor is a simple case.</p>,
+            explain: <p>O(h) time. The successor never has a left child, so deleting it is an easy case.</p>,
           },
           {
-            name: "Re-link instead of copying values",
-            idea: <p>For a node with two children, hang its left subtree under the successor (the leftmost node of the right subtree) and return the right subtree in its place. No values are copied, so this suits cases where nodes are heavy objects.</p>,
+            name: "Re-link nodes instead of copying values",
+            idea: <p>For a node with two children, hang its left side under the successor (the leftmost node of the right side). Then return the right side in its place. No values are copied, so this is good when nodes are big objects.</p>,
             code: `class TreeNode { constructor(val, left = null, right = null) { this.val = val; this.left = left; this.right = right; } }
 function buildTree(arr) {                           // level-order array, null marks a missing child
   if (arr.length === 0 || arr[0] === null) return null;
@@ -408,15 +408,15 @@ function deleteNode(root, key) {
   let succ = root.right;
   while (succ.left !== null) succ = succ.left;
   succ.left = root.left;          // everything on the left is smaller than the successor
-  return root.right;              // the right subtree takes this node's place
+  return root.right;              // the right side takes the place of this node
 }
 
 console.log(serialize(deleteNode(buildTree([5, 3, 6, 2, 4, null, 7]), 3))); // [5, 4, 6, 2, null, null, 7]
 console.log(serialize(deleteNode(buildTree([5, 3, 6, 2, 4, null, 7]), 5))); // [6, 3, 7, 2, 4]`,
-            explain: <p>Also O(h) time. It can make the tree a bit taller than the copy approach, but it is still a valid BST.</p>,
+            explain: <p>Also O(h) time. It can make the tree a bit taller than the copy method, but it is still a valid BST.</p>,
           },
         ]}
-        compare={<p>The recursive successor version is the standard answer. Know the three cases cold; the re-linking variation is a good follow-up. (LeetCode 450.)</p>}
+        compare={<p>The recursive successor version is the standard answer. Know the three cases well. The re-linking version is a good follow-up. (LeetCode 450.)</p>}
       >
         <p>Delete the node with value <code>key</code> from a BST (if present) and return the root of the resulting BST.</p>
       </Problem>
@@ -427,17 +427,17 @@ console.log(serialize(deleteNode(buildTree([5, 3, 6, 2, 4, null, 7]), 5))); // [
         level="Medium"
         examples={[
           { input: "root = [2, 1, 3]", output: "true", why: "1 < 2 < 3." },
-          { input: "root = [5, 1, 4, null, null, 3, 6]", output: "false", why: "3 is in the right subtree of 5 but is smaller than 5, even though it is fine next to its own parent 4." },
+          { input: "root = [5, 1, 4, null, null, 3, 6]", output: "false", why: "3 is on the right side of 5 but is smaller than 5. It looks fine next to its own parent 4, but it breaks the rule for 5." },
         ]}
         hints={[
-          <>Checking each node against its children is not enough. Which ancestors constrain a deep node?</>,
-          <>Carry a lower and an upper limit down the tree and update one of them at each step.</>,
-          <>Alternatively, recall what the inorder traversal of a BST looks like.</>,
+          <>Checking each node against its children is not enough. Which ancestors (the parent, grandparent, and so on) limit a deep node?</>,
+          <>Carry a lower limit and an upper limit down the tree. Update one of them at each step.</>,
+          <>Or think about what the inorder walk of a BST looks like.</>,
         ]}
         approaches={[
           {
-            name: "Brute force: compare with the whole subtrees",
-            idea: <p>For every node, find the maximum of its left subtree and the minimum of its right subtree and compare. Repeat for all nodes.</p>,
+            name: "Brute force: compare with the whole left and right sides",
+            idea: <p>For every node, find the largest value on its left side and the smallest value on its right side, and compare them with the node. Do this for all nodes.</p>,
             code: `class TreeNode { constructor(val, left = null, right = null) { this.val = val; this.left = left; this.right = right; } }
 function buildTree(arr) {                           // level-order array, null marks a missing child
   if (arr.length === 0 || arr[0] === null) return null;
@@ -464,14 +464,14 @@ function isValidBST(root) {
 
 console.log(isValidBST(buildTree([2, 1, 3])));                       // true
 console.log(isValidBST(buildTree([5, 1, 4, null, null, 3, 6])));     // false`,
-            explain: <p>Correct, but each node scans its whole subtree: O(n²) on a chain-like tree.</p>,
+            explain: <p>Correct, but each node scans everything below it. It takes O(n²) on a tree shaped like a chain.</p>,
           },
           {
-            name: "Pass down lower and upper bounds",
+            name: "Pass down a lower and an upper limit",
             idea: (
               <ol>
-                <li>Start with limits (−∞, +∞).</li>
-                <li>A node must be strictly inside its limits.</li>
+                <li>Start with the limits (−∞, +∞), which means no limit.</li>
+                <li>A node must be strictly between its limits.</li>
                 <li>Left child: new upper limit = this value. Right child: new lower limit = this value.</li>
               </ol>
             ),
@@ -503,11 +503,11 @@ function isValidBST(root) {
 console.log(isValidBST(buildTree([2, 1, 3])));                       // true
 console.log(isValidBST(buildTree([5, 1, 4, null, null, 3, 6])));     // false
 console.log(isValidBST(buildTree([2147483647])));                    // true`,
-            explain: <p>O(n) time, O(h) space. Using <code>Infinity</code> instead of numeric extremes keeps a node holding the smallest or largest integer from failing wrongly.</p>,
+            explain: <p>O(n) time, O(h) space. We use <code>Infinity</code>, not the smallest or largest whole number. Then a node that really holds the smallest or largest integer does not fail by mistake.</p>,
           },
           {
             name: "Inorder must be strictly increasing",
-            idea: <p>Do an inorder traversal (iteratively, so we can stop early) and remember the previous value. If any value is not larger than the previous one, the tree is not a BST.</p>,
+            idea: <p>Do an inorder walk (with your own stack, so we can stop early) and remember the previous value. If any value is not larger than the previous one, the tree is not a BST.</p>,
             code: `class TreeNode { constructor(val, left = null, right = null) { this.val = val; this.left = left; this.right = right; } }
 function buildTree(arr) {                           // level-order array, null marks a missing child
   if (arr.length === 0 || arr[0] === null) return null;
@@ -540,12 +540,12 @@ function isValidBST(root) {
 
 console.log(isValidBST(buildTree([2, 1, 3])));                       // true
 console.log(isValidBST(buildTree([5, 1, 4, null, null, 3, 6])));     // false`,
-            explain: <p>O(n) time, O(h) space, and it stops at the first violation. It works because a tree is a BST exactly when its inorder sequence is strictly increasing.</p>,
+            explain: <p>O(n) time, O(h) space. It stops at the first value that breaks the rule. It works because a tree is a BST exactly when its inorder list is strictly increasing.</p>,
           },
         ]}
-        compare={<p>Bounds or inorder, both O(n). The bounds version generalises to other &quot;every ancestor constrains me&quot; problems. Never submit the parent-only check. (LeetCode 98.)</p>}
+        compare={<p>Use limits or inorder. Both are O(n). The limits version also works for other problems where every ancestor limits a node. Never give the answer that checks only the parent. (LeetCode 98.)</p>}
       >
-        <p>Return whether a binary tree is a valid BST: for every node, all values in the left subtree are smaller, all in the right subtree are larger, and both subtrees are valid BSTs.</p>
+        <p>Return whether a binary tree is a valid BST: for every node, all values on the left side are smaller, all values on the right side are larger, and both sides are valid BSTs too.</p>
       </Problem>
 
       <Problem
@@ -553,17 +553,17 @@ console.log(isValidBST(buildTree([5, 1, 4, null, null, 3, 6])));     // false`,
         title="Kth smallest element in a BST"
         level="Medium"
         examples={[
-          { input: "root = [3, 1, 4, null, 2], k = 1", output: "1", why: "Inorder order is 1, 2, 3, 4; the first is 1." },
-          { input: "root = [5, 3, 6, 2, 4, null, null, 1], k = 3", output: "3", why: "Inorder order is 1, 2, 3, 4, 5, 6; the third is 3." },
+          { input: "root = [3, 1, 4, null, 2], k = 1", output: "1", why: "In inorder the values come as 1, 2, 3, 4. The first one is 1." },
+          { input: "root = [5, 3, 6, 2, 4, null, null, 1], k = 3", output: "3", why: "In inorder the values come as 1, 2, 3, 4, 5, 6. The third one is 3." },
         ]}
         hints={[
-          <>Which traversal lists a BST in sorted order?</>,
-          <>Do you need to finish the traversal once you have counted k nodes?</>,
+          <>Which walk lists a BST in sorted order?</>,
+          <>Do you need to finish the walk once you have counted k nodes?</>,
         ]}
         approaches={[
           {
             name: "Collect the full inorder list",
-            idea: <p>Walk the whole tree in inorder, store every value, and take element k − 1.</p>,
+            idea: <p>Walk the whole tree in inorder and store every value. Then take the item at index k − 1.</p>,
             code: `class TreeNode { constructor(val, left = null, right = null) { this.val = val; this.left = left; this.right = right; } }
 function buildTree(arr) {                           // level-order array, null marks a missing child
   if (arr.length === 0 || arr[0] === null) return null;
@@ -597,7 +597,7 @@ console.log(kthSmallest(buildTree([5, 3, 6, 2, 4, null, null, 1]), 3));      // 
           },
           {
             name: "Recursive inorder with a counter",
-            idea: <p>Count nodes as they are visited and remember the value when the count reaches k. Skip the right side once the answer is found.</p>,
+            idea: <p>Count the nodes as you visit them. Remember the value when the count reaches k. Skip the right side once you have the answer.</p>,
             code: `class TreeNode { constructor(val, left = null, right = null) { this.val = val; this.left = left; this.right = right; } }
 function buildTree(arr) {                           // level-order array, null marks a missing child
   if (arr.length === 0 || arr[0] === null) return null;
@@ -630,11 +630,11 @@ function kthSmallest(root, k) {
 
 console.log(kthSmallest(buildTree([3, 1, 4, null, 2]), 1));                  // 1
 console.log(kthSmallest(buildTree([5, 3, 6, 2, 4, null, null, 1]), 3));      // 3`,
-            explain: <p>O(h + k) time and O(h) space: once the answer is set, every remaining call returns immediately. A value of 0 is handled correctly because we test <code>answer !== null</code>, not truthiness.</p>,
+            explain: <p>O(h + k) time and O(h) space. Once the answer is set, every remaining call returns at once. A value of 0 works correctly, because we test <code>answer !== null</code>, not whether the value is &quot;truthy&quot; (JavaScript treats 0 as false in an <code>if</code>).</p>,
           },
           {
-            name: "Iterative inorder with early exit",
-            idea: <p>Push the left spine onto a stack, pop to get the next smallest, decrease k, return when k reaches 0, then move into the right child.</p>,
+            name: "Inorder with your own stack and an early exit",
+            idea: <p>Push the whole chain of left children onto a stack. Pop to get the next smallest value and decrease k. Return when k reaches 0. Otherwise move to the right child.</p>,
             code: `class TreeNode { constructor(val, left = null, right = null) { this.val = val; this.left = left; this.right = right; } }
 function buildTree(arr) {                           // level-order array, null marks a missing child
   if (arr.length === 0 || arr[0] === null) return null;
@@ -666,12 +666,12 @@ function kthSmallest(root, k) {
 console.log(kthSmallest(buildTree([3, 1, 4, null, 2]), 1));                  // 1
 console.log(kthSmallest(buildTree([5, 3, 6, 2, 4, null, null, 1]), 3));      // 3
 console.log(kthSmallest(buildTree([5, 3, 6, 2, 4, null, null, 1]), 6));      // 6`,
-            explain: <p>O(h + k) time, O(h) space. If the tree changes often and you must answer many queries, store the size of each subtree in each node; then you can steer left or right by counts in O(h) per query.</p>,
+            explain: <p>O(h + k) time, O(h) space. Suppose the tree changes often and you must answer many queries. Then store in each node the size of the part below it. You can then choose left or right by using these counts, in O(h) per query.</p>,
           },
         ]}
-        compare={<p>The iterative version: it uses the BST property, stops early and has no recursion limit. (LeetCode 230.)</p>}
+        compare={<p>Use the version with your own stack. It uses the BST property, stops early and has no limit on recursion depth. (LeetCode 230.)</p>}
       >
-        <p>Return the k-th smallest value (1-indexed) in a BST. It is guaranteed that 1 ≤ k ≤ the number of nodes.</p>
+        <p>Return the k-th smallest value in a BST (counting from 1). It is guaranteed that 1 ≤ k ≤ the number of nodes.</p>
       </Problem>
 
       <Problem
@@ -679,17 +679,17 @@ console.log(kthSmallest(buildTree([5, 3, 6, 2, 4, null, null, 1]), 6));      // 
         title="Convert sorted array to binary search tree"
         level="Easy"
         examples={[
-          { input: "nums = [-10, -3, 0, 5, 9]", output: "[0, -3, 9, -10, null, 5]", why: "0 is the middle; -10, -3 go left and 5, 9 go right. [0, -10, 5, null, -3, null, 9] is also accepted." },
-          { input: "nums = [1, 3]", output: "[3, 1]", why: "Either value can be the root; [1, null, 3] is also accepted." },
+          { input: "nums = [-10, -3, 0, 5, 9]", output: "[0, -3, 9, -10, null, 5]", why: "0 is the middle. -10 and -3 go left, and 5 and 9 go right. [0, -10, 5, null, -3, null, 9] is also accepted." },
+          { input: "nums = [1, 3]", output: "[3, 1]", why: "Either value can be the root. [1, null, 3] is also accepted." },
         ]}
         hints={[
-          <>Which element should be the root so that both sides get a similar number of nodes?</>,
-          <>After choosing the root, the left part and right part of the array are the same problem again.</>,
+          <>Which element should be the root, so that both sides get about the same number of nodes?</>,
+          <>After you choose the root, the left part and the right part of the array are the same problem again.</>,
         ]}
         approaches={[
           {
             name: "Brute force: insert one by one",
-            idea: <p>Insert the numbers in array order with the normal BST insert.</p>,
+            idea: <p>Insert the numbers in the order of the array, using the normal BST insert.</p>,
             code: `class TreeNode { constructor(val, left = null, right = null) { this.val = val; this.left = left; this.right = right; } }
 function buildTree(arr) {                           // level-order array, null marks a missing child
   if (arr.length === 0 || arr[0] === null) return null;
@@ -721,11 +721,11 @@ function sortedArrayToBST(nums) {
 }
 
 console.log(height(sortedArrayToBST([-10, -3, 0, 5, 9]))); // 5   (a chain, not balanced)`,
-            explain: <p>It is a valid BST but not height-balanced: sorted input makes a chain, and the whole build costs O(n²).</p>,
+            explain: <p>It is a valid BST but it is not height-balanced. Sorted input makes a chain, and the whole build costs O(n²).</p>,
           },
           {
             name: "Middle element as root, slicing the array",
-            idea: <p>Take the middle element as the root, then build the left child from the left slice and the right child from the right slice.</p>,
+            idea: <p>Take the middle element as the root. Build the left child from the left slice (the left part of the array) and the right child from the right slice.</p>,
             code: `class TreeNode { constructor(val, left = null, right = null) { this.val = val; this.left = left; this.right = right; } }
 function buildTree(arr) {                           // level-order array, null marks a missing child
   if (arr.length === 0 || arr[0] === null) return null;
@@ -766,11 +766,11 @@ function sortedArrayToBST(nums) {
 
 console.log(serialize(sortedArrayToBST([-10, -3, 0, 5, 9]))); // [0, -3, 9, -10, null, 5]
 console.log(serialize(sortedArrayToBST([1, 3])));              // [3, 1]`,
-            explain: <p>Balanced, but each <code>slice</code> copies elements, giving O(n log n) time in total.</p>,
+            explain: <p>The tree is balanced, but each <code>slice</code> copies elements. The total time is O(n log n).</p>,
           },
           {
             name: "Middle element as root, with index bounds",
-            idea: <p>Pass <code>lo</code> and <code>hi</code> indices instead of copying: the root is <code>nums[mid]</code>, the left child is built from <code>lo..mid-1</code>, the right from <code>mid+1..hi</code>.</p>,
+            idea: <p>Do not copy. Pass the positions <code>lo</code> and <code>hi</code> instead. The root is <code>nums[mid]</code>. Build the left child from <code>lo..mid-1</code> and the right child from <code>mid+1..hi</code>.</p>,
             code: `class TreeNode { constructor(val, left = null, right = null) { this.val = val; this.left = left; this.right = right; } }
 function buildTree(arr) {                           // level-order array, null marks a missing child
   if (arr.length === 0 || arr[0] === null) return null;
@@ -814,9 +814,9 @@ console.log(serialize(sortedArrayToBST([])));                  // []`,
             explain: <p>O(n) time (each element becomes exactly one node) and O(log n) recursion depth. The tree is height-balanced because the two halves differ in size by at most one.</p>,
           },
         ]}
-        compare={<p>The index version. Show that inserting in sorted order degenerates, then fix it with &quot;middle first&quot;. (LeetCode 108.)</p>}
+        compare={<p>Use the version with positions. Show that inserting in sorted order gives a chain, then fix it with &quot;middle first&quot;. (LeetCode 108.)</p>}
       >
-        <p>Given a sorted array (ascending), convert it to a <strong>height-balanced</strong> BST: the depths of the two subtrees of every node differ by at most 1. Any valid answer is accepted.</p>
+        <p>You get an array sorted from small to large. Convert it to a <strong>height-balanced</strong> BST: at every node, the heights of the left side and right side differ by at most 1. Any valid answer is accepted.</p>
       </Problem>
 
       <Problem
@@ -828,14 +828,14 @@ console.log(serialize(sortedArrayToBST([])));                  // []`,
           { input: "root = [5, 3, 6, 2, 4, null, 7], k = 28", output: "false", why: "No two values add up to 28." },
         ]}
         hints={[
-          <>You solved &quot;two sum&quot; with a hash set before. A tree can be walked while filling one.</>,
-          <>A BST&apos;s inorder traversal is sorted. Which technique works on a sorted array?</>,
-          <>Could two pointers walk the BST directly, one from the smallest value upward and one from the largest downward?</>,
+          <>You solved &quot;two sum&quot; with a hash set before. You can walk a tree and fill a set at the same time.</>,
+          <>The inorder walk of a BST gives a sorted list. Which technique works on a sorted array?</>,
+          <>Could two pointers walk the BST directly? One would start at the smallest value and go up. The other would start at the largest value and go down.</>,
         ]}
         approaches={[
           {
-            name: "Hash set while traversing",
-            idea: <p>Visit every node; if <code>k − node.val</code> was seen earlier, return true, otherwise remember the value.</p>,
+            name: "Hash set while walking the tree",
+            idea: <p>Visit every node. If you saw <code>k − node.val</code> earlier, return true. Otherwise remember the value.</p>,
             code: `class TreeNode { constructor(val, left = null, right = null) { this.val = val; this.left = left; this.right = right; } }
 function buildTree(arr) {                           // level-order array, null marks a missing child
   if (arr.length === 0 || arr[0] === null) return null;
@@ -865,11 +865,11 @@ function findTarget(root, k) {
 
 console.log(findTarget(buildTree([5, 3, 6, 2, 4, null, 7]), 9));    // true
 console.log(findTarget(buildTree([5, 3, 6, 2, 4, null, 7]), 28));   // false`,
-            explain: <p>O(n) time and O(n) space. Works for any binary tree, but does not use the BST property.</p>,
+            explain: <p>O(n) time and O(n) space. It works for any binary tree, but it does not use the BST property.</p>,
           },
           {
             name: "Inorder array plus two pointers",
-            idea: <p>Flatten the BST into a sorted array with inorder, then run the classic two-pointer search from both ends.</p>,
+            idea: <p>Turn the BST into a sorted array with inorder. Then run the classic two-pointer search from both ends.</p>,
             code: `class TreeNode { constructor(val, left = null, right = null) { this.val = val; this.left = left; this.right = right; } }
 function buildTree(arr) {                           // level-order array, null marks a missing child
   if (arr.length === 0 || arr[0] === null) return null;
@@ -906,11 +906,11 @@ function findTarget(root, k) {
 
 console.log(findTarget(buildTree([5, 3, 6, 2, 4, null, 7]), 9));    // true
 console.log(findTarget(buildTree([5, 3, 6, 2, 4, null, 7]), 28));   // false`,
-            explain: <p>O(n) time and O(n) space, with a very simple second step.</p>,
+            explain: <p>O(n) time and O(n) space. The second step is very simple.</p>,
           },
           {
             name: "Two iterators with stacks (O(h) space)",
-            idea: <p>Keep two stacks: one that yields values in ascending order (the left spine, like the iterative inorder) and one in descending order (the right spine). Move the smaller pointer up when the sum is too small and the larger pointer down when it is too big.</p>,
+            idea: <p>Keep two stacks. One gives values from small to large (it holds the chain of left children, like the inorder with a stack). The other gives values from large to small (it holds the chain of right children). If the sum is too small, move the small pointer up. If the sum is too big, move the large pointer down.</p>,
             code: `class TreeNode { constructor(val, left = null, right = null) { this.val = val; this.left = left; this.right = right; } }
 function buildTree(arr) {                           // level-order array, null marks a missing child
   if (arr.length === 0 || arr[0] === null) return null;
@@ -948,12 +948,12 @@ function findTarget(root, k) {
 
 console.log(findTarget(buildTree([5, 3, 6, 2, 4, null, 7]), 9));    // true
 console.log(findTarget(buildTree([5, 3, 6, 2, 4, null, 7]), 28));   // false`,
-            explain: <p>O(n) time and only O(h) space, because we never hold more than one root-to-node path per iterator. It is the most impressive answer but the easiest to get wrong; the set version is a perfectly good interview answer.</p>,
+            explain: <p>O(n) time and only O(h) space, because each stack holds at most one path from the root to a node. It is the most impressive answer, but the easiest to get wrong. The set version is a perfectly good interview answer.</p>,
           },
         ]}
-        compare={<p>Start with the hash set (works anywhere) and mention that the BST allows two-pointers on the inorder array, or O(h) space with two stack iterators. (LeetCode 653.)</p>}
+        compare={<p>Start with the hash set. It works on any tree. Then mention that a BST allows two pointers on the inorder array, or O(h) space with two stacks. (LeetCode 653.)</p>}
       >
-        <p>Given a BST and an integer <code>k</code>, return <code>true</code> if two different nodes have values that sum to <code>k</code>.</p>
+        <p>You get a BST and an integer <code>k</code>. Return <code>true</code> if two different nodes have values that add up to <code>k</code>.</p>
       </Problem>
     </>
   );
