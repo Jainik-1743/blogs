@@ -70,11 +70,11 @@ const questions: [React.ReactNode, React.ReactNode][] = [
   ],
   [
     "Can a function access another function's local variables just because it was called right after it?",
-    "No. Access only goes outward via the Lexical Environment's outer reference to parent scopes — never sideways to an unrelated function's scope.",
+    "No. Access only goes outward via the Lexical Environment's outer reference (a link to the surrounding scope) to parent scopes — never sideways to an unrelated function's scope.",
   ],
   [
     "What happens to a function's Variable Environment after it returns?",
-    "Its Execution Context is popped off the call stack and the Variable Environment is discarded, making that memory eligible for garbage collection — unless a closure is holding a reference to it.",
+    "Its Execution Context is popped off the call stack and the Variable Environment is discarded. That memory can then be freed by the garbage collector (the part of the engine that frees memory nothing can reach any more), unless a closure is holding a reference to it.",
   ],
   [
     "If the same function is called 3 times, are the Variable Environments shared?",
@@ -128,16 +128,22 @@ export default function JsLessonFourPage() {
       <div className="lesson">
         <h2 id="concept">Concept</h2>
         <p>
-          Lesson 1 told you every Execution Context has three parts: Variable Environment, Lexical
-          Environment, and ThisBinding. This lesson zooms into the first one — the{" "}
-          <strong>Variable Environment</strong> — and what actually happens to it on every single
-          function call.
+          Lesson 1 showed that every Execution Context has a memory component, also called the{" "}
+          <strong>Variable Environment</strong>. The Variable Environment is the part of a context
+          that stores the variables and functions declared inside it, as name → value pairs. (To be
+          exact, the official language rules, called the ECMAScript specification, keep{" "}
+          <code>var</code> and function declarations here, and <code>let</code> and{" "}
+          <code>const</code> in the Lexical Environment. In this series, think of the Variable
+          Environment as &ldquo;the context&apos;s own memory.&rdquo;) This lesson looks at what
+          happens to it on every function call.
         </p>
         <Callout kind="note">
           <p className="mb-0">
             The core idea in one line: every function call gets its{" "}
             <strong>own, completely separate</strong> Variable Environment — even if two different
             functions, or the same function called twice, use a variable with the exact same name.
+            A <strong>local variable</strong> is a variable declared inside a function. Only that
+            function&apos;s code can see it.
           </p>
         </Callout>
 
@@ -149,14 +155,15 @@ export default function JsLessonFourPage() {
             without ever worrying about collisions.
           </li>
           <li>
-            It&apos;s the foundation for a rule that&apos;s constantly tested in interviews: a
+            It&apos;s the foundation for a rule that is often tested in interviews: a
             function can look <em>outward</em> for variables, but never <em>sideways</em> into an
             unrelated function.
           </li>
           <li>
             It explains exactly when memory gets cleaned up after a function runs — and sets up the
             one deliberate exception to that rule, which is closures, one of the biggest topics
-            later in this course.
+            later in this course. A closure is a function that keeps access to the variables of the
+            place where it was created, even after that place has finished running.
           </li>
         </ul>
 
@@ -174,8 +181,8 @@ export default function JsLessonFourPage() {
             unrelated to either of the other two.
           </p>
           <p className="mb-0">
-            Three notepads, all happen to have a line labelled &ldquo;Room Number,&rdquo; and none
-            of them interfere with each other in the slightest.
+            There are three notepads. All of them have a line labelled &ldquo;Room Number,&rdquo; and
+            none of them affects the others.
           </p>
         </Callout>
 
@@ -184,7 +191,7 @@ export default function JsLessonFourPage() {
         <Callout kind="ok">
           <p className="mb-0">
             Output: <code>10</code>, then <code>100</code>, then <code>1</code> — three completely
-            different <code>roomNumber</code>s, three separate memory spots, zero interference.
+            different <code>roomNumber</code>s, three separate memory spots, no interference.
           </p>
         </Callout>
         <IsolationStepper />
@@ -223,10 +230,12 @@ export default function JsLessonFourPage() {
 
         <h2 id="rule1">Rule 1: Outward Yes, Sideways Never</h2>
         <p>
-          A function <strong>can</strong> see variables from the scope it was written inside —
-          that&apos;s the outer reference living in its Lexical Environment (Lesson 1). A function
-          can <strong>never</strong> see another function&apos;s local variables just because it
-          happened to run right before or after it.
+          A function <strong>can</strong> see variables from the scope it was written inside. A scope
+          is the part of the code where a name can be seen. This works because every context has a{" "}
+          <strong>Lexical Environment</strong>: its own local memory plus an{" "}
+          <strong>outer reference</strong>, which is a link to the Lexical Environment of the scope
+          around it (Lesson 7 explains this fully). A function can <strong>never</strong> see
+          another function&apos;s local variables just because it ran right before or after it.
         </p>
         <Script title="siblings.js" code={siblings} />
         <SiblingLookupStepper />
@@ -244,24 +253,27 @@ export default function JsLessonFourPage() {
         <h2 id="rule2">Rule 2: Fresh Every Time, Gone When Popped</h2>
         <p>
           The moment an Execution Context is popped off the call stack (Lesson 2), its entire
-          Variable Environment is discarded, and JS&apos;s garbage collector is free to reclaim
+          Variable Environment is discarded. The garbage collector, the part of the engine that
+          automatically frees memory that nothing can reach any more, is then free to reclaim
           that memory. Calling the same function 5 times in a row creates{" "}
           <strong>5 separate, independent</strong> Variable Environments — never shared, never
           reused.
         </p>
         <Callout kind="warn">
           <p className="mb-0">
-            There is exactly <strong>one</strong> deliberate exception to &ldquo;gone means
-            gone&rdquo; — it&apos;s called a <strong>closure</strong>, and it&apos;s one of the
-            biggest topics in this whole course. It gets its own full lesson later. For now, bank
-            the normal rule: once popped, thrown away, no exceptions.
+            There is one deliberate exception to &ldquo;gone means gone.&rdquo; It is called a{" "}
+            <strong>closure</strong>, and it gets its own lesson (Lesson 10). For now, remember the
+            normal rule: once popped, the memory is thrown away.
           </p>
         </Callout>
 
         <h2 id="params">Parameters Are Part Of The Variable Environment Too</h2>
         <p>
-          A parameter already has its real value the instant the function starts — during the
-          memory phase itself — because the value was already known at the call site. That&apos;s
+          A <strong>parameter</strong> is a name written in the function&apos;s brackets, like{" "}
+          <code>guestName</code> below. The value you pass in when you call the function is the{" "}
+          <strong>argument</strong>. A parameter already has its real value the instant the
+          function starts — during the memory phase itself — because the argument was already known
+          at the <strong>call site</strong> (the place in the code where the function is called). That&apos;s
           different from a plain <code>var</code> written inside the body, which still starts as{" "}
           <code>undefined</code>.
         </p>
@@ -314,14 +326,14 @@ export default function JsLessonFourPage() {
               The earlier <strong>Local</strong> bucket for <code>frontDesk</code> is completely
               gone from the panel now — a fresh <strong>Local</strong> bucket for{" "}
               <code>housekeeping</code> shows <code>roomNumber: 100</code> instead. Two separate
-              notepads, proven live.
+              notepads, shown live.
             </p>
           </li>
           <li>
             <h3>Check the Global bucket throughout</h3>
             <p>
               <code>roomNumber: 1</code> in the <strong>Global</strong> bucket never changes across
-              either breakpoint — proof neither function ever touched it.
+              either breakpoint. This shows that neither function touched it.
             </p>
           </li>
         </ol>
@@ -337,15 +349,15 @@ export default function JsLessonFourPage() {
         <Callout kind="bad">
           <p className="mb-0">
             <strong>&ldquo;A function can access a variable from a sibling function if it was called nearby.&rdquo;</strong>{" "}
-            Access only ever goes outward through the Lexical Environment&apos;s outer reference,
-            never sideways to another function&apos;s local scope, regardless of call order.
+            Access only goes outward through the Lexical Environment&apos;s outer reference,
+            never sideways to another function&apos;s local scope, whatever the call order is.
           </p>
         </Callout>
         <Callout kind="bad">
           <p className="mb-0">
             <strong>&ldquo;Function memory is always cleaned up immediately after the function returns, no exceptions.&rdquo;</strong>{" "}
-            True almost always — except when a closure keeps a live reference to that memory, which
-            prevents it from being thrown away. That&apos;s covered fully in its own lesson.
+            True almost always. The exception is when a closure keeps a reference to that memory, which
+            prevents it from being thrown away. Lesson 10 covers this.
           </p>
         </Callout>
 

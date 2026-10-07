@@ -73,7 +73,7 @@ const questions: [React.ReactNode, React.ReactNode][] = [
   ],
   [
     "Why doesn't typeof throw an error on an undeclared variable?",
-    <><code>typeof</code> is specifically designed to be a safe existence check — it returns the string <code>&quot;undefined&quot;</code> for both an empty declared variable and a never-declared one, instead of crashing.</>,
+    <><code>typeof</code> is built to be a safe existence check. It returns the string <code>&quot;undefined&quot;</code> for both a declared variable with no value and a never-declared name, instead of throwing. (It does still throw for a <code>let</code>/<code>const</code> in the Temporal Dead Zone.)</>,
   ],
   [
     "What's the practical difference between null and undefined?",
@@ -81,11 +81,11 @@ const questions: [React.ReactNode, React.ReactNode][] = [
   ],
   [
     "Is undefined truthy or falsy?",
-    <>Falsy — along with <code>null</code>, <code>0</code>, <code>&quot;&quot;</code>, <code>false</code>, and <code>NaN</code>.</>,
+    <>Falsy, which means it counts as <code>false</code> in a condition. The other falsy values are <code>null</code>, <code>0</code> (and <code>-0</code>), <code>0n</code>, <code>&quot;&quot;</code>, <code>false</code>, and <code>NaN</code>.</>,
   ],
   [
     "Why is JavaScript called a loosely typed language?",
-    "Because a variable's type isn't fixed at declaration — the same variable can hold a number, then a string, then a boolean, with no restriction, since the type is just whatever the current value happens to be.",
+    "Because a variable's type isn't fixed when you declare it. The same variable can hold a number, then a string, then a boolean, because the type belongs to the value the variable holds right now. (Strictly, this is called dynamic typing.)",
   ],
   [
     "Is it good practice to manually assign undefined to a variable?",
@@ -136,41 +136,43 @@ export default function JsLessonSixPage() {
         </p>
         <ul>
           <li>
-            <strong><code>undefined</code></strong> — a real value, meaning memory <em>was</em>{" "}
-            reserved for this name, but no value has been assigned to it yet.
+            <strong><code>undefined</code></strong> — <code>undefined</code> is a special value that means
+            &ldquo;this variable exists, but no value has been put in it yet.&rdquo; Memory <em>was</em>{" "}
+            reserved for the name.
           </li>
           <li>
-            <strong>&ldquo;not defined&rdquo;</strong> — not a value at all, but an error. It means
-            this name was never reserved in memory anywhere in scope, because it was never declared.
+            <strong>&ldquo;not defined&rdquo;</strong> — not a value at all, but an error message. It
+            means this name was never reserved in memory anywhere in scope, because it was never
+            declared. To <strong>declare</strong> a variable means to create its name with{" "}
+            <code>var</code>, <code>let</code> or <code>const</code>.
           </li>
         </ul>
         <Callout kind="note">
           <p className="mb-0">
             One is JavaScript telling you &ldquo;this exists, it&apos;s just empty right now.&rdquo;
             The other is JavaScript telling you &ldquo;this doesn&apos;t exist, and never
-            has.&rdquo; Confusing the two is one of the most common small misunderstandings in the
-            language — and a favourite thing for interviewers to probe.
+            has.&rdquo; Confusing the two is a common mistake, and interviewers like to ask about it.
           </p>
         </Callout>
 
         <h2 id="why">Why This Matters</h2>
         <ul>
           <li>
-            It&apos;s the direct payoff of Lesson 1&apos;s memory creation phase — this lesson is
-            where that phase&apos;s behaviour finally gets its two proper names and its two proper
-            outcomes.
+            It follows directly from Lesson 1&apos;s memory creation phase. This lesson gives the two
+            possible results of that phase their proper names.
           </li>
           <li>
             Knowing the difference tells you instantly whether a bug is a typo (undeclared variable)
             or a timing issue (declared but not yet assigned).
           </li>
           <li>
-            It sets up a genuinely useful defensive pattern — checking for a variable&apos;s
-            existence safely with <code>typeof</code>, without ever risking a crash.
+            It teaches a useful safe pattern: checking whether a variable exists with{" "}
+            <code>typeof</code>, without risking a crash. <code>typeof</code> is an operator (a
+            built-in word that works on a value) that returns the type of a value as a string.
           </li>
           <li>
-            It explains why JavaScript is called a loosely (or &ldquo;weakly&rdquo;) typed
-            language, and what that actually means in practice, not just as a buzzword.
+            It explains why JavaScript is called a loosely typed language, and what that means in
+            practice.
           </li>
         </ul>
 
@@ -196,8 +198,10 @@ export default function JsLessonSixPage() {
         <p>
           During the memory creation phase (Lesson 1), JS reserved a slot for{" "}
           <code>guestName</code> and filled it with the placeholder value <code>undefined</code> —
-          a real, legitimate value in JavaScript, not an error and not &ldquo;nothing.&rdquo; The
-          variable genuinely exists; it just hasn&apos;t been given a real value yet.
+          a real value in JavaScript, not an error. The variable exists; it just has no real value
+          yet. (The engine also gives you <code>undefined</code> when you read an object property
+          that does not exist, when you skip an argument in a function call, and when a function
+          has no <code>return</code> value.)
         </p>
 
         <h2 id="notdefined">Not Defined — Never Existed At All</h2>
@@ -205,7 +209,9 @@ export default function JsLessonSixPage() {
         <p>
           <code>mysteryGuest</code> was never declared anywhere in any reachable scope. No memory
           was ever reserved for it, so referencing it directly throws a{" "}
-          <strong>ReferenceError</strong> — a hard stop, not a value you can read.
+          <strong>ReferenceError</strong>. A ReferenceError is the error type JavaScript throws when
+          your code uses a name that it cannot find (or cannot use yet). It stops the program at that
+          line. It is not a value you can read.
         </p>
         <RoomBoard />
 
@@ -213,12 +219,15 @@ export default function JsLessonSixPage() {
         <Script title="typeof.js" code={typeofCode} />
         <Callout kind="ok">
           <p className="mb-0">
-            <code>typeof</code> is a genuine exception to the ReferenceError rule: checking the type
-            of a variable that was never declared at all still safely returns the string{" "}
-            <code>&quot;undefined&quot;</code>, instead of throwing. This makes <code>typeof</code>{" "}
-            a reliable way to check &ldquo;does this even exist?&rdquo; without risking a crash —
-            commonly used to detect whether an optional global (like a library loaded from a CDN)
-            is actually present.
+            <code>typeof</code> is an exception to the ReferenceError rule: checking the type
+            of a variable that was never declared still returns the string{" "}
+            <code>&quot;undefined&quot;</code> instead of throwing. This makes <code>typeof</code>{" "}
+            a safe way to ask &ldquo;does this exist?&rdquo; It is often used to detect whether an
+            optional global, such as a library loaded from a CDN (a server that delivers
+            files, like libraries, to web pages), is present. One limit: <code>typeof</code> still
+            throws for a <code>let</code> or <code>const</code> name that is in the Temporal Dead Zone
+            (Lesson 3). Also, <code>typeof null</code> is <code>&quot;object&quot;</code>, an old
+            mistake in the language that was never fixed.
           </p>
         </Callout>
 
@@ -234,22 +243,24 @@ export default function JsLessonSixPage() {
             </thead>
             <tbody>
               <tr><td><strong>Who sets it</strong></td><td>The engine, automatically</td><td>You, deliberately, in your own code</td></tr>
-              <tr><td><strong>Meaning</strong></td><td>&ldquo;Not yet assigned&rdquo;</td><td>&ldquo;Intentionally empty&rdquo;</td></tr>
+              <tr><td><strong>Meaning</strong></td><td>&ldquo;Not yet assigned&rdquo;</td><td>&ldquo;Intentionally empty&rdquo;: a value that means &ldquo;no object here&rdquo;</td></tr>
               <tr><td><strong>Typical use</strong></td><td>The default state before assignment</td><td>Explicitly clearing or resetting a value on purpose</td></tr>
             </tbody>
           </table>
         </div>
         <p>
-          Both represent &ldquo;nothing,&rdquo; but from opposite directions: <code>undefined</code>{" "}
+          Both mean &ldquo;nothing,&rdquo; but they come from different sides: <code>undefined</code>{" "}
           is what JS gives you by default when it hasn&apos;t been told anything yet.{" "}
-          <code>null</code> is what you hand back to JS yourself, on purpose, to say &ldquo;I know
+          <code>null</code> is what you give to JS yourself, on purpose, to say &ldquo;I know
           there&apos;s nothing here.&rdquo;
         </p>
 
         <h2 id="falsy">Where undefined Sits Among The Falsy Values</h2>
         <p>
           <code>undefined</code> is one of JavaScript&apos;s small set of <strong>falsy</strong>{" "}
-          values — values that behave like <code>false</code> inside a condition:
+          values. A falsy value is a value that counts as <code>false</code> inside a condition (a
+          test, like the one in an <code>if</code>). A value that counts as <code>true</code> is
+          called <strong>truthy</strong>.
         </p>
         <Script title="falsy.js" code={falsyIf} />
         <div className="table-wrap">
@@ -258,7 +269,7 @@ export default function JsLessonSixPage() {
               <tr><th>Falsy values in JavaScript</th></tr>
             </thead>
             <tbody>
-              <tr><td><code>undefined</code>, <code>null</code>, <code>0</code>, <code>&quot;&quot;</code> (empty string), <code>false</code>, <code>NaN</code></td></tr>
+              <tr><td><code>undefined</code>, <code>null</code>, <code>0</code> (and <code>-0</code>), <code>0n</code> (the BigInt zero), <code>&quot;&quot;</code> (empty string), <code>false</code>, <code>NaN</code> (&ldquo;Not a Number&rdquo;, the result of a failed number calculation)</td></tr>
             </tbody>
           </table>
         </div>
@@ -271,12 +282,15 @@ export default function JsLessonSixPage() {
         <h2 id="loose">Why JS Is Called Loosely Typed</h2>
         <Script title="loose.js" code={loose} />
         <p>
-          The same variable can hold a number, then a string, then a boolean, with no restriction
-          and no error. JavaScript is called <strong>loosely typed</strong> (or &ldquo;weakly
-          typed&rdquo;) precisely because of this — a variable&apos;s type isn&apos;t fixed at
-          declaration, it&apos;s just whatever the current value happens to be.{" "}
-          <code>undefined</code> is a natural part of this: it&apos;s simply another type a variable
-          can carry, same as any other.
+          The same variable can hold a number, then a string (text), then a boolean (<code>true</code>{" "}
+          or <code>false</code>), with no error. A <strong>type</strong> is the kind of a value, such
+          as number, string or boolean. JavaScript is called <strong>loosely typed</strong> because a
+          variable&apos;s type is not fixed when you declare it. The type belongs to the{" "}
+          <em>value</em> that the variable holds right now. (The exact words: types are checked while
+          the program runs, which is <em>dynamic typing</em>, and JavaScript converts types
+          automatically in some cases, for example <code>&quot;5&quot; * 2</code> gives{" "}
+          <code>10</code>, which is <em>weak typing</em>.) <code>undefined</code> is also a type, with
+          only one value.
         </p>
         <LooseTypingStepper />
 
@@ -284,12 +298,11 @@ export default function JsLessonSixPage() {
         <Script title="anti-pattern.js" code={anti} />
         <Callout kind="warn">
           <p className="mb-0">
-            <code>undefined</code> is meant to be the engine&apos;s own signal — &ldquo;nobody has
-            assigned this yet.&rdquo; Writing <code>= undefined</code> yourself blurs that signal:
-            now you can&apos;t tell whether it&apos;s empty because nobody got to it yet, or
-            because someone deliberately reset it. If you want to represent &ldquo;intentionally
-            empty&rdquo; in your own code, reach for <code>null</code> instead — that&apos;s
-            exactly what it&apos;s for.
+            <code>undefined</code> is meant to be the engine&apos;s own signal: &ldquo;nobody has
+            assigned this yet.&rdquo; If you write <code>= undefined</code> yourself, the signal
+            becomes unclear: you can&apos;t tell whether the variable is empty because nobody set it
+            yet, or because someone reset it on purpose. If you want to say &ldquo;intentionally
+            empty&rdquo; in your own code, use <code>null</code>. That is what it is for.
           </p>
         </Callout>
 
@@ -311,8 +324,8 @@ export default function JsLessonSixPage() {
           <li>
             <h3><code>console.log(typeof unknownX)</code></h3>
             <p>
-              Prints <code>&quot;undefined&quot;</code> — safe, because <code>typeof</code> never
-              throws, even on a name that was never declared.
+              Prints <code>&quot;undefined&quot;</code> — safe, because <code>typeof</code> does not
+              throw on a name that was never declared.
             </p>
           </li>
           <li>
@@ -332,7 +345,7 @@ export default function JsLessonSixPage() {
         <ol className="steps">
           <li>
             <h3>Open the console</h3>
-            <p>Any page → DevTools (F12) → Console tab.</p>
+            <p>Any page → DevTools (the debugging tools built into the browser, opened with F12) → Console tab.</p>
           </li>
           <li>
             <h3>Declare without assigning</h3>
@@ -349,9 +362,9 @@ export default function JsLessonSixPage() {
           <li>
             <h3>Set a breakpoint before any declarations run</h3>
             <p>
-              Open the Scope panel — you&apos;ll see <code>guestName</code> already listed under
-              Global with the value <code>undefined</code>, even before its line has executed,
-              direct proof of the memory creation phase from Lesson 1.
+              Open the Scope panel. You&apos;ll see <code>guestName</code> already listed under
+              Global with the value <code>undefined</code>, even before its line has run. This
+              shows the memory creation phase from Lesson 1.
             </p>
           </li>
         </ol>
@@ -376,9 +389,9 @@ export default function JsLessonSixPage() {
         <Callout kind="bad">
           <p className="mb-0">
             <strong>&ldquo;Checking a variable directly is just as safe as using typeof.&rdquo;</strong>{" "}
-            Only if you&apos;re certain it was declared somewhere. For anything that might not
-            exist at all — an optional global, a variable from another script —{" "}
-            <code>typeof</code> is the crash-proof way to check.
+            Only if you are sure it was declared somewhere. For anything that might not
+            exist at all, such as an optional global or a variable from another script,{" "}
+            <code>typeof</code> is the safe way to check.
           </p>
         </Callout>
 

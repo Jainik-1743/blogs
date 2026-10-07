@@ -60,15 +60,15 @@ greet(); // undefined in strict mode (would be window without 'use strict')`;
 const questions: [React.ReactNode, React.ReactNode][] = [
   [
     "What gets created even in a completely empty JS file?",
-    <>A Global Execution Context, its Variable Environment, a global object, and a <code>this</code> binding pointing at that global object.</>,
+    <>A Global Execution Context (the first container the engine creates to run code), its Variable Environment (its memory), a global object (the one object that holds global names), and a <code>this</code> keyword pointing at that global object.</>,
   ],
   [
     "What is the global object called in a browser vs. in Node.js?",
-    <><code>window</code> in a browser, <code>global</code> in Node.js — and <code>globalThis</code> works as a universal name in any environment.</>,
+    <><code>window</code> in a browser, <code>global</code> in Node.js, and <code>self</code> in a Web Worker. <code>globalThis</code> works as a universal name in any environment.</>,
   ],
   [
     <>At the top level, what does <code>this</code> equal?</>,
-    <>The global object — in a browser, <code>this === window</code>.</>,
+    <>The global object. In a browser classic script, <code>this === window</code>. (In an ES module it is <code>undefined</code>.)</>,
   ],
   [
     <>If two separate <code>&lt;script&gt;</code> tags both declare <code>var count</code>, do they conflict?</>,
@@ -80,7 +80,7 @@ const questions: [React.ReactNode, React.ReactNode][] = [
   ],
   [
     <>Why was <code>globalThis</code> introduced if <code>window</code> already existed?</>,
-    <>Because <code>window</code> only exists in browsers — code meant to run in Node.js or Web Workers needed one name that resolves correctly everywhere, which <code>globalThis</code> provides.</>,
+    <>Because <code>window</code> only exists in the main browser thread. Code meant to run in Node.js or Web Workers needed one name that works everywhere, and <code>globalThis</code> is that name.</>,
   ],
 ];
 
@@ -123,12 +123,44 @@ export default function JsLessonFivePage() {
         <h2 id="concept">Concept</h2>
         <p>
           Before you write a single line of code, JavaScript has already done real work: it created
-          a Global Execution Context (Lesson 1), and inside it, two things you haven&apos;t asked
+          a Global Execution Context (Lesson 1), and inside it, two things you didn&apos;t ask
           for — a <strong>global object</strong>, and a keyword called <strong><code>this</code></strong>{" "}
           that points straight at it. This lesson is entirely about those two things: what
-          they&apos;re called, how they relate, and the one rule that quietly flips depending on
-          strict mode.
+          they&apos;re called, how they relate, and the one rule that changes in strict mode.
         </p>
+        <h3>Key terms, explained simply</h3>
+        <ul>
+          <li>
+            <strong>Global object</strong> is the one object the engine creates for the whole program.
+            Every global <code>var</code> and every top-level function becomes a property of it, and
+            built-in tools such as <code>console</code> and <code>setTimeout</code> are found on it.
+            An <strong>object</strong> is a collection of named values, and each name and value pair
+            is a <strong>property</strong>.
+          </li>
+          <li>
+            <strong><code>this</code></strong> is a keyword (a reserved word with a special meaning)
+            that gives your code access to an object. Which object depends on how and where the code
+            runs. At the top level it is the global object.
+          </li>
+          <li>
+            <strong>Strict mode</strong> is an optional setting that makes JavaScript stricter. You
+            turn it on by writing <code>&apos;use strict&apos;;</code> at the top of a script or
+            function. It turns some silent mistakes into errors and changes a few rules, such as the
+            value of <code>this</code> in a plain function call.
+          </li>
+          <li>
+            <strong>Environment</strong> (or runtime) is the place where JavaScript runs and the
+            tools that place gives it. The main ones are a <strong>browser</strong>,{" "}
+            <strong>Node.js</strong> (a program that runs JavaScript outside a browser, for example on
+            a server) and a <strong>Web Worker</strong> (a script that runs in the background of a web
+            page, on its own thread, separate from the page).
+          </li>
+          <li>
+            <strong>Plain function call</strong> means calling a function by its name alone, like{" "}
+            <code>greet()</code>, not as a method (<code>obj.greet()</code>) and not with{" "}
+            <code>call</code>, <code>apply</code> or <code>bind</code>. Lesson 5 only needs this case.
+          </li>
+        </ul>
 
         <h2 id="why">Why This Matters</h2>
         <ul>
@@ -153,16 +185,16 @@ export default function JsLessonFivePage() {
         <h2 id="hotel">The Hotel Before Any Guest Arrives — An Analogy</h2>
         <Callout kind="note" label="The building exists before anyone checks in">
           <p>
-            Picture a brand-new hotel on its very first day, before a single guest has arrived. The
+            Picture a brand-new hotel on its first day, before any guest has arrived. The
             building already exists — a reception counter, an address, a lobby. Nobody built that
-            because of a guest request; it&apos;s just there, guaranteed, the moment the hotel opens.
+            because of a guest request. It is just there, the moment the hotel opens.
           </p>
           <p className="mb-0">
             Now imagine someone walks into the empty lobby and asks &ldquo;who&apos;s in charge
-            here?&rdquo; With no specific guest being addressed, the answer defaults to whoever&apos;s
-            standing at the front desk — the receptionist herself. That default answer is exactly
-            what <code>this</code> is, at the global level: when nothing else has been specified,
-            it defaults to the building&apos;s own front desk, the global object.
+            here?&rdquo; No specific guest is being addressed, so the answer is the person at the
+            front desk. That default answer is what <code>this</code> is at the global level: when
+            nothing else is specified, it points to the building&apos;s own front desk, the global
+            object.
           </p>
         </Callout>
 
@@ -176,17 +208,16 @@ export default function JsLessonFivePage() {
         <EmptyFileStepper />
         <Callout kind="note">
           <p className="mb-0">
-            None of this depends on you writing code. It&apos;s guaranteed infrastructure the engine
-            sets up the instant a program starts running — proof that the global object and{" "}
-            <code>this</code> aren&apos;t things your code creates, they&apos;re things you&apos;re
-            handed.
+            None of this depends on you writing code. The engine always sets it up when a program
+            starts. So the global object and <code>this</code> are not things your code creates.
+            They are given to you.
           </p>
         </Callout>
 
         <h2 id="names">One Object, Many Names</h2>
         <p>
-          The global object is the same idea everywhere, but different JavaScript environments call
-          it by different names:
+          The global object is the same idea everywhere, but different JavaScript environments give
+          it different names:
         </p>
         <div className="table-wrap">
           <table>
@@ -199,42 +230,52 @@ export default function JsLessonFivePage() {
             <tbody>
               <tr><td>Browser</td><td><code>window</code></td></tr>
               <tr><td>Node.js</td><td><code>global</code></td></tr>
-              <tr><td>Web Worker</td><td><code>self</code></td></tr>
+              <tr><td>Web Worker (and service worker)</td><td><code>self</code></td></tr>
               <tr><td>Universal (any environment)</td><td><code>globalThis</code></td></tr>
             </tbody>
           </table>
         </div>
         <p>
-          The naming inconsistency was annoying enough that JS added{" "}
-          <strong><code>globalThis</code></strong> — one name guaranteed to work in any environment,
-          browser or Node or otherwise.
+          Because the names differed, JavaScript added{" "}
+          <strong><code>globalThis</code></strong> in 2020 (ES2020). It is one name that works in
+          any environment, whether browser, Node or other.
         </p>
         <GlobalNames />
 
         <h2 id="thiswindow">this === window At The Top Level</h2>
         <Script title="routes.js" code={routes} />
         <p>
-          All three print the same value. <code>var</code> at the global level attaches{" "}
-          <code>x</code> directly onto <code>window</code> (Lesson 3&apos;s Object Environment
-          Record), and <code>this</code> at the global level is simply a pointer to that same{" "}
-          <code>window</code> object. Three different routes to the exact same box.
+          All three print the same value. A <code>var</code> at the global level becomes a property{" "}
+          <code>x</code> of <code>window</code> (Lesson 3&apos;s Object Environment
+          Record), and <code>this</code> at the global level points to that same{" "}
+          <code>window</code> object. These are three routes to the same box. This is true in a
+          browser script. See the note below for Node.js and modules.
         </p>
         <ThreeRoutesStepper />
+        <Callout kind="warn" label="Not every top level works this way">
+          <p className="mb-0">
+            In a browser <code>&lt;script type=&quot;module&quot;&gt;</code> (an ES module), the top-level{" "}
+            <code>this</code> is <code>undefined</code>, and a top-level <code>var</code> does not become a
+            property of <code>window</code>. In a Node.js file, a top-level <code>var</code> stays private to
+            that file, and the top-level <code>this</code> is <code>module.exports</code> (an empty object at
+            first), not <code>global</code>. This lesson&apos;s examples are for a classic browser script.
+          </p>
+        </Callout>
 
         <h2 id="shared">The Shared Register — Multiple Script Tags</h2>
         <p>
-          Here&apos;s the part that&apos;s easy to miss: if a page loads{" "}
+          This part is easy to miss. A <code>&lt;script&gt;</code> tag is the HTML tag that loads
+          JavaScript into a page. If a page loads{" "}
           <strong>two separate <code>&lt;script&gt;</code> tags</strong>, they don&apos;t get their
-          own private globals — they share the exact same <code>window</code>.
+          own private globals. They share the same <code>window</code>.
         </p>
         <Script title="index.html" code={shared} />
         <SharedWindowStepper />
         <Callout kind="warn">
           <p className="mb-0">
-            A <code>var</code> declared in the first tag is completely visible — and overwritable —
-            from the second. This is the exact same &ldquo;public noticeboard&rdquo; collision risk
-            from Lesson 3, just proven at the level of whole <code>&lt;script&gt;</code> tags
-            instead of individual functions.
+            A <code>var</code> declared in the first tag can be read, and overwritten, from the second.
+            This is the same &ldquo;public noticeboard&rdquo; collision risk from Lesson 3, shown
+            across whole <code>&lt;script&gt;</code> tags.
           </p>
         </Callout>
 
@@ -251,7 +292,7 @@ export default function JsLessonFivePage() {
             </thead>
             <tbody>
               <tr>
-                <td>Top level of a script</td>
+                <td>Top level of a classic script</td>
                 <td><code>this</code> = <code>window</code></td>
                 <td><code>this</code> = <code>window</code> (unchanged)</td>
               </tr>
@@ -264,18 +305,18 @@ export default function JsLessonFivePage() {
           </table>
         </div>
         <p>
-          <code>&apos;use strict&apos;</code> does not touch <code>this</code> at the very top of a
-          script — it&apos;s <code>window</code> either way. What it changes is <code>this</code>{" "}
-          inside a plain function call with no owner — normally that also defaults to{" "}
-          <code>window</code>, but strict mode deliberately makes it <code>undefined</code> instead,
-          specifically to stop functions from accidentally writing onto the global object.
+          <code>&apos;use strict&apos;</code> does not change <code>this</code> at the very top of a
+          script. It is <code>window</code> either way. What it changes is <code>this</code>{" "}
+          inside a plain function call (a call with no owner object). Normally that also defaults to{" "}
+          <code>window</code>, but strict mode makes it <code>undefined</code> instead. This stops
+          functions from accidentally writing onto the global object.
         </p>
 
         <h2 id="live">See It Live — Console &amp; DevTools</h2>
         <ol className="steps">
           <li>
             <h3>Open the browser console</h3>
-            <p>Any page → DevTools (F12) → Console tab.</p>
+            <p>Any page → DevTools (the debugging tools built into the browser, opened with F12) → Console tab.</p>
           </li>
           <li>
             <h3>Confirm the identity directly</h3>
@@ -302,9 +343,9 @@ export default function JsLessonFivePage() {
         <Callout kind="bad">
           <p className="mb-0">
             <strong>&ldquo;<code>this</code> always refers to the current function.&rdquo;</strong>{" "}
-            At the global level, <code>this</code> refers to the global object — it has nothing to
-            do with any function yet. The full call-site-dependent rules for <code>this</code>{" "}
-            inside functions and methods are covered in their own lesson.
+            At the global level, <code>this</code> refers to the global object. No function is
+            involved yet. The full rules for <code>this</code> inside functions and methods depend
+            on how the function is called, and they are covered in their own lesson.
           </p>
         </Callout>
         <Callout kind="bad">
@@ -317,8 +358,8 @@ export default function JsLessonFivePage() {
         <Callout kind="bad">
           <p className="mb-0">
             <strong>&ldquo;Each <code>&lt;script&gt;</code> tag gets its own separate global scope.&rdquo;</strong>{" "}
-            They don&apos;t — every <code>&lt;script&gt;</code> tag on the same page shares one
-            single <code>window</code> object, which is exactly how global variables leak and
+            They don&apos;t. Every classic <code>&lt;script&gt;</code> tag on the same page shares one
+            <code>window</code> object, which is how global variables leak and
             collide across them.
           </p>
         </Callout>

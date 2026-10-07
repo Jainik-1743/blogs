@@ -73,7 +73,7 @@ const trace = `Uncaught RangeError: Maximum call stack size exceeded
 const questions: [string, React.ReactNode][] = [
   [
     "What is the Call Stack, and why does it matter that JS is single-threaded?",
-    "The structure that tracks which Execution Context is currently running. Because JS is single-threaded, only one context can ever be on top and running at a time.",
+    "The call stack is a stack (a list where you add and remove only at the top) that tracks which Execution Context is running now. Because JS is single-threaded (it has only one path of work), only one context can be on top and running at a time.",
   ],
   [
     "What are the two operations on the stack, and when does each happen?",
@@ -85,7 +85,7 @@ const questions: [string, React.ReactNode][] = [
   ],
   [
     "What causes “Maximum call stack size exceeded,” and what's this commonly called?",
-    "Pushing far more Execution Contexts than the stack has room for, usually from recursion with no stopping point — commonly called a stack overflow.",
+    "Pushing more Execution Contexts than the stack has room for, usually from recursion (a function calling itself) with no stopping point. This is commonly called a stack overflow.",
   ],
   [
     "If the same function is called 3 separate times, how many Execution Contexts are created in total?",
@@ -143,22 +143,25 @@ export default function JsLessonTwoPage() {
       <div className="lesson">
         <h2 id="concept">Concept</h2>
         <p>
-          JavaScript is <strong>single-threaded</strong> — one worker, one task, one moment. But
-          your code is full of functions calling other functions calling other functions. So how
-          does the engine always know exactly which piece of code is running right now, and where
-          to go back to once it&apos;s done?
+          JavaScript is <strong>single-threaded</strong>. A thread is one path of work that a program
+          follows, one step at a time. Single-threaded means JavaScript has only one such path: one
+          worker, one task, one moment. But your code is full of functions that call other
+          functions. So how does the engine always know which piece of code is running right now,
+          and where to go back to when it is done?
         </p>
         <p>
-          The answer is a structure called the <strong>Call Stack</strong>. Every Execution
-          Context you met in Lesson 1 doesn&apos;t just float around on its own — it gets placed
-          on this stack, and the engine only ever runs whatever sits on <strong>top</strong>.
+          The answer is a structure called the <strong>Call Stack</strong>. The call stack is a
+          stack (a list where you only add and remove items at the top) that records which
+          Execution Context is running now and which ones are waiting. An Execution Context (Lesson
+          1) is the container the engine creates to run a piece of code. Every context is placed on
+          this stack, and the engine only ever runs the one on <strong>top</strong>.
         </p>
         <Callout kind="note">
           <p className="mb-0">
             &ldquo;Stack&rdquo; here means exactly what it means with a stack of plates. You can
-            only add a plate to the top, and you can only take the top plate off. You can&apos;t
-            pull one out from the middle without everything above it toppling. JavaScript&apos;s
-            Call Stack follows that exact same rule.
+            only add a plate to the top, and you can only take the top plate off. You cannot
+            pull one out from the middle without moving everything above it. JavaScript&apos;s
+            Call Stack follows that same rule.
           </p>
         </Callout>
 
@@ -170,16 +173,17 @@ export default function JsLessonTwoPage() {
           </li>
           <li>
             It&apos;s directly responsible for the famous{" "}
-            <code>Maximum call stack size exceeded</code> error — and for why that error&apos;s
-            common nickname is a &ldquo;stack overflow.&rdquo;
+            <code>Maximum call stack size exceeded</code> error. This error is commonly called a
+            &ldquo;stack overflow.&rdquo;
           </li>
           <li>
             It&apos;s what lets you read an error&apos;s stack trace and know exactly which
             function called which, in what order, right up to the crash.
           </li>
           <li>
-            It&apos;s the foundation for the Event Loop, much later in this course — the event
-            loop&apos;s entire job is watching whether this stack is empty or not.
+            It&apos;s the foundation for the Event Loop, much later in this course. The event loop is a
+            mechanism that watches the call stack and, when the stack is empty, moves the next
+            waiting task onto it. Its whole job depends on knowing whether the stack is empty.
           </li>
         </ul>
 
@@ -187,7 +191,7 @@ export default function JsLessonTwoPage() {
         <Callout kind="note" label="One receptionist, one tray">
           <p>
             A hotel has <strong>one receptionist</strong> on the desk — one worker, one task at a
-            time, exactly like JavaScript. She keeps a tray on her desk for index cards.
+            time, exactly like JavaScript. She keeps a tray on her desk for index cards. The tray is the call stack and each card is one Execution Context.
           </p>
           <p>
             Her shift starts → she drops in a card: <strong>&ldquo;Run the Front Desk Today.&rdquo;</strong>{" "}
@@ -268,14 +272,21 @@ export default function JsLessonTwoPage() {
         </ul>
         <p>
           Together, push and pop make the stack <strong>LIFO — Last In, First Out.</strong>{" "}
-          Whatever was pushed most recently is always the very first thing to get popped.
+          Whatever was pushed most recently is always the first thing to get popped.
         </p>
         <PushPop />
+        <Callout kind="note" label="Stack vs. queue, in one line">
+          <p className="mb-0">
+            A <strong>stack</strong> is Last In, First Out (the newest item leaves first, like a pile
+            of plates). A <strong>queue</strong> is First In, First Out (the oldest item leaves first,
+            like people waiting in a line). The call stack is a stack. Lesson 14 introduces a queue.
+          </p>
+        </Callout>
 
         <h2 id="sits">What Actually Sits On The Stack</h2>
         <p>
-          Quick recap from Lesson 1, because it matters here:{" "}
-          <strong>Execution Context (EC)</strong> is the general term.{" "}
+          A quick recap from Lesson 1, because it matters here:{" "}
+          <strong>Execution Context (EC)</strong> is the general term for the container that runs a piece of code.{" "}
           <strong>Global Execution Context (GEC)</strong> is just one specific EC — the first one,
           created automatically, sitting at the very bottom. Every function call creates another
           specific kind, a <strong>Function Execution Context</strong>, which gets pushed above
@@ -384,15 +395,18 @@ export default function JsLessonTwoPage() {
 
         <h2 id="overflow">Stack Overflow — When The Tray Runs Out</h2>
         <p>
-          The tray isn&apos;t infinite — the stack has a fixed amount of memory set aside for it.
-          If a function keeps calling itself with no stopping point, cards keep getting pushed, one
-          after another, with nothing ever being popped in between:
+          The tray isn&apos;t infinite — the stack has a fixed amount of memory set aside for it. The
+          limit depends on the engine and on how big each call is. In Node.js, a very small function
+          usually reaches it after roughly ten thousand calls. <strong>Recursion</strong> means a
+          function that calls itself. If a function keeps calling itself with no stopping point,
+          cards keep getting pushed, one after another, with nothing popped in between:
         </p>
         <Script title="overflow.js" code={overflow} />
         <p>
           Each call is still waiting on the next one to finish before it can finish itself, so
-          nothing ever gets popped — the tray just keeps growing. Eventually there&apos;s genuinely
-          no more room, and JS throws:
+          nothing ever gets popped — the tray just keeps growing. Eventually there is no
+          more room, and JavaScript throws a <strong>RangeError</strong> (the error type JavaScript
+          uses when a value or size is outside the allowed range):
         </p>
         <Callout kind="bad">
           <p className="mb-0"><code>RangeError: Maximum call stack size exceeded</code></p>
@@ -409,16 +423,16 @@ export default function JsLessonTwoPage() {
 
         <h2 id="trace">Reading A Real Stack Trace</h2>
         <p>
-          When an error is thrown, JS prints a <strong>stack trace</strong> — and it&apos;s exactly
-          what the name says: a printout of what was still sitting on the Call Stack at the moment
-          things broke.
+          When an error is thrown, JS prints a <strong>stack trace</strong>. A stack trace is a printed
+          list of what was on the Call Stack at the moment the error happened. Each line is one
+          frame, which means one function call that was still waiting.
         </p>
         <Script title="console" code={trace} />
         <p>
           Read it <strong>top to bottom</strong>: the top line is exactly where you were standing
           the instant it broke — the most recent, deepest call. Each line below it is one card
-          further down the tray, walking back toward Global at the very bottom (most engines cut
-          the printout off after a limited number of frames, since there could be thousands).
+          further down the tray, walking back toward Global at the very bottom (Chrome and Node.js, which both use the V8 engine, show at most 10 frames by default,
+          because there could be thousands).
         </p>
         <StackTraceMap />
 
@@ -435,6 +449,10 @@ export default function JsLessonTwoPage() {
           </li>
           <li>
             <h3>Launch with the inspector</h3>
+            <p>
+              The inspector is Node&apos;s built-in debugging connection. The <code>-brk</code> part
+              makes Node pause before the first line.
+            </p>
             <Script title="terminal" code="node --inspect-brk stack.js" />
           </li>
           <li>
@@ -448,7 +466,9 @@ export default function JsLessonTwoPage() {
             <h3>Step into every call</h3>
             <p>
               Use Step Into (not Step Over) on <code>bookRoom(...)</code> and{" "}
-              <code>checkAvailability(...)</code>.
+              <code>checkAvailability(...)</code>. Step Into means &ldquo;go inside the function that
+              is called on this line.&rdquo; Step Over means &ldquo;run the whole call and stop at the
+              next line.&rdquo;
             </p>
           </li>
           <li>
@@ -483,23 +503,23 @@ export default function JsLessonTwoPage() {
         <Callout kind="bad">
           <p className="mb-0">
             <strong>&ldquo;The call stack and the memory heap are the same thing.&rdquo;</strong>{" "}
-            They&apos;re not. The heap is a separate area where objects and functions actually
-            live in memory. The call stack only tracks the <em>order</em> of what&apos;s currently
-            running — it&apos;s a to-do tray, not a warehouse.
+            They&apos;re not. The heap is a separate, large area of memory where objects and functions are
+            stored. The call stack only tracks the <em>order</em> of what is running now. It is a
+            to-do tray, not a warehouse.
           </p>
         </Callout>
         <Callout kind="bad">
           <p className="mb-0">
             <strong>&ldquo;Recursion is dangerous and should be avoided.&rdquo;</strong> Recursion
             itself is completely normal and used constantly. The danger is only recursion with no
-            base case, or one that legitimately needs more depth than the stack can hold.
+            base case, or one that really needs more depth than the stack can hold.
           </p>
         </Callout>
         <Callout kind="bad">
           <p className="mb-0">
             <strong>&ldquo;The stack keeps a record of every function that ever ran.&rdquo;</strong>{" "}
-            The opposite is true — the moment an EC is popped, it and its memory are thrown away
-            completely. Nothing is kept around afterward.
+            The opposite is true. The moment an EC is popped, it and its memory are thrown away
+            completely. Nothing is kept afterward (except by a closure, Lesson 10).
           </p>
         </Callout>
 
