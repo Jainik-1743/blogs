@@ -111,11 +111,19 @@ const ENTRIES: GlossaryEntry[] = [
   { term: "slow and fast pointers", aliases: ["slow/fast", "fast and slow", "tortoise and hare", "Slow and fast pointers"], full: "Slow and fast pointers", desc: "Two pointers that move at different speeds, usually 1 and 2 steps. They find the middle of a list in one pass and detect cycles.", lesson: 36, group: "Linked lists" },
   { term: "cycle", aliases: ["cycles"], full: "Cycle", desc: "A loop in a linked list: some node points back to an earlier node, so walking never reaches null.", lesson: 36, group: "Linked lists" },
   { term: "Floyd's algorithm", aliases: ["Floyd", "Floyd's cycle detection"], full: "Floyd's cycle detection", desc: "Slow and fast pointers in a cycle: fast gains one step per round on slow, so they must meet. A second phase from the head finds where the cycle starts. O(1) memory.", lesson: 36, group: "Linked lists" },
+  // ── Stacks and queues ─────────────────────────────────────────────────
+  { term: "stack", aliases: ["stacks", "Stack"], full: "Stack", desc: "A pile where you add and remove only at the top: last in, first out. An array used with push and pop is a stack, and so is the call stack of function calls.", lesson: 38, group: "Stacks and queues" },
+  { term: "LIFO", aliases: ["last in, first out"], full: "Last in, first out", desc: "The stack rule: the most recently added item is the first to be removed.", lesson: 38, group: "Stacks and queues" },
+  { term: "queue", aliases: ["queues", "Queue"], full: "Queue", desc: "A line where items are added at the back and removed from the front: first in, first out.", lesson: 39, group: "Stacks and queues" },
+  { term: "FIFO", aliases: ["first in, first out"], full: "First in, first out", desc: "The queue rule: the item that has waited longest leaves first.", lesson: 39, group: "Stacks and queues" },
+  { term: "deque", aliases: ["deques", "Deque"], full: "Deque", desc: "A double-ended queue: items can be added and removed at both the front and the back.", lesson: 39, group: "Stacks and queues" },
+  { term: "amortised", aliases: ["amortized", "Amortised"], full: "Amortised cost", desc: "The average cost per operation over a whole sequence. One call may be expensive, but if the expensive work is paid for by many cheap calls, the average stays low.", lesson: 39, group: "Stacks and queues" },
+  { term: "monotonic stack", aliases: ["Monotonic stack", "monotonic deque"], full: "Monotonic stack", desc: "A stack kept in sorted order (always increasing or always decreasing) by popping items that can no longer matter. Used for next greater element and similar questions in O(n).", lesson: 40, group: "Stacks and queues" },
 ];
 
 export const DSA_GLOSSARY: Glossary = {
   series: "dsa",
   seriesTitle: "DSA for Interviews, From Zero",
-  groups: ["Basics", "Loops", "Functions", "Collections", "Problem solving", "Maths", "Recursion and hashing", "Sorting", "Array patterns", "Hashing and binary search", "Strings, recursion and backtracking", "Linked lists"],
+  groups: ["Basics", "Loops", "Functions", "Collections", "Problem solving", "Maths", "Recursion and hashing", "Sorting", "Array patterns", "Hashing and binary search", "Strings, recursion and backtracking", "Linked lists", "Stacks and queues"],
   entries: ENTRIES,
 };
