@@ -10,16 +10,16 @@ export default function Questions() {
         level="Easy"
         examples={[
           { input: "[1, 2, 4] and [1, 3, 4]", output: "[1, 1, 2, 3, 4, 4]", why: "Always take the smaller front node." },
-          { input: "[] and [0]", output: "[0]", why: "An empty list contributes nothing." },
+          { input: "[] and [0]", output: "[0]", why: "An empty list adds nothing." },
         ]}
         hints={[
-          <>Compare the two front nodes and attach the smaller one. A dummy head removes the first-node special case.</>,
-          <>When one list ends, the other one can be attached whole.</>,
+          <>Compare the two front nodes and attach the smaller one. A dummy head (a fake first node) means the first node needs no special handling.</>,
+          <>When one list ends, you can attach the whole of the other list.</>,
         ]}
         approaches={[
           {
             name: "Iterative with a dummy head",
-            idea: <p>Keep a <code>tail</code>. Attach the smaller front node, advance that list, advance <code>tail</code>. Attach the leftover at the end.</p>,
+            idea: <p>Keep a <code>tail</code>. Attach the smaller front node, move that list forward, and move <code>tail</code> forward. At the end, attach whatever is left.</p>,
             code: `function mergeTwoLists(a, b) {
   const dummy = new ListNode(0);
   let tail = dummy;
@@ -38,7 +38,7 @@ console.log(toArray(mergeTwoLists(fromArray([]), fromArray([0]))));             
           },
           {
             name: "Recursive",
-            idea: <p>The smaller head stays; its <code>next</code> becomes the merge of the rest.</p>,
+            idea: <p>The smaller head stays at the front. Its <code>next</code> becomes the merge of the rest.</p>,
             code: `function mergeTwoLists(a, b) {
   if (a === null) return b;
   if (b === null) return a;
@@ -48,12 +48,12 @@ console.log(toArray(mergeTwoLists(fromArray([]), fromArray([0]))));             
 }
 
 console.log(toArray(mergeTwoLists(fromArray([1, 2, 4]), fromArray([1, 3, 4])))); // [1, 1, 2, 3, 4, 4]`,
-            explain: <p>Very short, but O(m + n) stack space.</p>,
+            explain: <p>The code is very short, but it uses O(m + n) stack space (memory for unfinished function calls).</p>,
           },
         ]}
-        compare={<p>The iterative one for production-like code; the recursive one is a fine second answer. (LeetCode 21.)</p>}
+        compare={<p>Use the loop version for real-world code. The recursive version is a good second answer. (LeetCode 21.)</p>}
       >
-        <p>Merge two sorted linked lists into one sorted list by relinking their nodes, and return its head.</p>
+        <p>Join two sorted linked lists into one sorted list by changing the links of their nodes. Return its head.</p>
       </Problem>
 
       <Problem
@@ -61,17 +61,17 @@ console.log(toArray(mergeTwoLists(fromArray([1, 2, 4]), fromArray([1, 3, 4]))));
         title="Linked list cycle II"
         level="Medium"
         examples={[
-          { input: "[3, 2, 0, -4], tail points to the node with value 2", output: "node 2", why: "The loop begins at the second node." },
+          { input: "[3, 2, 0, -4], tail points to the node with value 2", output: "node 2", why: "The loop starts at the second node." },
           { input: "[1, 2], no loop", output: "null", why: "There is no cycle." },
         ]}
         hints={[
-          <>First detect that a cycle exists with slow and fast. Where they meet is somewhere inside the loop.</>,
-          <>A pointer from the head and a pointer from the meeting point, moving at the same speed, meet at the loop start.</>,
+          <>First, use slow and fast pointers to check that a cycle exists. The place where they meet is somewhere inside the loop.</>,
+          <>Start one pointer at the head and one at the meeting point. Move them at the same speed. They meet at the start of the loop.</>,
         ]}
         approaches={[
           {
             name: "Set of visited nodes",
-            idea: <p>The first node you reach for the second time is the start of the cycle.</p>,
+            idea: <p>The first node that you reach a second time is the start of the cycle.</p>,
             code: `function detectCycle(head) {
   const seen = new Set();
   for (let c = head; c !== null; c = c.next) {
@@ -91,8 +91,8 @@ console.log(detectCycle(fromArray([1]))); // null`,
             name: "Floyd's two phases",
             idea: (
               <ol>
-                <li>Slow and fast until they meet (no meeting means no cycle).</li>
-                <li>Start a pointer at the head; move it and slow one step at a time until they are equal.</li>
+                <li>Move slow and fast until they meet. If they never meet, there is no cycle.</li>
+                <li>Start a pointer at the head. Move it and slow one step at a time until they are at the same node.</li>
               </ol>
             ),
             code: `function detectCycle(head) {
@@ -112,10 +112,10 @@ console.log(detectCycle(fromArray([1]))); // null`,
 const a = fromArray([3, 2, 0, -4]);
 a.next.next.next.next = a.next;
 console.log(detectCycle(a).val); // 2`,
-            explain: <p>O(n) time, O(1) space. The distance from the head to the loop start equals the distance from the meeting point onwards to the loop start, modulo whole laps (the proof is in the lesson).</p>,
+            explain: <p>O(n) time, O(1) space. The distance from the head to the loop start is the same as the distance from the meeting point to the loop start, if you ignore whole laps around the loop. (The proof is in the lesson.)</p>,
           },
         ]}
-        compare={<p>Start with the Set, upgrade to Floyd&apos;s when asked for O(1) space. (LeetCode 142.)</p>}
+        compare={<p>Start with the Set. Switch to Floyd&apos;s version when the interviewer asks for O(1) space. (LeetCode 142.)</p>}
       >
         <p>Return the node where the cycle begins, or <code>null</code> if there is no cycle.</p>
       </Problem>
@@ -130,13 +130,13 @@ console.log(detectCycle(a).val); // 2`,
           { input: "[1, 2], n = 2", output: "[2]", why: "The head is removed." },
         ]}
         hints={[
-          <>Removing the head must work too. Which trick makes the head a normal node?</>,
-          <>If a pointer is n nodes ahead of another, what is the second one's position when the first reaches the end?</>,
+          <>Removing the head must work too. Which trick makes the head act like any other node?</>,
+          <>If one pointer is n nodes ahead of another, where is the second pointer when the first one reaches the end?</>,
         ]}
         approaches={[
           {
             name: "Two passes",
-            idea: <p>Count the length L, then walk <code>L − n</code> steps from the dummy to the node before the target.</p>,
+            idea: <p>Count the length L. Then walk <code>L − n</code> steps from the dummy to the node just before the one to delete.</p>,
             code: `function removeNthFromEnd(head, n) {
   let len = 0;
   for (let c = head; c !== null; c = c.next) len++;
@@ -149,11 +149,11 @@ console.log(detectCycle(a).val); // 2`,
 
 console.log(toArray(removeNthFromEnd(fromArray([1, 2, 3, 4, 5]), 2))); // [1, 2, 3, 5]
 console.log(toArray(removeNthFromEnd(fromArray([1, 2]), 2)));          // [2]`,
-            explain: <p>O(n) time, O(1) space, two walks.</p>,
+            explain: <p>O(n) time, O(1) space, but you walk the list twice.</p>,
           },
           {
             name: "One pass with a gap",
-            idea: <p>Move <code>fast</code> n steps ahead, then move both until <code>fast</code> is on the last node.</p>,
+            idea: <p>Move <code>fast</code> n steps ahead. Then move both pointers until <code>fast</code> is on the last node.</p>,
             code: `function removeNthFromEnd(head, n) {
   const dummy = new ListNode(0, head);
   let fast = dummy, slow = dummy;
@@ -165,10 +165,10 @@ console.log(toArray(removeNthFromEnd(fromArray([1, 2]), 2)));          // [2]`,
 
 console.log(toArray(removeNthFromEnd(fromArray([1, 2, 3, 4, 5]), 2))); // [1, 2, 3, 5]
 console.log(toArray(removeNthFromEnd(fromArray([1]), 1)));             // []`,
-            explain: <p>Same complexity in one traversal. The dummy makes deleting the head the ordinary case.</p>,
+            explain: <p>Same cost, but you walk the list only once. The dummy makes deleting the head work like any other case.</p>,
           },
         ]}
-        compare={<p>Both are fine; the one-pass version is the &quot;expected&quot; answer. (LeetCode 19.)</p>}
+        compare={<p>Both are fine. The one-pass version is the answer interviewers expect. (LeetCode 19.)</p>}
       >
         <p>Remove the n-th node counted from the end of the list and return the head. Assume n is valid.</p>
       </Problem>
@@ -182,13 +182,13 @@ console.log(toArray(removeNthFromEnd(fromArray([1]), 1)));             // []`,
           { input: "A = 1, B = 2 (separate)", output: "null", why: "No shared node." },
         ]}
         hints={[
-          <>Shared means the same node object, not the same value.</>,
-          <>If the lists were the same length, you could walk them together. How can you make them the same length?</>,
+          <>&quot;Shared&quot; means the same node object, not just the same value.</>,
+          <>If both lists had the same length, you could walk them together. How can you make them the same length?</>,
         ]}
         approaches={[
           {
             name: "Set of nodes from A",
-            idea: <p>Put every node of A in a Set, then walk B and return the first node found in the Set.</p>,
+            idea: <p>Put every node of A in a Set. Then walk B and return the first node that is in the Set.</p>,
             code: `function getIntersectionNode(a, b) {
   const seen = new Set();
   for (let c = a; c !== null; c = c.next) seen.add(c);
@@ -204,7 +204,7 @@ console.log(getIntersectionNode(x, y).val); // 8`,
           },
           {
             name: "Switch lists at the end",
-            idea: <p>Walk <code>p</code> along A then B, and <code>q</code> along B then A. Both travel m + n nodes, so they land on the shared node together (or both on <code>null</code>).</p>,
+            idea: <p>Walk <code>p</code> along A and then B. Walk <code>q</code> along B and then A. Both walk m + n nodes, so they reach the shared node together (or both reach <code>null</code>).</p>,
             code: `function getIntersectionNode(a, b) {
   let p = a, q = b;
   while (p !== q) {
@@ -219,12 +219,12 @@ const x = new ListNode(1, new ListNode(2, shared));
 const y = new ListNode(5, shared);
 console.log(getIntersectionNode(x, y).val);                       // 8
 console.log(getIntersectionNode(fromArray([1]), fromArray([2]))); // null`,
-            explain: <p>O(m + n) time, O(1) space. The different-length part is cancelled out because each pointer takes the other list&apos;s extra length on its second leg.</p>,
+            explain: <p>O(m + n) time, O(1) space. The difference in length cancels out. Each pointer walks the other list&apos;s extra length on its second trip.</p>,
           },
         ]}
-        compare={<p>The switching trick; the Set is the safe first answer. (LeetCode 160.)</p>}
+        compare={<p>The switching trick is the best answer. The Set version is a safe first answer. (LeetCode 160.)</p>}
       >
-        <p>Return the node where two singly linked lists begin to share nodes, or <code>null</code>.</p>
+        <p>Return the node where two singly linked lists start to share nodes. If they share none, return <code>null</code>.</p>
       </Problem>
 
       <Problem
@@ -232,17 +232,17 @@ console.log(getIntersectionNode(fromArray([1]), fromArray([2]))); // null`,
         title="Add two numbers"
         level="Medium"
         examples={[
-          { input: "[2, 4, 3] + [5, 6, 4]", output: "[7, 0, 8]", why: "342 + 465 = 807, digits stored in reverse." },
-          { input: "[9, 9] + [1]", output: "[0, 0, 1]", why: "99 + 1 = 100: the final carry creates a new node." },
+          { input: "[2, 4, 3] + [5, 6, 4]", output: "[7, 0, 8]", why: "342 + 465 = 807. The digits are stored in reverse order." },
+          { input: "[9, 9] + [1]", output: "[0, 0, 1]", why: "99 + 1 = 100. The last carry needs a new node." },
         ]}
         hints={[
-          <>Digits are stored least-significant first, which is exactly the order you add in by hand.</>,
-          <>Keep looping while either list has a node or a carry remains.</>,
+          <>The digits are stored with the ones digit first. That is the same order you use when you add by hand.</>,
+          <>Keep looping while either list still has a node, or while there is a carry left.</>,
         ]}
         approaches={[
           {
             name: "Digit by digit with a carry",
-            idea: <p>At each position add both digits (0 for a missing one) and the carry; store <code>sum % 10</code>, carry <code>floor(sum / 10)</code>.</p>,
+            idea: <p>At each position, add both digits (use 0 if a list has no digit left) and the carry. Store <code>sum % 10</code> (the last digit of the sum). The new carry is <code>floor(sum / 10)</code> (the sum divided by 10, rounded down).</p>,
             code: `function addTwoNumbers(a, b) {
   const dummy = new ListNode(0);
   let tail = dummy, carry = 0;
@@ -259,11 +259,11 @@ console.log(getIntersectionNode(fromArray([1]), fromArray([2]))); // null`,
 
 console.log(toArray(addTwoNumbers(fromArray([2, 4, 3]), fromArray([5, 6, 4])))); // [7, 0, 8]
 console.log(toArray(addTwoNumbers(fromArray([9, 9]), fromArray([1]))));          // [0, 0, 1]`,
-            explain: <p>O(max(m, n)) time. It never converts to a number, so it works for lists far longer than the 15-or-so digits a JavaScript number can hold exactly.</p>,
+            explain: <p>O(max(m, n)) time (the length of the longer list). It never turns the list into a number. So it works for lists much longer than the 15 or so digits that a JavaScript number can hold exactly.</p>,
           },
           {
             name: "Convert to BigInt",
-            idea: <p>Read each list into a <code>BigInt</code>, add, then split the result back. It is easy to write but avoids the point of the question.</p>,
+            idea: <p>Read each list into a <code>BigInt</code> (a JavaScript type for very large whole numbers). Add them, then split the result back into a list. It is easy to write, but it skips the point of the question.</p>,
             code: `function toBig(head) {
   let digits = "";
   for (let c = head; c !== null; c = c.next) digits = c.val + digits;
@@ -278,12 +278,12 @@ function addTwoNumbers(a, b) {
 }
 
 console.log(toArray(addTwoNumbers(fromArray([2, 4, 3]), fromArray([5, 6, 4])))); // [7, 0, 8]`,
-            explain: <p>Correct, but interviewers expect the carry loop, and it builds large strings. Use it only to cross-check your answer.</p>,
+            explain: <p>It gives the right answer, but interviewers expect the carry loop, and this version builds large strings. Use it only to double-check your answer.</p>,
           },
         ]}
-        compare={<p>The carry loop. (LeetCode 2.)</p>}
+        compare={<p>Use the carry loop. (LeetCode 2.)</p>}
       >
-        <p>Each list is a non-negative number with one digit per node, least significant digit first. Return their sum in the same form.</p>
+        <p>Each list is a number that is zero or more, with one digit per node and the ones digit first. Return their sum as a list in the same form.</p>
       </Problem>
 
       <Problem
@@ -291,17 +291,17 @@ console.log(toArray(addTwoNumbers(fromArray([2, 4, 3]), fromArray([5, 6, 4]))));
         title="Sort list"
         level="Medium"
         examples={[
-          { input: "[4, 2, 1, 3]", output: "[1, 2, 3, 4]", why: "Sorted ascending." },
-          { input: "[-1, 5, 3, 4, 0]", output: "[-1, 0, 3, 4, 5]", why: "Negative numbers work the same." },
+          { input: "[4, 2, 1, 3]", output: "[1, 2, 3, 4]", why: "The list is sorted from smallest to largest." },
+          { input: "[-1, 5, 3, 4, 0]", output: "[-1, 0, 3, 4, 5]", why: "Negative numbers work in the same way." },
         ]}
         hints={[
-          <>Which sort needs neither random access nor extra space for the merge step?</>,
-          <>Split with slow/fast, and cut the link between the halves.</>,
+          <>Which sort does not need random access (jumping straight to any position) or extra space for the merge step?</>,
+          <>Split the list with slow and fast pointers. Then cut the link between the two halves.</>,
         ]}
         approaches={[
           {
             name: "Copy to an array, sort, copy back",
-            idea: <p>Read values, <code>sort((x, y) =&gt; x - y)</code>, write them back into the nodes.</p>,
+            idea: <p>Read the values, sort them with <code>sort((x, y) =&gt; x - y)</code>, and write them back into the nodes.</p>,
             code: `function sortList(head) {
   const vals = [];
   for (let c = head; c !== null; c = c.next) vals.push(c.val);
@@ -312,11 +312,11 @@ console.log(toArray(addTwoNumbers(fromArray([2, 4, 3]), fromArray([5, 6, 4]))));
 }
 
 console.log(toArray(sortList(fromArray([4, 2, 1, 3])))); // [1, 2, 3, 4]`,
-            explain: <p>O(n log n) time, O(n) space. Fine in real code, but it does not show list skills.</p>,
+            explain: <p>O(n log n) time, O(n) space. It is fine in real code, but it does not show that you can work with lists.</p>,
           },
           {
             name: "Merge sort on the list",
-            idea: <p>Split in the middle, sort each half recursively, merge the two sorted halves.</p>,
+            idea: <p>Split the list in the middle. Sort each half with recursion (the function calls itself). Then merge the two sorted halves.</p>,
             code: `function merge(a, b) {
   const dummy = new ListNode(0);
   let tail = dummy;
@@ -337,12 +337,12 @@ function sortList(head) {
 }
 
 console.log(toArray(sortList(fromArray([-1, 5, 3, 4, 0])))); // [-1, 0, 3, 4, 5]`,
-            explain: <p>O(n log n) time, O(log n) recursion depth. A bottom-up version (merging runs of size 1, 2, 4, …) reaches O(1) extra space.</p>,
+            explain: <p>O(n log n) time. The recursion goes O(log n) levels deep. A bottom-up version (it merges groups of size 1, 2, 4, and so on, with no recursion) needs only O(1) extra space.</p>,
           },
         ]}
-        compare={<p>Merge sort. (LeetCode 148.)</p>}
+        compare={<p>Use merge sort. (LeetCode 148.)</p>}
       >
-        <p>Sort a linked list in ascending order in O(n log n) time.</p>
+        <p>Sort a linked list from smallest to largest in O(n log n) time.</p>
       </Problem>
 
       <Problem
@@ -350,16 +350,16 @@ console.log(toArray(sortList(fromArray([-1, 5, 3, 4, 0])))); // [-1, 0, 3, 4, 5]
         title="Reorder list"
         level="Medium"
         examples={[
-          { input: "[1, 2, 3, 4]", output: "[1, 4, 2, 3]", why: "Alternate front and back: 1, 4, 2, 3." },
-          { input: "[1, 2, 3, 4, 5]", output: "[1, 5, 2, 4, 3]", why: "1, 5, 2, 4, then the middle 3." },
+          { input: "[1, 2, 3, 4]", output: "[1, 4, 2, 3]", why: "Take one from the front, then one from the back, and so on: 1, 4, 2, 3." },
+          { input: "[1, 2, 3, 4, 5]", output: "[1, 5, 2, 4, 3]", why: "Take 1, 5, 2, 4, and then the middle node 3 is left." },
         ]}
         hints={[
-          <>This is three earlier ideas in a row: find the middle, reverse the second half, then merge by alternating.</>,
+          <>This question uses three earlier ideas one after another. Find the middle, reverse the second half, and then merge by taking one node from each half in turn.</>,
         ]}
         approaches={[
           {
             name: "Array of nodes with two pointers",
-            idea: <p>Store the nodes in an array and relink them from both ends inwards.</p>,
+            idea: <p>Store the nodes in an array. Then link them again, working from both ends towards the middle.</p>,
             code: `function reorderList(head) {
   const nodes = [];
   for (let c = head; c !== null; c = c.next) nodes.push(c);
@@ -377,15 +377,15 @@ console.log(toArray(sortList(fromArray([-1, 5, 3, 4, 0])))); // [-1, 0, 3, 4, 5]
 const h = fromArray([1, 2, 3, 4, 5]);
 reorderList(h);
 console.log(toArray(h)); // [1, 5, 2, 4, 3]`,
-            explain: <p>O(n) time, O(n) space. The last line is the important one: without it the final node still points at an old neighbour and the list becomes a cycle.</p>,
+            explain: <p>O(n) time, O(n) space. The last line is the important one. Without it, the final node still points at its old neighbour, and the list becomes a cycle.</p>,
           },
           {
             name: "Middle + reverse + interleave",
             idea: (
               <ol>
-                <li>Find the end of the first half and cut the list there.</li>
+                <li>Find the end of the first half and cut the list at that point.</li>
                 <li>Reverse the second half.</li>
-                <li>Alternate nodes from the two halves.</li>
+                <li>Take one node from each half in turn (interleave them).</li>
               </ol>
             ),
             code: `function reorderList(head) {
@@ -411,12 +411,12 @@ console.log(toArray(h)); // [1, 4, 2, 3]
 const g = fromArray([1, 2, 3, 4, 5]);
 reorderList(g);
 console.log(toArray(g)); // [1, 5, 2, 4, 3]`,
-            explain: <p>O(n) time, O(1) space. The first half is never shorter than the second, so after interleaving an odd-length list ends with its middle node.</p>,
+            explain: <p>O(n) time, O(1) space. The first half is never shorter than the second. So when the length is odd, the list ends with its middle node after interleaving.</p>,
           },
         ]}
-        compare={<p>The array version is a good first answer; the three-step version is the follow-up. (LeetCode 143.)</p>}
+        compare={<p>The array version is a good first answer. The three-step version is the follow-up. (LeetCode 143.)</p>}
       >
-        <p>Reorder <code>L0 → L1 → … → Ln</code> into <code>L0 → Ln → L1 → Ln−1 → …</code> by relinking nodes in place.</p>
+        <p>Reorder <code>L0 → L1 → … → Ln</code> into <code>L0 → Ln → L1 → Ln−1 → …</code> by changing the links of the nodes in place (no new nodes).</p>
       </Problem>
     </>
   );

@@ -9,19 +9,19 @@ export default function Questions() {
         title="Valid parentheses"
         level="Easy"
         examples={[
-          { input: "\"()[]{}\"", output: "true", why: "Each opener is closed immediately." },
-          { input: "\"([{}])\"", output: "true", why: "Nested correctly: the inner pair closes first." },
-          { input: "\"(]\"", output: "false", why: "The closer does not match the opener." },
-          { input: "\"((\"", output: "false", why: "Openers were never closed." },
+          { input: "\"()[]{}\"", output: "true", why: "Each opening bracket is closed right away." },
+          { input: "\"([{}])\"", output: "true", why: "The brackets are nested correctly. The inner pair closes first." },
+          { input: "\"(]\"", output: "false", why: "The closing bracket does not match the opening bracket." },
+          { input: "\"((\"", output: "false", why: "The opening brackets were never closed." },
         ]}
         hints={[
-          <>A closer must match the <em>most recent</em> opener still open. Which structure gives the most recent item?</>,
-          <>Remember to check that the stack is empty at the end, and what happens when a closer arrives with nothing to pop.</>,
+          <>A closing bracket must match the <em>most recent</em> opening bracket that is still open. Which structure gives you the most recent item?</>,
+          <>Remember to check that the stack is empty at the end. Also think about what happens when a closing bracket arrives and there is nothing to pop.</>,
         ]}
         approaches={[
           {
             name: "Repeatedly remove matched pairs",
-            idea: <p>Replace <code>()</code>, <code>[]</code> and <code>{"{}"}</code> with nothing until the string stops changing. If it ends empty, it was valid.</p>,
+            idea: <p>Remove <code>()</code>, <code>[]</code> and <code>{"{}"}</code> (replace them with nothing) again and again, until the string stops changing. If the string ends up empty, it was valid.</p>,
             code: `function isValid(s) {
   let prev;
   do {
@@ -33,11 +33,11 @@ export default function Questions() {
 
 console.log(isValid("([{}])")); // true
 console.log(isValid("(]"));     // false`,
-            explain: <p>Correct, but each pass is O(n) and there can be O(n) passes: O(n²) worst case.</p>,
+            explain: <p>It gives the right answer, but each pass takes O(n) time and there can be O(n) passes. So the worst case is O(n²), which is slow for long strings.</p>,
           },
           {
-            name: "Stack of openers",
-            idea: <p>Push openers. On a closer, pop and compare. End with an empty stack.</p>,
+            name: "Stack of opening brackets",
+            idea: <p>Push each opening bracket. When a closing bracket comes, pop and compare. At the end, the stack must be empty.</p>,
             code: `function isValid(s) {
   const pairs = { ")": "(", "]": "[", "}": "{" };
   const stack = [];
@@ -55,12 +55,12 @@ console.log(isValid("()[]{}")); // true
 console.log(isValid("(]"));     // false
 console.log(isValid("(("));     // false
 console.log(isValid(")"));      // false`,
-            explain: <p>O(n) time, O(n) space. An odd length can be rejected immediately as a small optimisation.</p>,
+            explain: <p>O(n) time, O(n) space. As a small speed-up, you can reject a string with an odd length straight away.</p>,
           },
         ]}
-        compare={<p>The stack. (LeetCode 20.)</p>}
+        compare={<p>Use the stack. (LeetCode 20.)</p>}
       >
-        <p>Given a string of <code>()[]{"{}"}</code> characters, decide whether every bracket is closed by the correct type in the correct order.</p>
+        <p>You get a string of <code>()[]{"{}"}</code> characters. Decide whether every bracket is closed by the right type of bracket, in the right order.</p>
       </Problem>
 
       <Problem
@@ -68,17 +68,17 @@ console.log(isValid(")"));      // false`,
         title="Min stack"
         level="Medium"
         examples={[
-          { input: "push(-2), push(0), push(-3), getMin()", output: "-3", why: "-3 is the smallest value." },
-          { input: "…then pop(), top(), getMin()", output: "0, then -2", why: "After removing -3 the minimum is -2." },
+          { input: "push(-2), push(0), push(-3), getMin()", output: "-3", why: "-3 is the smallest value in the stack." },
+          { input: "…then pop(), top(), getMin()", output: "0, then -2", why: "After -3 is removed, the smallest value is -2." },
         ]}
         hints={[
-          <>A single <code>min</code> variable is not enough. What do you lose when you pop the minimum?</>,
-          <>What if each stack entry also remembered the minimum at that depth?</>,
+          <>One <code>min</code> variable is not enough. What do you lose when you pop the smallest value?</>,
+          <>What if each stack entry also remembered the smallest value at that position?</>,
         ]}
         approaches={[
           {
             name: "Scan for the minimum",
-            idea: <p>Keep a plain stack; <code>getMin</code> scans every item.</p>,
+            idea: <p>Keep a plain stack. <code>getMin</code> looks at every item to find the smallest.</p>,
             code: `class SlowMinStack {
   constructor() { this.items = []; }
   push(x) { this.items.push(x); }
@@ -90,11 +90,11 @@ console.log(isValid(")"));      // false`,
 const s = new SlowMinStack();
 s.push(-2); s.push(0); s.push(-3);
 console.log(s.getMin()); // -3`,
-            explain: <p><code>getMin</code> is O(n), and spreading a very large array into <code>Math.min</code> can even throw a RangeError. The question demands O(1).</p>,
+            explain: <p><code>getMin</code> takes O(n) time. Also, passing a very large array into <code>Math.min</code> with <code>...</code> can even cause a RangeError (an error for a value that is too big). The question asks for O(1).</p>,
           },
           {
-            name: "Parallel stack of minimums",
-            idea: <p>On each push, also push <code>min(x, current min)</code> onto a second stack. Pop both together.</p>,
+            name: "A second stack for the smallest values",
+            idea: <p>On each push, also push <code>min(x, current min)</code> (the smaller of the two) onto a second stack. Pop from both stacks together.</p>,
             code: `class MinStack {
   constructor() { this.items = []; this.mins = []; }
   push(x) {
@@ -112,12 +112,12 @@ console.log(s.getMin()); // -3
 s.pop();
 console.log(s.top());    // 0
 console.log(s.getMin()); // -2`,
-            explain: <p>All operations are O(1); extra space is O(n). Storing pairs <code>[value, minSoFar]</code> in one array is equivalent.</p>,
+            explain: <p>All operations are O(1) and the extra space is O(n). You could also store pairs <code>[value, minSoFar]</code> in one array. It works the same way.</p>,
           },
         ]}
-        compare={<p>The parallel stack. (LeetCode 155.)</p>}
+        compare={<p>Use the second stack. (LeetCode 155.)</p>}
       >
-        <p>Design a stack with <code>push</code>, <code>pop</code>, <code>top</code> and <code>getMin</code>, all in O(1).</p>
+        <p>Build a stack with <code>push</code>, <code>pop</code>, <code>top</code> and <code>getMin</code>. All four must take O(1) time.</p>
       </Problem>
 
       <Problem
@@ -129,13 +129,13 @@ console.log(s.getMin()); // -2`,
           { input: "[\"4\", \"13\", \"5\", \"/\", \"+\"]", output: "6", why: "13 / 5 = 2 (truncated), 4 + 2 = 6." },
         ]}
         hints={[
-          <>Numbers wait on a stack; an operator takes the two most recent.</>,
-          <>The first value you pop is the right-hand operand.</>,
+          <>Numbers wait on a stack. An operator takes the two most recent numbers.</>,
+          <>The first value you pop is the number on the right side of the operator.</>,
         ]}
         approaches={[
           {
             name: "Stack of operands",
-            idea: <p>Push numbers. For an operator pop <code>b</code> then <code>a</code>, compute <code>a op b</code>, push the result. The answer is the last item left.</p>,
+            idea: <p>Push the numbers. When you see an operator, pop <code>b</code> and then <code>a</code>. Work out <code>a op b</code> and push the result. The answer is the last item left.</p>,
             code: `function evalRPN(tokens) {
   const stack = [];
   for (const t of tokens) {
@@ -152,12 +152,12 @@ console.log(s.getMin()); // -2`,
 console.log(evalRPN(["2", "1", "+", "3", "*"]));       // 9
 console.log(evalRPN(["4", "13", "5", "/", "+"]));      // 6
 console.log(evalRPN(["10", "6", "9", "3", "+", "-11", "*", "/", "*", "17", "+", "5", "+"])); // 22`,
-            explain: <p>O(n) time, O(n) space. <code>Math.trunc</code> is needed for negatives: <code>Math.floor(-7 / 2)</code> is −4 but the question wants −3.</p>,
+            explain: <p>O(n) time, O(n) space. You need <code>Math.trunc</code> for negative numbers. <code>Math.floor(-7 / 2)</code> gives −4, but the question wants −3.</p>,
           },
         ]}
-        compare={<p>There is only one sensible approach, so the points are in the details: operand order and truncation. (LeetCode 150.)</p>}
+        compare={<p>There is only one good approach here. The difficulty is in the details: the order of the two numbers, and cutting off the decimal part. (LeetCode 150.)</p>}
       >
-        <p>Evaluate an arithmetic expression in Reverse Polish Notation. Division truncates toward zero.</p>
+        <p>Work out the value of a maths expression written in Reverse Polish Notation. Division cuts off the decimal part (it rounds towards zero).</p>
       </Problem>
 
       <Problem
@@ -165,23 +165,23 @@ console.log(evalRPN(["10", "6", "9", "3", "+", "-11", "*", "/", "*", "17", "+", 
         title="Decode string"
         level="Medium"
         examples={[
-          { input: "\"3[a]2[bc]\"", output: "\"aaabcbc\"", why: "a three times, bc twice." },
-          { input: "\"3[a2[c]]\"", output: "\"accaccacc\"", why: "Inner 2[c] first: acc, then three times." },
-          { input: "\"2[ab]c\"", output: "\"ababc\"", why: "Letters after a bracket are copied as is." },
+          { input: "\"3[a]2[bc]\"", output: "\"aaabcbc\"", why: "a three times, then bc two times." },
+          { input: "\"3[a2[c]]\"", output: "\"accaccacc\"", why: "Do the inner 2[c] first to get acc. Then repeat it three times." },
+          { input: "\"2[ab]c\"", output: "\"ababc\"", why: "Letters after a bracket are copied as they are." },
         ]}
         hints={[
-          <>Brackets nest, and the innermost one finishes first.</>,
-          <>When you reach <code>[</code>, you must remember the text built so far and the repeat count.</>,
-          <>Counts can have more than one digit, like <code>12[a]</code>.</>,
+          <>Brackets can be inside other brackets. The innermost one finishes first.</>,
+          <>When you reach <code>[</code>, you must save the text built so far and the repeat count.</>,
+          <>A count can have more than one digit, like <code>12[a]</code>.</>,
         ]}
         approaches={[
           {
-            name: "Two stacks (counts and texts)",
+            name: "Two stacks (one for counts, one for texts)",
             idea: (
               <ol>
-                <li>Read digits into <code>num</code>; letters into <code>cur</code>.</li>
-                <li>On <code>[</code>, push <code>num</code> and <code>cur</code>, then reset both.</li>
-                <li>On <code>]</code>, pop them and set <code>cur = oldText + cur.repeat(count)</code>.</li>
+                <li>Read digits into <code>num</code>. Read letters into <code>cur</code>.</li>
+                <li>On <code>[</code>, push <code>num</code> and <code>cur</code> on their stacks, then reset both.</li>
+                <li>On <code>]</code>, pop both values and set <code>cur = oldText + cur.repeat(count)</code>.</li>
               </ol>
             ),
             code: `function decodeString(s) {
@@ -199,11 +199,11 @@ console.log(evalRPN(["10", "6", "9", "3", "+", "-11", "*", "/", "*", "17", "+", 
 console.log(decodeString("3[a]2[bc]")); // aaabcbc
 console.log(decodeString("3[a2[c]]"));  // accaccacc
 console.log(decodeString("12[x]"));     // xxxxxxxxxxxx`,
-            explain: <p>Time is proportional to the length of the output. Space is the depth of the nesting plus the output.</p>,
+            explain: <p>The time grows with the length of the output. The space is the nesting depth (how many brackets are inside each other) plus the output.</p>,
           },
           {
             name: "Recursion",
-            idea: <p>Write <code>decode(i)</code> that reads until a <code>]</code> or the end and returns the text; a <code>[</code> triggers a recursive call. The call stack plays the role of the two stacks.</p>,
+            idea: <p>Write a function that reads until it finds a <code>]</code> or the end, and then returns the text. Each <code>[</code> makes the function call itself (a recursive call). The call stack (the list of unfinished calls) does the job of the two stacks.</p>,
             code: `function decodeString(s) {
   let i = 0;
   function read() {
@@ -220,12 +220,12 @@ console.log(decodeString("12[x]"));     // xxxxxxxxxxxx`,
 }
 
 console.log(decodeString("3[a2[c]]")); // accaccacc`,
-            explain: <p>Same result and cost. Pick whichever you can write without bugs; the stack version has fewer moving parts.</p>,
+            explain: <p>Same result and same cost. Pick the one you can write without bugs. The stack version has fewer parts that can go wrong.</p>,
           },
         ]}
-        compare={<p>The two-stack version. (LeetCode 394.)</p>}
+        compare={<p>Use the two-stack version. (LeetCode 394.)</p>}
       >
-        <p>Decode a string where <code>k[text]</code> means <code>text</code> repeated <code>k</code> times. Brackets may be nested.</p>
+        <p>Decode a string where <code>k[text]</code> means <code>text</code> repeated <code>k</code> times. Brackets can be inside other brackets.</p>
       </Problem>
 
       <Problem
@@ -235,15 +235,15 @@ console.log(decodeString("3[a2[c]]")); // accaccacc`,
         examples={[
           { input: "s = \"ab#c\", t = \"ad#c\"", output: "true", why: "Both become \"ac\"." },
           { input: "s = \"a#c\", t = \"b\"", output: "false", why: "\"c\" and \"b\"." },
-          { input: "s = \"a##c\", t = \"#a#c\"", output: "true", why: "Backspace on empty text does nothing; both become \"c\"." },
+          { input: "s = \"a##c\", t = \"#a#c\"", output: "true", why: "A backspace on empty text does nothing. Both become \"c\"." },
         ]}
         hints={[
-          <><code>#</code> removes the most recent character that is still there.</>,
+          <><code>#</code> removes the most recent character that is still in the text.</>,
         ]}
         approaches={[
           {
             name: "Build each string with a stack",
-            idea: <p>Push letters, pop on <code>#</code> (popping an empty stack does nothing). Compare the two results.</p>,
+            idea: <p>Push each letter. Pop when you see <code>#</code> (popping an empty stack does nothing). Then compare the two results.</p>,
             code: `function build(s) {
   const stack = [];
   for (const ch of s) {
@@ -261,7 +261,7 @@ console.log(backspaceCompare("a##c", "#a#c"));  // true`,
           },
           {
             name: "Two pointers from the back",
-            idea: <p>Walk both strings from the end, counting backspaces to skip characters, and compare the surviving characters one at a time.</p>,
+            idea: <p>Walk both strings from the end. Count the backspaces so you know which characters to skip. Compare the characters that remain, one at a time.</p>,
             code: `function backspaceCompare(s, t) {
   const next = (str, i) => {
     let skip = 0;
@@ -285,12 +285,12 @@ console.log(backspaceCompare("a##c", "#a#c"));  // true`,
 console.log(backspaceCompare("ab#c", "ad#c"));  // true
 console.log(backspaceCompare("a##c", "#a#c"));  // true
 console.log(backspaceCompare("a#c", "b"));      // false`,
-            explain: <p>O(n + m) time, O(1) space. Going backwards is what makes this possible: a <code>#</code> only affects characters to its left.</p>,
+            explain: <p>O(n + m) time, O(1) space. Walking backwards is what makes this work, because a <code>#</code> only affects the characters to its left.</p>,
           },
         ]}
-        compare={<p>The stack first; the two-pointer version is the usual O(1)-space follow-up. (LeetCode 844.)</p>}
+        compare={<p>Start with the stack. The two-pointer version is the usual follow-up when the interviewer asks for O(1) space. (LeetCode 844.)</p>}
       >
-        <p>Two typed strings contain <code>#</code> meaning backspace. Return whether they end up equal.</p>
+        <p>Two typed strings contain <code>#</code>, which means backspace. Return whether the two final texts are equal.</p>
       </Problem>
 
       <Problem
@@ -298,18 +298,18 @@ console.log(backspaceCompare("a#c", "b"));      // false`,
         title="Simplify path"
         level="Medium"
         examples={[
-          { input: "\"/home//foo/\"", output: "\"/home/foo\"", why: "Repeated and trailing slashes are removed." },
-          { input: "\"/a/./b/../../c/\"", output: "\"/c\"", why: "\".\" stays, \"..\" goes up one directory." },
-          { input: "\"/../\"", output: "\"/\"", why: "You cannot go above the root." },
+          { input: "\"/home//foo/\"", output: "\"/home/foo\"", why: "Repeated slashes and the slash at the end are removed." },
+          { input: "\"/a/./b/../../c/\"", output: "\"/c\"", why: "\".\" means the same folder. \"..\" goes up one folder." },
+          { input: "\"/../\"", output: "\"/\"", why: "You cannot go above the top folder (the root)." },
         ]}
         hints={[
-          <>Split on <code>/</code>. Each piece is a directory name, <code>.</code>, <code>..</code> or empty.</>,
-          <><code>..</code> undoes the most recent directory. That is a pop.</>,
+          <>Split the path on <code>/</code>. Each piece is a folder name, <code>.</code>, <code>..</code> or empty.</>,
+          <><code>..</code> undoes the most recent folder. That is a pop.</>,
         ]}
         approaches={[
           {
-            name: "Stack of directory names",
-            idea: <p>Ignore empty and <code>.</code>; pop on <code>..</code> (if not empty); push anything else. Join with <code>/</code>.</p>,
+            name: "Stack of folder names",
+            idea: <p>Ignore empty pieces and <code>.</code>. Pop on <code>..</code> (if the stack is not empty). Push anything else. Join the stack with <code>/</code>.</p>,
             code: `function simplifyPath(path) {
   const stack = [];
   for (const part of path.split("/")) {
@@ -323,12 +323,12 @@ console.log(backspaceCompare("a#c", "b"));      // false`,
 console.log(simplifyPath("/home//foo/"));       // /home/foo
 console.log(simplifyPath("/a/./b/../../c/"));   // /c
 console.log(simplifyPath("/../"));              // /`,
-            explain: <p>O(n) time and space. Popping an empty stack is harmless, which handles going above the root for free.</p>,
+            explain: <p>O(n) time and space. Popping an empty stack does no harm, so going above the root is handled without extra code.</p>,
           },
         ]}
-        compare={<p>This is the standard answer and the example of &quot;undo the most recent&quot;. (LeetCode 71.)</p>}
+        compare={<p>This is the standard answer. It is a good example of &quot;undo the most recent step&quot;. (LeetCode 71.)</p>}
       >
-        <p>Convert an absolute Unix path to its canonical form.</p>
+        <p>Change an absolute Unix path (a path that starts at the root /) into its shortest standard form (the canonical form).</p>
       </Problem>
 
       <Problem
@@ -336,16 +336,16 @@ console.log(simplifyPath("/../"));              // /`,
         title="Remove all adjacent duplicates in string"
         level="Easy"
         examples={[
-          { input: "\"abbaca\"", output: "\"ca\"", why: "Remove bb → \"aaca\", remove aa → \"ca\"." },
-          { input: "\"azxxzy\"", output: "\"ay\"", why: "xx goes, then zz becomes adjacent and goes too." },
+          { input: "\"abbaca\"", output: "\"ca\"", why: "Remove bb to get \"aaca\". Then remove aa to get \"ca\"." },
+          { input: "\"azxxzy\"", output: "\"ay\"", why: "xx is removed. Then the two z letters are next to each other, so they are removed too." },
         ]}
         hints={[
-          <>Removing a pair can make two new neighbours equal. What do you need to compare the next letter with?</>,
+          <>Removing a pair can make two new neighbours equal. What should you compare the next letter with?</>,
         ]}
         approaches={[
           {
-            name: "Stack of survivors",
-            idea: <p>For each letter, if it equals the top of the stack, pop (the pair cancels); otherwise push.</p>,
+            name: "Stack of the letters that remain",
+            idea: <p>For each letter, check the top of the stack. If it is the same letter, pop it (the pair cancels out). If not, push the letter.</p>,
             code: `function removeDuplicates(s) {
   const stack = [];
   for (const ch of s) {
@@ -357,11 +357,11 @@ console.log(simplifyPath("/../"));              // /`,
 
 console.log(removeDuplicates("abbaca"));  // ca
 console.log(removeDuplicates("azxxzy"));  // ay`,
-            explain: <p>O(n) time and space. The stack always holds the string-so-far with no adjacent equal letters, which is exactly the thing the next letter needs to compare with.</p>,
+            explain: <p>O(n) time and space. The stack always holds the string so far with no equal letters side by side. That is exactly what the next letter needs to compare with.</p>,
           },
           {
             name: "Repeat until no change",
-            idea: <p>Remove one pair at a time with a regex, until nothing matches.</p>,
+            idea: <p>Remove one pair at a time with a regex (a pattern for searching text), until nothing matches.</p>,
             code: `function removeDuplicates(s) {
   const re = /(.)\\1/;
   while (re.test(s)) s = s.replace(re, "");
@@ -370,12 +370,12 @@ console.log(removeDuplicates("azxxzy"));  // ay`,
 
 console.log(removeDuplicates("abbaca")); // ca
 console.log(removeDuplicates("azxxzy")); // ay`,
-            explain: <p>Works, but it re-scans the string after each removal: O(n²) in the worst case.</p>,
+            explain: <p>It works, but it scans the string again after each removal. The worst case is O(n²).</p>,
           },
         ]}
-        compare={<p>The stack. (LeetCode 1047.)</p>}
+        compare={<p>Use the stack. (LeetCode 1047.)</p>}
       >
-        <p>Repeatedly delete two equal adjacent letters until none remain, and return the result.</p>
+        <p>Again and again, delete two equal letters that sit next to each other, until there are none left. Return the result.</p>
       </Problem>
     </>
   );

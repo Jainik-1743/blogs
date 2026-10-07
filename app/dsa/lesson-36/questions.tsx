@@ -14,8 +14,8 @@ export default function Questions() {
           { input: "head = []", output: "[]", why: "An empty list stays empty." },
         ]}
         hints={[
-          <>You need to remember where the rest of the list is before you change a node&apos;s <code>next</code>.</>,
-          <>Keep a <code>prev</code> that starts as <code>null</code>: the first node must end up pointing at <code>null</code>.</>,
+          <>Before you change a node&apos;s <code>next</code>, save where the rest of the list is.</>,
+          <>Keep a <code>prev</code> that starts as <code>null</code>. The first node must end up pointing at <code>null</code>.</>,
         ]}
         approaches={[
           {
@@ -41,11 +41,11 @@ export default function Questions() {
 console.log(toArray(reverseList(fromArray([1, 2, 3, 4, 5])))); // [5, 4, 3, 2, 1]
 console.log(toArray(reverseList(fromArray([1, 2]))));          // [2, 1]
 console.log(toArray(reverseList(null)));                       // []`,
-            explain: <p>O(n) time, O(1) space. Each node is visited once and only arrows change.</p>,
+            explain: <p>O(n) time, O(1) space. You visit each node once, and only the arrows change.</p>,
           },
           {
             name: "Recursion",
-            idea: <p>Reverse the tail, then make the old second node point back at the head and cut the head&apos;s own link.</p>,
+            idea: <p>Reverse the tail (everything after the head). Then make the old second node point back at the head. Last, cut the head&apos;s own link.</p>,
             code: `function reverseList(head) {
   if (head === null || head.next === null) return head;
   const newHead = reverseList(head.next);
@@ -55,11 +55,11 @@ console.log(toArray(reverseList(null)));                       // []`,
 }
 
 console.log(toArray(reverseList(fromArray([1, 2, 3, 4, 5])))); // [5, 4, 3, 2, 1]`,
-            explain: <p>O(n) time but O(n) call-stack space; a list of 100,000 nodes can overflow the stack in JavaScript.</p>,
+            explain: <p>O(n) time, but also O(n) call-stack space (the memory that holds unfinished function calls). A list of 100,000 nodes can overflow the stack in JavaScript.</p>,
           },
           {
             name: "Copy values into an array",
-            idea: <p>Read the values into an array, then write them back in reverse order. It is easy, but it rewrites values instead of rearranging nodes.</p>,
+            idea: <p>Read the values into an array. Then write them back in reverse order. It is easy, but it changes the values instead of moving the nodes.</p>,
             code: `function reverseList(head) {
   const vals = [];
   for (let c = head; c !== null; c = c.next) vals.push(c.val);
@@ -68,10 +68,10 @@ console.log(toArray(reverseList(fromArray([1, 2, 3, 4, 5])))); // [5, 4, 3, 2, 1
 }
 
 console.log(toArray(reverseList(fromArray([1, 2, 3])))); // [3, 2, 1]`,
-            explain: <p>O(n) time and O(n) space. Fine as a first answer, but the interviewer almost always follows with &quot;now do it in O(1) space&quot;.</p>,
+            explain: <p>O(n) time and O(n) space. This is fine as a first answer. But the interviewer will almost always ask next, &quot;now do it in O(1) space&quot;.</p>,
           },
         ]}
-        compare={<p>The iterative one. Know the recursive one and its stack cost. (LeetCode 206.)</p>}
+        compare={<p>Use the loop version. Also know the recursive version and its stack cost. (LeetCode 206.)</p>}
       >
         <p>Given the head of a singly linked list, reverse the list and return the new head.</p>
       </Problem>
@@ -81,16 +81,16 @@ console.log(toArray(reverseList(fromArray([1, 2, 3])))); // [3, 2, 1]`,
         title="Middle of the linked list"
         level="Easy"
         examples={[
-          { input: "head = [1, 2, 3, 4, 5]", output: "node 3", why: "Five nodes: the third is in the middle." },
+          { input: "head = [1, 2, 3, 4, 5]", output: "node 3", why: "There are five nodes, so the third one is in the middle." },
           { input: "head = [1, 2, 3, 4, 5, 6]", output: "node 4", why: "Two middles (3 and 4): return the second." },
         ]}
         hints={[
-          <>Counting the nodes works but takes two passes. Can two cursors at different speeds do it in one?</>,
+          <>Counting the nodes works, but it takes two passes. Can two pointers moving at different speeds do it in one pass?</>,
         ]}
         approaches={[
           {
             name: "Count, then walk",
-            idea: <p>Pass 1 counts the nodes n. Pass 2 walks <code>floor(n / 2)</code> steps.</p>,
+            idea: <p>Pass 1 counts the nodes (n). Pass 2 walks <code>floor(n / 2)</code> steps (floor rounds down to a whole number).</p>,
             code: `function middleNode(head) {
   let n = 0;
   for (let c = head; c !== null; c = c.next) n++;
@@ -105,7 +105,7 @@ console.log(middleNode(fromArray([1, 2, 3, 4, 5, 6])).val); // 4`,
           },
           {
             name: "Slow and fast pointers",
-            idea: <p>Move <code>slow</code> one step and <code>fast</code> two steps per round. When fast runs out, slow is in the middle.</p>,
+            idea: <p>Each round, move <code>slow</code> one step and <code>fast</code> two steps. When fast reaches the end, slow is in the middle.</p>,
             code: `function middleNode(head) {
   let slow = head, fast = head;
   while (fast !== null && fast.next !== null) {
@@ -117,10 +117,10 @@ console.log(middleNode(fromArray([1, 2, 3, 4, 5, 6])).val); // 4`,
 
 console.log(middleNode(fromArray([1, 2, 3, 4, 5])).val);    // 3
 console.log(middleNode(fromArray([1, 2, 3, 4, 5, 6])).val); // 4`,
-            explain: <p>Same O(n) / O(1), one pass. The shape of this loop is reused in almost every fast/slow problem.</p>,
+            explain: <p>Same O(n) time and O(1) space, but in one pass. You will reuse this loop in almost every slow and fast pointer problem.</p>,
           },
         ]}
-        compare={<p>Either is accepted; the fast/slow version is what the question is checking you know. (LeetCode 876.)</p>}
+        compare={<p>Either one is accepted. The slow and fast version is what the question wants to see. (LeetCode 876.)</p>}
       >
         <p>Return the middle node of a linked list. If there are two middle nodes, return the second one.</p>
       </Problem>
@@ -130,17 +130,17 @@ console.log(middleNode(fromArray([1, 2, 3, 4, 5, 6])).val); // 4`,
         title="Linked list cycle"
         level="Easy"
         examples={[
-          { input: "[3, 2, 0, -4], last node points back to the node with value 2", output: "true", why: "Walking from the head never reaches null." },
+          { input: "[3, 2, 0, -4], last node points back to the node with value 2", output: "true", why: "If you walk from the head, you never reach null." },
           { input: "[1, 2], no loop", output: "false", why: "The walk ends at null." },
         ]}
         hints={[
-          <>If you ever see the same node twice, there is a loop. How can you remember nodes you have seen?</>,
-          <>To use no extra memory, think of two runners on a circular track.</>,
+          <>If you ever see the same node twice, there is a loop. How can you remember the nodes you have seen?</>,
+          <>To use no extra memory, think of two runners on a round track.</>,
         ]}
         approaches={[
           {
             name: "Remember visited nodes",
-            idea: <p>Keep a <code>Set</code> of nodes. If the next node is already in it, there is a cycle. (Nodes are objects, so the Set compares them by identity.)</p>,
+            idea: <p>Keep a <code>Set</code> (a collection with no repeats) of nodes. If the next node is already in it, there is a cycle. (Nodes are objects, so the Set checks whether it is the very same node, not just the same value.)</p>,
             code: `function hasCycle(head) {
   const seen = new Set();
   for (let c = head; c !== null; c = c.next) {
@@ -158,7 +158,7 @@ console.log(hasCycle(a));        // true`,
           },
           {
             name: "Floyd's tortoise and hare",
-            idea: <p>Slow moves 1, fast moves 2. In a cycle fast closes the gap by one per round and must meet slow.</p>,
+            idea: <p>Slow moves 1 step and fast moves 2 steps. Inside a cycle, fast gets one step closer to slow each round. So it must meet slow.</p>,
             code: `function hasCycle(head) {
   let slow = head, fast = head;
   while (fast !== null && fast.next !== null) {
@@ -173,10 +173,10 @@ const a = fromArray([3, 2, 0, -4]);
 a.next.next.next.next = a.next;
 console.log(hasCycle(a));                 // true
 console.log(hasCycle(fromArray([1, 2]))); // false`,
-            explain: <p>O(n) time, O(1) space. Compare nodes with <code>===</code>, not values: two different nodes can hold the same value.</p>,
+            explain: <p>O(n) time, O(1) space. Compare the nodes with <code>===</code>, not their values. Two different nodes can hold the same value.</p>,
           },
         ]}
-        compare={<p>Floyd&apos;s. Start with the Set version if you are unsure, then improve it. (LeetCode 141.)</p>}
+        compare={<p>Floyd&apos;s version is best. If you are not sure, start with the Set version and then improve it. (LeetCode 141.)</p>}
       >
         <p>Return <code>true</code> if the linked list contains a cycle.</p>
       </Problem>
@@ -186,16 +186,16 @@ console.log(hasCycle(fromArray([1, 2]))); // false`,
         title="Palindrome linked list"
         level="Easy"
         examples={[
-          { input: "head = [1, 2, 2, 1]", output: "true", why: "Reads the same both ways." },
+          { input: "head = [1, 2, 2, 1]", output: "true", why: "It reads the same forwards and backwards." },
           { input: "head = [1, 2]", output: "false", why: "1, 2 reversed is 2, 1." },
         ]}
         hints={[
-          <>A singly linked list cannot be read backwards. What can you do with one half to fix that?</>,
+          <>You cannot read a singly linked list backwards. What can you do with one half of the list to fix that?</>,
         ]}
         approaches={[
           {
             name: "Copy to an array",
-            idea: <p>Put the values in an array and compare with two pointers moving inwards.</p>,
+            idea: <p>Put the values in an array. Then compare them with two pointers, one from each end, moving towards the middle.</p>,
             code: `function isPalindrome(head) {
   const vals = [];
   for (let c = head; c !== null; c = c.next) vals.push(c.val);
@@ -213,9 +213,9 @@ console.log(isPalindrome(fromArray([1, 2])));       // false`,
             name: "Reverse the second half",
             idea: (
               <ol>
-                <li>Find the middle with slow/fast pointers.</li>
+                <li>Find the middle with slow and fast pointers.</li>
                 <li>Reverse the list from the middle onwards.</li>
-                <li>Walk from the head and from the reversed half together and compare.</li>
+                <li>Walk from the head and from the reversed half at the same time, and compare the values.</li>
               </ol>
             ),
             code: `function isPalindrome(head) {
@@ -231,10 +231,10 @@ console.log(isPalindrome(fromArray([1, 2])));       // false`,
 
 console.log(isPalindrome(fromArray([1, 2, 3, 2, 1]))); // true
 console.log(isPalindrome(fromArray([1, 2, 3])));       // false`,
-            explain: <p>O(n) time, O(1) space. For an odd length the middle node ends up in the reversed half, and the comparison simply stops when the reversed half is used up, so the middle compares only with itself.</p>,
+            explain: <p>O(n) time, O(1) space. When the length is odd, the middle node ends up in the reversed half. The comparison stops when the reversed half is used up, so the middle node is only compared with itself.</p>,
           },
         ]}
-        compare={<p>The array copy is a perfectly good first answer; offer the O(1)-space version as the improvement and mention that it modifies the list. (LeetCode 234.)</p>}
+        compare={<p>The array copy is a good first answer. Then offer the O(1)-space version as the improvement, and say that it changes the list. (LeetCode 234.)</p>}
       >
         <p>Return <code>true</code> if the values of a linked list read the same forwards and backwards.</p>
       </Problem>
@@ -248,8 +248,8 @@ console.log(isPalindrome(fromArray([1, 2, 3])));       // false`,
           { input: "head = [5], left = 1, right = 1", output: "[5]", why: "A section of one node is unchanged." },
         ]}
         hints={[
-          <>The section can begin at the head, so use a dummy node in front.</>,
-          <>Walk to the node just <em>before</em> position <code>left</code>. Everything inside the section is rewired from there.</>,
+          <>The section can start at the head. So put a dummy node (an extra fake node) in front.</>,
+          <>Walk to the node just <em>before</em> position <code>left</code>. From there, you change the links inside the section.</>,
         ]}
         approaches={[
           {
@@ -258,7 +258,7 @@ console.log(isPalindrome(fromArray([1, 2, 3])));       // false`,
               <ol>
                 <li>Walk to <code>before</code>, the node in front of the section.</li>
                 <li>Reverse <code>right − left + 1</code> nodes with the normal loop.</li>
-                <li>Reconnect: <code>before</code> to the new section head, and the old section head to what followed.</li>
+                <li>Reconnect the pieces: link <code>before</code> to the new section head, and link the old section head to the node that came after the section.</li>
               </ol>
             ),
             code: `function reverseBetween(head, left, right) {
@@ -280,11 +280,11 @@ console.log(isPalindrome(fromArray([1, 2, 3])));       // false`,
 
 console.log(toArray(reverseBetween(fromArray([1, 2, 3, 4, 5]), 2, 4))); // [1, 4, 3, 2, 5]
 console.log(toArray(reverseBetween(fromArray([5]), 1, 1)));             // [5]`,
-            explain: <p>O(n) time, O(1) space. It reuses the reverse loop you already know.</p>,
+            explain: <p>O(n) time, O(1) space. It uses the reverse loop you already know.</p>,
           },
           {
             name: "Move nodes to the front one at a time",
-            idea: <p>Keep <code>start</code> fixed. Repeatedly take the node after it and insert it right after <code>before</code>.</p>,
+            idea: <p>Keep <code>start</code> where it is. Again and again, take the node after it and put it right after <code>before</code>.</p>,
             code: `function reverseBetween(head, left, right) {
   const dummy = new ListNode(0, head);
   let before = dummy;
@@ -300,10 +300,10 @@ console.log(toArray(reverseBetween(fromArray([5]), 1, 1)));             // [5]`,
 }
 
 console.log(toArray(reverseBetween(fromArray([1, 2, 3, 4, 5]), 2, 4))); // [1, 4, 3, 2, 5]`,
-            explain: <p>Same cost, a single pass over the section, and no final reconnect step; the trade-off is that the four assignments are easy to order wrongly.</p>,
+            explain: <p>Same cost. It makes a single pass over the section and needs no final reconnect step. The downside is that it is easy to put the four assignments in the wrong order.</p>,
           },
         ]}
-        compare={<p>The first is easier to get right under pressure. (LeetCode 92.)</p>}
+        compare={<p>The first one is easier to get right when you are under pressure. (LeetCode 92.)</p>}
       >
         <p>Reverse the nodes at positions <code>left</code> to <code>right</code> (1-based) and return the head.</p>
       </Problem>
@@ -314,19 +314,19 @@ console.log(toArray(reverseBetween(fromArray([1, 2, 3, 4, 5]), 2, 4))); // [1, 4
         level="Medium"
         examples={[
           { input: "head = [1, 2, 3, 4]", output: "[2, 1, 4, 3]", why: "Swap (1, 2) and (3, 4) by changing links, not values." },
-          { input: "head = [1, 2, 3]", output: "[2, 1, 3]", why: "A last unpaired node stays." },
+          { input: "head = [1, 2, 3]", output: "[2, 1, 3]", why: "The last node has no partner, so it stays where it is." },
         ]}
         hints={[
-          <>You are allowed to change only links. Use a dummy head and a <code>prev</code> sitting before each pair.</>,
+          <>You may change only the links. Use a dummy head and a <code>prev</code> pointer that sits just before each pair.</>,
         ]}
         approaches={[
           {
             name: "Iterate with a dummy head",
             idea: (
               <ol>
-                <li><code>prev</code> sits before a pair; <code>a = prev.next</code>, <code>b = a.next</code>.</li>
-                <li>Rewire: <code>prev → b → a → (rest)</code>.</li>
-                <li>Move <code>prev</code> to <code>a</code>, now the second node of the pair.</li>
+                <li><code>prev</code> sits just before a pair. Set <code>a = prev.next</code> and <code>b = a.next</code>.</li>
+                <li>Change the links so the order becomes <code>prev → b → a → (rest)</code>.</li>
+                <li>Move <code>prev</code> to <code>a</code>, which is now the second node of the pair.</li>
               </ol>
             ),
             code: `function swapPairs(head) {
@@ -349,7 +349,7 @@ console.log(toArray(swapPairs(null)));                    // []`,
           },
           {
             name: "Recursion",
-            idea: <p>Swap the first two, and let the recursion handle the rest of the list from the third node.</p>,
+            idea: <p>Swap the first two nodes. Let the recursion handle the rest of the list, starting from the third node.</p>,
             code: `function swapPairs(head) {
   if (head === null || head.next === null) return head;
   const second = head.next;
@@ -359,12 +359,12 @@ console.log(toArray(swapPairs(null)));                    // []`,
 }
 
 console.log(toArray(swapPairs(fromArray([1, 2, 3, 4])))); // [2, 1, 4, 3]`,
-            explain: <p>Shorter, but O(n) stack space.</p>,
+            explain: <p>The code is shorter, but it uses O(n) stack space.</p>,
           },
         ]}
-        compare={<p>The loop. Swapping values (<code>a.val</code> with <code>b.val</code>) is usually forbidden by the question. (LeetCode 24.)</p>}
+        compare={<p>Use the loop. The question usually does not allow swapping values (<code>a.val</code> with <code>b.val</code>). (LeetCode 24.)</p>}
       >
-        <p>Swap every two adjacent nodes and return the head. Do not change the values inside nodes, only the links.</p>
+        <p>Swap every two nodes that sit next to each other, and return the head. Do not change the values inside the nodes. Change only the links.</p>
       </Problem>
 
       <Problem
@@ -373,15 +373,15 @@ console.log(toArray(swapPairs(fromArray([1, 2, 3, 4])))); // [2, 1, 4, 3]`,
         level="Easy"
         examples={[
           { input: "n = 19", output: "true", why: "1²+9²=82, 8²+2²=68, 6²+8²=100, 1²+0²+0²=1." },
-          { input: "n = 2", output: "false", why: "The sequence enters a loop that never reaches 1." },
+          { input: "n = 2", output: "false", why: "The numbers go round in a loop and never reach 1." },
         ]}
         hints={[
-          <>Replace the number by the sum of the squares of its digits, again and again. It either reaches 1 or loops. That is a linked list with a possible cycle.</>,
+          <>Replace the number with the sum of the squares of its digits, again and again. The result either reaches 1 or goes round in a loop. That is like a linked list that may have a cycle.</>,
         ]}
         approaches={[
           {
             name: "Set of seen numbers",
-            idea: <p>Keep generating the next number. If it is 1, return true. If you have seen it before, you are in a loop: return false.</p>,
+            idea: <p>Keep making the next number. If it is 1, return true. If you have seen it before, you are in a loop, so return false.</p>,
             code: `function digitSquares(n) {
   let sum = 0;
   while (n > 0) { const d = n % 10; sum += d * d; n = Math.floor(n / 10); }
@@ -399,11 +399,11 @@ function isHappy(n) {
 
 console.log(isHappy(19)); // true
 console.log(isHappy(2));  // false`,
-            explain: <p>The numbers cannot grow forever (for a large n the digit-square sum is far smaller than n), so the Set stays small.</p>,
+            explain: <p>The numbers cannot keep growing. For a large n, the sum of the digit squares is much smaller than n. So the Set stays small.</p>,
           },
           {
             name: "Floyd's slow and fast",
-            idea: <p>The sequence is a &quot;list&quot; where each number points to the next. Run slow and fast along it: if they meet at 1 it is happy; if they meet anywhere else it loops.</p>,
+            idea: <p>Think of the sequence as a &quot;list&quot; where each number points to the next one. Run slow and fast along it. If they meet at 1, the number is happy. If they meet anywhere else, it is a loop.</p>,
             code: `function digitSquares(n) {
   let sum = 0;
   while (n > 0) { const d = n % 10; sum += d * d; n = Math.floor(n / 10); }
@@ -421,12 +421,12 @@ function isHappy(n) {
 
 console.log(isHappy(19)); // true
 console.log(isHappy(2));  // false`,
-            explain: <p>O(1) extra space. The point of the question: slow/fast pointers apply to any sequence defined by &quot;next = f(current)&quot;, not just linked lists. (LeetCode 202.)</p>,
+            explain: <p>O(1) extra space. The lesson of this question: slow and fast pointers work on any sequence where &quot;next = f(current)&quot; (the next item comes from a rule applied to the current item), not just on linked lists. (LeetCode 202.)</p>,
           },
         ]}
-        compare={<p>The Set is fine; mention Floyd&apos;s as the constant-space alternative.</p>}
+        compare={<p>The Set is fine. Also mention Floyd&apos;s version as the option that needs only O(1) space.</p>}
       >
-        <p>Repeatedly replace <code>n</code> by the sum of the squares of its digits. Return <code>true</code> if it reaches 1, <code>false</code> if it loops forever.</p>
+        <p>Again and again, replace <code>n</code> with the sum of the squares of its digits. Return <code>true</code> if it reaches 1. Return <code>false</code> if it loops forever.</p>
       </Problem>
     </>
   );

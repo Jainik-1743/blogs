@@ -22,7 +22,7 @@ const outline = [
   { id: "start", label: "Where a cycle starts" },
   { id: "nth", label: "Remove the n-th node from the end" },
   { id: "intersection", label: "Where two lists meet" },
-  { id: "add", label: "Adding two numbers held in lists" },
+  { id: "add", label: "Adding two numbers stored in lists" },
   { id: "sort", label: "Sorting a list with merge sort" },
   { id: "practice", label: "Practice questions (7)" },
   { id: "recall", label: "Make it stick" },
@@ -62,14 +62,14 @@ function mergeTrace() {
   let bi = 0;
   const merged: number[] = [];
   const vars = (extra: Record<string, unknown> = {}) => ({ a: a.slice(ai), b: b.slice(bi), merged: [...merged], ...extra });
-  t.step(1, "start", "dummy = ListNode(0), tail = dummy", "The dummy node is a fake first node, so attaching the very first real node needs no special case. tail marks where to attach next.", vars());
+  t.step(1, "start", "dummy = ListNode(0), tail = dummy", "The dummy node is a fake first node. It means attaching the very first real node is no different from attaching any other. tail marks where to attach the next node.", vars());
   while (ai < a.length && bi < b.length) {
     t.step(3, "check", `a = ${a[ai]}, b = ${b[bi]}: both lists have nodes`, "Compare the front nodes of the two lists.", vars(), "a");
     if (a[ai] <= b[bi]) {
       const v = a[ai];
       merged.push(v);
       ai++;
-      t.step(4, "update", `${v} (from a) is not larger: attach it`, `tail.next = a, then a moves to its next node. The smaller front node always goes next because both lists are already sorted.`, vars(), "merged");
+      t.step(4, "update", `${v} (from a) is not larger: attach it`, `tail.next = a, then a moves to its next node. The smaller front node always goes next, because both lists are already sorted.`, vars(), "merged");
     } else {
       const v = b[bi];
       merged.push(v);
@@ -78,10 +78,10 @@ function mergeTrace() {
     }
   }
   const left = ai < a.length ? a.slice(ai) : b.slice(bi);
-  t.step(3, "check", `${ai >= a.length ? "a" : "b"} is empty: loop ends`, "One list ran out.", vars());
+  t.step(3, "check", `${ai >= a.length ? "a" : "b"} is empty: loop ends`, "One of the lists has no nodes left.", vars());
   merged.push(...left);
-  t.step(8, "update", `tail.next = ${left.length ? left[0] : "null"} (the rest of the other list)`, "The remaining nodes are already sorted and all larger than what is merged, so they are attached in one move rather than one by one.", { merged: [...merged] }, "merged");
-  t.step(9, "done", "return dummy.next", `The merged list is ${merged.join(" → ")}. dummy itself is thrown away.`, { merged: [...merged] });
+  t.step(8, "update", `tail.next = ${left.length ? left[0] : "null"} (the rest of the other list)`, "The remaining nodes are already sorted. They are all larger than what we have merged so far. So we attach them all in one move instead of one by one.", { merged: [...merged] }, "merged");
+  t.step(9, "done", "return dummy.next", `The merged list is ${merged.join(" → ")}. We do not need the dummy node any more, so we skip it.`, { merged: [...merged] });
   return t.steps;
 }
 
@@ -183,9 +183,9 @@ export default function DsaLessonThirtySevenPage() {
       <h2 id="merge">Merging two sorted lists</h2>
       <p>
         You already merged two sorted <em>arrays</em> in the sorting part. With linked lists the idea is the same, but it
-        is even neater: you do not copy anything, you just relink the existing nodes in the right order. A{" "}
-        <strong>dummy head</strong> and a <code>tail</code> pointer make it short. The dummy is a throwaway first node so that
-        attaching the first real node is no different from attaching any other.
+        is even neater. You do not copy anything. You just change the links of the existing nodes to put them in the right order. A{" "}
+        <strong>dummy head</strong> and a <code>tail</code> pointer keep the code short. The dummy is a fake first node that you throw away at the end.
+        It means attaching the first real node is no different from attaching any other.
       </p>
       <CodeBlock lang="js" code={mergeCode} />
 
@@ -196,32 +196,32 @@ export default function DsaLessonThirtySevenPage() {
         caption="Always attach the smaller front node. When one list runs out, attach the other list's remainder in one move."
       />
       <p>
-        Time is <strong>O(m + n)</strong> (every node is attached once) and extra space is <strong>O(1)</strong>. Using{" "}
-        <code>&lt;=</code> rather than <code>&lt;</code> keeps the merge <strong>stable</strong>: equal values from the first list
-        stay ahead of equal values from the second.
+        Time is <strong>O(m + n)</strong> (m and n are the two list lengths, and every node is attached once). Extra space is <strong>O(1)</strong>. Using{" "}
+        <code>&lt;=</code> instead of <code>&lt;</code> keeps the merge <strong>stable</strong>. Stable means that equal values from the first list
+        stay ahead of equal values from the second list.
       </p>
 
       <h2 id="start">Where a cycle starts</h2>
       <p>
-        Lesson 36 detected <em>whether</em> there is a cycle. To find <em>where</em> it begins, use a second phase. When slow and
-        fast first meet, leave <code>slow</code> there and put a new pointer at the head. Move both one step at a time: they meet at
+        Lesson 36 checked <em>whether</em> there is a cycle. To find <em>where</em> it begins, add a second phase. When slow and
+        fast first meet, leave <code>slow</code> where it is and put a new pointer at the head. Move both one step at a time. They meet at
         the first node of the cycle.
       </p>
       <CodeBlock lang="js" code={startCode} />
       <p>
-        <strong>Why it works.</strong> Let the straight part before the loop have length <em>a</em>, and let the meeting point
-        be <em>b</em> steps into the loop, whose length is <em>c</em>. Slow has walked <em>a + b</em>. Fast has walked twice
-        that, and it is at the same node, so it walked exactly some whole number of extra laps: <em>2(a + b) = a + b + k·c</em>,
-        which gives <em>a + b = k·c</em>, i.e. <em>a = k·c − b</em>. From the meeting point, walking <em>a</em> more steps
-        therefore ends at the loop start (<em>k</em> laps minus the <em>b</em> already covered). The pointer from the head also walks <em>a</em>
-        steps and lands at the loop start. They arrive together.
+        <strong>Why it works.</strong> Let the straight part before the loop have length <em>a</em>. Let the meeting point
+        be <em>b</em> steps into the loop, and let the loop have length <em>c</em>. Slow has walked <em>a + b</em> steps. Fast has walked twice
+        as many. Fast is at the same node as slow, so it must have walked some whole number of extra laps (call it <em>k</em>). That gives <em>2(a + b) = a + b + k·c</em>,
+        so <em>a + b = k·c</em>, which means <em>a = k·c − b</em>. Now start at the meeting point and walk <em>a</em> more steps.
+        You end at the loop start (<em>k</em> laps, minus the <em>b</em> steps already covered). The pointer from the head also walks <em>a</em>
+        steps and lands at the loop start. So they arrive together.
       </p>
 
       <h2 id="nth">Remove the n-th node from the end</h2>
       <p>
-        You do not know the length, and you want to delete a node counted from the back. Use a <strong>gap</strong>: send{" "}
-        <code>fast</code> n nodes ahead, then move both pointers together. When fast stands on the last node, slow stands
-        exactly one before the node to delete (the gap never changes). Starting both at a dummy head handles removing the real head.
+        You do not know the length, and you want to delete a node counted from the back. Use a <strong>gap</strong>. First, send{" "}
+        <code>fast</code> n nodes ahead. Then move both pointers together. The gap between them never changes. So when fast is on the last node, slow is
+        exactly one node before the node to delete. Start both at a dummy head. Then removing the real head works too.
       </p>
       <CodeBlock lang="js" code={nthCode} />
       <DryRun
@@ -235,62 +235,62 @@ export default function DsaLessonThirtySevenPage() {
           ["again", "3", "5"],
           ["fast.next is null: stop. slow.next (4) is deleted", "3", "5"],
         ]}
-        note="The result is 1 → 2 → 3 → 5. Fast sets a fixed distance; slow ends up that far behind the end."
+        note="The result is 1 → 2 → 3 → 5. Fast sets a fixed distance. Slow always stays that far behind fast."
       />
 
       <h2 id="intersection">Where two lists meet</h2>
       <p>
-        Two lists can <em>share</em> their tails (the same node objects, not just equal values). The trick: walk pointer{" "}
-        <code>p</code> along list A and then along list B, and <code>q</code> along B and then along A. Both walk the same total
-        distance, <em>len(A) + len(B)</em>, so they arrive at the shared node at the same moment. If the lists never share a node,
-        both reach <code>null</code> together and the loop ends with <code>null</code>.
+        Two lists can <em>share</em> their tails. This means the same node objects, not just equal values. Here is the trick. Walk pointer{" "}
+        <code>p</code> along list A and then along list B. Walk <code>q</code> along list B and then along list A. Both walk the same total
+        distance, <em>len(A) + len(B)</em>. So they arrive at the shared node at the same moment. If the lists never share a node,
+        both pointers reach <code>null</code> together, and the loop ends with <code>null</code>.
       </p>
       <CodeBlock lang="js" code={intersectionCode} />
       <Callout kind="warn" label="Same node, not same value">
-        Intersection means the <em>same object</em>, so compare with <code>===</code> on the nodes. Comparing <code>val</code> would
-        wrongly match two separate lists that happen to contain equal numbers.
+        Two lists meet only if they share the <em>same object</em>. So compare the nodes with <code>===</code>. If you compare <code>val</code>, you would
+        wrongly match two separate lists that just happen to contain equal numbers.
       </Callout>
 
       <h2 id="add">Adding two numbers held in lists</h2>
       <p>
-        Each list holds one digit per node with the <em>least</em> significant digit first, so adding is just the schoolbook
-        method walking left to right with a <strong>carry</strong>. Keep going while either list has digits <em>or</em> there is a
-        carry left, otherwise <code>99 + 1</code> would lose its final 1.
+        Each list holds one digit per node, with the <em>smallest</em> place first (the ones digit comes first). So adding works like the addition you learned at school.
+        You go from left to right and keep a <strong>carry</strong> (the extra 1 you carry to the next digit). Keep going while either list has digits <em>or</em> there is a
+        carry left. If you stop too early, <code>99 + 1</code> would lose its final 1.
       </p>
       <CodeBlock lang="js" code={addCode} />
 
       <h2 id="sort">Sorting a list with merge sort</h2>
       <p>
-        Merge sort suits linked lists well: finding the middle is the slow/fast trick, splitting is one pointer change, and merging
-        needs no extra array. It runs in <strong>O(n log n)</strong>. Quick sort and binary search, on the other hand, need random
-        access and fit lists badly.
+        Merge sort works well on linked lists. Finding the middle uses the slow and fast trick. Splitting takes one pointer change. Merging
+        needs no extra array. It runs in <strong>O(n log n)</strong> time. Quick sort and binary search are a poor fit for lists. They need random
+        access, which means jumping straight to any position. A linked list cannot do that.
       </p>
       <CodeBlock lang="js" code={sortCode} />
       <Callout kind="ok" label="Why fast starts at head.next">
-        For a two-node list <code>[1, 2]</code>, starting both at <code>head</code> would leave slow on the second node, so the
-        first half would be both nodes and the second empty: the recursion would never shrink. Starting <code>fast</code> one
-        step ahead stops <code>slow</code> on the <em>last node of the first half</em>, so both halves are always smaller.
+        Take the two-node list <code>[1, 2]</code>. If both pointers start at <code>head</code>, slow ends on the second node. Then the
+        first half would be both nodes and the second half would be empty. The recursion would never get smaller. If <code>fast</code> starts one
+        step ahead, <code>slow</code> stops on the <em>last node of the first half</em>. Then both halves are always smaller.
       </Callout>
 
       <h2 id="practice">Practice questions</h2>
-      <p>All of these are the same toolkit: dummy head, trailing pointer, slow/fast, and careful rewiring.</p>
+      <p>All of these use the same tools: a dummy head, a trailing pointer, slow and fast pointers, and careful changes to the links.</p>
 
       <Questions />
 
       <h2 id="recall">Make it stick</h2>
       <Recall
         items={[
-          <>Write the merge loop with a dummy head, and explain the last line (<code>tail.next = a || b</code>).</>,
-          <>Describe the two phases of finding a cycle&apos;s start and what the second phase does.</>,
+          <>Write the merge loop with a dummy head. Explain the last line (<code>tail.next = a || b</code>).</>,
+          <>Describe the two phases for finding where a cycle starts. Say what the second phase does.</>,
           <>Explain how a gap of n nodes finds the n-th node from the end in one pass.</>,
-          <>Explain why the intersection trick makes both pointers travel the same distance.</>,
+          <>Explain why the intersection trick makes both pointers walk the same distance.</>,
         ]}
       />
 
       <h2 id="next">What&apos;s next</h2>
       <p>
-        <strong>Lesson 38</strong> leaves lists for a new structure: the <strong>stack</strong>, last in first out. It solves
-        brackets matching, a stack with a minimum, and expression evaluation.
+        <strong>Lesson 38</strong> leaves lists and brings a new structure: the <strong>stack</strong>. A stack is last in, first out,
+        like a pile of plates. You use it to match brackets, to build a stack that knows its minimum, and to work out expressions.
       </p>
     </DsaLessonPage>
   );

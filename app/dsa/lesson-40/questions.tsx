@@ -9,12 +9,12 @@ export default function Questions() {
         title="Next greater element I"
         level="Easy"
         examples={[
-          { input: "nums1 = [4, 1, 2], nums2 = [1, 3, 4, 2]", output: "[-1, 3, -1]", why: "In nums2, after 4 nothing is greater; after 1 comes 3; after 2 nothing." },
-          { input: "nums1 = [2, 4], nums2 = [1, 2, 3, 4]", output: "[3, -1]", why: "After 2 the next greater is 3; 4 has none." },
+          { input: "nums1 = [4, 1, 2], nums2 = [1, 3, 4, 2]", output: "[-1, 3, -1]", why: "In nums2, nothing bigger comes after 4. After 1 comes 3. Nothing bigger comes after 2." },
+          { input: "nums1 = [2, 4], nums2 = [1, 2, 3, 4]", output: "[3, -1]", why: "After 2 the next bigger number is 3. There is none for 4." },
         ]}
         hints={[
-          <>nums1 is a subset of nums2. Compute the next greater element for <em>every</em> value of nums2 once, and look them up.</>,
-          <>Store the answers in a Map from value to its next greater value.</>,
+          <>nums1 is a subset of nums2 (every number in nums1 is also in nums2). Work out the next greater element for <em>every</em> value of nums2 once, and then look the answers up.</>,
+          <>Store the answers in a Map. Each value points to its next greater value.</>,
         ]}
         approaches={[
           {
@@ -33,7 +33,7 @@ console.log(nextGreaterElement([4, 1, 2], [1, 3, 4, 2])); // [-1, 3, -1]`,
           },
           {
             name: "Monotonic stack plus a Map",
-            idea: <p>One pass over nums2 with the stack; whenever a value is popped, its answer is the current value. Then answer each nums1 value from the Map.</p>,
+            idea: <p>Go through nums2 once with the stack. Whenever you pop a value, its answer is the current value. Then look up each nums1 value in the Map.</p>,
             code: `function nextGreaterElement(nums1, nums2) {
   const next = new Map();
   const stack = [];
@@ -46,12 +46,12 @@ console.log(nextGreaterElement([4, 1, 2], [1, 3, 4, 2])); // [-1, 3, -1]`,
 
 console.log(nextGreaterElement([4, 1, 2], [1, 3, 4, 2])); // [-1, 3, -1]
 console.log(nextGreaterElement([2, 4], [1, 2, 3, 4]));    // [3, -1]`,
-            explain: <p>O(m + n). Storing values (not indices) is fine because the values in nums2 are distinct.</p>,
+            explain: <p>O(m + n). You can store values (not indices) because all the values in nums2 are different.</p>,
           },
         ]}
-        compare={<p>The stack with a Map. (LeetCode 496.)</p>}
+        compare={<p>Use the stack with a Map. (LeetCode 496.)</p>}
       >
-        <p>For each number in <code>nums1</code>, find the first greater number to its right in <code>nums2</code> (or −1). All numbers are distinct.</p>
+        <p>For each number in <code>nums1</code>, find the first bigger number to its right in <code>nums2</code>. If there is none, the answer is −1. All numbers are different.</p>
       </Problem>
 
       <Problem
@@ -60,15 +60,15 @@ console.log(nextGreaterElement([2, 4], [1, 2, 3, 4]));    // [3, -1]`,
         level="Medium"
         examples={[
           { input: "[1, 2, 1]", output: "[2, -1, 2]", why: "The last 1 wraps around to the start and finds 2." },
-          { input: "[1, 2, 3, 4, 3]", output: "[2, 3, 4, -1, 4]", why: "The last 3 wraps and finds 4." },
+          { input: "[1, 2, 3, 4, 3]", output: "[2, 3, 4, -1, 4]", why: "The last 3 wraps around and finds 4." },
         ]}
         hints={[
-          <>A circular array is the same array repeated. How many laps are enough?</>,
+          <>A circular array works like the same array repeated again and again. How many laps are enough?</>,
         ]}
         approaches={[
           {
             name: "Scan up to n−1 steps for each item",
-            idea: <p>For every index, check the next n − 1 positions using modulo.</p>,
+            idea: <p>For every index, check the next n − 1 positions. Use modulo (<code>%</code>, the remainder) to wrap back to the start.</p>,
             code: `function nextGreaterElements(nums) {
   const n = nums.length;
   return nums.map((x, i) => {
@@ -85,7 +85,7 @@ console.log(nextGreaterElements([1, 2, 1])); // [2, -1, 2]`,
           },
           {
             name: "Stack over two laps",
-            idea: <p>Loop <code>i</code> from 0 to 2n − 1, reading <code>nums[i % n]</code>, pushing indices only in the first lap.</p>,
+            idea: <p>Loop <code>i</code> from 0 to 2n − 1 and read <code>nums[i % n]</code>. Push indices only during the first lap.</p>,
             code: `function nextGreaterElements(nums) {
   const n = nums.length;
   const out = new Array(n).fill(-1);
@@ -100,12 +100,12 @@ console.log(nextGreaterElements([1, 2, 1])); // [2, -1, 2]`,
 
 console.log(nextGreaterElements([1, 2, 1]));       // [2, -1, 2]
 console.log(nextGreaterElements([1, 2, 3, 4, 3])); // [2, 3, 4, -1, 4]`,
-            explain: <p>O(n): at most n pushes and n pops overall. Two laps suffice because any answer is within n − 1 steps.</p>,
+            explain: <p>O(n). There are at most n pushes and n pops in total. Two laps are enough, because any answer is within n − 1 steps.</p>,
           },
         ]}
-        compare={<p>The stack. (LeetCode 503.)</p>}
+        compare={<p>Use the stack. (LeetCode 503.)</p>}
       >
-        <p>The same question for a circular array, where the search for the next greater value may wrap around.</p>
+        <p>The same question, but the array is circular. The search for the next greater value may wrap around to the start.</p>
       </Problem>
 
       <Problem
@@ -114,15 +114,15 @@ console.log(nextGreaterElements([1, 2, 3, 4, 3])); // [2, 3, 4, -1, 4]`,
         level="Medium"
         examples={[
           { input: "[73, 74, 75, 71, 69, 72, 76, 73]", output: "[1, 1, 4, 2, 1, 1, 0, 0]", why: "From 75 (day 2) you wait four days for 76." },
-          { input: "[30, 40, 50, 60]", output: "[1, 1, 1, 0]", why: "Each day is followed by a warmer one, except the last." },
+          { input: "[30, 40, 50, 60]", output: "[1, 1, 1, 0]", why: "A warmer day follows each day, except the last day." },
         ]}
         hints={[
-          <>The same pattern, but the answer is a distance. Store indices.</>,
+          <>It is the same pattern, but the answer is a distance. Store indices (positions).</>,
         ]}
         approaches={[
           {
             name: "Scan forward",
-            idea: <p>For each day, scan ahead until a warmer day appears.</p>,
+            idea: <p>For each day, look ahead until you find a warmer day.</p>,
             code: `function dailyTemperatures(temps) {
   return temps.map((t, i) => {
     for (let j = i + 1; j < temps.length; j++) if (temps[j] > t) return j - i;
@@ -131,11 +131,11 @@ console.log(nextGreaterElements([1, 2, 3, 4, 3])); // [2, 3, 4, -1, 4]`,
 }
 
 console.log(dailyTemperatures([73, 74, 75, 71, 69, 72, 76, 73])); // [1, 1, 4, 2, 1, 1, 0, 0]`,
-            explain: <p>O(n²) for a descending array.</p>,
+            explain: <p>O(n²) when the temperatures keep going down.</p>,
           },
           {
             name: "Monotonic stack of indices",
-            idea: <p>Pop every waiting day colder than today; its answer is <code>i − j</code>.</p>,
+            idea: <p>Pop every waiting day that is colder than today. Its answer is <code>i − j</code>.</p>,
             code: `function dailyTemperatures(temps) {
   const answer = new Array(temps.length).fill(0);
   const stack = [];
@@ -154,8 +154,8 @@ console.log(dailyTemperatures([30, 40, 50, 60]));                  // [1, 1, 1, 
             explain: <p>O(n) time and space.</p>,
           },
           {
-            name: "Scan from the right with jumps",
-            idea: <p>Walking backwards, use already-computed answers to jump: if <code>temps[j]</code> is not warmer, jump to the day <code>j + answer[j]</code> that was warmer than it.</p>,
+            name: "Scan from the right and jump ahead",
+            idea: <p>Walk backwards and use the answers you already have to jump ahead. If <code>temps[j]</code> is not warmer, jump to the day <code>j + answer[j]</code>, which was warmer than day <code>j</code>.</p>,
             code: `function dailyTemperatures(temps) {
   const n = temps.length;
   const answer = new Array(n).fill(0);
@@ -171,12 +171,12 @@ console.log(dailyTemperatures([30, 40, 50, 60]));                  // [1, 1, 1, 
 }
 
 console.log(dailyTemperatures([73, 74, 75, 71, 69, 72, 76, 73])); // [1, 1, 4, 2, 1, 1, 0, 0]`,
-            explain: <p>O(n) without an explicit stack, but it is harder to prove. Good to know it exists; use the stack in an interview.</p>,
+            explain: <p>O(n) without a stack, but it is harder to prove that it works. It is good to know it exists. In an interview, use the stack.</p>,
           },
         ]}
-        compare={<p>The stack. (LeetCode 739.)</p>}
+        compare={<p>Use the stack. (LeetCode 739.)</p>}
       >
-        <p>For each day, return how many days you must wait for a warmer temperature (0 if never).</p>
+        <p>For each day, return how many days you must wait for a warmer temperature. If it never gets warmer, return 0.</p>
       </Problem>
 
       <Problem
@@ -184,16 +184,16 @@ console.log(dailyTemperatures([73, 74, 75, 71, 69, 72, 76, 73])); // [1, 1, 4, 2
         title="Online stock span"
         level="Medium"
         examples={[
-          { input: "next(100), next(80), next(60), next(70), next(60), next(75), next(85)", output: "1, 1, 1, 2, 1, 4, 6", why: "75 spans back over 60, 70, 60 and itself; 85 spans over everything except 100." },
+          { input: "next(100), next(80), next(60), next(70), next(60), next(75), next(85)", output: "1, 1, 1, 2, 1, 4, 6", why: "75 spans back over 60, 70, 60 and itself. 85 spans over everything except 100." },
         ]}
         hints={[
           <>Prices arrive one at a time, so you cannot look ahead. Keep a stack of earlier prices.</>,
-          <>If a smaller price is already summarised by a span, you do not need to look at its days again.</>,
+          <>If a smaller price is already counted in a span, you do not need to look at its days again.</>,
         ]}
         approaches={[
           {
             name: "Walk back through all prices",
-            idea: <p>Keep every price; for each new one count backwards while prices are at most today&apos;s.</p>,
+            idea: <p>Keep every price. For each new price, count backwards while the earlier prices are at most today&apos;s price.</p>,
             code: `class StockSpanner {
   constructor() { this.prices = []; }
   next(price) {
@@ -206,11 +206,11 @@ console.log(dailyTemperatures([73, 74, 75, 71, 69, 72, 76, 73])); // [1, 1, 4, 2
 
 const s = new StockSpanner();
 console.log([100, 80, 60, 70, 60, 75, 85].map((p) => s.next(p))); // [1, 1, 1, 2, 1, 4, 6]`,
-            explain: <p>O(n) per call, O(n²) overall for an increasing sequence.</p>,
+            explain: <p>O(n) per call. If the prices keep going up, the total is O(n²).</p>,
           },
           {
             name: "Monotonic stack of [price, span]",
-            idea: <p>Pop all entries with price ≤ today&apos;s, adding their spans to today&apos;s. Push the result.</p>,
+            idea: <p>Pop all entries with a price ≤ today&apos;s price, and add their spans to today&apos;s span. Then push the result.</p>,
             code: `class StockSpanner {
   constructor() { this.stack = []; }
   next(price) {
@@ -225,12 +225,12 @@ console.log([100, 80, 60, 70, 60, 75, 85].map((p) => s.next(p))); // [1, 1, 1, 2
 
 const s = new StockSpanner();
 console.log([100, 80, 60, 70, 60, 75, 85].map((p) => s.next(p))); // [1, 1, 1, 2, 1, 4, 6]`,
-            explain: <p>Amortised O(1) per call, since each entry is pushed and popped at most once.</p>,
+            explain: <p>The average cost is O(1) per call (amortised), because each entry is pushed once and popped at most once.</p>,
           },
         ]}
-        compare={<p>The stack with spans. (LeetCode 901.)</p>}
+        compare={<p>Use the stack with spans. (LeetCode 901.)</p>}
       >
-        <p>Each call <code>next(price)</code> returns the number of consecutive days up to and including today with a price ≤ today&apos;s.</p>
+        <p>Each call <code>next(price)</code> returns the number of days in a row, up to and including today, with a price ≤ today&apos;s price.</p>
       </Problem>
 
       <Problem
@@ -239,16 +239,16 @@ console.log([100, 80, 60, 70, 60, 75, 85].map((p) => s.next(p))); // [1, 1, 1, 2
         level="Hard"
         examples={[
           { input: "[2, 1, 5, 6, 2, 3]", output: "10", why: "Bars 5 and 6, width 2, height 5." },
-          { input: "[2, 4]", output: "4", why: "Either one bar of 4, or two bars of height 2." },
+          { input: "[2, 4]", output: "4", why: "Either one bar of height 4, or two bars of height 2 side by side." },
         ]}
         hints={[
-          <>Fix a bar as the shortest bar in the rectangle. How far left and right can it extend?</>,
-          <>Those limits are the previous smaller and next smaller bars.</>,
+          <>Pick one bar to be the shortest bar in the rectangle. How far can the rectangle go to the left and to the right?</>,
+          <>The limits are the previous smaller bar and the next smaller bar.</>,
         ]}
         approaches={[
           {
             name: "Expand from every bar",
-            idea: <p>For each bar, walk left and right while bars are at least as tall; area = height × width.</p>,
+            idea: <p>For each bar, walk left and right as long as the bars are at least as tall. The area is height × width.</p>,
             code: `function largestRectangle(heights) {
   let best = 0;
   for (let i = 0; i < heights.length; i++) {
@@ -265,7 +265,7 @@ console.log(largestRectangle([2, 1, 5, 6, 2, 3])); // 10`,
           },
           {
             name: "Monotonic stack (increasing heights)",
-            idea: <p>When a shorter bar arrives, pop taller bars; each popped bar's rectangle spans between the new stack top and the current index. Add a height-0 bar at the end to flush.</p>,
+            idea: <p>When a shorter bar arrives, pop the taller bars. Each popped bar's rectangle spans from the new stack top to the current index. Add a bar of height 0 at the end to empty the stack.</p>,
             code: `function largestRectangle(heights) {
   const stack = [];
   let best = 0;
@@ -284,12 +284,12 @@ console.log(largestRectangle([2, 1, 5, 6, 2, 3])); // 10`,
 console.log(largestRectangle([2, 1, 5, 6, 2, 3])); // 10
 console.log(largestRectangle([2, 4]));             // 4
 console.log(largestRectangle([1, 1, 1, 1]));       // 4`,
-            explain: <p>O(n). For equal heights the earlier bar is popped with a width that stops at the equal bar, but the later equal bar then covers the full width, so the maximum is still correct.</p>,
+            explain: <p>O(n). When two bars have equal heights, the earlier bar is popped with a width that stops at the equal bar. But the later equal bar then covers the full width. So the biggest area is still correct.</p>,
           },
         ]}
-        compare={<p>The stack. This is one of the most-asked hard questions; practise until you can write it without looking. (LeetCode 84.)</p>}
+        compare={<p>Use the stack. This is one of the hard questions that interviewers ask most. Practise until you can write it without looking. (LeetCode 84.)</p>}
       >
-        <p>Given bar heights (each bar has width 1), return the area of the largest rectangle that fits inside the histogram.</p>
+        <p>You get the bar heights (each bar has width 1). Return the area of the largest rectangle that fits inside the histogram.</p>
       </Problem>
 
       <Problem
@@ -297,17 +297,17 @@ console.log(largestRectangle([1, 1, 1, 1]));       // 4`,
         title="Trapping rain water"
         level="Hard"
         examples={[
-          { input: "[0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1]", output: "6", why: "Pools form between the taller bars." },
-          { input: "[4, 2, 0, 3, 2, 5]", output: "9", why: "Water fills between the walls of 4 and 5." },
+          { input: "[0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1]", output: "6", why: "Water pools form between the taller bars." },
+          { input: "[4, 2, 0, 3, 2, 5]", output: "9", why: "Water fills the space between the walls of height 4 and 5." },
         ]}
         hints={[
-          <>The water above one bar is <code>min(tallest to its left, tallest to its right) − its height</code>.</>,
-          <>You can precompute the tallest on each side, or avoid the arrays with two pointers.</>,
+          <>The water above one bar is <code>min(tallest bar to its left, tallest bar to its right) − its own height</code>.</>,
+          <>You can work out the tallest bar on each side first and store it. Or you can use two pointers and skip the extra arrays.</>,
         ]}
         approaches={[
           {
-            name: "Prefix and suffix maximums",
-            idea: <p>Arrays <code>leftMax[i]</code> and <code>rightMax[i]</code> give the walls for every bar; sum <code>min(...) − height</code>.</p>,
+            name: "Biggest so far from the left and from the right",
+            idea: <p>The arrays <code>leftMax[i]</code> and <code>rightMax[i]</code> give the two walls for every bar. Add up <code>min(...) − height</code> for all bars.</p>,
             code: `function trap(height) {
   const n = height.length;
   const leftMax = new Array(n), rightMax = new Array(n);
@@ -322,11 +322,11 @@ console.log(largestRectangle([1, 1, 1, 1]));       // 4`,
 
 console.log(trap([0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1])); // 6
 console.log(trap([4, 2, 0, 3, 2, 5]));                    // 9`,
-            explain: <p>O(n) time, O(n) space. It is the same idea as a prefix sum, using maximum instead of sum.</p>,
+            explain: <p>O(n) time, O(n) space. It is the same idea as a prefix sum (a running total), but it keeps the biggest value so far instead of the sum.</p>,
           },
           {
             name: "Monotonic stack",
-            idea: <p>Keep indices of decreasing bars. When a taller bar arrives, pop the floor and fill the pool between the new top and the current bar.</p>,
+            idea: <p>Keep the indices of bars whose heights go down. When a taller bar arrives, pop the floor bar. Then fill the pool between the new top bar and the current bar.</p>,
             code: `function trap(height) {
   const stack = [];
   let water = 0;
@@ -344,11 +344,11 @@ console.log(trap([4, 2, 0, 3, 2, 5]));                    // 9`,
 
 console.log(trap([0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1])); // 6
 console.log(trap([4, 2, 0, 3, 2, 5]));                    // 9`,
-            explain: <p>O(n) time, O(n) space. Water is counted in horizontal layers rather than per bar.</p>,
+            explain: <p>O(n) time, O(n) space. This version counts the water in horizontal layers, not bar by bar.</p>,
           },
           {
             name: "Two pointers",
-            idea: <p>Move inwards from the shorter side. Its water level is limited by its own running maximum, since the other side has an equal or taller wall.</p>,
+            idea: <p>Move in from the shorter side. The water level there is set by the tallest bar seen so far on that side, because the other side has a wall that is equal or taller.</p>,
             code: `function trap(height) {
   let l = 0, r = height.length - 1, leftMax = 0, rightMax = 0, water = 0;
   while (l < r) {
@@ -365,12 +365,12 @@ console.log(trap([4, 2, 0, 3, 2, 5]));                    // 9`,
 
 console.log(trap([0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1])); // 6
 console.log(trap([4, 2, 0, 3, 2, 5]));                    // 9`,
-            explain: <p>O(n) time and O(1) space. The best final answer; present the prefix/suffix version first because it is easy to justify.</p>,
+            explain: <p>O(n) time and O(1) space. This is the best final answer. Show the left-and-right-maximum version first, because it is easy to explain.</p>,
           },
         ]}
-        compare={<p>Walk the interviewer up: prefix/suffix, then two pointers. (LeetCode 42.)</p>}
+        compare={<p>Take the interviewer step by step: first the left and right maximum arrays, then two pointers. (LeetCode 42.)</p>}
       >
-        <p>Given the heights of bars of width 1, compute how much rain water is trapped between them.</p>
+        <p>You get the heights of bars that are each 1 wide. Work out how much rain water is trapped between them.</p>
       </Problem>
 
       <Problem
@@ -378,18 +378,18 @@ console.log(trap([4, 2, 0, 3, 2, 5]));                    // 9`,
         title="Remove K digits"
         level="Medium"
         examples={[
-          { input: "num = \"1432219\", k = 3", output: "\"1219\"", why: "Removing 4, 3 and 2 leaves the smallest possible number." },
-          { input: "num = \"10200\", k = 1", output: "\"200\"", why: "Remove the 1; strip the leading zero." },
-          { input: "num = \"10\", k = 2", output: "\"0\"", why: "Removing everything gives zero." },
+          { input: "num = \"1432219\", k = 3", output: "\"1219\"", why: "Remove 4, 3 and 2. What is left is the smallest possible number." },
+          { input: "num = \"10200\", k = 1", output: "\"200\"", why: "Remove the 1, then remove the zero at the front." },
+          { input: "num = \"10\", k = 2", output: "\"0\"", why: "If you remove everything, the answer is zero." },
         ]}
         hints={[
-          <>A digit that is larger than the one after it should be removed first: the earlier a digit is, the more it matters.</>,
-          <>Keep a stack of digits that never decrease; pop while the new digit is smaller and you still have removals left.</>,
+          <>If a digit is bigger than the digit after it, remove it first. The earlier a digit is, the more it matters.</>,
+          <>Keep a stack of digits that never go down. Pop while the new digit is smaller and you still have removals left.</>,
         ]}
         approaches={[
           {
             name: "Try every removal (brute force)",
-            idea: <p>Try deleting each digit, k times, always keeping the smaller result.</p>,
+            idea: <p>Try deleting each digit, and repeat this k times. Each time, keep the smaller result.</p>,
             code: `function removeKdigits(num, k) {
   while (k > 0 && num.length > 0) {
     let best = null;
@@ -406,16 +406,16 @@ console.log(trap([4, 2, 0, 3, 2, 5]));                    // 9`,
 
 console.log(removeKdigits("1432219", 3)); // 1219
 console.log(removeKdigits("10200", 1));   // 200`,
-            explain: <p>Far too slow for long inputs (up to 10⁵ digits), but it clarifies the goal.</p>,
+            explain: <p>Far too slow for long inputs (up to 10⁵ digits). But it makes the goal clear.</p>,
           },
           {
             name: "Monotonic stack",
             idea: (
               <ol>
-                <li>For each digit, while <code>k &gt; 0</code> and the stack top is larger than the digit, pop it (one removal).</li>
+                <li>For each digit: while <code>k &gt; 0</code> and the stack top is bigger than the digit, pop the top. That is one removal.</li>
                 <li>Push the digit.</li>
-                <li>If removals remain, drop them from the end (the stack is non-decreasing, so the end is the largest).</li>
-                <li>Strip leading zeros; return &quot;0&quot; for an empty result.</li>
+                <li>If you still have removals left, remove digits from the end. The stack never goes down, so its end holds the biggest digits.</li>
+                <li>Remove the zeros at the front. If nothing is left, return &quot;0&quot;.</li>
               </ol>
             ),
             code: `function removeKdigits(num, k) {
@@ -432,12 +432,12 @@ console.log(removeKdigits("10200", 1));   // 200`,
 console.log(removeKdigits("1432219", 3)); // 1219
 console.log(removeKdigits("10200", 1));   // 200
 console.log(removeKdigits("10", 2));      // 0`,
-            explain: <p>O(n). Comparing digit characters directly works because "0" &lt; "9" in text order, the same as in number order.</p>,
+            explain: <p>O(n). You can compare the digit characters directly, because "0" &lt; "9" in text order, just like in number order.</p>,
           },
         ]}
-        compare={<p>The stack: another &quot;remove the earlier, larger item&quot; problem in disguise. (LeetCode 402.)</p>}
+        compare={<p>Use the stack. This is another &quot;remove the earlier, bigger item&quot; problem in disguise. (LeetCode 402.)</p>}
       >
-        <p>Remove exactly <code>k</code> digits from a number string so the remaining number is as small as possible.</p>
+        <p>Remove exactly <code>k</code> digits from a number string. The number that is left must be as small as possible.</p>
       </Problem>
     </>
   );

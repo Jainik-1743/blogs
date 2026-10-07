@@ -156,48 +156,51 @@ export default function DsaLessonThirtySixPage() {
     <DsaLessonPage lesson={lesson} outline={outline}>
       <h2 id="reverse">Reversing a list</h2>
       <p>
-        Reversing a linked list is the single most common linked-list question, and the trick is not the idea (turn every
-        arrow around) but doing it <em>without losing the rest of the list</em>. You walk down the list with a cursor and, for
-        each node, point its <code>next</code> backwards instead of forwards. Three variables do the job:
+        Reversing a linked list is the most common linked-list question. The idea is easy: turn every arrow around. The hard
+        part is doing it <em>without losing the rest of the list</em>. You walk down the list one node at a time. For
+        each node, you make its <code>next</code> point backwards instead of forwards. Three variables do the job:
       </p>
       <ul>
-        <li><code>cur</code> — the node being turned around right now.</li>
-        <li><code>prev</code> — the node before it, which becomes <code>cur</code>&apos;s new <code>next</code>. It is also the head of the reversed part built so far.</li>
-        <li><code>next</code> — a saved copy of <code>cur.next</code>, because the link is about to be overwritten.</li>
+        <li><code>cur</code> — the node we are turning around right now.</li>
+        <li><code>prev</code> — the node before it. It becomes <code>cur</code>&apos;s new <code>next</code>. It is also the head of the reversed part we have built so far.</li>
+        <li><code>next</code> — a saved copy of <code>cur.next</code>. We need it because the link is about to be overwritten.</li>
       </ul>
       <CodeBlock lang="js" code={reverseCode} />
       <Callout kind="warn" label="Save next before you cut">
         The first line in the loop is <code>const next = cur.next</code> for a reason. If you write <code>cur.next = prev</code>{" "}
-        first, the only reference to the rest of the list is gone, and the loop cannot continue.
+        first, you lose your only way to reach the rest of the list. Then the loop cannot continue. It is like cutting a rope
+        before you have a grip on the other end.
       </Callout>
 
       <h2 id="trace">Traced: reversing 1 → 2 → 3</h2>
       <CodeTrace
         code={traceSrc}
         steps={reverseTrace()}
-        caption="'reversed' is the chain starting at prev; 'rest' is what cur has not reached yet. Each round moves one node from rest to the front of reversed."
+        caption="'reversed' is the chain that starts at prev. 'rest' is the part cur has not reached yet. Each round moves one node from rest to the front of reversed."
       />
-      <p>It runs in <strong>O(n)</strong> time and <strong>O(1)</strong> extra space: it reuses the existing nodes and only changes arrows.</p>
+      <p>It takes <strong>O(n)</strong> time (the work grows in step with the list length) and <strong>O(1)</strong> extra space (only a few variables, however long the list is). It reuses the same nodes and only changes arrows.</p>
 
       <h2 id="recursive">The recursive version</h2>
       <p>
-        Recursion reverses the list from the back. Trust the function to reverse everything <em>after</em> the head; then
-        there is one job left: make the second node point back at the head.
+        Recursion (a function that calls itself) reverses the list from the back. Trust the function to reverse everything{" "}
+        <em>after</em> the head. Then only one job is left: make the second node point back at the head.
       </p>
       <CodeBlock lang="js" code={recursiveCode} />
       <p>
-        For <code>1 → 2 → 3</code>: the call on 3 returns 3 (base case). Back in the call on 2, <code>head.next.next = head</code>{" "}
-        makes 3 point at 2, and <code>head.next = null</code> cuts 2 → 3. Back in the call on 1 the same step makes 2 point at 1.
-        It is O(n) time but also <strong>O(n) stack space</strong>, one frame per node, so a very long list can overflow the call
-        stack. The loop version has no such risk, which is why it is the one to write first.
+        Take <code>1 → 2 → 3</code>. The call on 3 returns 3 (the base case, the simplest case that stops the recursion). Back in
+        the call on 2, <code>head.next.next = head</code>{" "}
+        makes 3 point at 2, and <code>head.next = null</code> cuts the link 2 → 3. Back in the call on 1, the same step makes 2 point at 1.
+        This takes O(n) time. It also uses <strong>O(n) stack space</strong>. The call stack is the computer&apos;s list of
+        unfinished function calls, and it holds one entry (frame) per node. A very long list can overflow it. The loop version
+        has no such risk, so write the loop version first.
       </p>
 
       <h2 id="middle">Slow and fast pointers: the middle</h2>
       <p>
-        To find the middle of a list you could count the nodes, then walk half way: two passes. The{" "}
-        <strong>slow and fast pointer</strong> technique does it in one. Start both at the head. Each round, <code>slow</code>{" "}
-        moves one node and <code>fast</code> moves two. When <code>fast</code> reaches the end, <code>slow</code> has covered half
-        the distance, so it is at the middle.
+        To find the middle of a list, you could count the nodes and then walk half of that. That needs two passes. The{" "}
+        <strong>slow and fast pointer</strong> trick needs only one. Start both pointers at the head. Each round,{" "}
+        <code>slow</code> moves one node and <code>fast</code> moves two. It is like two runners where one is twice as fast.
+        When <code>fast</code> reaches the end, <code>slow</code> has covered half the distance. So it is at the middle.
       </p>
       <CodeBlock lang="js" code={middleCode} />
       <DryRun
@@ -208,71 +211,74 @@ export default function DsaLessonThirtySixPage() {
           ["1", "2", "3", "yes"],
           ["2", "3", "5", "fast.next is null: stop"],
         ]}
-        note="With an even length the loop ends with fast = null and slow on the second middle node. If you need the first middle, start fast one step ahead or stop when fast.next.next is null."
+        note="When the list has an even number of nodes, the loop ends with fast = null and slow on the second middle node. If you need the first middle node, start fast one step ahead, or stop when fast.next.next is null."
       />
 
       <h2 id="cycle">Detecting a cycle (Floyd&apos;s algorithm)</h2>
       <p>
-        A list has a <strong>cycle</strong> if some node&apos;s <code>next</code> points back to an earlier node, so walking
-        never reaches <code>null</code>. The obvious fix is to remember every node you have seen in a <code>Set</code>, which costs
-        O(n) memory. <strong>Floyd&apos;s tortoise and hare</strong> uses the same slow/fast pair with O(1) memory: if there is a
-        cycle, the fast pointer eventually laps the slow one and they meet; if there is none, fast simply reaches the end.
+        A list has a <strong>cycle</strong> (a loop) if some node&apos;s <code>next</code> points back to an earlier node. Then
+        walking never reaches <code>null</code>. One easy way to detect this is to remember every node you have seen in a{" "}
+        <code>Set</code>. But that costs O(n) memory. <strong>Floyd&apos;s tortoise and hare</strong> uses the same slow and
+        fast pair and needs only O(1) memory. If there is a cycle, the fast pointer catches up with the slow one from behind
+        (like a fast runner lapping a slow runner on a track), and they meet. If there is no cycle, fast simply reaches the end.
       </p>
       <CodeBlock lang="js" code={cycleCode} />
 
       <h2 id="why">Why the fast pointer must catch the slow one</h2>
       <p>
         Once both pointers are inside the loop, look at the gap between them, counted along the loop. Each round, fast moves two
-        and slow moves one, so the gap changes by exactly <strong>one</strong>. A gap that shrinks by one each round must
-        reach zero; it cannot jump over zero. That is why they meet, and why a step of 2 is safe, whereas steps of 1 and 3
-        could in some loops step past each other forever. A meeting costs at most about the loop length extra rounds after
-        slow enters the loop, so the total is O(n).
+        and slow moves one. So the gap changes by exactly <strong>one</strong>. A gap that shrinks by one each round must
+        reach zero. It cannot jump over zero. That is why they meet, and why a step of 2 is safe. With steps of 1 and 3, the
+        pointers could step past each other forever in some loops. After slow enters the loop, the meeting takes at most about
+        one loop length of extra rounds. So the total is O(n).
       </p>
       <Callout kind="ok" label="Finding where the cycle starts">
-        After the meeting, put one pointer back at the head and move both one step at a time. They meet again exactly at the
-        node where the cycle begins (LeetCode 142). The proof is a short piece of algebra on distances; for an interview it is
-        fine to know the result and the shape of the argument.
+        After the two pointers meet, put one pointer back at the head. Then move both one step at a time. They meet again exactly
+        at the node where the cycle begins (LeetCode 142). The proof is a short piece of algebra about distances. In an
+        interview, it is fine to know the result and the main idea of the proof.
       </Callout>
 
       <h2 id="palindrome">Putting it together: palindrome list</h2>
       <p>
-        Is <code>1 → 2 → 2 → 1</code> the same forwards and backwards? You cannot walk a singly linked list backwards, so combine
-        the two techniques: find the middle with slow/fast, reverse the second half in place, then compare both halves from the
-        outside in. This is O(n) time and O(1) space; copying into an array is simpler but uses O(n) space.
+        Is <code>1 → 2 → 2 → 1</code> the same forwards and backwards? (A list like this is called a palindrome.) You cannot
+        walk a singly linked list backwards. So combine the two tricks. First, find the middle with slow and fast. Second,
+        reverse the second half in place (without making a copy). Third, compare the two halves, starting from the outside. This takes
+        O(n) time and O(1) space. Copying the values into an array is simpler, but it uses O(n) space.
       </p>
       <CodeBlock lang="js" code={palindromeCode} />
       <p>
-        This version leaves the list with its second half reversed. If the caller still needs the original, reverse that half again
-        before returning. Mention it; interviewers like to hear it.
+        This version leaves the second half of the list reversed. If the caller still needs the original list, reverse that half
+        again before you return. Say this in an interview. Interviewers like to hear it.
       </p>
 
       <h2 id="part">Reversing only part of a list</h2>
       <p>
-        Reversing positions <em>left</em> to <em>right</em> needs a dummy head (the section may start at node 1) and a careful
-        sequence of pointer moves. The version below repeatedly takes the node after <code>start</code> and moves it to the
-        front of the section, so <code>start</code> drifts to the back automatically.
+        To reverse positions <em>left</em> to <em>right</em>, you need a dummy head (an extra fake node at the front, because the
+        section may start at node 1). You also need a careful order of pointer moves. The code below repeatedly takes the node
+        after <code>start</code> and moves it to the front of the section. This way, <code>start</code> moves to the back by itself.
       </p>
       <CodeBlock lang="js" code={partCode} />
 
       <h2 id="practice">Practice questions</h2>
-      <p>Draw three or four nodes and move the arrows with a pencil before you code. Most mistakes are visible on paper.</p>
+      <p>Before you code, draw three or four nodes and move the arrows with a pencil. You can see most mistakes on paper.</p>
 
       <Questions />
 
       <h2 id="recall">Make it stick</h2>
       <Recall
         items={[
-          <>Write the iterative reverse from memory and say what each of <code>prev</code>, <code>cur</code> and <code>next</code> is for.</>,
-          <>Explain why the loop condition for slow/fast is <code>fast !== null &amp;&amp; fast.next !== null</code>.</>,
-          <>Explain why the fast pointer cannot jump over the slow one inside a cycle.</>,
+          <>Write the loop version of reverse from memory. Say what <code>prev</code>, <code>cur</code> and <code>next</code> are each for.</>,
+          <>Explain why the slow and fast loop condition is <code>fast !== null &amp;&amp; fast.next !== null</code>.</>,
+          <>Explain why the fast pointer cannot jump over the slow pointer inside a cycle.</>,
           <>List the three steps of the palindrome-list solution.</>,
         ]}
       />
 
       <h2 id="next">What&apos;s next</h2>
       <p>
-        <strong>Lesson 37</strong> merges two sorted lists, then returns to the slow/fast and gap tricks for harder questions: where a
-        cycle begins, removing the n-th node from the end, where two lists meet, adding two numbers held in lists, and sorting a list.
+        <strong>Lesson 37</strong> merges two sorted lists. Then it uses the slow and fast pointers and the gap trick again for
+        harder questions: where a cycle begins, removing the n-th node from the end, where two lists meet, adding two numbers
+        stored in lists, and sorting a list.
       </p>
     </DsaLessonPage>
   );

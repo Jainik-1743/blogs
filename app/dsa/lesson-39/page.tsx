@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 
 const outline = [
   { id: "concept", label: "First in, first out" },
-  { id: "shift", label: "Why shift() is a trap" },
+  { id: "shift", label: "Why shift() is slow" },
   { id: "queue", label: "A queue with a head index" },
   { id: "two-stacks", label: "A queue made of two stacks" },
   { id: "circular", label: "The circular queue" },
@@ -140,22 +140,22 @@ function windowTrace() {
   const dq: number[] = [];
   const out: number[] = [];
   const vals = () => dq.map((i) => nums[i]);
-  t.step(1, "start", "dq = [], out = []", "The deque holds indices whose values go down from front to back. The front is always the maximum of the current window.", { k, dq: [], out: [] });
+  t.step(1, "start", "dq = [], out = []", "The deque (a list you can add to and remove from at both ends) holds positions (indices). Their values go down from front to back. The front is always the biggest value in the current window.", { k, dq: [], out: [] });
   for (let i = 0; i < nums.length; i++) {
-    t.step(3, "check", `i = ${i}, nums[i] = ${nums[i]}`, `Window is now indices ${Math.max(0, i - k + 1)}..${i}.`, { i, "dq values": vals(), out: [...out] }, "i");
+    t.step(3, "check", `i = ${i}, nums[i] = ${nums[i]}`, `The window now covers positions ${Math.max(0, i - k + 1)} to ${i}.`, { i, "dq values": vals(), out: [...out] }, "i");
     if (dq.length && dq[0] <= i - k) {
       const gone = dq.shift()!;
-      t.step(4, "update", `front index ${gone} left the window`, `Index ${gone} is older than ${i - k + 1}, so its value ${nums[gone]} no longer counts.`, { i, "dq values": vals(), out: [...out] }, "dq values");
+      t.step(4, "update", `front index ${gone} left the window`, `Position ${gone} is before position ${i - k + 1}, so it is outside the window. Its value ${nums[gone]} no longer counts.`, { i, "dq values": vals(), out: [...out] }, "dq values");
     }
     while (dq.length && nums[dq[dq.length - 1]] <= nums[i]) {
       const popped = dq.pop()!;
-      t.step(5, "update", `pop ${nums[popped]} from the back`, `${nums[popped]} ≤ ${nums[i]} and it is older, so it can never be the maximum while ${nums[i]} is in the window.`, { i, "dq values": vals(), out: [...out] }, "dq values");
+      t.step(5, "update", `pop ${nums[popped]} from the back`, `${nums[popped]} ≤ ${nums[i]} and it is older. So it can never be the biggest value while ${nums[i]} is in the window.`, { i, "dq values": vals(), out: [...out] }, "dq values");
     }
     dq.push(i);
-    t.step(6, "update", `push index ${i}`, `The deque is still in decreasing order: ${vals().join(", ")}.`, { i, "dq values": vals(), out: [...out] }, "dq values");
+    t.step(6, "update", `push index ${i}`, `The values in the deque still go down from front to back: ${vals().join(", ")}.`, { i, "dq values": vals(), out: [...out] }, "dq values");
     if (i >= k - 1) {
       out.push(nums[dq[0]]);
-      t.step(7, "update", `window max = ${nums[dq[0]]}`, `The front of the deque is the maximum of this window.`, { i, "dq values": vals(), out: [...out] }, "out");
+      t.step(7, "update", `window max = ${nums[dq[0]]}`, `The front of the deque is the biggest value in this window.`, { i, "dq values": vals(), out: [...out] }, "out");
     }
   }
   return t.steps;
@@ -166,8 +166,8 @@ export default function DsaLessonThirtyNinePage() {
     <DsaLessonPage lesson={lesson} outline={outline}>
       <h2 id="concept">First in, first out</h2>
       <p>
-        A <strong>queue</strong> is a line at a ticket counter: people join at the back and are served from the front, so
-        whoever arrived first leaves first. This rule is <strong>FIFO</strong>, first in first out, the mirror image of a stack.
+        A <strong>queue</strong> is like a line at a ticket counter. People join at the back and are served from the front. So
+        whoever arrived first leaves first. This rule is <strong>FIFO</strong>: first in, first out. It is the opposite of a stack.
         The operations are:
       </p>
       <ul>
@@ -176,114 +176,113 @@ export default function DsaLessonThirtyNinePage() {
         <li><strong>peek</strong> — look at the front.</li>
       </ul>
       <p>
-        Queues model anything where order of arrival matters: print jobs, messages waiting for a worker, and, in the next parts,
-        the breadth-first search of trees and graphs.
+        Queues fit anything where the order of arrival matters. Examples are print jobs and messages waiting for a worker. Later in the course,
+        you will also use a queue for breadth-first search (visiting a tree or graph level by level).
       </p>
       <CodeBlock lang="js" code={arrayQueueCode} />
 
       <h2 id="shift">Why shift() is a trap</h2>
       <p>
-        <code>push</code> plus <code>shift</code> works and is fine for small data. But <code>shift()</code> removes the{" "}
-        <em>first</em> item, so by the specification every remaining item has to move one place left: <strong>O(n)</strong> per
-        dequeue. Engines such as V8 have tricks that make <code>shift</code> cheap for arrays up to a certain size, but they are
-        implementation details that change, and they stop helping on large arrays. In an interview, saying &quot;shift is O(n), so I
-        will track a head index instead&quot; is a sign you know how arrays really work.
+        Using <code>push</code> with <code>shift</code> works, and it is fine for small data. But <code>shift()</code> removes the{" "}
+        <em>first</em> item. By the rules of the language, every other item then has to move one place to the left. That makes each
+        dequeue <strong>O(n)</strong>, so the time grows with the size of the array. Engines such as V8 (the part of Chrome and Node.js that runs JavaScript) have tricks that make <code>shift</code> fast for arrays up to a certain size. But those tricks can change, and they stop helping on large arrays. In an interview, you can say &quot;shift is O(n), so I
+        will track a head index instead&quot;. That shows you know how arrays really work.
       </p>
-      <Callout kind="warn" label="Hidden O(n²)">
-        A BFS that calls <code>shift()</code> once per node on a queue of 100,000 items can quietly turn an O(n) algorithm into
-        O(n²). When in doubt, use a head index.
+      <Callout kind="warn" label="Hidden O(n²) slowness">
+        Imagine a BFS (breadth-first search) that calls <code>shift()</code> once per node on a queue of 100,000 items. It can quietly turn an O(n) algorithm into
+        an O(n²) one. If you are not sure, use a head index.
       </Callout>
 
       <h2 id="queue">A queue with a head index</h2>
       <p>
-        Instead of removing the front item, leave it in place and move a <code>head</code> index forward. Dequeue and enqueue are
-        both O(1). The array only grows, so occasionally cut off the consumed part (an amortised O(1) clean-up).
+        Do not remove the front item. Leave it in place and move a <code>head</code> index (a number that points to the front item) forward. Dequeue and enqueue are
+        both O(1). The array only grows, so now and then cut off the part you have already used. This clean-up is &quot;amortised&quot; O(1), which means its cost averages out to O(1) per operation.
       </p>
       <CodeBlock lang="js" code={queueCode} />
 
       <h2 id="two-stacks">A queue made of two stacks</h2>
       <p>
-        A classic question: build a queue using only stacks. Keep an <strong>in-stack</strong> for new items. For{" "}
-        <code>pop</code> and <code>peek</code> use an <strong>out-stack</strong>; when it is empty, pour the whole in-stack into it. Pouring
-        <em> reverses</em> the order, so the oldest item ends up on top, which is exactly the item a queue must return.
+        This is a classic question: build a queue using only stacks. Keep an <strong>in-stack</strong> for new items. For{" "}
+        <code>pop</code> and <code>peek</code>, use an <strong>out-stack</strong>. When the out-stack is empty, pour the whole in-stack into it. Pouring
+        <em> reverses</em> the order. So the oldest item ends up on top, and that is exactly the item a queue must return.
       </p>
       <CodeBlock lang="js" code={twoStacksCode} />
       <DryRun
-        title="why this is O(1) on average"
+        title="why the average cost is O(1)"
         cols={["Fact", "Consequence"]}
         rows={[
-          ["An item is moved from in to out at most once", "total moving work ≤ number of pushes"],
+          ["An item moves from the in-stack to the out-stack at most once", "the total moving work is at most the number of pushes"],
           ["Most pops find the out-stack already filled", "they cost O(1)"],
-          ["One pop may move many items", "a single operation can be O(n)..."],
-          ["...but that work is paid for by earlier pushes", "amortised O(1) per operation"],
+          ["One pop may move many items", "one single operation can be O(n)..."],
+          ["...but earlier pushes already paid for that work", "amortised O(1) per operation"],
         ]}
-        note="Amortised means averaged over a whole sequence of operations, not guaranteed for each single one."
+        note="Amortised means averaged over a whole series of operations. It is not a promise for each single operation."
       />
 
       <h2 id="circular">The circular queue</h2>
       <p>
-        A queue with a fixed capacity can reuse the space left behind by dequeued items by <strong>wrapping around</strong> the
-        array. Keep the index of the front and the count of items. The next free slot is <code>(head + size) % capacity</code>.
-        The modulo is what makes the end of the array connect back to its start. Tracking <code>size</code> separately avoids the
-        usual confusion of telling &quot;empty&quot; from &quot;full&quot;.
+        A queue with a fixed capacity (a fixed maximum size) can reuse the space left behind by removed items. It does this by <strong>wrapping around</strong> the
+        array, like a clock that goes from 12 back to 1. Keep the index of the front and the count of items. The next free slot is <code>(head + size) % capacity</code>.
+        The modulo (<code>%</code>, the remainder after division) connects the end of the array back to its start. Keeping <code>size</code> as its own number also avoids the
+        common mix-up between &quot;empty&quot; and &quot;full&quot;.
       </p>
       <CodeBlock lang="js" code={circularCode} />
 
       <h2 id="deque">Deque: both ends</h2>
       <p>
-        A <strong>deque</strong> (&quot;deck&quot;, double-ended queue) allows adding and removing at <em>both</em> ends. It can behave as
-        a stack, as a queue, or as something in between. JavaScript has no built-in one; with an array you get the back cheaply
-        (<code>push</code>, <code>pop</code>) and the front slowly (<code>shift</code>, <code>unshift</code>). For interviews, write
-        &quot;deque&quot; and use an array (or a head-index class) with a note that real code would use a proper deque.
+        A <strong>deque</strong> (say &quot;deck&quot;; it means double-ended queue) lets you add and remove at <em>both</em> ends. It can act as
+        a stack, as a queue, or as something in between. JavaScript has no built-in deque. With an array, the back is fast
+        (<code>push</code>, <code>pop</code>) and the front is slow (<code>shift</code>, <code>unshift</code>). In an interview, you can write
+        &quot;deque&quot; and use an array (or a head-index class). Add a note that real code would use a proper deque.
       </p>
 
       <h2 id="window">Sliding window maximum</h2>
       <p>
-        Find the maximum of every window of size <em>k</em>. Recomputing each window costs O(n·k). The trick is to keep only the
-        <em> candidates</em> that could still become a maximum, in a deque of indices:
+        Find the biggest value in every window of size <em>k</em> (a window is k values side by side that slides along the array). Checking each window again from scratch costs O(n·k). The trick is to keep only the
+        <em> candidates</em> that could still become the biggest value. Keep them in a deque of indices:
       </p>
       <ol>
-        <li>Drop the front if its index has slid out of the window.</li>
-        <li>Drop from the back every value that is <strong>not larger</strong> than the new one. It is older and smaller, so it can never beat the new value while the new value is in the window.</li>
-        <li>Add the new index at the back. The values in the deque now decrease from front to back.</li>
-        <li>Once the first window is full, the front is the maximum.</li>
+        <li>Remove the front if its index is now outside the window.</li>
+        <li>Remove from the back every value that is <strong>not larger</strong> than the new value. It is older and smaller. So it can never beat the new value while the new value is in the window.</li>
+        <li>Add the new index at the back. The values in the deque now go down from front to back.</li>
+        <li>Once the first window is full, the front of the deque is the biggest value.</li>
       </ol>
       <CodeBlock lang="js" code={windowCode} />
       <p>
         Every index enters and leaves the deque at most once, so the total work is <strong>O(n)</strong>. (With a plain array,
-        <code> dq.shift()</code> itself can cost up to O(k); question 4 shows a version with a head index where every step is truly O(1).)
+        <code> dq.shift()</code> itself can cost up to O(k). Question 4 shows a version with a head index where every step is truly O(1).)
       </p>
 
       <h2 id="trace">Traced: window maximum of 1 3 -1 -3 5 3 6 7</h2>
       <CodeTrace
         code={traceSrc}
         steps={windowTrace()}
-        caption="The deque shows values (the real one stores their indices). Watch how a big new value wipes out every smaller one behind it."
+        caption="The deque shows values (the real code stores their indices). Watch how a big new value removes every smaller value behind it."
       />
       <Callout kind="ok" label="Same idea, next lesson">
-        Keeping a sequence in sorted order by throwing away items that can no longer matter is called a{" "}
-        <strong>monotonic</strong> structure. Lesson 40 uses a monotonic <em>stack</em> for the next greater element.
+        Keeping a sequence in order (always going up, or always going down) by throwing away items that can no longer matter is called a{" "}
+        <strong>monotonic</strong> structure. Lesson 40 uses a monotonic <em>stack</em> to find the next greater element.
       </Callout>
 
       <h2 id="practice">Practice questions</h2>
-      <p>Decide first which end each operation touches. That tells you whether you need a stack, a queue or a deque.</p>
+      <p>First decide which end each operation uses. That tells you whether you need a stack, a queue or a deque.</p>
 
       <Questions />
 
       <h2 id="recall">Make it stick</h2>
       <Recall
         items={[
-          <>Explain FIFO and why <code>Array.shift()</code> is a poor dequeue.</>,
-          <>Describe how two stacks make a queue and why each item moves at most once.</>,
-          <>Write the index of the next free slot in a circular queue and explain the modulo.</>,
-          <>State the invariant of the sliding-window deque and the two kinds of removal.</>,
+          <>Explain FIFO. Explain why <code>Array.shift()</code> is a poor way to dequeue.</>,
+          <>Describe how two stacks can make a queue. Explain why each item moves at most once.</>,
+          <>Write the formula for the index of the next free slot in a circular queue. Explain what the modulo does.</>,
+          <>Say the rule that always stays true for the sliding-window deque (an invariant). Name the two kinds of removal.</>,
         ]}
       />
 
       <h2 id="next">What&apos;s next</h2>
       <p>
-        <strong>Lesson 40</strong> finishes this part with the <strong>monotonic stack</strong>: next greater element, daily
-        temperatures, stock span, the largest rectangle in a histogram and trapping rain water.
+        <strong>Lesson 40</strong> finishes this part with the <strong>monotonic stack</strong> (a stack whose values always go up or always go down). You will solve: next greater element, daily
+        temperatures, stock span, the largest rectangle in a histogram, and trapping rain water.
       </p>
     </DsaLessonPage>
   );
