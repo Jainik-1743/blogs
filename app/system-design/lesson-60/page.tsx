@@ -73,11 +73,12 @@ export default function SdLessonSixZeroPage() {
           <CodeBlock code={code1} />
           <p>
             A <strong>URL shortener</strong> (like Bitly or TinyURL, or X's <code>t.co</code>) turns that into something
-            like <code>https://sho.rt/aZ3kQ9x</code>. When someone opens the short link, they're{" "}
-            <strong>redirected</strong> to the original.
+            like <code>https://sho.rt/aZ3kQ9x</code>. A URL is a web address. When someone opens the short link, the server sends a
+            reply that says "go to this other address". The browser then goes there. This is called a{" "}
+            <strong>redirect</strong>.
           </p>
           <p>
-            It sounds almost too simple for a system design case study, which is exactly why it's a classic. It's small
+            It sounds too simple for a system design case study. That is exactly why it is a classic. It is small
             enough to design completely, but it touches{" "}
             <strong>
               ID generation, databases, caching, scaling reads, high availability, analytics and abuse prevention
@@ -101,20 +102,20 @@ export default function SdLessonSixZeroPage() {
               Two people must <strong>never</strong> get the same ticket number.
             </li>
             <li>
-              Getting coats back happens <strong>far more often</strong> than checking new ones in, and it must be{" "}
+              People collect coats <strong>far more often</strong> than they check new ones in, and collecting must be{" "}
               <strong>fast</strong>.
             </li>
           </ul>
-          <p>So the heart of the design is:</p>
+          <p>So the main parts of the design are:</p>
           <ol>
             <li>
               <strong>Generate a short, unique code</strong> for each long URL.
             </li>
             <li>
-              <strong>Store the mapping</strong> code → long URL, durably.
+              <strong>Store the mapping</strong> from code to long URL, durably (so it is never lost).
             </li>
             <li>
-              <strong>Look it up extremely fast</strong> for redirects, at high volume.
+              <strong>Look it up very fast</strong> for each redirect, even when there are very many.
             </li>
           </ol>
         </Section>
@@ -149,21 +150,21 @@ export default function SdLessonSixZeroPage() {
           </p>
           <ul>
             <li>
-              <strong>Very high availability for redirects.</strong> A broken short link breaks every place it was
+              <strong>Very high availability for redirects</strong> (the service is almost always up). A broken short link breaks every place where it was
               shared.
             </li>
             <li>
-              <strong>Low latency:</strong> redirects should feel instant (p99 &lt; ~50 ms server-side).
+              <strong>Low latency:</strong> redirects should feel instant. p99 under about 50 ms on the server means 99 out of 100 requests are faster than 50 ms.
             </li>
             <li>
-              <strong>Durability:</strong> once created, links must not be lost.
+              <strong>Durability:</strong> once a link is created, it must not be lost.
             </li>
             <li>
-              <strong>Unpredictable codes:</strong> codes shouldn't be easy to guess or enumerate, to protect private
+              <strong>Unpredictable codes:</strong> codes should not be easy to guess or to list one by one (enumerate). This protects private
               links.
             </li>
             <li>
-              <strong>Read-heavy:</strong> far more redirects than creations.
+              <strong>Read-heavy:</strong> there are far more redirects (reads) than new links (writes).
             </li>
           </ul>
           <h3 id="step-2-estimation">Step 2: Estimation</h3>
@@ -183,7 +184,7 @@ export default function SdLessonSixZeroPage() {
             </li>
           </ul>
           <p>
-            <strong>Traffic</strong> (about 2.6 million seconds per month):
+            <strong>Traffic</strong> (there are about 2.6 million seconds in a month):
           </p>
           <Stats
             caption="Traffic, from 100 M new URLs and 10 B redirects a month."
@@ -204,36 +205,36 @@ export default function SdLessonSixZeroPage() {
               {
                 value: <>~6 TB</>,
                 label: <>raw</>,
-                sub: <>plus indexes and replicas — sharding-friendly, key-value shaped</>,
+                sub: <>plus indexes and replicas; easy to shard (split across machines) and fits a key-value store</>,
               },
             ]}
           />
           <p>
-            <strong>Cache:</strong> if 20% of links get 80% of the traffic, caching the hottest links from recent
-            traffic takes tens of GB, which fits easily in a Redis cluster.
+            <strong>Cache:</strong> a cache is fast memory that keeps copies of popular data. If 20% of links get 80% of the traffic, the hottest links from recent
+            traffic need only tens of GB. This fits easily in a Redis cluster (Redis is an in-memory data store).
           </p>
           <p>
             <strong>So this means:</strong>
           </p>
           <ul>
             <li>
-              <strong>Writes are tiny.</strong> One database primary could handle them.
+              <strong>Writes are small.</strong> One primary database (the main one that accepts writes) can handle them.
             </li>
             <li>
-              <strong>Reads need caching</strong> (and maybe CDN or edge redirects) to keep latency low.
+              <strong>Reads need caching</strong> (and maybe a CDN or edge redirects) to keep latency low.
             </li>
             <li>
-              <strong>Storage is moderate:</strong> a few TB fits a sharded relational database or a key-value store
-              like DynamoDB or Cassandra.
+              <strong>Storage is moderate:</strong> a few TB fits in a sharded relational database or in a key-value store
+              like DynamoDB or Cassandra. (A key-value store finds a value by its key, like a dictionary.)
             </li>
             <li>
-              <strong>Code length:</strong> we need room for <strong>at least 12 billion codes</strong>, with plenty to
-              spare.
+              <strong>Code length:</strong> we need room for <strong>at least 12 billion codes</strong>, with a lot of space
+              left over.
             </li>
           </ul>
           <h3 id="how-long-should-the-code-be">How long should the code be?</h3>
           <p>
-            Using <strong>Base62</strong> characters (<code>a–z</code>, <code>A–Z</code>, <code>0–9</code>):
+            <strong>Base62</strong> means writing numbers with 62 different characters (<code>a–z</code>, <code>A–Z</code>, <code>0–9</code>). With them, each position can hold 62 values:
           </p>
           <div className="table-wrap">
             <table>
@@ -266,8 +267,8 @@ export default function SdLessonSixZeroPage() {
             </table>
           </div>
           <p>
-            <strong>7 characters</strong> gives about 3.5 trillion codes, roughly 290× our 10-year need. That's enough
-            room to keep codes <strong>sparse and hard to guess</strong>.
+            <strong>7 characters</strong> gives about 3.5 trillion codes, roughly 290 times our 10-year need. That is enough
+            room to keep codes <strong>spread out and hard to guess</strong>.
           </p>
           <h3 id="step-3-api-and-data-model">Step 3: API and data model</h3>
           <p>
@@ -275,20 +276,20 @@ export default function SdLessonSixZeroPage() {
           </p>
           <CodeBlock lang="http" code={code2} />
           <p>
-            <strong>301 or 302?</strong>
+            <strong>301 or 302?</strong> These are HTTP status codes, the numbers a server sends to say what happened. 301 means "moved permanently" and 302 means "found, but only for now". 409 means "conflict", 410 means "gone" and 404 means "not found".
           </p>
           <ul>
             <li>
-              <strong>301 (permanent):</strong> browsers and CDNs <strong>cache</strong> the redirect, so repeat visits
-              may never reach your servers. That's less load, but <strong>you lose analytics</strong>, and you{" "}
-              <strong>can't change or expire</strong> the link reliably for users who've cached it.
+              <strong>301 (permanent):</strong> browsers and CDNs <strong>cache</strong> (remember) the redirect, so repeat visits
+              may never reach your servers. This means less load, but <strong>you lose analytics</strong>, and you{" "}
+              <strong>cannot change or expire</strong> the link reliably for users who have cached it.
             </li>
             <li>
-              <strong>302 / 307 (temporary):</strong> every visit comes back to you. You get accurate analytics and
-              control, at the cost of more traffic.
+              <strong>302 / 307 (temporary):</strong> every visit comes back to you. You get correct analytics and
+              control, but you get more traffic.
             </li>
             <li>
-              Many shorteners use <strong>302 with short cache headers</strong>, trading a bit of load for control and
+              Many shorteners use <strong>302 with short cache headers</strong> (instructions that tell caches how long to keep the answer). They accept a bit more load to keep control and
               analytics.
             </li>
           </ul>
@@ -297,20 +298,20 @@ export default function SdLessonSixZeroPage() {
           </p>
           <AsciiDiagram text={diagram1} />
           <p>
-            <strong>The main access pattern</strong> is <strong>get by code</strong>, which is a perfect key-value
-            lookup. Options:
+            <strong>The main access pattern</strong> (how the data is read) is <strong>get by code</strong>. This is a perfect key-value
+            lookup. Your options are:
           </p>
           <ul>
             <li>
-              <strong>A relational DB</strong> (PostgreSQL/MySQL) with <code>code</code> as the primary key: simple and
-              reliable, and shardable later by code (post 25).
+              <strong>A relational DB</strong> (PostgreSQL/MySQL) with <code>code</code> as the primary key (the field that identifies each row). It is simple and
+              reliable, and you can shard it later by code (post 25).
             </li>
             <li>
-              <strong>A key-value / wide-column store</strong> (DynamoDB, Cassandra): designed for exactly this lookup
-              at huge scale, with easy horizontal scaling.
+              <strong>A key-value / wide-column store</strong> (DynamoDB and Cassandra are databases that store each value under a key): made for exactly this kind of lookup
+              at huge scale. They are easy to scale horizontally (by adding more machines).
             </li>
           </ul>
-          <p>Either works at this scale. Many teams start relational and move later if needed (post 29).</p>
+          <p>Either works at this scale. Many teams start with a relational database and move later if they need to (post 29).</p>
           <h3 id="step-4-high-level-design">Step 4: High-level design</h3>
           <AsciiDiagram text={diagram2} />
           <SequenceDiagram
@@ -332,137 +333,136 @@ export default function SdLessonSixZeroPage() {
           />
           <ul>
             <li>
-              <strong>Separate the create and redirect paths.</strong> Redirects are ~100× more frequent and must be
-              extremely fast, so they can scale independently.
+              <strong>Separate the create path and the redirect path.</strong> Redirects are about 100 times more frequent and must be
+              very fast, so they should be able to scale on their own.
             </li>
             <li>
-              <strong>Redirect servers</strong> check the cache, fall back to the database, and{" "}
-              <strong>publish a click event asynchronously</strong> (post 18). They never wait for analytics.
+              <strong>Redirect servers</strong> check the cache first and use the database if the cache has no answer. Then they{" "}
+              <strong>publish a click event asynchronously</strong>, which means they send it and do not wait for it (post 18). The event goes to <strong>Kafka</strong>, a system that stores a stream of messages so that other programs can read them later. They never wait for analytics.
             </li>
             <li>
-              <strong>Analytics</strong> is processed off the critical path, so an analytics outage never breaks
-              redirects.
+              <strong>Analytics</strong> (counting and studying the clicks) is processed away from the main redirect path, so if analytics stops working, redirects still work.
             </li>
           </ul>
           <h3 id="step-5-deep-dives">Step 5: Deep dives</h3>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Deep dive 1: Generating unique short codes</h4>
           <p>
-            <strong>Option A: Hash the long URL.</strong> Compute a hash (like MD5 or SHA-256), Base62-encode it, and
-            take the first 7 characters.
+            <strong>Option A: Hash the long URL.</strong> A hash function turns any input into a fixed-size fingerprint (like MD5 or SHA-256). Compute the hash, write it in Base62, and
+            keep the first 7 characters.
           </p>
           <CodeBlock code={code3} />
           <ul>
-            <li>✅ The same URL gives the same code (natural deduplication, if you want it).</li>
+            <li>✅ The same URL gives the same code (this removes duplicates by itself, if you want that).</li>
             <li>
-              ❌ <strong>Collisions:</strong> different URLs can share the first 7 characters. You must check the
-              database and retry with a salt, which adds lookups and races.
+              ❌ <strong>Collisions:</strong> two different URLs can get the same first 7 characters. You must check the
+              database and try again with a salt (extra random text added to the input). This adds lookups and race conditions (two requests clash at the same time).
             </li>
             <li>
-              ❌ It's predictable if someone knows the URL, and you may not <em>want</em> dedup (different users may
-              want separate links and analytics).
+              ❌ It is predictable if someone knows the URL. Also, you may not <em>want</em> deduplication, because different users may
+              want separate links and separate analytics.
             </li>
           </ul>
           <p>
-            <strong>Option B: A unique counter, Base62-encoded.</strong> Give every new URL a{" "}
+            <strong>Option B: A unique counter, Base62-encoded.</strong> Base62 encoding turns a big number into a short text. For example, the number 125 needs only two Base62 characters. Give every new URL a{" "}
             <strong>unique number</strong>, then encode it:
           </p>
-          <Base62 caption="A counter-based short code, live. Type an ID and watch it become base62 — then see how long seven characters last." />
+          <Base62 caption="A counter-based short code, live. Type an ID and watch it become base62, then see how long seven characters last." />
           <p>How do you get unique numbers across many servers?</p>
           <ul>
             <li>
-              <strong>A single database sequence or auto-increment:</strong> simple, but a single point of contention
-              (fine at ~40 writes per second).
+              <strong>A single database sequence or auto-increment:</strong> a counter that the database raises by one each time. It is simple, but
+              every writer must wait for this one counter (a single point of contention). This is fine at about 40 writes per second.
             </li>
             <li>
-              <strong>Ticket servers / ranges:</strong> each API server <strong>grabs a block</strong> of IDs (for
-              example, 1,000 at a time) from a central counter (in a database or ZooKeeper), then hands them out
-              locally. That's very fast, and a lost block just leaves a harmless gap.
+              <strong>Ticket servers / ranges:</strong> each API server <strong>takes a block</strong> of IDs (for
+              example, 1,000 at a time) from a central counter (in a database or ZooKeeper, a service that helps servers agree), then gives them out
+              by itself. This is very fast, and if a block is lost, it only leaves a harmless gap.
             </li>
             <li>
               <strong>Snowflake-style IDs:</strong> 64-bit IDs built from{" "}
-              <strong>timestamp + machine ID + sequence</strong>. Every server generates IDs independently, with no
-              coordination (post 25).
+              <strong>timestamp + machine ID + sequence number</strong>. Every server makes IDs on its own, with no
+              need to talk to the others (post 25).
             </li>
           </ul>
           <Stats
             caption="A Snowflake ID — 64 bits, unique without coordination, roughly time-ordered."
             stats={[
               { value: <>1 bit</>, label: <>unused</>, sub: <>sign bit</> },
-              { value: <>41 bits</>, label: <>milliseconds since epoch</>, sub: <>~69 years of timestamps</> },
+              { value: <>41 bits</>, label: <>milliseconds since a chosen start date (epoch)</>, sub: <>~69 years of timestamps</> },
               { value: <>10 bits</>, label: <>machine ID</>, sub: <>up to 1,024 generators</> },
               { value: <>12 bits</>, label: <>sequence</>, sub: <>4,096 IDs per ms per machine</> },
             ]}
           />
           <ul>
-            <li>✅ No collisions, no retries, and very fast.</li>
+            <li>✅ No collisions, no retries, and it is very fast.</li>
             <li>
               ❌ <strong>Sequential codes are guessable</strong> (<code>2BcP9aF</code>, <code>2BcP9aG</code>…). Anyone
-              could <strong>enumerate</strong> links, exposing private ones.
+              could <strong>enumerate</strong> (list one by one) the links and see private ones.
             </li>
             <li>
-              <strong>Fix:</strong> <strong>scramble</strong> the ID before encoding, with a reversible permutation or
-              encryption of the number (like a keyed shuffle). That keeps codes unique but{" "}
-              <strong>random-looking</strong>.
+              <strong>Fix:</strong> <strong>scramble</strong> the ID before encoding it. Use a permutation (a reversible shuffle) or
+              encryption of the number, with a secret key. The codes stay unique but{" "}
+              <strong>look random</strong>.
             </li>
           </ul>
           <p>
             <strong>Option C: Random codes.</strong> Generate 7 random Base62 characters, and{" "}
-            <strong>insert with a uniqueness check</strong> (a unique constraint on <code>code</code>). If it collides
-            (rare, since there's so much space), retry.
+            <strong>insert with a uniqueness check</strong>. A unique constraint on <code>code</code> is a database rule that rejects a second row with the same code. If a collision happens
+            (rare, because there is so much space), try again with a new code.
           </p>
           <ul>
-            <li>✅ Unpredictable, and simple.</li>
+            <li>✅ Unpredictable and simple.</li>
             <li>
-              ❌ The collision chance grows as the space fills (but with 3.5 trillion slots and 12 billion used, it
-              stays low).
+              ❌ The chance of a collision grows as the space fills up. But with 3.5 trillion slots and 12 billion used, it
+              stays low.
             </li>
           </ul>
           <p>
             <strong>Option D: A pre-generated key service.</strong> A background service <strong>pre-generates</strong>{" "}
-            random unique codes and stores them in an "unused keys" table. API servers take batches of keys. It's fast
-            at request time, with no collisions, but it's an extra service with its own availability needs.
+            random unique codes and stores them in an "unused keys" table. API servers take batches of keys. It is fast
+            when a request arrives and has no collisions. But it is an extra service, and it must stay available too.
           </p>
           <p>
             <strong>A good choice here:</strong> <strong>random codes with a unique constraint</strong> (simple and
-            unguessable), or <strong>range-based / Snowflake IDs with scrambling</strong> (no collision checks). Custom
+            hard to guess), or <strong>range-based / Snowflake IDs with scrambling</strong> (no collision checks). Custom
             aliases use the same table, and a <strong>unique constraint</strong> rejects duplicates with{" "}
             <strong>409 Conflict</strong>.
           </p>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Deep dive 2: Making redirects fast</h4>
           <ul>
             <li>
-              <strong>Cache-aside with Redis</strong> (post 16): <code>code → long_url</code>, with a TTL. Most
+              <strong>Cache-aside with Redis</strong> (post 16): the app checks the cache first, and on a miss it reads the database and saves the answer in the cache. The cache stores <code>code → long_url</code>, with a TTL (time to live, the time after which an entry is removed). Most
               redirects are served from memory in about 1 ms.
             </li>
             <li>
-              <strong>Cache negative results</strong> ("code not found") briefly, to protect the database from random
-              guessing (cache penetration).
+              <strong>Cache negative results</strong> ("code not found") for a short time. This protects the database from people who guess random codes
+              (this attack is called cache penetration).
             </li>
             <li>
-              <strong>Pre-warm or protect hot links:</strong> a viral link can get millions of hits per minute. Use
-              local in-process caches for the very hottest keys (post 16).
+              <strong>Pre-warm or protect hot links:</strong> a viral link can get millions of hits per minute. To pre-warm means to load the cache before the traffic arrives. Use
+              local caches inside each server's own process for the very hottest keys (post 16).
             </li>
             <li>
-              <strong>Edge redirects:</strong> CDNs or edge functions can serve redirects for popular links close to
-              users (post 14), with short cache times so expiry and analytics still work well enough.
+              <strong>Edge redirects:</strong> CDNs or edge functions (small programs that run near the user) can serve redirects for popular links close to
+              users (post 14). Use short cache times so that expiry and analytics still work well enough.
             </li>
             <li>
-              <strong>Read replicas</strong> for cache misses (post 24).
+              <strong>Read replicas</strong> (extra copies of the database for reading) handle cache misses (post 24).
             </li>
           </ul>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Deep dive 3: Scaling storage</h4>
-          <p>At a few TB, a single well-sized primary with replicas can work for a while. Beyond that:</p>
+          <p>At a few TB, one well-sized primary database with replicas can work for a while. After that:</p>
           <ul>
             <li>
-              <strong>Shard by code</strong> (hash-based, post 25). Every redirect has the code, so every lookup goes to{" "}
+              <strong>Shard by code</strong> (use a hash of the code to pick the shard, post 25). A shard is one part of the data on its own machine. Every redirect has the code, so every lookup goes to{" "}
               <strong>exactly one shard</strong>.
             </li>
             <li>
-              Or use a <strong>key-value store</strong> (DynamoDB, Cassandra) that partitions automatically.
+              Or use a <strong>key-value store</strong> (DynamoDB, Cassandra) that splits the data into partitions by itself.
             </li>
             <li>
-              <strong>Expired links:</strong> a background job deletes or archives them (or use the database's built-in
-              TTL feature where it exists).
+              <strong>Expired links:</strong> a background job deletes them or moves them to cheap storage (archives them). Or use the database's built-in
+              TTL feature if it has one.
             </li>
           </ul>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Deep dive 4: Analytics without slowing redirects</h4>
@@ -470,11 +470,11 @@ export default function SdLessonSixZeroPage() {
             caption="Click analytics, entirely off the redirect path."
             nodes={[
               { title: <>Redirect server</>, desc: <>publishes a click event and moves on</> },
-              { title: <>Kafka topic “clicks”</>, desc: <>durable buffer</> },
+              { title: <>Kafka topic “clicks”</>, desc: <>a buffer that keeps events safely until they are processed</> },
               { title: <>Stream processor</>, desc: <>per-link counters in Redis / DB</>, label: <>real time</> },
               {
                 title: <>Data warehouse</>,
-                desc: <>country, referrer, device, time</>,
+                desc: <>a large database built for reports: country, referrer, device, time</>,
                 label: <>batch</>,
                 tone: "good",
               },
@@ -485,22 +485,22 @@ export default function SdLessonSixZeroPage() {
               Redirects <strong>never wait</strong> for analytics.
             </li>
             <li>
-              Use <strong>at-least-once</strong> events with approximate counts (post 37). An occasional duplicate click
-              count is acceptable here.
+              Use <strong>at-least-once</strong> delivery (every event arrives, but some may arrive twice) with approximate counts (post 37). An occasional double-counted click
+              is acceptable here.
             </li>
             <li>
-              Count unique visitors with approximate algorithms (like <strong>HyperLogLog</strong>) to save memory.
+              Count unique visitors with approximate algorithms (like <strong>HyperLogLog</strong>). They give a close answer and use very little memory.
             </li>
           </ul>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Deep dive 5: Reliability and security</h4>
           <ul>
             <li>
-              <strong>Availability:</strong> stateless redirect servers across <strong>multiple AZs</strong> (post 40),
-              a replicated cache and database, and possibly <strong>multi-region</strong> read copies for global users.
+              <strong>Availability:</strong> stateless redirect servers (they keep no data between requests) across <strong>several AZs</strong>, which are separate data centres (post 40),
+              a cache and database with copies, and possibly <strong>multi-region</strong> read copies for users around the world.
             </li>
             <li>
-              <strong>Graceful degradation:</strong> if analytics is down, keep redirecting (post 44). If the cache is
-              down, fall back to replicas, with load shedding to protect the database.
+              <strong>Graceful degradation:</strong> the system keeps its most important job when a part fails. If analytics is down, keep redirecting (post 44). If the cache is
+              down, use the replicas, and drop some requests on purpose (load shedding) to protect the database.
             </li>
             <li>
               <strong>Abuse prevention:</strong>
@@ -509,35 +509,34 @@ export default function SdLessonSixZeroPage() {
                   <strong>rate limit</strong> URL creation per API key and IP (post 43),
                 </li>
                 <li>
-                  <strong>check long URLs</strong> against malware and phishing blocklists, and allow reporting and
-                  disabling of bad links,
+                  <strong>check long URLs</strong> against lists of known malware and phishing sites (blocklists), and let people report bad links
+                  so you can turn them off,
                 </li>
                 <li>
-                  <strong>don't allow</strong> redirects to dangerous schemes (like <code>javascript:</code>),
+                  <strong>do not allow</strong> redirects to dangerous schemes (the start of a URL, like <code>javascript:</code>),
                 </li>
                 <li>
-                  watch out for <strong>open-redirect</strong> misuse in phishing campaigns.
+                  watch for <strong>open-redirect</strong> misuse. An open redirect is a link on a trusted site that sends users anywhere, and phishers use it to look trustworthy.
                 </li>
               </ul>
             </li>
             <li>
-              <strong>Privacy:</strong> unguessable codes for private links, and optional password-protected or expiring
-              links.
+              <strong>Privacy:</strong> use codes that are hard to guess for private links, and offer links with a password or an expiry date.
             </li>
           </ul>
           <h3 id="wrap-up">Wrap-up</h3>
           <ul>
             <li>
-              <strong>Key decisions:</strong> 7-character Base62 codes (random, or scrambled Snowflake IDs); a key-value
-              access pattern on a relational or KV store sharded by code; a separate redirect path with a Redis cache
-              (and optional edge caching); 302 redirects with async analytics via Kafka.
+              <strong>Key decisions:</strong> 7-character Base62 codes (random, or scrambled Snowflake IDs). A key-value
+              access pattern on a relational or key-value store sharded by code. A separate redirect path with a Redis cache
+              (and optional edge caching). 302 redirects with analytics sent asynchronously through Kafka (a system that moves streams of events between programs).
             </li>
             <li>
-              <strong>Trade-offs:</strong> 302 gives analytics and control at the cost of more traffic than 301. Random
-              codes are unguessable but need uniqueness checks. Analytics is eventually consistent.
+              <strong>Trade-offs:</strong> 302 gives analytics and control, but it means more traffic than 301. Random
+              codes are hard to guess but need uniqueness checks. Analytics is eventually consistent (the numbers catch up a little later).
             </li>
             <li>
-              <strong>Next steps:</strong> multi-region active-active redirects, per-user dashboards, link editing, and
+              <strong>Next steps:</strong> multi-region active-active redirects (several regions all serve traffic at the same time), per-user dashboards, link editing, and
               QR codes.
             </li>
           </ul>
@@ -581,26 +580,26 @@ export default function SdLessonSixZeroPage() {
 
         <Section id="in-the-real-world" title="In the Real World" kind="real">
           <p>
-            <strong>Bitly</strong> handles very large numbers of redirects for links shared across social media, email
-            and marketing campaigns, and its business is largely <strong>click analytics</strong>, which is why it
-            relies on redirects that return to its servers rather than permanent cached ones.
+            <strong>Bitly</strong> handles very large numbers of redirects for links shared on social media, in email
+            and in marketing campaigns. Its business is largely <strong>click analytics</strong>. This is why it
+            uses redirects that come back to its servers, and not permanent redirects that browsers cache.
           </p>
           <p>
             <strong>X's t.co.</strong> Every link posted on X (formerly Twitter) is wrapped in a <code>t.co</code> short
             link. This lets the platform <strong>count clicks</strong> and{" "}
-            <strong>check links for malicious content</strong> at click time. That shows how a shortener can double as a{" "}
-            <strong>security control point</strong>.
+            <strong>check links for harmful content</strong> at the moment of the click. It shows how a shortener can also act as a{" "}
+            <strong>security checkpoint</strong>.
           </p>
           <p>
-            <strong>Twitter Snowflake.</strong> Twitter created <strong>Snowflake</strong> around 2010 to generate
-            unique, roughly time-ordered 64-bit IDs across many machines without coordination. The same layout
-            (timestamp + machine + sequence) is now used or copied widely, including by Discord for message IDs and by
-            Instagram for its sharded IDs (post 25).
+            <strong>Twitter Snowflake.</strong> Twitter created <strong>Snowflake</strong> around 2010 to make
+            unique, roughly time-ordered 64-bit IDs on many machines without the machines talking to each other. A similar layout
+            (timestamp + machine + sequence) is now widely used or copied. Discord uses it for message IDs, and
+            Instagram uses a variation of it for its sharded IDs (post 25).
           </p>
           <p>
-            <strong>Phishing and shorteners.</strong> Security teams have long warned that attackers use shortened links
-            to <strong>hide malicious destinations</strong>. That's why major shorteners scan destinations, show
-            interstitial warnings for suspicious links, and let users preview where a link goes.
+            <strong>Phishing and shorteners.</strong> Security teams have long warned that attackers use short links
+            to <strong>hide harmful destinations</strong>. This is why major shorteners scan the destinations, show
+            a warning page (an interstitial) for suspicious links, and let users preview where a link goes.
           </p>
         </Section>
 
@@ -612,10 +611,10 @@ export default function SdLessonSixZeroPage() {
                 a: (
                   <>
                     <p>
-                      Options: hash the URL and take 7 base62 characters (needs collision handling), encode a unique
-                      counter in base62 (no collisions, but a central counter or pre-allocated ranges per server), or
-                      use Snowflake-style IDs. A counter with range allocation plus base62 is simple and collision-free;
-                      add randomness if codes shouldn't be guessable.
+                      There are three main options. One: hash the URL and take 7 base62 characters (you must handle collisions).
+                      Two: write a unique counter in base62 (no collisions, but you need a central counter or a block of
+                      numbers for each server). Three: use Snowflake-style IDs. A counter with blocks of numbers plus base62
+                      is simple and has no collisions. Add scrambling or randomness if codes must not be guessable.
                     </p>
                   </>
                 ),
@@ -625,9 +624,9 @@ export default function SdLessonSixZeroPage() {
                 a: (
                   <>
                     <p>
-                      Long enough for the key space to outlast the product: 62⁷ ≈ 3.5 trillion codes, which is centuries
-                      at 1,000 new URLs a second. Six characters (~57 billion) may also be enough; shorter codes are
-                      easier to share.
+                      Long enough that the number of possible codes outlasts the product. 62⁷ ≈ 3.5 trillion codes, which lasts
+                      more than 100 years at 1,000 new URLs a second. Six characters (about 57 billion) may also be enough, and
+                      shorter codes are easier to share.
                     </p>
                   </>
                 ),
@@ -637,9 +636,9 @@ export default function SdLessonSixZeroPage() {
                 a: (
                   <>
                     <p>
-                      301 is permanent, so browsers and CDNs cache it — fastest and cheapest, but you lose visibility of
-                      repeat clicks and can't easily change the target. 302 (or 307) is temporary, so every click
-                      reaches you — better for analytics, expiry and editing, at more load.
+                      301 is permanent, so browsers and CDNs cache it. It is the fastest and cheapest, but you cannot see
+                      repeat clicks and cannot easily change the target. 302 (or 307) is temporary, so every click
+                      reaches you. It is better for analytics, expiry and editing, but it means more load.
                     </p>
                   </>
                 ),
@@ -649,9 +648,9 @@ export default function SdLessonSixZeroPage() {
                 a: (
                   <>
                     <p>
-                      Keep the redirect path tiny and read-optimised: a Redis cache in front of the key-value store,
-                      read replicas or a sharded store for misses, possibly edge caching, and analytics pushed
-                      asynchronously to Kafka instead of written inline.
+                      Keep the redirect path small and made for reading. Put a Redis cache in front of the key-value store.
+                      Use read replicas or a sharded store for cache misses. Possibly add edge caching. Send analytics
+                      asynchronously to Kafka instead of writing it during the request.
                     </p>
                   </>
                 ),
@@ -661,8 +660,9 @@ export default function SdLessonSixZeroPage() {
                 a: (
                   <>
                     <p>
-                      A unique constraint on code makes alias claims race-free and returns 409 when taken. Whether the
-                      same long URL gets the same code is a product decision; if yes, keep a lookup by URL hash.
+                      A unique constraint on the code column means two people cannot claim the same alias at the same time.
+                      The database rejects the second one, and you return 409 when the alias is taken. Whether the
+                      same long URL always gets the same code is a product decision. If yes, keep a lookup by URL hash.
                     </p>
                   </>
                 ),
@@ -672,9 +672,9 @@ export default function SdLessonSixZeroPage() {
                 a: (
                   <>
                     <p>
-                      Validate and normalise URLs, check them against blocklists or safe-browsing services at creation
-                      and asynchronously later, rate-limit creation per API key and IP, and support taking codes down
-                      (410 Gone).
+                      Validate and clean up URLs. Check them against blocklists or safe-browsing services when they are created, and again
+                      later in the background. Limit how many links one API key or IP can create. Make it possible to take
+                      codes down (return 410 Gone).
                     </p>
                   </>
                 ),
@@ -690,13 +690,13 @@ export default function SdLessonSixZeroPage() {
               → URL, and redirect <strong>fast and reliably</strong>.
             </li>
             <li>
-              <strong>Estimate first:</strong> ~40 writes/s vs ~4,000 reads/s means writes are trivial and reads need{" "}
+              <strong>Estimate first:</strong> about 40 writes/s and about 4,000 reads/s mean that writes are easy and reads need{" "}
               <strong>caching</strong>. 12B URLs over 10 years fits in <strong>7 Base62 characters</strong> (3.5
               trillion possibilities).
             </li>
             <li>
               For <strong>code generation</strong>, prefer <strong>random codes with a unique constraint</strong>, or{" "}
-              <strong>range/Snowflake IDs scrambled</strong> to be unguessable. Avoid sequential, enumerable codes.
+              <strong>range/Snowflake IDs that are scrambled</strong> so they are hard to guess. Avoid sequential codes that can be listed one by one.
             </li>
             <li>
               <strong>Separate redirect and create paths.</strong> Use{" "}
