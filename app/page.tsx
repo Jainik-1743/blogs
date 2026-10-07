@@ -21,8 +21,8 @@ export default function HomePage() {
         Notes from building and running software.
       </h1>
       <p className="max-w-[60ch] text-[1.15rem] text-ink-dim">
-        Long-form, lesson-style series on DevOps, JavaScript, system design, DSA, browser fundamentals, backend design, debugging scenarios and React. Each one reads
-        like a small book: start at the first lesson and work forward.
+        Long lesson-style series on DevOps, JavaScript, system design, DSA, the browser, backend design, debugging and React. Each series reads
+        like a small book: start at the first lesson and go forward.
       </p>
 
       <div className="mt-8 grid gap-4">

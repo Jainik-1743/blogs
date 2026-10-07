@@ -23,7 +23,7 @@ export default function IvSeriesIndex({ series }: { series: IvSeries }) {
       <section>
         <h2 className="mb-2 text-[1.6rem] font-semibold text-sky">Contents</h2>
         <p className="mb-3 text-[0.95rem] text-ink-dim">
-          Every lesson follows the same shape: what it is, how it works, a real example, common mistakes, then interview questions with answers you can say out loud.
+          Every lesson has the same steps: what it is, how it works, a real example, common mistakes, then interview questions with answers you can say out loud.
         </p>
         <LessonToc lessons={series.lessons} href={(l) => ivLessonHref(series, l)} />
       </section>

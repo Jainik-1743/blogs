@@ -285,7 +285,7 @@ const ROWS: Row[] = [
   },
   {
     title: "Substrings and Windows",
-    summary: "Window techniques on text: no repeats, character replacement, anagrams and the minimum window.",
+    summary: "Use a sliding window on text: no repeated letters, replacing characters, anagrams and the smallest window.",
     topics: ["Longest substring without repeating characters", "Longest repeating character replacement", "Permutation in a string", "Find all anagrams", "Minimum window substring"],
     leetcode: ["3. Longest Substring Without Repeating Characters", "424. Longest Repeating Character Replacement", "567. Permutation in String", "438. Find All Anagrams in a String", "76. Minimum Window Substring"],
   },
@@ -293,19 +293,19 @@ const ROWS: Row[] = [
   // ── Part 8 — Recursion and backtracking ────────────────────────────────
   {
     title: "Recursion Trees",
-    summary: "Drawing the calls so recursion becomes easy to follow.",
+    summary: "Draw every call as a tree, so recursion is easy to follow.",
     topics: ["Drawing a recursion tree", "Parameter-based vs return-based recursion", "Multiple recursive calls", "Fast power with recursion", "The cost of recursion (preview of memoisation)"],
     leetcode: ["50. Pow(x, n)", "779. K-th Symbol in Grammar", "509. Fibonacci Number"],
   },
   {
     title: "Subsets and Permutations",
-    summary: "Pick or skip: generating every combination.",
+    summary: "Pick or skip each item, to list every possible choice.",
     topics: ["The pick / skip decision", "All subsets", "Subsets with duplicates", "Permutations", "Combinations of size k", "Letter combinations of a phone number"],
     leetcode: ["78. Subsets", "90. Subsets II", "46. Permutations", "77. Combinations", "17. Letter Combinations of a Phone Number"],
   },
   {
     title: "Backtracking",
-    summary: "Choose, explore, undo — combination sum, N-Queens, word search.",
+    summary: "Choose, try, then undo. Examples: combination sum, N-Queens, word search.",
     topics: ["The choose–explore–undo template", "Combination sum", "Palindrome partitioning", "Word search in a grid", "N-Queens"],
     leetcode: ["39. Combination Sum", "40. Combination Sum II", "131. Palindrome Partitioning", "79. Word Search", "51. N-Queens"],
   },
@@ -313,19 +313,19 @@ const ROWS: Row[] = [
   // ── Part 9 — Linked lists ──────────────────────────────────────────────
   {
     title: "Building a Linked List",
-    summary: "Nodes and pointers, built from scratch.",
+    summary: "Nodes and pointers (links to the next node), built from scratch.",
     topics: ["Nodes and the next pointer", "Traversal and length", "Insert at head, tail and position", "Delete a node", "Doubly linked lists", "Arrays vs linked lists"],
     leetcode: ["707. Design Linked List", "203. Remove Linked List Elements", "237. Delete Node in a Linked List"],
   },
   {
     title: "Reverse and Fast/Slow Pointers",
-    summary: "Reversing a list, finding the middle and detecting cycles.",
+    summary: "Reverse a list, find the middle, and check if the list has a loop (a cycle).",
     topics: ["Reverse a list (iterative and recursive)", "Middle of a list", "Detect a cycle (Floyd's algorithm)", "Palindrome linked list", "Reverse part of a list"],
     leetcode: ["206. Reverse Linked List", "876. Middle of the Linked List", "141. Linked List Cycle", "234. Palindrome Linked List", "92. Reverse Linked List II"],
   },
   {
     title: "Merging and Cycle Problems",
-    summary: "Merge sorted lists, find where a cycle starts, remove the nth node from the end.",
+    summary: "Join sorted lists, find where a loop starts, and remove the nth node from the end.",
     topics: ["Dummy head nodes", "Merge two sorted lists", "Start of a cycle", "Remove the nth node from the end", "Intersection of two lists", "Add two numbers", "Reorder and sort a list"],
     leetcode: ["21. Merge Two Sorted Lists", "142. Linked List Cycle II", "19. Remove Nth Node From End of List", "160. Intersection of Two Linked Lists", "2. Add Two Numbers", "148. Sort List"],
   },
@@ -333,19 +333,19 @@ const ROWS: Row[] = [
   // ── Part 10 — Stacks and queues ────────────────────────────────────────
   {
     title: "Stacks",
-    summary: "Last in, first out — valid parentheses, a min stack and evaluating expressions.",
+    summary: "Last in, first out. Examples: valid brackets, a stack that knows its minimum, and working out expressions.",
     topics: ["Stack operations with an array", "Valid parentheses", "Min stack", "Evaluating postfix expressions", "Decoding nested strings"],
     leetcode: ["20. Valid Parentheses", "155. Min Stack", "150. Evaluate Reverse Polish Notation", "394. Decode String", "844. Backspace String Compare"],
   },
   {
     title: "Queues and Deques",
-    summary: "First in, first out, and a double-ended queue.",
+    summary: "First in, first out, and a queue you can use from both ends.",
     topics: ["Queue operations, and why shift() is slow", "Queue using two stacks", "Circular queue", "Deque", "Sliding window maximum with a deque"],
     leetcode: ["232. Implement Queue using Stacks", "225. Implement Stack using Queues", "622. Design Circular Queue", "239. Sliding Window Maximum"],
   },
   {
     title: "Monotonic Stack",
-    summary: "Next greater element and its many forms: temperatures, stock spans, histograms, rain water.",
+    summary: "Find the next bigger item. It also solves temperatures, stock spans, histograms and rain water.",
     topics: ["Next greater and next smaller element", "Circular arrays", "Daily temperatures", "Stock span", "Largest rectangle in a histogram", "Trapping rain water"],
     leetcode: ["496. Next Greater Element I", "503. Next Greater Element II", "739. Daily Temperatures", "901. Online Stock Span", "84. Largest Rectangle in Histogram", "42. Trapping Rain Water"],
   },
@@ -353,31 +353,31 @@ const ROWS: Row[] = [
   // ── Part 11 — Trees ────────────────────────────────────────────────────
   {
     title: "Binary Trees and Traversals",
-    summary: "Root, leaves and height; preorder, inorder and postorder — drawn and coded.",
+    summary: "Root, leaves and height. Preorder, inorder and postorder, drawn and coded.",
     topics: ["Tree vocabulary", "Building nodes in JavaScript", "Preorder, inorder and postorder (recursive)", "Iterative traversals with a stack", "Maximum depth, same tree, invert a tree"],
     leetcode: ["144. Binary Tree Preorder Traversal", "94. Binary Tree Inorder Traversal", "145. Binary Tree Postorder Traversal", "104. Maximum Depth of Binary Tree", "226. Invert Binary Tree"],
   },
   {
     title: "Level Order (BFS) on Trees",
-    summary: "Visiting a tree layer by layer with a queue.",
+    summary: "Visit a tree one layer at a time with a queue.",
     topics: ["Level order with a queue", "Processing one level at a time", "Right side view", "Zigzag order", "Minimum depth"],
     leetcode: ["102. Binary Tree Level Order Traversal", "199. Binary Tree Right Side View", "103. Binary Tree Zigzag Level Order Traversal", "111. Minimum Depth of Binary Tree"],
   },
   {
     title: "DFS on Trees",
-    summary: "Height, balance, diameter and path sums.",
+    summary: "Height, balance, diameter (the longest path) and path sums.",
     topics: ["Returning values up the tree", "Balanced tree", "Diameter", "Path sum", "Maximum path sum", "Symmetric tree and subtree"],
     leetcode: ["110. Balanced Binary Tree", "543. Diameter of Binary Tree", "112. Path Sum", "124. Binary Tree Maximum Path Sum", "101. Symmetric Tree"],
   },
   {
     title: "Binary Search Trees",
-    summary: "Search, insert, delete, validate, and the k-th smallest value.",
+    summary: "Search, insert, delete, check a tree is valid, and find the k-th smallest value.",
     topics: ["The BST property", "Search and insert", "Delete", "Validate a BST", "K-th smallest with inorder", "Build a BST from a sorted array"],
     leetcode: ["700. Search in a Binary Search Tree", "701. Insert into a Binary Search Tree", "450. Delete Node in a BST", "98. Validate Binary Search Tree", "230. Kth Smallest Element in a BST"],
   },
   {
     title: "Lowest Common Ancestor and Building Trees",
-    summary: "LCA in a binary tree and a BST, and rebuilding a tree from its traversals.",
+    summary: "Find the lowest common ancestor in a binary tree and a BST. Build a tree again from its traversals.",
     topics: ["LCA in a binary tree", "LCA in a BST", "Build a tree from preorder and inorder", "Serialise and deserialise a tree"],
     leetcode: ["236. Lowest Common Ancestor of a Binary Tree", "235. Lowest Common Ancestor of a Binary Search Tree", "105. Construct Binary Tree from Preorder and Inorder Traversal", "297. Serialize and Deserialize Binary Tree"],
   },
@@ -385,19 +385,19 @@ const ROWS: Row[] = [
   // ── Part 12 — Heaps, greedy and intervals ──────────────────────────────
   {
     title: "Heaps and Top-K",
-    summary: "A priority queue built by hand in JavaScript, and the top-K pattern.",
+    summary: "Build a priority queue by hand in JavaScript, then use it to find the top K items.",
     topics: ["The heap property and its array form", "Push and pop: sift up and sift down", "Writing a MinHeap in JavaScript", "K-th largest and top k frequent", "Merge k sorted lists", "Median of a data stream"],
     leetcode: ["215. Kth Largest Element in an Array", "703. Kth Largest Element in a Stream", "347. Top K Frequent Elements", "973. K Closest Points to Origin", "23. Merge k Sorted Lists", "295. Find Median from Data Stream"],
   },
   {
     title: "Greedy Algorithms",
-    summary: "When the best choice right now is also the best overall — and how to tell.",
+    summary: "When the best choice right now is also the best choice overall, and how to tell.",
     topics: ["What makes a problem greedy", "Assigning cookies and making change", "Jump game", "Gas station", "Choosing non-overlapping activities"],
     leetcode: ["455. Assign Cookies", "860. Lemonade Change", "55. Jump Game", "45. Jump Game II", "134. Gas Station"],
   },
   {
     title: "Interval Problems",
-    summary: "Sort by start, then merge, insert and count overlaps.",
+    summary: "Sort by start time, then merge, insert and count overlapping intervals.",
     topics: ["Sorting intervals", "Merge intervals", "Insert an interval", "Remove the fewest intervals", "Minimum arrows and meeting rooms"],
     leetcode: ["56. Merge Intervals", "57. Insert Interval", "435. Non-overlapping Intervals", "452. Minimum Number of Arrows to Burst Balloons"],
   },
@@ -405,31 +405,31 @@ const ROWS: Row[] = [
   // ── Part 13 — Graphs ───────────────────────────────────────────────────
   {
     title: "What a Graph Is",
-    summary: "Nodes, edges and the adjacency list.",
+    summary: "Vertices, edges and the adjacency list (each vertex's list of neighbours).",
     topics: ["Vertices and edges; directed and undirected; weighted", "Adjacency list vs adjacency matrix", "Building a graph from an edge list", "Degree, paths and connected components", "Grids as graphs"],
     leetcode: ["1971. Find if Path Exists in Graph", "997. Find the Town Judge"],
   },
   {
     title: "Graph Traversal: BFS and DFS",
-    summary: "Number of islands, flood fill, rotting oranges and cloning a graph.",
+    summary: "Count islands, flood fill, rotting oranges and copy a graph.",
     topics: ["BFS with a queue and a visited set", "DFS, recursive and with a stack", "Connected components", "Grid traversal: islands and flood fill", "Multi-source BFS", "Cloning a graph"],
     leetcode: ["200. Number of Islands", "733. Flood Fill", "994. Rotting Oranges", "547. Number of Provinces", "133. Clone Graph"],
   },
   {
     title: "Topological Sort",
-    summary: "Ordering tasks that depend on each other, and detecting cycles.",
+    summary: "Put tasks in order when some depend on others, and find loops (cycles).",
     topics: ["Directed acyclic graphs", "Kahn's algorithm (in-degree)", "DFS-based ordering", "Cycle detection in directed graphs", "Course schedule"],
     leetcode: ["207. Course Schedule", "210. Course Schedule II"],
   },
   {
     title: "Shortest Paths",
-    summary: "BFS for equal weights, Dijkstra for the rest, and Bellman–Ford for limits.",
+    summary: "BFS when all steps cost the same, Dijkstra for other costs, and Bellman–Ford for limits.",
     topics: ["BFS for unweighted graphs", "Dijkstra with a priority queue", "Shortest paths on a grid", "Bellman–Ford and limited stops"],
     leetcode: ["1091. Shortest Path in Binary Matrix", "743. Network Delay Time", "1631. Path With Minimum Effort", "787. Cheapest Flights Within K Stops"],
   },
   {
     title: "Union-Find",
-    summary: "Grouping things fast: connected components, cycle detection and minimum spanning trees.",
+    summary: "Group things fast: connected groups, finding cycles and minimum spanning trees.",
     topics: ["Parent array and find", "Path compression", "Union by size or rank", "Connected components and redundant edges", "Kruskal's minimum spanning tree"],
     leetcode: ["547. Number of Provinces", "684. Redundant Connection", "721. Accounts Merge", "1584. Min Cost to Connect All Points"],
   },
@@ -437,7 +437,7 @@ const ROWS: Row[] = [
   // ── Part 14 — Dynamic programming ──────────────────────────────────────
   {
     title: "Dynamic Programming From Recursion",
-    summary: "Overlapping subproblems, memoisation, tabulation and saving space.",
+    summary: "Repeated subproblems, memoisation, tabulation and saving memory.",
     topics: ["Overlapping subproblems and optimal substructure", "Memoisation (top-down)", "Tabulation (bottom-up)", "Reducing space", "Climbing stairs and minimum cost"],
     leetcode: ["509. Fibonacci Number", "70. Climbing Stairs", "746. Min Cost Climbing Stairs"],
   },
@@ -449,13 +449,13 @@ const ROWS: Row[] = [
   },
   {
     title: "2-D Dynamic Programming",
-    summary: "Grid paths and the 0/1 knapsack family.",
+    summary: "Paths on a grid and the 0/1 knapsack problems.",
     topics: ["Grid paths", "Paths with obstacles and minimum path sum", "0/1 knapsack", "Partition equal subset sum", "Unbounded knapsack: coin change II"],
     leetcode: ["62. Unique Paths", "63. Unique Paths II", "64. Minimum Path Sum", "416. Partition Equal Subset Sum", "518. Coin Change II"],
   },
   {
     title: "DP on Strings",
-    summary: "Longest common subsequence, edit distance and palindromic subsequences.",
+    summary: "Longest common subsequence, edit distance and the longest palindrome inside a string.",
     topics: ["Longest common subsequence", "Edit distance", "Longest palindromic subsequence", "LIS in O(n log n) with binary search"],
     leetcode: ["1143. Longest Common Subsequence", "72. Edit Distance", "516. Longest Palindromic Subsequence", "300. Longest Increasing Subsequence"],
   },
@@ -463,19 +463,19 @@ const ROWS: Row[] = [
   // ── Part 15 — Extras and the interview ─────────────────────────────────
   {
     title: "Tries and Bit Manipulation",
-    summary: "Prefix trees, and the bit tricks interviews ask.",
+    summary: "Prefix trees, and the bit tricks that interviews ask about.",
     topics: ["Trie: insert, search, startsWith", "Word dictionary with wildcards", "Bitwise operators: &, |, ^, <<, >>", "Checking and counting set bits", "Power of two and the single number", "Subsets with bitmasks"],
     leetcode: ["208. Implement Trie (Prefix Tree)", "211. Design Add and Search Words Data Structure", "136. Single Number", "191. Number of 1 Bits", "338. Counting Bits"],
   },
   {
     title: "The Interview Playbook",
-    summary: "Clarify, plan, code, test — the 45 minutes, step by step.",
-    topics: ["Clarifying questions", "Examples and edge cases out loud", "Brute force, then optimise", "Writing clean code under time pressure", "Testing with a dry run", "Stating time and space complexity", "Using hints well", "JavaScript-specific tips"],
+    summary: "Ask, plan, code, test: the 45 minutes, step by step.",
+    topics: ["Clarifying questions", "Examples and edge cases out loud", "Brute force, then optimise", "Writing clean code when time is short", "Testing with a dry run", "Stating time and space complexity", "Using hints well", "JavaScript-specific tips"],
   },
   {
     title: "Your Revision Plan",
-    summary: "A pattern-recognition cheat sheet, a week-by-week plan and a recall checklist.",
-    topics: ["Pattern recognition: from problem wording to technique", "A week-by-week practice plan", "Spaced repetition for problems", "Mock interviews"],
+    summary: "A cheat sheet to spot patterns, a week-by-week plan and a checklist to test your memory.",
+    topics: ["Spot the pattern: from the words of the problem to the technique", "A week-by-week practice plan", "Spaced repetition for problems", "Mock interviews"],
   },
 ];
 
