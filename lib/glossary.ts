@@ -1,4 +1,5 @@
 import { DSA_GLOSSARY } from "./dsa-glossary";
+import { IV_SLUGS, ivGlossaryFor } from "./iv-glossary";
 import { JS_GLOSSARY } from "./js-glossary";
 import { SD_GLOSSARY } from "./sd-glossary";
 
@@ -203,6 +204,8 @@ export const glossaryLessonHref = (g: Glossary, lesson: number) => `/${g.series}
 
 /** Which series' terms to mark on a page. Anything outside /javascript, /system-design and /dsa uses the DevOps list. */
 export function glossaryFor(pathname: string): Glossary {
+  const ivSlug = IV_SLUGS.find((s) => pathname === `/${s}` || pathname.startsWith(`/${s}/`));
+  if (ivSlug) return ivGlossaryFor(ivSlug);
   if (pathname.startsWith("/javascript")) return JS_GLOSSARY;
   if (pathname.startsWith("/system-design")) return SD_GLOSSARY;
   if (pathname.startsWith("/dsa")) return DSA_GLOSSARY;

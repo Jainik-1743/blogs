@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { DSA_LESSONS, DSA_SERIES } from "@/lib/dsa";
+import { IV_SERIES } from "@/lib/iv";
 import { JS_LESSONS, JS_SERIES } from "@/lib/javascript";
 import { LESSONS, SERIES } from "@/lib/lessons";
 import { SD_LESSONS, SD_SERIES } from "@/lib/system-design";
@@ -9,6 +10,7 @@ const SERIES_CARDS = [
   { series: JS_SERIES, lessons: JS_LESSONS },
   { series: SD_SERIES, lessons: SD_LESSONS },
   { series: DSA_SERIES, lessons: DSA_LESSONS },
+  ...IV_SERIES.map((s) => ({ series: s, lessons: s.lessons })),
 ];
 
 export default function HomePage() {
@@ -19,7 +21,7 @@ export default function HomePage() {
         Notes from building and running software.
       </h1>
       <p className="max-w-[60ch] text-[1.15rem] text-ink-dim">
-        Long-form, lesson-style series on DevOps, JavaScript, system design and DSA. Each one reads
+        Long-form, lesson-style series on DevOps, JavaScript, system design, DSA, browser fundamentals, backend design, debugging scenarios and React. Each one reads
         like a small book: start at the first lesson and work forward.
       </p>
 

@@ -27,7 +27,7 @@ export default function SiteFooter() {
           heading="Glossaries"
           items={ALL_SERIES.map((s) => ({
             href: `/${s.slug}/glossary`,
-            label: `${s.title.split(",")[0]} terms`,
+            label: `${s.title.split(/[,:]/)[0]} terms`,
             accent: s.accent,
           }))}
         />
