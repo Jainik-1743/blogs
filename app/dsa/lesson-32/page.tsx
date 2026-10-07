@@ -166,7 +166,7 @@ export default function DsaLessonThirtyTwoPage() {
         caption="Calls run in depth-first order: go all the way down the left branch, come back up, then do the right branch."
       />
       <Callout kind="note" label="Depth-first order">
-        The order in the trace shows how the call stack works. The call stack is the pile of calls that are waiting to finish, like a stack of plates. The left child runs to the end and returns before the right
+        <strong>Depth-first</strong> means you go as deep as you can down one branch before you try the next branch. The order in the trace shows how the call stack works. The call stack is the pile of calls that are waiting to finish, like a stack of plates: the last call that started is the first one to finish. The left child runs to the end and returns before the right
         child starts. At any moment, only the calls on the <em>path from the root to the current node</em> are open.
       </Callout>
 
@@ -184,8 +184,8 @@ export default function DsaLessonThirtyTwoPage() {
       />
       <p>
         <strong>General rule:</strong> if each call makes <code>b</code> calls and the tree has height <code>h</code>, there are
-        about <code>b<sup>h</sup></code> nodes. Fibonacci makes 2 calls each time and has height n, so the tree has about 2<sup>n</sup>{" "}
-        nodes. That means <strong>O(2<sup>n</sup>) time</strong> (the time doubles every time n grows by 1) and O(n) space. A function that makes <em>one</em> call per level over n
+        about <code>b<sup>h</sup></code> nodes. Fibonacci makes 2 calls each time and has height n, so the tree has at most about 2<sup>n</sup>{" "}
+        nodes. That means <strong>O(2<sup>n</sup>) time</strong> (roughly, the time doubles every time n grows by 1) and O(n) space. (The exact count grows a little slower, about 1.6<sup>n</sup>, because the right side of the tree is shorter. It is still exponential growth.) A function that makes <em>one</em> call per level over n
         levels (like the sum below) has n nodes, so it takes O(n) time and O(n) space.
       </p>
 
@@ -212,14 +212,14 @@ export default function DsaLessonThirtyTwoPage() {
       </ul>
       <p>
         <em>Tower of Hanoi</em> is the classic puzzle with 2 calls per node and no overlap. To move n disks, first move n − 1 disks out of the
-        way. Then move the big disk. Then move the n − 1 disks back on top. The tree has 2<sup>n</sup> − 1 nodes, one per move, so the number of
+        way. Then move the big disk. Then move the n − 1 disks back on top. The calls that move a disk number 2<sup>n</sup> − 1, one per move, so the number of
         moves is exactly 2<sup>n</sup> − 1 (Practice question 4).
       </p>
 
       <h2 id="power">Fast power: a tree that is one straight line</h2>
       <p>
-        To work out x<sup>n</sup> (x multiplied by itself n times), the simple way takes n steps. But x<sup>n</sup> = (x<sup>n/2</sup>)². So make{" "}
-        <strong>one</strong> recursive call on half the exponent (the small number n) and reuse its result. The tree is then one chain of about{" "}
+        To work out x<sup>n</sup> (n copies of x multiplied together), the simple way takes about n multiplications. For example, 2<sup>3</sup> = 2 × 2 × 2 = 8. But x<sup>n</sup> = (x<sup>n/2</sup>)². So make{" "}
+        <strong>one</strong> recursive call on half the exponent (the small raised number n) and reuse its result. The tree is then one chain of about{" "}
         log₂ n calls. (log₂ n means how many times you can halve n before you reach 1.)
       </p>
       <CodeBlock lang="js" code={powerCode} />
@@ -247,7 +247,7 @@ export default function DsaLessonThirtyTwoPage() {
       </p>
       <CodeBlock lang="js" code={countCode} />
       <p>
-        This is <strong>memoisation</strong>. It is a Map (a lookup table) from the inputs to the answer, and you check it at the top of the function. It
+        This is <strong>memoisation</strong> (also spelled memoization). It means remembering the answer of a call, so that the same call is never worked out twice. You keep a Map (a lookup table of key and value pairs) from the inputs to the answers, and you check it at the top of the function. It
         helps whenever the same call can appear in more than one place in the tree. You will learn it fully in Part 14. For
         now, just see that the recursion tree shows you <em>when</em> it will help: look for sub-trees that appear more than once.
       </p>

@@ -19,6 +19,7 @@ export const metadata: Metadata = {
 /** In-page index. Each entry links to a section heading below. */
 const outline = [
   { id: "concept", label: "Concept" },
+  { id: "terms", label: "Key words in plain English" },
   { id: "why", label: "Why this matters" },
   { id: "analogy", label: "The kitchen — an analogy" },
   { id: "jre", label: "The JS Engine vs. the JS Runtime Environment" },
@@ -151,6 +152,71 @@ export default function JsLessonThirteenPage() {
           every single day.
         </p>
 
+        <h2 id="terms">Key Words In Plain English</h2>
+        <ul>
+          <li>
+            <strong>JavaScript engine</strong> is a program that reads JavaScript text and runs it.
+            V8 (Chrome, Node.js), SpiderMonkey (Firefox) and JavaScriptCore (Safari) are engines.
+          </li>
+          <li>
+            <strong>Runtime environment</strong> is the engine plus the extra tools the host adds, such
+            as timers, <code>fetch</code>, the DOM and the event loop. The host is the browser or
+            Node.js. <strong>Difference in one line:</strong> the engine runs the language; the runtime
+            adds the things around it.
+          </li>
+          <li>
+            <strong>Parsing</strong> is reading source text and turning it into a structured form.{" "}
+            <strong>Token</strong> is one small piece of the text, such as a keyword, a name or a
+            number. <strong>AST</strong> (Abstract Syntax Tree) is a tree that shows the structure of
+            the code.
+          </li>
+          <li>
+            <strong>Interpreter</strong> is a program that runs code step by step without first
+            making machine code for all of it. <strong>Compiler</strong> is a program that translates
+            code into another form, such as machine code. <strong>Machine code</strong> is the
+            instructions the CPU runs directly. <strong>Bytecode</strong> is a compact set of
+            instructions for a simple virtual machine. It is smaller and easier to run than source
+            text.
+          </li>
+          <li>
+            <strong>JIT (Just-In-Time) compilation</strong> is compiling code while the program runs,
+            only for the parts that run often.
+          </li>
+          <li>
+            <strong>Hot code</strong> is code that runs many times, so making it faster pays off.
+          </li>
+          <li>
+            <strong>Optimization</strong> is making code run faster by using assumptions, such as
+            &ldquo;this function always gets numbers&rdquo;. <strong>Deoptimization</strong> is
+            throwing away the fast version when an assumption turns out wrong.
+          </li>
+          <li>
+            <strong>Call stack</strong> is the list of function calls running right now.{" "}
+            <strong>Heap</strong> is the large area of memory where objects, arrays and functions are
+            stored.
+          </li>
+          <li>
+            <strong>Hidden class (shape)</strong> is the engine&apos;s internal description of an
+            object&apos;s property names and their positions. Objects with the same shape share one
+            description. <strong>Polymorphic</strong> means a piece of code sees a few different
+            shapes. <strong>Megamorphic</strong> means it sees many.
+          </li>
+          <li>
+            <strong>Garbage collection (GC)</strong> is the engine automatically freeing memory for
+            objects that nothing can reach any more. <strong>Reachable</strong> means you can get to
+            the object by following references from a root. <strong>Root</strong> is a starting point
+            for that search, such as a global variable or a variable on the call stack.
+          </li>
+          <li>
+            <strong>Memory leak</strong> is memory your program no longer needs but still keeps,
+            because something still points to it.
+          </li>
+          <li>
+            <strong>Web API</strong> is a feature that the browser provides, not the language, such as{" "}
+            <code>setTimeout</code>, <code>fetch</code> and the DOM.
+          </li>
+        </ul>
+
         <h2 id="why">Why This Matters</h2>
         <ul>
           <li>
@@ -222,7 +288,9 @@ export default function JsLessonThirteenPage() {
           <strong>tokens</strong> — <code>let</code>, <code>a</code>, <code>=</code>,{" "}
           <code>7</code>, <code>;</code> — the smallest meaningful pieces of syntax. Then it
           arranges those tokens into an <strong>Abstract Syntax Tree (AST)</strong>: a structured,
-          tree-shaped representation of what the code actually means, roughly like this:
+          tree-shaped representation of what the code actually means, roughly like this
+          (this is the common ESTree format that tools show; V8&apos;s own internal tree differs in
+          its details):
         </p>
         <Script title="ast-shape.json" code={astTree} />
         <p>
@@ -307,19 +375,21 @@ export default function JsLessonThirteenPage() {
               <tr>
                 <th>Tier</th>
                 <th>Role</th>
-                <th>Roughly triggers after</th>
+                <th>Roughly when it starts</th>
               </tr>
             </thead>
             <tbody>
               <tr><td>Ignition</td><td>Baseline interpreter — always runs first</td><td>Every function, immediately</td></tr>
-              <tr><td>Sparkplug</td><td>A fast, non-optimizing compiler that removes interpreter overhead</td><td>A handful of calls</td></tr>
-              <tr><td>Maglev</td><td>A mid-tier optimizer for functions that are warm but not yet &ldquo;hot&rdquo;</td><td>A few hundred calls</td></tr>
-              <tr><td>TurboFan</td><td>The top-tier optimizer, generating near-native machine code</td><td>Several thousand calls</td></tr>
+              <tr><td>Sparkplug</td><td>A fast, non-optimizing compiler that removes interpreter overhead</td><td>Soon, after a function has run a few times</td></tr>
+              <tr><td>Maglev</td><td>A mid-tier optimizer for functions that are warm but not yet &ldquo;hot&rdquo;</td><td>After a function has run a fair amount</td></tr>
+              <tr><td>TurboFan</td><td>The top-tier optimizer, generating near-native machine code</td><td>After a function has run a lot</td></tr>
             </tbody>
           </table>
         </div>
         <p>
-          You don&apos;t need to memorize these to understand JavaScript&apos;s execution model —
+          The exact thresholds are not call counts. V8 measures how much work a function has done
+          (calls and loop turns) and changes its rules between versions, so treat the table as an
+          order, not as numbers. You don&apos;t need to memorize these to understand JavaScript&apos;s execution model —
           Ignition and TurboFan cover the core idea perfectly well. But knowing they exist explains
           why V8&apos;s real-world performance keeps improving version after version without you
           changing a single line of your own code.
@@ -341,8 +411,8 @@ export default function JsLessonThirteenPage() {
           <p className="mb-0">
             If you add properties to different instances in a <strong>different order</strong>, or
             add properties long after creation, V8 has to create separate hidden classes for each
-            shape — this is called going <strong>polymorphic</strong> (a few shapes) or{" "}
-            <strong>megamorphic</strong> (many shapes), and it&apos;s a genuine, measurable
+            shape — this is called going <strong>polymorphic</strong> (a few shapes, up to about four) or{" "}
+            <strong>megamorphic</strong> (more than that), and it&apos;s a genuine, measurable
             performance cliff. This is the real, technical reason behind the common advice
             &ldquo;initialize all of an object&apos;s properties in the constructor, in the same
             order, every time.&rdquo;
@@ -354,9 +424,10 @@ export default function JsLessonThirteenPage() {
           Execution needs two things you&apos;ve already met, formally named here: the{" "}
           <strong>call stack</strong> (Lesson 2) tracks which function is currently running, and
           the <strong>memory heap</strong> is the much larger, less organized region where objects,
-          arrays, and functions actually live. Primitive values tied to a running function usually
-          live right on the stack; anything that needs to outlive a single function call —
-          including the variables a closure holds onto (Lesson 10) — lives in the heap.
+          arrays, and functions actually live. As a simple model, small values tied to a running function live
+          on the stack, and anything that needs to outlive a single function call — including the
+          variables a closure holds onto (Lesson 10) — lives in the heap. (Real engines are free
+          to place values differently as an optimization; for example, strings are stored in the heap.)
         </p>
 
         <h2 id="gc">Garbage Collection, Properly Explained</h2>
@@ -385,15 +456,16 @@ export default function JsLessonThirteenPage() {
               <tr>
                 <td>Old generation</td>
                 <td>Objects that survived long enough to be &ldquo;promoted&rdquo;</td>
-                <td>Mark-Sweep-Compact — walks the object graph from the roots (Lesson 2/13), marks what&apos;s reachable, frees the rest; runs less often, mostly in the background</td>
+                <td>Mark-Sweep-Compact — walks the object graph from the roots (explained just below), marks what&apos;s reachable, frees the rest; runs less often, mostly in the background</td>
               </tr>
             </tbody>
           </table>
         </div>
         <p>
           At its core, <strong>Mark-and-Sweep</strong> is the idea to hold onto: starting from your
-          program&apos;s &ldquo;roots&rdquo; (global variables, the current call stack, and
-          anything a live closure still references), the collector marks every object it can reach
+          program&apos;s &ldquo;roots&rdquo; (global variables and the variables on the current call
+          stack), then follows every reference from them — including the variables kept by closures
+          that are still reachable —, the collector marks every object it can reach
           as alive. Everything left unmarked is unreachable garbage — nothing in your code can
           possibly get to it anymore — and its memory is freed. This is precisely why closures
           (Lesson 10) can keep a Lexical Environment alive indefinitely: as long as a reachable
@@ -421,14 +493,20 @@ export default function JsLessonThirteenPage() {
           </li>
           <li>
             <h3>Compare the two timings</h3>
-            <p>The second loop is typically noticeably faster.</p>
+            <p>
+              The numbers vary by machine and engine version. The second loop is often a little
+              faster, and sometimes the same, because this function is so small that V8 optimizes it
+              very early, even during the first loop. Run the second loop a third time to see more
+              of the effect.
+            </p>
           </li>
           <li>
             <h3>Why</h3>
             <p>
               By the time the first loop finishes, <code>square</code> has been called millions of
-              times — hot enough that TurboFan has very likely compiled it into optimized machine
-              code. The second loop reaps the benefit.
+              times — hot enough that V8 has very likely compiled it into optimized machine
+              code. Later runs reap the benefit. Warm-up is real, but for tiny code it is hard to
+              see with a simple timer.
             </p>
           </li>
         </ol>
@@ -451,9 +529,9 @@ export default function JsLessonThirteenPage() {
         <Callout kind="bad">
           <p className="mb-0">
             <strong>&ldquo;Garbage collection only runs when the program is about to run out of
-            memory.&rdquo;</strong> V8 runs GC proactively and incrementally, often during
-            otherwise-idle moments, specifically to avoid ever letting memory pressure build up to
-            that point.
+            memory.&rdquo;</strong> V8 starts a collection when a memory area reaches its
+            size limit, long before the machine is out of memory. Much of the work is split into
+            small steps or done on other threads, so that your code is paused as little as possible.
           </p>
         </Callout>
 

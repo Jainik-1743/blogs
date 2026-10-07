@@ -175,7 +175,7 @@ export default function DsaLessonThirtyFourPage() {
     <DsaLessonPage lesson={lesson} outline={outline}>
       <h2 id="concept">Backtracking = depth-first search plus pruning (cutting off bad branches)</h2>
       <p>
-        Lesson 33 made <em>every</em> subset or permutation. Real problems usually want only the answers that follow a{" "}
+        Lesson 33 made <em>every</em> subset or permutation. Backtracking is also called depth-first search on a tree of choices: you follow one branch as deep as it goes before you try the next one. Real problems usually want only the answers that follow a{" "}
         <strong>rule</strong> (a constraint). For example: numbers that add up to a target, cuts where every piece is a palindrome, or queens that do not attack each
         other. It would be a waste to walk the whole tree and filter at the end. <strong>Backtracking</strong> checks the
         rule <em>while building</em> the answer. As soon as a partial answer cannot work any more, it drops that branch and
@@ -223,11 +223,13 @@ export default function DsaLessonThirtyFourPage() {
           ["[2, 2, 2]", "1", "2 > 1: prune, dead end"],
           ["[2, 2, 3]", "0", "save → answer"],
           ["[2, 3]", "2", "3 > 2: prune, dead end"],
+          ["[3]", "4", "try 3 (6 is too big)"],
           ["[3, 3]", "1", "3 > 1: prune, dead end"],
+          ["[6]", "1", "6 > 1: prune, dead end"],
           ["[7]", "0", "save → answer"],
         ]}
         highlight={4}
-        note="The whole search is just 10 calls. A walk without pruning would make dozens."
+        note="The whole search is just 10 calls (one for each row above). A walk without pruning would make dozens."
       />
 
       <h2 id="palin">Palindrome partitioning: where to cut</h2>
@@ -242,7 +244,7 @@ export default function DsaLessonThirtyFourPage() {
       <p>
         Is a word hidden in a grid of letters? You can move up, down, left or right, and you cannot use a cell twice. From each starting cell, try to
         match the next letter in each of the four directions. The special part is <strong>marking cells as used</strong>. When you step on a cell, change it to a
-        placeholder (<code>&quot;#&quot;</code>). When you leave, <em>put the letter back</em>. That is the
+        placeholder (a temporary marker value, here <code>&quot;#&quot;</code>). When you leave, <em>put the letter back</em>. That is the
         un-choose step. Stop that path at once when the cell is outside the grid, already used, or the wrong letter.
       </p>
       <CodeBlock lang="js" code={wordCode} />
@@ -256,7 +258,7 @@ export default function DsaLessonThirtyFourPage() {
         Place n queens (chess pieces) on an n × n board so that no queen attacks another. Queens attack along the same row, column or diagonal. Place one queen in each{" "}
         <strong>row</strong>. The choice in each row is the column. A queen at <code>(row, c)</code> attacks its column{" "}
         <code>c</code> and two diagonals. One diagonal is the cells with the same <code>row − c</code>. The other diagonal is the cells with the same{" "}
-        <code>row + c</code>. Keep three Sets, so the question &ldquo;is this cell attacked?&rdquo; takes O(1) time (the same short time every time).
+        <code>row + c</code>. Keep three Sets (a Set is a collection that keeps each item once and answers &ldquo;is this item inside?&rdquo; very quickly), so the question &ldquo;is this cell attacked?&rdquo; takes O(1) time (the same short time every time).
       </p>
       <CodeBlock lang="js" code={queensCode} />
 
@@ -270,7 +272,7 @@ export default function DsaLessonThirtyFourPage() {
           ["word search", "every path of any length", "stops at the first letter that does not match"],
           ["palindrome partitioning", "all 2ⁿ⁻¹ ways to cut", "only cuts that make a palindrome"],
         ]}
-        note="Pruning does not change the worst-case Big-O (the time in the worst case). It is still exponential, which means it grows very fast. But pruning often makes the real running time many times smaller."
+        note="Pruning does not change the worst-case Big-O (the time in the worst case). It is still exponential, which means the work multiplies by a fixed factor for every extra item. But pruning often makes the real running time many times smaller."
       />
       <p>
         In the worst case, backtracking takes exponential time. That is why these problems have small inputs. Interviewers expect you to

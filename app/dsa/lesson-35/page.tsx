@@ -232,7 +232,7 @@ export default function DsaLessonThirtyFivePage() {
       <p>
         An array keeps its items side by side in memory. This is why <code>arr[5]</code> is instant. A <strong>linked list</strong>{" "}
         works in a different way. Each item lives in its own small object called a <strong>node</strong>. Each node holds
-        <em> two</em> things: its value, and a <strong>reference to the next node</strong> (a link that tells you where the next node is). You find the items by following
+        <em> two</em> things: its value, and a <strong>reference to the next node</strong> (a link that tells you where the next node is; many books call it a <em>pointer</em>). You find the items by following
         the links. It is like a treasure hunt, where each clue tells you where to find the next clue.
       </p>
       <CodeBlock
@@ -245,7 +245,7 @@ export default function DsaLessonThirtyFivePage() {
       />
       <ul>
         <li>The <strong>head</strong> is the first node. The head stands for the whole list. If you lose the head, you lose the list.</li>
-        <li>The <code>next</code> of the last node is <code>null</code> (which means &ldquo;nothing&rdquo;). This marks the end.</li>
+        <li>The <code>next</code> of the last node is <code>null</code> (a special value that means &ldquo;nothing here&rdquo;). This marks the end.</li>
         <li>An empty list is simply <code>head === null</code>.</li>
       </ul>
       <p>
@@ -322,8 +322,8 @@ export default function DsaLessonThirtyFivePage() {
       <p>
         A <strong>doubly linked list</strong> gives every node a <code>prev</code> link (a link to the node before it). So you can walk in both directions, and
         you can remove a node in O(1) when you only have <em>that node</em>. The cost is one extra link in each node. Also, there are more links to keep correct
-        on every change: four link updates to insert, instead of two. Browsers use this idea for the back and forward history. The LRU cache design (a cache that
-        throws away the item used longest ago, built from a hash map plus a doubly linked list) also needs this O(1) removal.
+        on every change: four link updates to insert, instead of two. The back and forward history of a browser can be built in this way. The LRU cache design (a cache, which is a small store of recent results, that
+        throws away the item used longest ago; it is built from a hash map, which is a lookup table, plus a doubly linked list) also needs this O(1) removal.
       </p>
       <CodeBlock lang="js" code={doublyCode} />
 
@@ -339,7 +339,7 @@ export default function DsaLessonThirtyFivePage() {
           ["Memory per item", "just the value", "value + a link (more)"],
           ["Cache friendliness", "excellent (items are side by side)", "poor (items are spread out)"],
         ]}
-        note="In everyday JavaScript, an array is almost always the better choice. We study linked lists to learn pointer skills and to understand structures built on them (queues, LRU caches, adjacency lists)."
+        note="Cache friendliness means how well the computer's fast CPU cache can load your data. Items that sit side by side are loaded together, so arrays are fast to scan. In everyday JavaScript, an array is almost always the better choice. We study linked lists to learn pointer skills and to understand structures built on them (queues, LRU caches, adjacency lists)."
       />
       <h3>The three common mistakes</h3>
       <ul>

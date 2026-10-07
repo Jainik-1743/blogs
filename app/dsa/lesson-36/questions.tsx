@@ -45,7 +45,7 @@ console.log(toArray(reverseList(null)));                       // []`,
           },
           {
             name: "Recursion",
-            idea: <p>Reverse the tail (everything after the head). Then make the old second node point back at the head. Last, cut the head&apos;s own link.</p>,
+            idea: <p>Reverse the rest of the list (everything after the head). Then make the old second node point back at the head. Last, cut the head&apos;s own link.</p>,
             code: `function reverseList(head) {
   if (head === null || head.next === null) return head;
   const newHead = reverseList(head.next);
@@ -426,7 +426,7 @@ console.log(isHappy(2));  // false`,
         ]}
         compare={<p>The Set is fine. Also mention Floyd&apos;s version as the option that needs only O(1) space.</p>}
       >
-        <p>Again and again, replace <code>n</code> with the sum of the squares of its digits. Return <code>true</code> if it reaches 1. Return <code>false</code> if it loops forever.</p>
+        <p>A <em>happy number</em> is a number that reaches 1 by the process below. Again and again, replace <code>n</code> with the sum of the squares of its digits. Return <code>true</code> if it reaches 1. Return <code>false</code> if it loops forever.</p>
       </Problem>
     </>
   );

@@ -75,7 +75,7 @@ console.log(JSON.stringify(subsets([1, 2, 3]))); // [[],[1],[2],[1,2],[3],[1,3],
         ]}
         compare={<p>Learn the first two well, because they work for harder problems too. The third is a nice extra. (LeetCode 78.)</p>}
       >
-        <p>Return all possible subsets of an array of different integers. The result must not contain the same subset twice.</p>
+        <p>Return all possible subsets of an array of different integers. (A subset is any group of the items, including the empty group and the whole array.) The result must not contain the same subset twice.</p>
       </Problem>
 
       <Problem
@@ -425,7 +425,7 @@ console.log(JSON.stringify(generateParenthesis(2))); // ["(())","()()"]`,
 
 console.log(JSON.stringify(generateParenthesis(3))); // ["((()))","(()())","(())()","()(())","()()()"]
 console.log(generateParenthesis(4).length);          // 14`,
-            explain: <p>Every start of a string that we build is already valid, so every leaf is an answer. The count is a Catalan number (5 for n = 3, 14 for n = 4). The idea &ldquo;only add choices that are valid&rdquo; is the main idea of the next lesson.</p>,
+            explain: <p>Every start of a string that we build is already valid, so every leaf is an answer. The count is a Catalan number (a famous counting sequence: 1, 2, 5, 14, 42, ... for n = 1, 2, 3, 4, 5). The idea &ldquo;only add choices that are valid&rdquo; is the main idea of the next lesson.</p>,
           },
         ]}
         compare={<p>Use the second approach. (LeetCode 22.)</p>}

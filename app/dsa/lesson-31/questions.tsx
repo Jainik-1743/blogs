@@ -12,7 +12,7 @@ export default function Questions() {
         examples={[
           { input: '"abcabcbb"', output: "3", why: 'The longest substring with all different letters is "abc".' },
           { input: '"bbbbb"', output: "1", why: 'Only "b".' },
-          { input: '"pwwkew"', output: "3", why: 'Either "wke" or "kew". "pwke" is not contiguous.' },
+          { input: '"pwwkew"', output: "3", why: 'Either "wke" or "kew". "pwke" is not contiguous (it has gaps).' },
         ]}
         hints={[
           <>Brute force: try every start position and keep going until a letter repeats. That takes O(n²) time or more.</>,
@@ -44,7 +44,7 @@ console.log(lengthOfLongestSubstring("abcabcbb")); // 3
 console.log(lengthOfLongestSubstring("bbbbb"));    // 1
 console.log(lengthOfLongestSubstring("pwwkew"));   // 3
 console.log(lengthOfLongestSubstring(""));         // 0`,
-            explain: <p>O(n) time, because each index enters the window once and leaves once. O(alphabet) space, which means the Set never holds more than the number of different letters.</p>,
+            explain: <p>O(n) time, because each index enters the window once and leaves once. O(alphabet) space, which means the Set never holds more than the number of different letters in the alphabet.</p>,
           },
           {
             name: "Jump with a Map of last positions",
@@ -145,7 +145,7 @@ console.log(characterReplacement("AAAA", 0));    // 4`,
 
 console.log(checkInclusion("ab", "eidbaooo")); // true
 console.log(checkInclusion("ab", "eidboaoo")); // false`,
-            explain: <p>O(n · m log m) time. This is too slow when both strings are long.</p>,
+            explain: <p>About O(n · m log m) time, where n is the length of <code>s2</code> and m is the length of <code>s1</code> (there are about n windows and sorting one costs m log m). This is too slow when both strings are long.</p>,
           },
           {
             name: "Fixed-size window with counts",

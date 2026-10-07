@@ -19,6 +19,7 @@ export const metadata: Metadata = {
 /** In-page index. Each entry links to a section heading below. */
 const outline = [
   { id: "concept", label: "Concept" },
+  { id: "terms", label: "Key words in plain English" },
   { id: "why", label: "Why this matters" },
   { id: "analogy", label: "The waiter's notepad — an analogy" },
   { id: "form", label: "How a closure actually forms" },
@@ -112,7 +113,7 @@ const questions: [React.ReactNode, React.ReactNode][] = [
   ],
   [
     "Can closures cause memory leaks?",
-    "Yes — if something keeps referencing a closure (like an event listener that's never removed), the entire outer scope it depends on is kept alive in memory indefinitely.",
+    "Yes — if something keeps referencing a closure (like an event listener that's never removed), the variables it depends on are kept alive in memory for as long as that reference exists.",
   ],
 ];
 
@@ -167,6 +168,64 @@ export default function JsLessonTenPage() {
             called.
           </p>
         </Callout>
+
+        <h2 id="terms">Key Words In Plain English</h2>
+        <ul>
+          <li>
+            <strong>Closure</strong> is a function together with the variables from the place where it
+            was created. It keeps using those variables even after that place has finished running.
+          </li>
+          <li>
+            <strong>Lexical Environment</strong> is the engine&apos;s internal record of the variables
+            of one scope, plus a link to the outer scope. &ldquo;Lexical&rdquo; means decided by where
+            the code is written.
+          </li>
+          <li>
+            <strong>Execution Context</strong> is the engine&apos;s working area for one running piece
+            of code. Each function call gets a new one.
+          </li>
+          <li>
+            <strong>Call stack</strong> is the list of function calls that are running right now. The
+            newest call is on top. When a call finishes, it is removed from the top.
+          </li>
+          <li>
+            <strong>Garbage collection</strong> is the engine automatically freeing memory that
+            nothing can reach any more.
+          </li>
+          <li>
+            <strong>Callback</strong> is a function you give to other code so that it can call your
+            function later, for example when a timer ends.
+          </li>
+          <li>
+            <strong><code>setTimeout</code></strong> is a built-in function that runs a callback once
+            after a delay in milliseconds. <code>setTimeout(f, 1000)</code> runs <code>f</code> after
+            about one second.
+          </li>
+          <li>
+            <strong>Event listener</strong> is a callback that the browser calls when something
+            happens, such as a click.
+          </li>
+          <li>
+            <strong>Encapsulation</strong> means keeping data hidden inside and allowing access only
+            through chosen functions.
+          </li>
+          <li>
+            <strong>Function factory</strong> is a function that builds and returns other functions.
+          </li>
+          <li>
+            <strong>Memoization</strong> is remembering the result of a function call, so the same
+            call later returns the saved result instead of working it out again.
+          </li>
+          <li>
+            <strong>Debounce</strong> is a way to wait until calls stop for a short time before running
+            the function once. <strong>Throttle</strong> is a way to run the function at most once in
+            a set period.
+          </li>
+          <li>
+            <strong>Memory leak</strong> is memory that your program no longer needs but that is still
+            kept because something still points to it.
+          </li>
+        </ul>
 
         <h2 id="why">Why This Matters</h2>
         <ul>
@@ -230,7 +289,8 @@ export default function JsLessonTenPage() {
             Normally, everything inside a popped context is garbage-collected. But{" "}
             <code>showRoom</code> still holds that hidden link to <code>roomNumber</code> — so the
             engine keeps that specific Lexical Environment alive in memory, even with nothing left
-            on the stack pointing to it.
+            on the stack pointing to it. (Real engines such as V8 are smart here: they keep only
+            the variables the inner function actually uses, not every variable of the outer one.)
           </li>
           <li>
             When <code>showMyRoom()</code> is finally called later, it reads{" "}
@@ -301,8 +361,8 @@ export default function JsLessonTenPage() {
         <Callout kind="warn">
           <p className="mb-0">
             This is genuinely useful, but it&apos;s also a real source of memory leaks in
-            production apps — an event listener that&apos;s never removed keeps its entire closure
-            (and everything it references) alive forever. Once nothing references a closure
+            production apps — an event listener that&apos;s never removed keeps its closure
+            (and everything the closure uses) alive for as long as the listener stays attached. Once nothing references a closure
             anymore, it becomes eligible for garbage collection like anything else.
           </p>
         </Callout>

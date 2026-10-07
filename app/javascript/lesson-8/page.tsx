@@ -24,6 +24,7 @@ export const metadata: Metadata = {
 /** In-page index. Each entry links to a section heading below. */
 const outline = [
   { id: "concept", label: "Concept" },
+  { id: "terms", label: "Key words in plain English" },
   { id: "why", label: "Why this matters" },
   { id: "blueprint", label: "The blueprint vs. the locked room — an analogy" },
   { id: "matrix", label: "The three keywords side by side" },
@@ -249,6 +250,75 @@ export default function JsLessonEightPage() {
           </p>
         </Callout>
 
+        <h2 id="terms">Key Words In Plain English</h2>
+        <p>Short definitions first, so every later section is easier to read.</p>
+        <ul>
+          <li>
+            <strong>Variable</strong> is a named box in memory that holds a value. <code>let age = 7</code>{" "}
+            makes a box called <code>age</code> that holds 7.
+          </li>
+          <li>
+            <strong>Binding</strong> is the link between a name and its box. A variable is really a
+            binding: the name <code>age</code> points to a value.
+          </li>
+          <li>
+            <strong>Scope</strong> is the part of the code where a name can be used. Outside its
+            scope, the name does not exist.
+          </li>
+          <li>
+            <strong>Block</strong> is any code inside a pair of curly braces <code>{"{ }"}</code>, for
+            example the body of an <code>if</code> or a <code>for</code>.
+          </li>
+          <li>
+            <strong>Hoisting</strong> is the engine reserving memory for declarations before it runs
+            any line of the code. It does not move your code. It only means the names are known in
+            advance.
+          </li>
+          <li>
+            <strong>Initialise</strong> means give a binding its first value. Until then it is empty
+            (<code>var</code> gives <code>undefined</code>) or locked (<code>let</code>/<code>const</code>).
+          </li>
+          <li>
+            <strong>Temporal Dead Zone (TDZ)</strong> is the period of time between a{" "}
+            <code>let</code>/<code>const</code> name being reserved and its declaration line running.
+            In that period the name exists but reading or writing it throws an error.
+          </li>
+          <li>
+            <strong>Shadowing</strong> is when an inner scope declares a name that already exists in
+            an outer scope. Inside, the inner one hides the outer one.
+          </li>
+          <li>
+            <strong>Parsing</strong> is the engine reading your source text and checking that it is
+            valid JavaScript, before anything runs. <strong>Runtime</strong> is the time when the
+            code actually runs, line by line.
+          </li>
+          <li>
+            <strong>SyntaxError</strong> is an error for text that is not valid JavaScript. It is
+            found while parsing. <strong>ReferenceError</strong> is an error for using a name that
+            cannot be used right now. <strong>TypeError</strong> is an error for doing something a
+            value does not allow, such as changing a <code>const</code>. These two are found at
+            runtime.
+          </li>
+          <li>
+            <strong><code>typeof</code></strong> is an operator that returns the type of a value as
+            a string, such as <code>&quot;number&quot;</code>. For a name that was never declared it
+            returns <code>&quot;undefined&quot;</code> and does not throw.
+          </li>
+          <li>
+            <strong>Closure</strong> is a function that remembers the variables from the place where
+            it was created, even after that place has finished running.
+          </li>
+          <li>
+            <strong>Primitive</strong> is a simple value that cannot be changed in place: a number,
+            string, boolean, <code>undefined</code>, <code>null</code>, symbol or bigint. An{" "}
+            <strong>object</strong> (including arrays) is a value with properties that can be changed.
+          </li>
+          <li>
+            <strong><code>Object.freeze</code></strong> is a built-in function that stops an object
+            from getting new, changed or removed properties. It only protects the top level.
+          </li>
+        </ul>
+
         <h2 id="why">Why This Matters</h2>
         <ul>
           <li>
@@ -384,7 +454,7 @@ export default function JsLessonEightPage() {
         <Script title="window.js" code={windowCode} />
         <TdzWindowDiagram />
         <p>
-          Line 5 is the detail people miss. <code>let roomNumber;</code> is not &ldquo;still
+          Line 4 (<code>let roomNumber;</code>) is the detail people miss. <code>let roomNumber;</code> is not &ldquo;still
           uninitialised&rdquo; — evaluating the declaration <em>is</em> the initialisation, to{" "}
           <code>undefined</code>. After that line, <code>roomNumber</code> behaves like any empty
           variable. The lock is tied to the declaration being <em>reached</em>, not to a value
@@ -565,9 +635,10 @@ export default function JsLessonEightPage() {
             you block scope, no accidental global property, no silent redeclaration, and a
             guarantee that the name always points at the same thing — every one of those is a
             class of bug removed. Reach for <code>let</code> only when the binding genuinely has
-            to move (a loop counter, an accumulator). The only time you will still meet{" "}
-            <code>var</code> is in code written before 2015, and in interview questions designed
-            to check you understand why it was replaced.
+            to move (a loop counter, an accumulator). You will mostly meet{" "}
+            <code>var</code> in older code (written before 2015, when <code>let</code> and{" "}
+            <code>const</code> arrived) and in interview questions that check you understand why
+            it was replaced.
           </p>
         </Callout>
 
@@ -610,7 +681,7 @@ export default function JsLessonEightPage() {
           </li>
           <li>
             <h3>Trigger a SyntaxError</h3>
-            <Script title="console" code={`let a = 1;\nlet a = 2; // SyntaxError, shown instantly — before you even press enter on the next line`} />
+            <Script title="console" code={`let a = 1;\nlet a = 2; // SyntaxError — paste both lines together as one snippet`} />
           </li>
           <li>
             <h3>Trigger a TDZ ReferenceError</h3>
@@ -649,10 +720,11 @@ checkIn();`} />
           </li>
           <li>
             <h3>Confirm the difference side by side</h3>
+            <Script title="console" code={`console.log("hello");\nlet a = 1;\nlet a = 2;`} />
             <p>
-              Notice the console still shows the SyntaxError as a red flag attached to the whole
-              snippet, not to one specific executed line — visual proof it was caught before
-              execution.
+              Paste this as one snippet. Only the SyntaxError appears and <code>hello</code> never
+              prints. That is proof the error was caught before any line ran. Now remove the last
+              line and paste again: <code>hello</code> prints.
             </p>
           </li>
         </ol>

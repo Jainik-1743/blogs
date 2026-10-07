@@ -181,10 +181,10 @@ export default function DsaLessonThirtyThreePage() {
         Lesson 32 drew recursion trees. In this lesson each <strong>branch is a decision</strong>. For example: use this item or not,
         which item goes next, or which letter to use. A path from the root to a leaf is one full set of decisions, and
         <strong> the leaves are the answers</strong>. To list every subset, permutation or combination, you just walk
-        through the whole tree. (A subset is some of the items. A permutation is all the items in some order. A combination is a group of items where order does not matter.)
+        through the whole tree. (A subset is some of the items. A permutation is all the items in some order. A combination is a group of items where order does not matter.) In one line: <code>[1, 2]</code> and <code>[2, 1]</code> are the same combination, but they are two different permutations.
       </p>
       <p>
-        Every solution in this lesson uses the same three-step move. This is the main idea of <strong>backtracking</strong>. Backtracking means you try a choice, and if you are done with it, you undo it and try the next one. It is like walking through a maze and coming back to the last turn.
+        Every solution in this lesson uses the same three-step move. This is the main idea of <strong>backtracking</strong>. Backtracking is a method that builds an answer one choice at a time, and when a choice is finished (or fails), it undoes that choice and tries the next one. It is like walking through a maze and coming back to the last turn.
       </p>
       <Callout kind="ok" label="Choose → explore → un-choose (undo)">
         <ol className="mb-0 mt-1 list-decimal pl-5">
@@ -279,7 +279,7 @@ export default function DsaLessonThirtyThreePage() {
           ["combinations C(n, k)", "n! / (k! (n − k)!)", "O(k · C(n, k))"],
           ["letter combinations of d digits", "up to 4ᵈ", "O(d · 4ᵈ)"],
         ]}
-        note="These take exponential time (the time grows very fast) because the answer itself is very large. You cannot be faster than the size of the output. This is why these problems only have small inputs (n ≤ 20 for subsets, n ≤ 10 for permutations)."
+        note="These take exponential time (the work multiplies by a fixed factor, such as 2, for every extra item) because the answer itself is very large. You cannot be faster than the size of the output. This is why these problems only have small inputs (roughly n ≤ 20 for subsets and n ≤ 10 for permutations)."
       />
 
       <h2 id="practice">Practice questions</h2>

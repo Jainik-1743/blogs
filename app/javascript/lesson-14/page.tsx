@@ -17,6 +17,7 @@ export const metadata: Metadata = {
 /** In-page index. Each entry links to a section heading below. */
 const outline = [
   { id: "concept", label: "Concept" },
+  { id: "terms", label: "Key words in plain English" },
   { id: "why", label: "Why this matters" },
   { id: "analogy", label: "The front desk — an analogy" },
   { id: "players", label: "The four players" },
@@ -178,6 +179,69 @@ export default function JsLessonFourteenPage() {
           that work are allowed back onto the call stack.
         </p>
 
+        <h2 id="terms">Key Words In Plain English</h2>
+        <ul>
+          <li>
+            <strong>Thread</strong> is one path of execution. <strong>Single-threaded</strong> means
+            JavaScript runs your code on one thread, so it does one thing at a time.
+          </li>
+          <li>
+            <strong>Synchronous</strong> code runs line by line, and each line finishes before the
+            next one starts. <strong>Asynchronous</strong> work is started now, and its result is
+            handled later, while other code keeps running.
+          </li>
+          <li>
+            <strong>Call stack</strong> is the list of function calls running right now. The engine
+            always runs the call on top.
+          </li>
+          <li>
+            <strong>Web API</strong> is a feature that the browser (not the JavaScript engine)
+            provides, such as <code>setTimeout</code>, <code>fetch</code> and DOM events. It does its
+            work outside the call stack.
+          </li>
+          <li>
+            <strong>Callback</strong> is a function that you give to other code so that it can call it
+            later.
+          </li>
+          <li>
+            <strong>Task (macrotask) queue</strong> — this lesson also calls it the callback queue —
+            is a waiting line for finished work such as timer callbacks and click handlers. The event
+            loop takes one item per turn.
+          </li>
+          <li>
+            <strong>Microtask queue</strong> is a second, higher-priority waiting line for promise
+            callbacks and <code>queueMicrotask</code> callbacks. It is emptied completely before the
+            next task runs.
+          </li>
+          <li>
+            <strong>Event loop</strong> is the runtime&apos;s loop that checks whether the call stack
+            is empty and, if it is, moves the next waiting callback onto it.
+          </li>
+          <li>
+            <strong>Promise</strong> is an object that stands for a result that is not ready yet. It
+            is pending first, then fulfilled (success) or rejected (failure). <code>.then()</code>{" "}
+            registers a function to run when it is fulfilled.
+          </li>
+          <li>
+            <strong><code>async</code>/<code>await</code></strong> is a way to write promise code that
+            reads like normal code. An <code>async</code> function always returns a promise.{" "}
+            <code>await</code> pauses that function until a promise settles.
+          </li>
+          <li>
+            <strong>Starvation</strong> is when something never gets its turn because other work keeps
+            going first.
+          </li>
+          <li>
+            <strong>Rendering (painting)</strong> is the browser drawing the page on the screen.{" "}
+            <strong><code>requestAnimationFrame</code></strong> is a browser function that runs your
+            function just before the next paint.
+          </li>
+          <li>
+            <strong>libuv</strong> is the C library that gives Node.js its event loop and its
+            asynchronous file and network work.
+          </li>
+        </ul>
+
         <h2 id="why">Why This Matters</h2>
         <ul>
           <li>
@@ -245,7 +309,7 @@ export default function JsLessonFourteenPage() {
               <tr>
                 <td>Microtask Queue</td>
                 <td>Holds finished promise callbacks — the entire queue drains every cycle</td>
-                <td><code>.then()</code>, <code>.catch()</code>, <code>.finally()</code>, <code>queueMicrotask()</code></td>
+                <td><code>.then()</code>, <code>.catch()</code>, <code>.finally()</code>, <code>queueMicrotask()</code>, code after <code>await</code></td>
               </tr>
             </tbody>
           </table>
@@ -354,7 +418,8 @@ export default function JsLessonFourteenPage() {
           <li>
             <h3>Maybe render</h3>
             <p>
-              If it&apos;s time for a new frame (about every 16 ms at 60 Hz), run{" "}
+              If it&apos;s time for a new frame (about every 16 ms on a 60 Hz screen; the browser may skip a
+              frame when nothing changed), run{" "}
               <code>requestAnimationFrame</code> callbacks, recalculate styles and layout, and
               paint.
             </p>
@@ -391,10 +456,10 @@ export default function JsLessonFourteenPage() {
           <p className="mb-0">
             Everything above describes the browser&apos;s event loop. Node.js runs the same core
             idea — one call stack, a microtask queue that drains fully between macrotasks — but its
-            macrotask side is organized into distinct <strong>phases</strong> (timers, I/O
-            callbacks, close callbacks, and more) managed by a library called{" "}
+            macrotask side is organized into distinct <strong>phases</strong> (timers, pending
+            callbacks, poll for I/O, check for <code>setImmediate</code>, close callbacks) managed by a library called{" "}
             <strong>libuv</strong>, and it adds its own extra-high-priority queue,{" "}
-            <code>process.nextTick()</code>. The mental model from this lesson transfers directly;
+            <code>process.nextTick()</code>, which runs before promise callbacks. The mental model from this lesson transfers directly;
             Node&apos;s phase system is worth a dedicated look if you&apos;re going deep on backend
             work, but it&apos;s outside the scope of this core-JavaScript block.
           </p>

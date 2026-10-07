@@ -156,7 +156,7 @@ export default function DsaLessonThirtySixPage() {
     <DsaLessonPage lesson={lesson} outline={outline}>
       <h2 id="reverse">Reversing a list</h2>
       <p>
-        Reversing a linked list is the most common linked-list question. The idea is easy: turn every arrow around. The hard
+        Reversing a linked list means making the last node the first one and the first node the last one, by changing the links. It is the most common linked-list question. The idea is easy: turn every arrow around. The hard
         part is doing it <em>without losing the rest of the list</em>. You walk down the list one node at a time. For
         each node, you make its <code>next</code> point backwards instead of forwards. Three variables do the job:
       </p>
@@ -198,7 +198,7 @@ export default function DsaLessonThirtySixPage() {
       <h2 id="middle">Slow and fast pointers: the middle</h2>
       <p>
         To find the middle of a list, you could count the nodes and then walk half of that. That needs two passes. The{" "}
-        <strong>slow and fast pointer</strong> trick needs only one. Start both pointers at the head. Each round,{" "}
+        <strong>slow and fast pointer</strong> trick (two pointers that walk the same list at different speeds) needs only one. Start both pointers at the head. Each round,{" "}
         <code>slow</code> moves one node and <code>fast</code> moves two. It is like two runners where one is twice as fast.
         When <code>fast</code> reaches the end, <code>slow</code> has covered half the distance. So it is at the middle.
       </p>
@@ -218,7 +218,7 @@ export default function DsaLessonThirtySixPage() {
       <p>
         A list has a <strong>cycle</strong> (a loop) if some node&apos;s <code>next</code> points back to an earlier node. Then
         walking never reaches <code>null</code>. One easy way to detect this is to remember every node you have seen in a{" "}
-        <code>Set</code>. But that costs O(n) memory. <strong>Floyd&apos;s tortoise and hare</strong> uses the same slow and
+        <code>Set</code> (a collection that keeps each item once). But that costs O(n) memory. <strong>Floyd&apos;s tortoise and hare</strong> uses the same slow and
         fast pair and needs only O(1) memory. If there is a cycle, the fast pointer catches up with the slow one from behind
         (like a fast runner lapping a slow runner on a track), and they meet. If there is no cycle, fast simply reaches the end.
       </p>

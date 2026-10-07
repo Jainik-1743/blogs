@@ -168,13 +168,13 @@ export default function DsaLessonThirtyOnePage() {
       <h2 id="concept">A window is two markers and a little memory</h2>
       <p>
         Lessons 22 and 23 taught the sliding window on arrays. On text it is the same idea. Think of a small frame that you slide along a line of letters. Two pointers (markers), <code>left</code> and{" "}
-        <code>right</code>, mark the two ends of a <strong>substring</strong> (a piece of the text with no gaps). A little memory (a Set, a Map or an array of
-        counts) tells you what is inside the frame right now. Moving the window one step costs O(1), which means it takes the same short time however long the text is. You only update the
+        <code>right</code>, mark the two ends of a <strong>substring</strong> (a piece of the text with no gaps). A little memory tells you what is inside the frame right now. It can be a <strong>Set</strong> (a collection that keeps each item only once), a <strong>Map</strong> (a collection of key and value pairs, such as letter and count) or an array of
+        counts. Moving the window one step costs <strong>O(1)</strong>, which means it takes the same short time however long the text is. You only update the
         one letter that enters or leaves. You do not count the whole substring again.
       </p>
       <p>
-        The brute-force way is to check every substring. There are O(n²) substrings and each check costs O(n), so the total is O(n³). The window turns this into one O(n) pass
-        (the time grows in step with the text length). Each pointer only moves forward, so together they move at most 2n times.
+        The brute-force way is to check every substring. There are O(n²) substrings and each check costs O(n), so the total is O(n³). The window turns this into one <strong>O(n)</strong> pass
+        (the time grows in step with the text length, so double the text means double the work). Each pointer only moves forward, so together they move at most 2n times.
       </p>
       <p>Two kinds of windows cover almost every question.</p>
       <ul>
@@ -196,7 +196,7 @@ export default function DsaLessonThirtyOnePage() {
 
       <h2 id="norepeat">Longest substring without repeating characters</h2>
       <ul>
-        <li><strong>Memory:</strong> a <code>Set</code> (a list that keeps each item only once) of the letters in the window.</li>
+        <li><strong>Memory:</strong> a <code>Set</code> (a collection that keeps each item only once) of the letters in the window.</li>
         <li><strong>Not valid:</strong> the new letter is already in the Set.</li>
         <li><strong>Shrink:</strong> remove letters from the left until the repeat is gone.</li>
         <li><strong>Save:</strong> the length <code>right - left + 1</code> after adding the new letter.</li>
@@ -204,7 +204,7 @@ export default function DsaLessonThirtyOnePage() {
       <CodeBlock lang="js" code={noRepeatCode} />
       <p>
         Each letter is added once and removed at most once, so the time is <strong>O(n)</strong>. The Set can never hold more than the
-        number of different letters in the alphabet, so the space is <strong>O(min(n, alphabet))</strong>. That means it is the smaller of the text length and the alphabet size.
+        number of different letters in the text or in the alphabet, so the space is <strong>O(min(n, alphabet))</strong>. That means it is the smaller of the text length and the alphabet size.
       </p>
 
       <h2 id="trace">Traced: windows over &ldquo;abcabcbb&rdquo;</h2>
@@ -224,7 +224,7 @@ export default function DsaLessonThirtyOnePage() {
           ["4", "e", "no", "wke", "3"],
           ["5", "w", "yes → drop w", "kew", "3"],
         ]}
-        note="The answer is 3 (“wke” or “kew”). “pwke” does not count. It skips a letter, so it is a subsequence and not a substring. A window must have no gaps."
+        note="The answer is 3 (“wke” or “kew”). “pwke” does not count. It skips a letter, so it is a subsequence (letters in the same order, but gaps are allowed) and not a substring. A window must have no gaps."
       />
 
       <h2 id="replace">Longest repeating character replacement</h2>
@@ -269,7 +269,7 @@ export default function DsaLessonThirtyOnePage() {
         rows={[
           ["right reaches C (index 5)", "ADOBEC", "yes", "ADOBEC (6)"],
           ["shrink: drop A", "DOBEC", "no", "ADOBEC (6)"],
-          ["right reaches A (index 10)", "DOBECODEBA", "yes (after drops: CODEBA)", "CODEBA (6)"],
+          ["right reaches A (index 10)", "DOBECODEBA", "yes (after drops: CODEBA)", "ADOBEC (6), because CODEBA is not shorter"],
           ["right reaches C (index 12)", "ODEBANC", "yes (after drops: BANC)", "BANC (4)"],
         ]}
         note="The shortest window is “BANC”."
@@ -293,7 +293,7 @@ export default function DsaLessonThirtyOnePage() {
       <h2 id="next">Part 7 complete: what&apos;s next</h2>
       <p>
         You can now solve questions on palindromes, prefixes, compression, and every common window question on text. <strong>Part 8</strong>{" "}
-        moves from scanning to <em>exploring</em>. You will learn recursion trees (a function that calls itself). Then you will list every subset, permutation and combination
+        moves from scanning to <em>exploring</em>. You will learn recursion (a function that calls itself) and recursion trees (a drawing of all the calls). Then you will list every subset, permutation and combination
         with backtracking (try a choice, and undo it if it does not work).
       </p>
     </DsaLessonPage>

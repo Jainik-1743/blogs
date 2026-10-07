@@ -12,6 +12,7 @@ export const metadata: Metadata = {
 };
 
 const outline = [
+  { id: "glossary", label: "Key words in plain English" },
   { id: "l1", label: "1. Execution Context" },
   { id: "l2", label: "2. Call Stack" },
   { id: "l3", label: "3. var, let, const" },
@@ -228,7 +229,7 @@ console.log(count); // 1000000
 // What V8 did:
 // 1. Parse    → tokens → AST
 // 2. Ignition → bytecode, runs immediately
-// 3. TurboFan → notices increment() is "hot" after thousands of calls,
+// 3. TurboFan → notices increment() is "hot" after many calls,
 //               compiles it to optimized machine code mid-run
 // 4. Orinoco  → frees memory nothing can reach anymore (Mark-and-Sweep)`;
 
@@ -354,7 +355,7 @@ const rapidfire: [string, React.ReactNode][] = [
   ["Is setTimeout part of JavaScript?", "No. It's a Web API provided by the browser (or by Node's runtime), exposed through the global object. The engine itself only has the call stack and heap."],
   ["Promise .then() vs setTimeout(fn, 0) — which runs first?", "The promise callback. It's a microtask, and the entire microtask queue drains before a single macrotask (the timer) is allowed to run."],
   ["What is starvation in the event loop?", "When microtasks keep scheduling more microtasks, the queue never empties — so the callback queue and even browser rendering never get a turn."],
-  ["Is JavaScript single-threaded or multi-threaded?", "Single-threaded — one call stack, one thing at a time. Concurrency comes from offloading work to Web APIs and scheduling the results back through the queues, not from extra JS threads."],
+  ["Is JavaScript single-threaded or multi-threaded?", "Single-threaded — one call stack, one thing at a time. Concurrency comes from offloading work to Web APIs and scheduling the results back through the queues, not from extra JS threads. (Web Workers do run JavaScript on other threads, but each worker has its own stack and cannot touch your variables directly.)"],
 ];
 
 function Card({
@@ -438,6 +439,31 @@ export default function JsRecapPage() {
             </li>
           ))}
         </ol>
+      </section>
+
+      <section id="glossary" className="mb-8 scroll-mt-24 rounded-xl border border-line bg-bg-elev px-6 py-5">
+        <h2 className="mb-3 text-[1.25rem] font-bold text-ink">Key Words In Plain English</h2>
+        <ul className="mb-0">
+          <li><strong>Execution context</strong> is the engine&apos;s working area for one piece of running code. The first one is the Global Execution Context (GEC). Every function call makes a new one.</li>
+          <li><strong>Hoisting</strong> is the engine reserving memory for declarations before any line runs. It does not move your code.</li>
+          <li><strong>Call stack</strong> is the list of calls running right now. It is <strong>LIFO</strong> (last in, first out): the newest call finishes first.</li>
+          <li><strong>Recursion</strong> is a function calling itself. A <strong>base case</strong> is the condition that makes it stop.</li>
+          <li><strong>Scope</strong> is the part of the code where a name can be used. A <strong>block</strong> is code inside curly braces. <strong>Binding</strong> is the link between a name and its value.</li>
+          <li><strong>Temporal Dead Zone (TDZ)</strong> is the time between a <code>let</code>/<code>const</code> name being reserved and its declaration line running. Using the name then throws an error.</li>
+          <li><strong>Mutation</strong> is changing a value in place, such as <code>obj.x = 1</code>. <strong>Reassignment</strong> is pointing a name at a new value, such as <code>x = 2</code>.</li>
+          <li><strong>Global object</strong> is the top-level object of the environment: <code>window</code> in a browser. <code>globalThis</code> is the same thing under a name that works everywhere. <strong>Strict mode</strong> is an opt-in mode (<code>&quot;use strict&quot;</code>) with stricter rules, for example a plain function call has <code>this</code> as <code>undefined</code>.</li>
+          <li><strong><code>undefined</code></strong> is the value of a variable that exists but has no value yet. <strong><code>null</code></strong> is a value that you set on purpose to mean &ldquo;empty&rdquo;. <strong>Not defined</strong> is the error for a name that was never declared. <strong><code>typeof</code></strong> returns the type of a value as a string.</li>
+          <li><strong>Lexical Environment</strong> is the engine&apos;s record of one scope&apos;s variables plus a link to the outer scope. <strong>Variable Environment</strong> is the record of the variables made by one function call. <strong>Scope chain</strong> is the chain of those links, from inner to Global. <strong>Lexical (static) scoping</strong> means the chain follows where the code is written, not where it is called.</li>
+          <li><strong>Shadowing</strong> is when an inner scope declares a name that an outer scope already has, so the inner one hides the outer one.</li>
+          <li><strong>Closure</strong> is a function that keeps access to the variables of the place where it was created, even after that place has finished.</li>
+          <li><strong>Garbage collection</strong> is the engine automatically freeing memory that nothing can reach any more.</li>
+          <li><strong>IIFE</strong> (Immediately Invoked Function Expression) is a function that is defined and called in one step. <strong><code>.bind()</code></strong> returns a copy of a function with some arguments already filled in.</li>
+          <li><strong>Callback</strong> is a function you give to other code so that it can call it later. <strong>Higher-order function</strong> is a function that takes or returns a function. <strong>Event listener</strong> is a callback that runs when an event, such as a click, happens.</li>
+          <li><strong>JavaScript engine</strong> is the program that runs JavaScript (V8 in Chrome and Node.js). <strong>Runtime environment</strong> is the engine plus the extras of its host, such as timers and the event loop.</li>
+          <li><strong>Parsing</strong> turns source text into tokens and then an <strong>AST</strong> (a tree of the code&apos;s structure). <strong>Bytecode</strong> is compact instructions for a simple virtual machine. <strong>Machine code</strong> is what the CPU runs directly. <strong>JIT</strong> (Just-In-Time) compilation means compiling the code that runs often while the program is running.</li>
+          <li><strong>Web API</strong> is a feature provided by the browser, not by the language, such as <code>setTimeout</code> and <code>fetch</code>.</li>
+          <li><strong>Event loop</strong> is the loop that moves waiting callbacks onto the call stack when it is empty. <strong>Macrotask (callback) queue</strong> holds timer and event callbacks. <strong>Microtask queue</strong> holds promise callbacks and is emptied first. <strong>Promise</strong> is an object for a result that is not ready yet. <strong>Starvation</strong> is when something never gets a turn because other work keeps going first.</li>
+        </ul>
       </section>
 
       <Card

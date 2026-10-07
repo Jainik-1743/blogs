@@ -34,7 +34,7 @@ console.log(fib(10)); // 55`,
           },
           {
             name: "Remember answers (memoisation)",
-            idea: <p>Save each result in a Map the first time. Look in the Map before you make a recursive call.</p>,
+            idea: <p>Memoisation means remembering answers you already worked out. Save each result in a Map (a lookup table) the first time. Look in the Map before you make a recursive call.</p>,
             code: `function fib(n, memo = new Map()) {
   if (n <= 1) return n;
   if (memo.has(n)) return memo.get(n);
@@ -74,7 +74,7 @@ console.log(fib(50)); // 12586269025`,
         title="Pow(x, n)"
         level="Medium"
         examples={[
-          { input: "x = 2, n = 10", output: "1024", why: "2 multiplied by itself ten times." },
+          { input: "x = 2, n = 10", output: "1024", why: "Ten 2s multiplied together." },
           { input: "x = 2, n = −2", output: "0.25", why: "2⁻² = 1 / 2² = 1/4." },
           { input: "x = 2, n = 0", output: "1", why: "Anything to the power 0 is 1." },
         ]}
@@ -228,7 +228,7 @@ console.log(hanoi(1, "A", "C", "B").join(", ")); // A→C
 console.log(hanoi(2, "A", "C", "B").join(", ")); // A→B, A→C, B→C
 console.log(hanoi(3, "A", "C", "B").length);     // 7
 console.log(hanoi(10, "A", "C", "B").length);    // 1023`,
-            explain: <p>The tree has 2<sup>n</sup> − 1 nodes (one per move), so the time is O(2<sup>n</sup>). You cannot do better, because that many moves are needed. The stack depth is n.</p>,
+            explain: <p>There are 2<sup>n</sup> − 1 calls that make a move (plus empty calls with 0 disks), so the time is O(2<sup>n</sup>). You cannot do better, because that many moves are needed. The stack depth is n.</p>,
           },
         ]}
         compare={<p>A classic example where the recursive tree is <em>exactly</em> the work that is needed. No sub-problem repeats, so memoisation would not help.</p>}
@@ -300,11 +300,11 @@ console.log(binaryStrings(3).length); // 8`,
 
 console.log(flatten([1, [2, [3, [4]], 5]])); // [1, 2, 3, 4, 5]
 console.log(flatten([[], [1], [[2]]]));      // [1, 2]`,
-            explain: <p>O(total elements) time. The recursion depth equals the deepest nesting.</p>,
+            explain: <p>About O(total elements) time when the nesting is shallow. Copying the inner results into the outer one at every level adds some extra work for deep nesting. The recursion depth equals the deepest nesting.</p>,
           },
           {
             name: "An explicit stack (no recursion)",
-            idea: <p>Put the array&apos;s elements on a stack. Take one off. If it is an array, put its elements back on the stack.</p>,
+            idea: <p>Put the array&apos;s elements on a stack (a list where you add and remove only at the end, so the last item in is the first item out). Take one off. If it is an array, put its elements back on the stack.</p>,
             code: `function flatten(arr) {
   const out = [];
   const stack = [...arr];

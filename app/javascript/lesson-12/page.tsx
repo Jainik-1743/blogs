@@ -18,6 +18,7 @@ export const metadata: Metadata = {
 /** In-page index. Each entry links to a section heading below. */
 const outline = [
   { id: "concept", label: "Concept" },
+  { id: "terms", label: "Key words in plain English" },
   { id: "why", label: "Why this matters" },
   { id: "analogy", label: "The instruction card — an analogy" },
   { id: "proof", label: "Proof: functions are values" },
@@ -190,6 +191,79 @@ export default function JsLessonTwelvePage() {
           registered with the browser, to be run later, whenever a particular event happens.
         </p>
 
+        <h2 id="terms">Key Words In Plain English</h2>
+        <ul>
+          <li>
+            <strong>First-class function</strong> means a function is treated like any other value. You
+            can store it in a variable, put it in an array, pass it in, and return it. (A function is
+            a special kind of object, so <code>typeof</code> reports <code>&quot;function&quot;</code>.)
+          </li>
+          <li>
+            <strong>Function reference</strong> is the function itself as a value, written without
+            parentheses: <code>greet</code>. Writing <code>greet()</code> calls it instead.
+          </li>
+          <li>
+            <strong>Callback</strong> is a function that you give to other code so that it can call
+            it later.
+          </li>
+          <li>
+            <strong>Higher-order function</strong> is a function that takes a function as an
+            argument, returns a function, or both. <strong>Difference in one line:</strong> a callback
+            is the function that is passed in; a higher-order function is the one that receives it.
+          </li>
+          <li>
+            <strong>Synchronous</strong> means it runs right now and the next line waits.{" "}
+            <strong>Asynchronous</strong> means it is scheduled to run later while the next lines
+            continue.
+          </li>
+          <li>
+            <strong>Anonymous function</strong> is a function with no name, written in place, such as{" "}
+            <code>{"() => console.log(1)"}</code>. <strong>Arrow function</strong> is the short{" "}
+            <code>{"() => ..."}</code> way to write a function.
+          </li>
+          <li>
+            <strong>Event</strong> is a signal that something happened, such as a click or a key
+            press. <strong>Event listener</strong> is a callback registered to run when a given event
+            happens on a given element.
+          </li>
+          <li>
+            <strong><code>addEventListener</code></strong> is a method that registers an event
+            listener on an element. <strong><code>removeEventListener</code></strong> unregisters one.
+          </li>
+          <li>
+            <strong>Closure</strong> is a function that keeps access to the variables of the place
+            where it was created (Lesson 10).
+          </li>
+          <li>
+            <strong>Function factory</strong> is a function that builds and returns other functions.
+          </li>
+          <li>
+            <strong><code>this</code></strong> is a special value inside a function that points to the
+            object the function is working with. For a regular function, how the function is called
+            decides it (Lesson 5).
+          </li>
+          <li>
+            <strong>Rest parameter</strong> (<code>...args</code>) collects all extra arguments into
+            an array. <strong>Spread</strong> (<code>fn(...args)</code>) does the reverse and passes
+            an array as separate arguments.
+          </li>
+          <li>
+            <strong><code>AbortController</code></strong> is a built-in object that makes a{" "}
+            <code>signal</code>. When you call <code>controller.abort()</code>, everything that was
+            given that signal is cancelled. Here, the listeners are removed.
+          </li>
+          <li>
+            <strong>Middleware</strong> is a function placed between a request and its handler to add
+            steps such as logging. <strong>Decorator</strong> is a function that wraps another
+            function to add behaviour. <strong>Debounce</strong> waits until calls stop before running
+            once. <strong>Throttle</strong> runs at most once per time period.
+          </li>
+          <li>
+            <strong><code>$0</code></strong> is a DevTools shortcut for the element currently selected
+            in the Elements panel.
+          </li>
+        </ul>
+
         <h2 id="why">Why This Matters</h2>
         <ul>
           <li>
@@ -342,7 +416,8 @@ export default function JsLessonTwelvePage() {
           situation: a regular <code>function</code> passed as a listener gets <code>this</code>{" "}
           set to the element the event fired on. An <strong>arrow function</strong> never gets its
           own <code>this</code> — it keeps whatever <code>this</code> its surrounding scope had
-          (often the global object, per Lesson 5), which is almost never what you want inside a
+          (in a classic script that is the global object <code>window</code>, per Lesson 5; in a
+          module it is <code>undefined</code>), which is almost never what you want inside a
           listener that needs to reference the clicked element.
         </p>
 

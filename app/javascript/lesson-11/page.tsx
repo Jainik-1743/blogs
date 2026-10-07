@@ -16,6 +16,7 @@ export const metadata: Metadata = {
 
 /** In-page index. Each entry links to a section heading below. */
 const outline = [
+  { id: "terms", label: "Key words in plain English" },
   { id: "problem", label: "The problem, stated precisely" },
   { id: "analogy", label: "The wake-up call sheet — an analogy" },
   { id: "naive", label: "The naive attempt — and why it fails" },
@@ -134,6 +135,61 @@ export default function JsLessonElevenPage() {
       </section>
 
       <div className="lesson">
+        <h2 id="terms">Key Words In Plain English</h2>
+        <ul>
+          <li>
+            <strong>Closure</strong> is a function that remembers the variables from the place where
+            it was created and keeps using them later (Lesson 10).
+          </li>
+          <li>
+            <strong><code>setTimeout</code></strong> is a built-in function that runs a function once,
+            after a delay in milliseconds. It does not wait. It schedules the work and returns at once.
+          </li>
+          <li>
+            <strong>Callback</strong> is a function you give to other code so that it can call it
+            later. The function you pass to <code>setTimeout</code> is a callback.
+          </li>
+          <li>
+            <strong>Arrow function</strong> is a short way to write a function:{" "}
+            <code>{"() => console.log(i)"}</code>.
+          </li>
+          <li>
+            <strong>Synchronous code</strong> is code that runs line by line, each line finishing
+            before the next starts. A timer callback is not part of it. It runs later.
+          </li>
+          <li>
+            <strong>Call stack</strong> is the list of function calls running right now. The engine
+            runs one thing at a time, from the top of the stack.
+          </li>
+          <li>
+            <strong>Event loop</strong> is the part of the runtime that waits until the call stack is
+            empty and then moves the next waiting callback onto it. Lesson 14 explains it.
+          </li>
+          <li>
+            <strong>Block scope</strong> means a variable exists only inside the nearest pair of
+            braces. <strong>Function scope</strong> means it exists in the whole function. <code>let</code>{" "}
+            is block scoped and <code>var</code> is function scoped (Lesson 9).
+          </li>
+          <li>
+            <strong>Binding</strong> is the link between a variable name and its storage. With{" "}
+            <code>let</code> in a loop head, each pass of the loop gets its own binding.
+          </li>
+          <li>
+            <strong>IIFE</strong> (Immediately Invoked Function Expression) is a function that is
+            defined and called in the same step: <code>{"(function () { ... })()"}</code>.
+          </li>
+          <li>
+            <strong><code>.bind()</code></strong> is a function method that returns a new function with
+            some arguments already filled in. <code>f.bind(null, 5)</code> is a copy of <code>f</code>{" "}
+            that always gets 5 as its first argument. The first value (<code>null</code> here) sets{" "}
+            <code>this</code>, and <code>console.log</code> does not need it.
+          </li>
+          <li>
+            <strong>Variable Environment</strong> is the engine&apos;s record of the variables made by
+            one function call. Every call gets its own new record (Lesson 4).
+          </li>
+        </ul>
+
         <h2 id="problem">The Problem, Stated Precisely</h2>
         <p>
           Print the numbers 1 through 5, one per second — <code>1</code> after 1 second,{" "}
@@ -315,8 +371,9 @@ export default function JsLessonElevenPage() {
           <li>
             <h3>Paste the naive var version</h3>
             <p>
-              Run it in the console and watch all five logs arrive together, showing{" "}
-              <code>6</code> five times.
+              Run it in the console and watch the logs arrive one per second, each one showing{" "}
+              <code>6</code>. (The delays use the value of <code>i</code> at the moment each{" "}
+              <code>setTimeout</code> is called, so they are still 1, 2, 3, 4 and 5 seconds.)
             </p>
           </li>
           <li>
@@ -326,15 +383,17 @@ export default function JsLessonElevenPage() {
           <li>
             <h3>Check the Closure section each time it pauses</h3>
             <p>
-              All five pauses will show the exact same <code>Closure (loop scope)</code> entry,
-              with <code>i</code> already at <code>6</code> in every single one.
+              All five pauses will show the exact same <code>i</code>, already at <code>6</code>,
+              in the <code>Global</code> scope (it would be a <code>Closure</code> entry named
+              after the function if the loop were inside a function).
             </p>
           </li>
           <li>
             <h3>Repeat with the let version</h3>
             <p>
-              This time each pause shows a genuinely different <code>Closure</code> entry — a fresh{" "}
-              <code>i</code> per iteration, exactly as Lesson 10 described.
+              This time each pause shows a different <code>i</code> (1, then 2, and so on) in its own{" "}
+              <code>Closure</code> entry — a fresh <code>i</code> per iteration, exactly as Lesson 10
+              described.
             </p>
           </li>
         </ol>

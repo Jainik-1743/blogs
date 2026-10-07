@@ -18,6 +18,7 @@ export const metadata: Metadata = {
 /** In-page index. Each entry links to a section heading below. */
 const outline = [
   { id: "concept", label: "Concept" },
+  { id: "terms", label: "Key words in plain English" },
   { id: "why", label: "Why this matters" },
   { id: "door", label: "The meeting room door — an analogy" },
   { id: "block", label: "What counts as a block" },
@@ -158,7 +159,7 @@ const questions: [React.ReactNode, React.ReactNode][] = [
   ],
   [
     "What does a block actually create at runtime?",
-    <>If it contains a <code>let</code>, <code>const</code> or <code>class</code> declaration, entering the block creates a new Lexical Environment (a memory record plus an outer reference to the surrounding scope), and leaving it discards that environment. A block with only <code>var</code>s or statements creates nothing — there is nothing block-scoped to hold.</>,
+    <>If it contains a <code>let</code>, <code>const</code>, <code>class</code> or function declaration, entering the block creates a new Lexical Environment (a memory record plus an outer reference to the surrounding scope), and leaving it discards that environment. A block with only <code>var</code>s or statements creates nothing — there is nothing block-scoped to hold.</>,
   ],
   [
     "How does a lookup inside three nested blocks find a variable declared at the top?",
@@ -224,6 +225,54 @@ export default function JsLessonNinePage() {
           you don&apos;t know it&apos;s there.
         </p>
 
+        <h2 id="terms">Key Words In Plain English</h2>
+        <ul>
+          <li>
+            <strong>Scope</strong> is the part of the code where a name can be used. Outside its
+            scope, the name does not exist.
+          </li>
+          <li>
+            <strong>Block</strong> is a group of statements inside curly braces. It is a scope for{" "}
+            <code>let</code> and <code>const</code>, but not for <code>var</code>.
+          </li>
+          <li>
+            <strong>Lexical Environment</strong> is the engine&apos;s internal record of the variables
+            of one scope, plus a link to the outer scope. &ldquo;Lexical&rdquo; means decided by where
+            the code is written.
+          </li>
+          <li>
+            <strong>Scope chain</strong> is the list of scopes from the inner one out to Global.
+            When you use a name, the engine looks in the inner scope first, then the next one out,
+            and stops at the first match.
+          </li>
+          <li>
+            <strong>Shadowing</strong> is when an inner scope declares a name that an outer scope
+            already has. The inner one hides the outer one while the code is inside.
+          </li>
+          <li>
+            <strong>Hoisting</strong> is the engine reserving memory for declarations before any line
+            runs. <code>var</code> is hoisted to the top of its function, not to the top of its block.
+          </li>
+          <li>
+            <strong>Temporal Dead Zone (TDZ)</strong> is the time between a <code>let</code>/
+            <code>const</code> name being reserved and its declaration line running. Reading the
+            name in that time throws a <code>ReferenceError</code>.
+          </li>
+          <li>
+            <strong>Parameter</strong> is a name in a function&apos;s definition, such as{" "}
+            <code>guestName</code> in <code>function checkIn(guestName)</code>. The value you pass
+            when you call the function is the <strong>argument</strong>.
+          </li>
+          <li>
+            <strong>SyntaxError</strong> is an error for code that is not valid JavaScript. The engine
+            finds it before running any line.
+          </li>
+          <li>
+            <strong>Linter</strong> is a tool that reads your code and warns about mistakes and risky
+            patterns without running it. ESLint is the most common one for JavaScript.
+          </li>
+        </ul>
+
         <h2 id="why">Why This Matters</h2>
         <ul>
           <li>
@@ -277,7 +326,7 @@ export default function JsLessonNinePage() {
         <p>
           A block is not a scope by decoration; it is a scope because entering it can create a
           real <strong>Lexical Environment</strong> (Lesson 7): a memory record for the block&apos;s
-          own <code>let</code>/<code>const</code>/<code>class</code> declarations, plus an outer
+          own <code>let</code>/<code>const</code>/<code>class</code> declarations (and function declarations written inside the block), plus an outer
           reference to the environment the block sits inside. Leaving the block discards that
           environment. Everything else in this lesson is a consequence of that one object existing
           — or not.
@@ -410,14 +459,14 @@ export default function JsLessonNinePage() {
         <h2 id="params">Shadowing Parameters And Built-Ins</h2>
         <p>
           A function&apos;s parameters live in the same scope as the top level of its body. That
-          makes a parameter behave like a <code>let</code> already declared on line 0 of the
-          function — so redeclaring it with <code>let</code> at the top level of the body is a
+          makes a parameter behave like a <code>let</code> declared just before the first line
+          of the function body — so redeclaring it with <code>let</code> at the top level of the body is a
           duplicate declaration, while shadowing it inside a nested block is legal.
         </p>
         <Script title="params.js" code={params} />
         <p>
           The same logic covers built-in names. <code>let undefined = 5;</code> at the top level of
-          a script is a <code>SyntaxError</code> in a browser, because <code>undefined</code> is
+          a classic browser script is a <code>SyntaxError</code>, because <code>undefined</code> is
           already a property of the global object; inside a block or a function it is legal, and
           creates a genuinely separate binding that shadows the real one for that scope. Legal is
           not the same as wise — shadowing <code>undefined</code>, <code>name</code>,{" "}

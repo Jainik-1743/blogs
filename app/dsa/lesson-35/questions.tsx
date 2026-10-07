@@ -159,7 +159,7 @@ console.log(toArray(removeElements(fromArray([7, 7, 7, 7]), 7)));          // []
 }
 
 console.log(toArray(removeElements(fromArray([1, 2, 6, 3, 4, 5, 6]), 6))); // [1, 2, 3, 4, 5]`,
-            explain: <p>It looks neat, but it uses O(n) stack space. A very long list could overflow the stack (use up all the call stack memory).</p>,
+            explain: <p>It looks neat, but it uses O(n) stack space. A very long list could cause a stack overflow (the call stack, the memory that keeps track of open function calls, runs out of room).</p>,
           },
         ]}
         compare={<p>Use the dummy-head loop. (LeetCode 203.)</p>}
@@ -376,7 +376,7 @@ console.log(getDecimalValue(fromArray([1, 1, 0, 0]))); // 12`,
 }
 
 console.log(getDecimalValue(fromArray([1, 0, 1, 1]))); // 11`,
-            explain: <p>The cost is the same. <code>n &lt;&lt; 1</code> means the same as <code>n * 2</code> (Part 15 covers bit tricks).</p>,
+            explain: <p>The cost is the same. <code>n &lt;&lt; 1</code> means the same as <code>n * 2</code>. (JavaScript bit operations work on 32-bit numbers, which is enough here because the list has at most 30 bits. Part 15 covers bit tricks.)</p>,
           },
         ]}
         compare={<p>(LeetCode 1290.)</p>}
