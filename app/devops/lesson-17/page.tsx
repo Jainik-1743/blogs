@@ -39,41 +39,41 @@ const outline = [
 ];
 
 const pillars: [string, string, string, string][] = [
-  ["Metrics", "Numbers over time, cheap to store and query", "“How many 5xx per minute? What is CPU?”", "CloudWatch Metrics, dashboards, alarms"],
-  ["Logs", "Timestamped events with detail", "“What exactly happened to request abc123?”", "CloudWatch Logs, Logs Insights"],
-  ["Traces", "One request followed across every service and query", "“Where did those 3 seconds go?”", "AWS X-Ray, OpenTelemetry"],
+  ["Metrics", "Numbers over time. They are cheap to store and to search", "“How many 5xx per minute? What is CPU?”", "CloudWatch Metrics, dashboards, alarms"],
+  ["Logs", "Events with a time stamp and detail", "“What exactly happened to request abc123?”", "CloudWatch Logs, Logs Insights"],
+  ["Traces", "One request followed through every service and query", "“Where did those 3 seconds go?”", "AWS X-Ray (the AWS tracing service), OpenTelemetry (an open standard and toolkit for creating traces)"],
 ];
 
 const golden: [string, string, string, string][] = [
-  ["Latency", "How long requests take (use percentiles: p50, p95, p99, not averages)", "ALB TargetResponseTime", "RDS ReadLatency"],
-  ["Traffic", "How much demand there is", "ALB RequestCount", "Redis commands/s"],
+  ["Latency", "How long requests take. Use percentiles (p50 is the middle value, p95 and p99 are the slow end), not averages", "ALB TargetResponseTime", "RDS ReadLatency"],
+  ["Traffic", "How much demand there is for your service", "ALB RequestCount", "Redis commands/s"],
   ["Errors", "How many requests fail", "ALB HTTPCode_Target_5XX_Count", "App error logs"],
-  ["Saturation", "How full the resources are", "ASG CPU, memory, disk %", "RDS connections, FreeStorageSpace, Redis memory"],
+  ["Saturation", "How full your resources are", "ASG CPU, memory, disk %", "RDS connections, FreeStorageSpace, Redis memory"],
 ];
 
 const alarmList: [string, string, string, string][] = [
   ["Users are seeing errors", "ALB HTTPCode_Target_5XX_Count", "≥ 5 per minute, 2 of 3 minutes", "The primary symptom alarm"],
   ["The site is too slow", "ALB TargetResponseTime p95", "> 1 second for 5 minutes", "Slowness hurts before errors appear"],
-  ["A server is failing", "ALB UnHealthyHostCount", "≥ 1 for 3 minutes", "Auto Scaling will replace it; you should still know why"],
-  ["No servers left", "ALB HealthyHostCount", "< 1 for 1 minute", "Total outage. Page a human"],
-  ["Nobody can reach us at all", "ALB RequestCount", "< 1 for 10 minutes (treat missing as breaching)", "Catches DNS/cert/ALB failures that produce no errors"],
-  ["Database CPU", "RDS CPUUtilization", "> 80% for 10 minutes", "Missing index or undersized instance"],
-  ["Database disk", "RDS FreeStorageSpace", "< 5 GB", "Full disk freezes the database"],
-  ["Database connections", "RDS DatabaseConnections", "> 80% of max_connections", "The scaling outage from Lesson 8"],
-  ["Cache memory", "ElastiCache DatabaseMemoryUsagePercentage", "> 80%", "Evictions and OOM ahead"],
-  ["Server memory / disk", "CWAgent mem_used_percent, used_percent", "> 85%", "EC2 does not report these by default"],
-  ["Money", "AWS Budget / EstimatedCharges", "80% of budget", "Lesson 5's alarm, still the most valuable"],
+  ["A server is failing", "ALB UnHealthyHostCount", "≥ 1 for 3 minutes", "Auto Scaling will replace it, but you should still find out why"],
+  ["No servers left", "ALB HealthyHostCount", "< 1 for 1 minute", "Total outage. Call a person (page them)"],
+  ["Nobody can reach us at all", "ALB RequestCount", "< 1 for 10 minutes (treat missing data as breaching)", "Catches DNS, certificate and ALB failures that produce no errors"],
+  ["Database CPU", "RDS CPUUtilization", "> 80% for 10 minutes", "A missing index or an instance that is too small"],
+  ["Database disk", "RDS FreeStorageSpace", "< 5 GB", "A full disk freezes the database"],
+  ["Database connections", "RDS DatabaseConnections", "> 80% of max_connections", "The outage from Lesson 8 that came with scaling"],
+  ["Cache memory", "ElastiCache DatabaseMemoryUsagePercentage", "> 80%", "Evictions and out-of-memory errors are coming"],
+  ["Server memory / disk", "MyApp/EC2 mem_used_percent, disk_used_percent", "> 85%", "EC2 does not report these by default"],
+  ["Money", "AWS Budget / EstimatedCharges", "80% of budget", "The alarm from Lesson 5. It is still the most valuable one"],
 ];
 
 const trouble: [string, string, string][] = [
-  ["Alarm fired but no email arrived", "The SNS email subscription was never confirmed (or landed in spam)", "aws sns list-subscriptions-by-topic — “PendingConfirmation” means click the link in the confirmation email"],
-  ["Alarm stuck on INSUFFICIENT_DATA", "No data points: wrong dimension value, wrong namespace, or a metric that only exists when events occur", "Look up the exact dimension in the console’s Metrics view; set --treat-missing-data appropriately"],
-  ["Log group exists but has no events", "The role lacks logs:PutLogEvents, the driver/agent is not running, or wrong region", "Check the role policy; docker logs myapp for driver errors; confirm the region"],
-  ["Logs Insights shows no fields for my JSON", "The log lines are not valid JSON (a prefix, or multi-line stack traces)", "Log one JSON object per line; put stack traces in a field"],
+  ["Alarm fired but no email arrived", "The SNS email subscription was never confirmed, or the email went to spam", "Run aws sns list-subscriptions-by-topic. “PendingConfirmation” means you must click the link in the confirmation email"],
+  ["Alarm stuck on INSUFFICIENT_DATA", "There are no data points. The dimension value or namespace is wrong, or the metric exists only when events happen", "Look up the exact dimension in the Metrics view of the console. Set --treat-missing-data to a suitable value"],
+  ["Log group exists but has no events", "The role lacks logs:PutLogEvents, the log driver or agent is not running, or the region is wrong", "Check the role policy. Run docker logs myapp to see driver errors. Check the region"],
+  ["Logs Insights shows no fields for my JSON", "The log lines are not valid JSON (they have a prefix, or multi-line stack traces)", "Log one JSON object per line. Put stack traces in a field"],
   ["Memory/disk metrics missing", "The CloudWatch agent is not installed, or the role lacks CloudWatchAgentServerPolicy", "systemctl status amazon-cloudwatch-agent; check /opt/aws/amazon-cloudwatch-agent/logs/"],
-  ["Alarm flaps between OK and ALARM", "Threshold sits at normal noise, period too short", "Use more evaluation periods, datapoints-to-alarm, or a longer period"],
-  ["The bill jumped after enabling logging", "Verbose debug logging, or every health check logged", "Filter out health checks; set LOG_LEVEL=info; set retention"],
-  ["Dashboards show data from the wrong region", "The console region selector is not ap-south-1", "Switch region; CloudWatch is regional"],
+  ["Alarm flaps between OK and ALARM", "The threshold is at the level of normal noise, or the period is too short", "Use more evaluation periods, change datapoints to alarm, or use a longer period"],
+  ["The bill jumped after enabling logging", "Very detailed debug logging, or every health check is logged", "Filter out health checks. Set LOG_LEVEL=info. Set a retention time"],
+  ["Dashboards show data from the wrong region", "The region selector in the console is not set to ap-south-1", "Switch the region. CloudWatch data belongs to one region"],
 ];
 
 export default function LessonSeventeenPage() {
@@ -84,19 +84,20 @@ export default function LessonSeventeenPage() {
       <div className="lesson">
         <h2 id="concept">Concept</h2>
         <p>
-          <strong>Monitoring</strong> is how you find out what your system is doing right now, and{" "}
-          <strong>alerting</strong> is how the system tells <em>you</em> when something is wrong. On
-          AWS the built-in tool is <strong>CloudWatch</strong>: it collects numbers (metrics), text
-          (logs), draws them on dashboards, and sends a message when a number crosses a line
-          (alarms).
+          <strong>Monitoring</strong> is how you find out what your system is doing right now.{" "}
+          <strong>Alerting</strong> is how the system tells <em>you</em> when something is wrong. On
+          AWS the built-in tool is <strong>CloudWatch</strong>. It collects numbers (called
+          metrics) and text (called logs). It draws them on dashboards, which are screens of graphs.
+          It also sends a message when a number crosses a line you set. These rules are called
+          alarms.
         </p>
         <Callout kind="note" label="The analogy — a car">
           <p className="mb-0">
-            The <strong>dashboard</strong> shows speed and fuel at a glance (metrics). The{" "}
-            <strong>warning lights</strong> tell you before the engine seizes (alarms). The{" "}
-            <strong>black-box recorder</strong> lets investigators reconstruct what happened after a
-            crash (logs). A car with none of these still drives — until it does not, with no warning
-            and no explanation.
+            The <strong>dashboard</strong> shows your speed and fuel at a glance. These are the
+            metrics. The <strong>warning lights</strong> tell you before the engine breaks down.
+            These are the alarms. The <strong>black-box recorder</strong> lets investigators see what
+            happened after a crash. These are the logs. A car without any of these still drives. But
+            one day it stops, with no warning and no explanation.
           </p>
         </Callout>
 
@@ -104,34 +105,35 @@ export default function LessonSeventeenPage() {
         <ul>
           <li>
             <strong>Without monitoring, your customers are your alarm system.</strong> The first sign
-            of trouble becomes an angry email or a tweet. You learn about an outage from the person
-            paying you.
+            of trouble is an angry email or a public post. You learn about an outage from the person
+            who pays you.
           </li>
           <li>
-            <strong>&ldquo;It is slow&rdquo; is unanswerable without data.</strong> Slow where? Since
-            when? After which deploy? For whom? Metrics and logs answer in seconds what guessing takes
-            hours to.
+            <strong>&ldquo;It is slow&rdquo; has no answer without data.</strong> Slow where? Since
+            when? After which deploy? For whom? Metrics and logs answer these questions in seconds.
+            Guessing takes hours.
           </li>
           <li>
-            <strong>Everything you built can fail silently.</strong> A full disk, a database that hit
-            its connection limit, an expired certificate, a health check flapping, an Auto Scaling
-            group stuck at its maximum — all of them look like &ldquo;the site works for me&rdquo;
-            until it does not.
+            <strong>Everything you built can fail silently.</strong> Examples are a full disk, a
+            database that reached its connection limit, an expired certificate, a health check that
+            keeps switching between pass and fail (flapping), or an Auto Scaling group stuck at its
+            maximum size. All of them look like &ldquo;the site works for me&rdquo; until it
+            does not.
           </li>
           <li>
-            <strong>You need proof it is fixed.</strong> After a change, the graph either returned to
-            normal or it did not.
+            <strong>You need proof that it is fixed.</strong> After a change, the graph either went
+            back to normal or it did not.
           </li>
           <li>
-            <strong>Capacity and cost planning</strong> are impossible without history: how much
-            traffic grows month to month, what the peak looks like.
+            <strong>Capacity and cost planning</strong> need history. You must know how much traffic
+            grows each month and how high the peak is.
           </li>
         </ul>
 
         <h2 id="pillars">Metrics, logs and traces</h2>
         <p>
-          The three kinds of telemetry answer different questions. You want all three, but in this
-          order of priority:
+          Telemetry means the data a system sends out about itself. It comes in three kinds, and each
+          kind answers different questions. You want all three, but start in this order:
         </p>
         <div className="table-wrap">
           <table>
@@ -156,16 +158,18 @@ export default function LessonSeventeenPage() {
           </table>
         </div>
         <p>
-          <strong>Metrics tell you <em>that</em> something is wrong; logs tell you <em>why</em>.</strong>{" "}
-          A typical investigation starts on a graph (5xx rose at 14:02), then jumps to the logs for
-          that minute (a database timeout on one endpoint), and only for complex multi-service systems
-          reaches for traces. For a monolith like ours, metrics plus good logs cover 95% of problems.
+          <strong>Metrics tell you <em>that</em> something is wrong. Logs tell you <em>why</em>.</strong>{" "}
+          A typical investigation starts with a graph. For example, 5xx errors (server errors) rose at
+          14:02. Then you open the logs for that minute and find a database timeout on one endpoint.
+          You use traces only for complex systems with many services. Our app is a monolith, which
+          means one single application. For a monolith, metrics plus good logs solve most problems.
         </p>
 
         <h2 id="signals">The four golden signals</h2>
         <p>
-          Google&apos;s site-reliability book boiled down &ldquo;what should I watch?&rdquo; to four
-          things. If you monitor only these, you already see almost every user-visible problem:
+          Google&apos;s site-reliability book answers &ldquo;what should I watch?&rdquo; with four
+          things. If you watch only these, you already see almost every problem that users can
+          notice:
         </p>
         <div className="table-wrap">
           <table>
@@ -191,16 +195,17 @@ export default function LessonSeventeenPage() {
         </div>
         <Callout kind="warn" label="Averages lie — use percentiles">
           <p className="mb-0">
-            If 99 requests take 100 ms and one takes 10 seconds, the average is 200 ms and looks
-            fine, while one user in a hundred is suffering. <strong>p95</strong> means &ldquo;95% of
-            requests were faster than this&rdquo;; <strong>p99</strong> shows the tail. Alert and
-            report on percentiles.
+            Suppose 99 requests take 100 ms and one takes 10 seconds. The average is about 200 ms,
+            which looks fine, but one user in a hundred is suffering. A percentile fixes this.{" "}
+            <strong>p95</strong> means &ldquo;95% of requests were faster than this time&rdquo;.{" "}
+            <strong>p99</strong> shows the slowest 1% (the &ldquo;tail&rdquo;). Set alerts and write
+            reports with percentiles.
           </p>
         </Callout>
         <p>
-          Two mnemonics you will hear: <strong>RED</strong> for services (Rate, Errors, Duration) and{" "}
-          <strong>USE</strong> for resources (Utilisation, Saturation, Errors). They are the same
-          ideas from two angles.
+          You may hear two memory aids. <strong>RED</strong> is for services: Rate, Errors, Duration.{" "}
+          <strong>USE</strong> is for resources: Utilisation, Saturation, Errors. They describe the
+          same ideas from two sides.
         </p>
 
         <h2 id="vocabulary">CloudWatch vocabulary</h2>
@@ -214,71 +219,80 @@ export default function LessonSeventeenPage() {
               </tr>
             </thead>
             <tbody>
-              <tr><td><strong>Namespace</strong></td><td>A folder for a service&apos;s metrics</td><td><code>AWS/ApplicationELB</code>, <code>MyApp</code></td></tr>
-              <tr><td><strong>Metric</strong></td><td>A named series of numbers over time</td><td><code>HTTPCode_Target_5XX_Count</code></td></tr>
-              <tr><td><strong>Dimension</strong></td><td>A label that picks one thing out of many</td><td><code>LoadBalancer=app/myapp-alb/…</code></td></tr>
-              <tr><td><strong>Statistic</strong></td><td>How to combine points in a period</td><td>Sum, Average, Maximum, p95</td></tr>
-              <tr><td><strong>Period</strong></td><td>The width of each bucket, in seconds</td><td>60</td></tr>
-              <tr><td><strong>Alarm</strong></td><td>A rule on a metric with three states: <code>OK</code>, <code>ALARM</code>, <code>INSUFFICIENT_DATA</code></td><td>&ldquo;5xx ≥ 5 for 2 of 3 minutes&rdquo;</td></tr>
-              <tr><td><strong>Log group / stream</strong></td><td>A collection of logs for one purpose / one source inside it</td><td><code>/myapp/web</code> / one per container</td></tr>
-              <tr><td><strong>SNS topic</strong></td><td>A broadcast channel alarms publish to; email, SMS, Slack (via Chatbot) subscribe</td><td><code>myapp-alerts</code></td></tr>
+              <tr><td><strong>Namespace</strong></td><td>A folder that groups the metrics of one service</td><td><code>AWS/ApplicationELB</code>, <code>MyApp</code></td></tr>
+              <tr><td><strong>Metric</strong></td><td>A named list of numbers over time</td><td><code>HTTPCode_Target_5XX_Count</code></td></tr>
+              <tr><td><strong>Dimension</strong></td><td>A label that picks one item out of many</td><td><code>LoadBalancer=app/myapp-alb/…</code></td></tr>
+              <tr><td><strong>Statistic</strong></td><td>The way to combine the points inside one period</td><td>Sum, Average, Maximum, p95</td></tr>
+              <tr><td><strong>Period</strong></td><td>The length of each time bucket, in seconds</td><td>60</td></tr>
+              <tr><td><strong>Alarm</strong></td><td>A rule on a metric. It has three states: <code>OK</code>, <code>ALARM</code> and <code>INSUFFICIENT_DATA</code> (not enough data to decide)</td><td>&ldquo;5xx ≥ 5 for 2 of 3 minutes&rdquo;</td></tr>
+              <tr><td><strong>Log group / stream</strong></td><td>A group of logs for one purpose (group) / one source inside the group (stream)</td><td><code>/myapp/web</code> / one per container</td></tr>
+              <tr><td><strong>SNS topic</strong></td><td>A broadcast channel. Alarms send messages to it. Email, SMS and Slack (through AWS Chatbot) can subscribe to it</td><td><code>myapp-alerts</code></td></tr>
             </tbody>
           </table>
         </div>
 
         <h2 id="free">What you get for free — and what is missing</h2>
         <p>
-          The moment you create resources, AWS starts publishing metrics for them at no charge:
+          As soon as you create resources, AWS starts publishing metrics for them at no charge. A few
+          names you will see: <strong>EC2</strong> is the AWS service that rents virtual servers. An{" "}
+          <strong>Auto Scaling group</strong> is a group of servers that AWS adds to and removes
+          automatically. An <strong>ALB</strong> (Application Load Balancer) spreads web traffic over
+          the servers. <strong>RDS</strong> is the managed database. <strong>ElastiCache</strong> is
+          the managed Redis cache.
         </p>
         <ul>
           <li>
-            <strong>EC2</strong>: CPU, network in/out, disk operations, status checks — every{" "}
-            <strong>5 minutes</strong> (1 minute with &ldquo;detailed monitoring&rdquo;, about $2 per
-            instance per month).
+            <strong>EC2</strong>: CPU, network in and out, disk operations and status checks, every{" "}
+            <strong>5 minutes</strong>. With &ldquo;detailed monitoring&rdquo; you get them every
+            minute, for about $2 per instance per month.
           </li>
           <li>
-            <strong>ALB</strong>: request count, response codes, latency, healthy/unhealthy hosts.{" "}
-            <strong>RDS</strong>: CPU, connections, free storage, IOPS, latency.{" "}
-            <strong>ElastiCache</strong>: memory, hit rate, evictions.
+            <strong>ALB</strong>: request count, response codes, latency and the number of healthy and
+            unhealthy hosts. <strong>RDS</strong>: CPU, connections, free storage, IOPS (disk
+            operations per second) and latency. <strong>ElastiCache</strong>: memory, hit rate and
+            evictions.
           </li>
         </ul>
         <Callout kind="warn" label="EC2 does NOT report memory or disk space">
           <p className="mb-0">
-            The hypervisor can see CPU and network, but not what is inside the operating system. So
-            &ldquo;memory 95%&rdquo; and &ldquo;disk 98% full&rdquo; — two of the most common causes of
-            crashes — are invisible until you install the <strong>CloudWatch agent</strong> (Step 7).
-            Do not assume &ldquo;AWS monitors my server&rdquo; covers them.
+            The hypervisor (the AWS software that runs your virtual server) can see CPU and network
+            use. It cannot see what is inside the operating system. So &ldquo;memory 95%&rdquo; and
+            &ldquo;disk 98% full&rdquo; are invisible. These are two of the most common causes of
+            crashes. You can see them only after you install the <strong>CloudWatch agent</strong>{" "}
+            (Step 7). Do not assume that &ldquo;AWS monitors my server&rdquo; covers them.
           </p>
         </Callout>
         <p>
           Nothing collects your <strong>application logs</strong> by default either. They sit in a
-          Docker file on a server that Auto Scaling may delete at any moment — with the evidence.
+          Docker file on a server. Auto Scaling may delete that server at any moment, and the
+          evidence is deleted with it.
         </p>
 
         <h2 id="alerts-channel">Step 1 — a channel that reaches you</h2>
         <p>
-          An alarm needs somewhere to send its message. <strong>SNS</strong> (Simple Notification
-          Service) is the broadcast channel. Start with email; upgrade to Slack or a pager later
-          without touching any alarm.
+          An alarm needs a place to send its message. <strong>SNS</strong> (Simple Notification
+          Service) is the AWS broadcast channel for this. Start with email. Later you can switch to
+          Slack or a pager without changing any alarm.
         </p>
         <p>
-          SNS → Topics → Create a <em>Standard</em> topic called <code>myapp-alerts</code>, then
-          Create subscription → protocol <strong>Email</strong> → your address. AWS sends a
-          confirmation email; until you click &ldquo;Confirm subscription&rdquo;, you get nothing.
+          In SNS, go to Topics and create a <em>Standard</em> topic called <code>myapp-alerts</code>.
+          Then create a subscription with the protocol <strong>Email</strong> and your address. AWS
+          sends you a confirmation email. Until you click &ldquo;Confirm subscription&rdquo;, you
+          receive nothing.
         </p>
         <Callout kind="note" label="Use a team address, and test the channel">
           <p className="mb-0">
-            Send alerts to a group mailbox, not one person&apos;s inbox: people go on holiday. Then
-            prove the whole path works before you need it: the topic&apos;s{" "}
-            <strong>Publish message</strong> button sends a test. An alerting channel that has never
-            been tested is broken more often than not.
+            Send alerts to a group mailbox, not to one person&apos;s inbox, because people go on
+            holiday. Then prove that the whole path works before you need it. The topic&apos;s{" "}
+            <strong>Publish message</strong> button sends a test. An alert channel that you have
+            never tested is often broken.
           </p>
         </Callout>
 
         <h2 id="alarms">Step 2 — the alarms every production app needs</h2>
         <p>
-          You do not need fifty alarms; you need the right dozen. Start with these, each tied to a
-          symptom or a resource about to run out:
+          You do not need fifty alarms. You need the right dozen. Start with these. Each one is tied to
+          a symptom that users feel, or to a resource that is about to run out:
         </p>
         <div className="table-wrap">
           <table>
@@ -302,13 +316,13 @@ export default function LessonSeventeenPage() {
             </tbody>
           </table>
         </div>
-        <p>Build the first one carefully; the others are variations.</p>
+        <p>Build the first one carefully. The others are small variations.</p>
         <p>
-          CloudWatch → Alarms → <strong>Create alarm</strong> → Select metric → ApplicationELB →
-          Per-AppELB Metrics → <code>HTTPCode_Target_5XX_Count</code> for <code>myapp-alb</code>.
-          Statistic <em>Sum</em>, threshold <em>≥ 5</em>, notification to{" "}
-          <code>myapp-alerts</code>. Under &ldquo;Additional configuration&rdquo; are the settings
-          that make an alarm trustworthy:
+          In CloudWatch, go to Alarms and choose <strong>Create alarm</strong>. Select the metric:
+          ApplicationELB, then Per-AppELB Metrics, then <code>HTTPCode_Target_5XX_Count</code> for{" "}
+          <code>myapp-alb</code>. Set the statistic to <em>Sum</em> and the threshold to{" "}
+          <em>≥ 5</em>. Send the notification to <code>myapp-alerts</code>. Under &ldquo;Additional
+          configuration&rdquo; are the settings that make an alarm trustworthy:
         </p>
         <div className="table-wrap">
           <table>
@@ -319,42 +333,45 @@ export default function LessonSeventeenPage() {
               </tr>
             </thead>
             <tbody>
-              <tr><td>Period: 1 minute</td><td>Look at one-minute buckets.</td></tr>
-              <tr><td>Datapoints to alarm: 2 out of 3</td><td>&ldquo;2 out of the last 3 minutes must breach.&rdquo; Ignores a single blip; still reacts within about two minutes.</td></tr>
+              <tr><td>Period: 1 minute</td><td>Look at one-minute time buckets.</td></tr>
+              <tr><td>Datapoints to alarm: 2 out of 3</td><td>&ldquo;2 of the last 3 minutes must go over the limit.&rdquo; This ignores one short spike, and the alarm still reacts within about two minutes.</td></tr>
               <tr><td>Missing data: treat as good</td><td>No errors means no data points. Treat silence as fine, not as an alarm. (For the &ldquo;no traffic&rdquo; alarm choose <em>bad</em>, because silence <em>is</em> the problem.)</td></tr>
-              <tr><td>Also notify on OK</td><td>Tell me when it recovers, so nobody wonders.</td></tr>
-              <tr><td>Description</td><td>Written for the person woken at 3 a.m.: what it means and where to look first.</td></tr>
+              <tr><td>Also notify on OK</td><td>Tell me when it recovers, so nobody has to wonder.</td></tr>
+              <tr><td>Description</td><td>Write it for the person who is woken at 3 a.m. Say what the alarm means and where to look first.</td></tr>
             </tbody>
           </table>
         </div>
         <p>
-          The other rows of the table are the same screen with a different metric, statistic and
-          threshold. Two to watch for: latency uses the <em>p95</em> statistic, not the average;
-          and the database disk threshold is in <strong>bytes</strong> (5 GB is{" "}
-          <code>5368709120</code>).
+          The other rows of the table use the same screen with a different metric, statistic and
+          threshold. Watch for two details. Latency uses the <em>p95</em> statistic, not the average.
+          The database disk threshold is in <strong>bytes</strong>. 5 GB is{" "}
+          <code>5368709120</code> bytes.
         </p>
         <p>
-          Then prove an alarm works — do not trust it until it has fired once. Force it into the alarm
-          state without breaking anything:
+          Then prove that an alarm works. Do not trust it until it has fired once. You can force it
+          into the alarm state without breaking anything:
         </p>
         <CommandList
           title="Fire a test alarm"
           commands={[
-            { cmd: "aws cloudwatch set-alarm-state --alarm-name myapp-alb-5xx --state-value ALARM --state-reason \"Testing the alert path\"", note: "Sends the real notification to your email. It flips back to OK at the next evaluation" },
+            { cmd: "aws cloudwatch set-alarm-state --alarm-name myapp-alb-5xx --state-value ALARM --state-reason \"Testing the alert path\"", note: "Sends the real notification to your email. The alarm goes back to OK at its next check" },
           ]}
         />
 
         <h2 id="logs">Step 3 — get the logs off the server</h2>
         <p>
-          Containers write to <strong>stdout</strong>; Docker captures it. By default it is a JSON file
-          on that server&apos;s disk — gone when Auto Scaling replaces the instance, exactly when you
-          want to read it. Docker&apos;s <code>awslogs</code> driver ships each line to CloudWatch Logs
-          instead, in near real time.
+          A container writes its log lines to <strong>stdout</strong> (the standard output stream of
+          a program), and Docker captures them. By default Docker saves them in a JSON file on that
+          server&apos;s disk. The file is gone when Auto Scaling replaces the instance, which is
+          exactly when you want to read it. Docker&apos;s <code>awslogs</code> driver sends each line
+          to CloudWatch Logs instead, almost at once.
         </p>
         <p>
-          Give <code>myapp-ec2-role</code> permission to create log streams and put log events in
-          log groups under <code>/myapp/*</code>, then change one thing in the boot script — the
-          log driver:
+          Give <code>myapp-ec2-role</code> (the IAM role of the server) permission to create the log
+          group and log streams and to put log events in log groups under <code>/myapp/*</code>.
+          The permissions are <code>logs:CreateLogGroup</code>, <code>logs:CreateLogStream</code>{" "}
+          and <code>logs:PutLogEvents</code>. Then change one thing in the boot script: the log
+          driver.
         </p>
         <Script
           title="user-data.sh — the docker run line from Lesson 12, now logging to CloudWatch"
@@ -367,54 +384,58 @@ export default function LessonSeventeenPage() {
   -p 80:3000 $REGISTRY/myapp:$TAG`}
         />
         <p>
-          Each container becomes a <em>log stream</em> inside the <code>/myapp/web</code> group, so you
-          can read one server or all of them together. Now the most important log setting of all:
+          Each container becomes a <em>log stream</em> inside the <code>/myapp/web</code> group. So you
+          can read one server or all servers together. Now here is the most important log setting of
+          all.
         </p>
         <p>
-          Log groups keep data <strong>forever</strong> by default and bill for storage every month.
-          The day you create the group, set its retention (Actions → Edit retention setting) to
-          14, 30 or 90 days. Then you can watch every server at once from your terminal:
+          Log groups keep data <strong>forever</strong> by default, and you pay for storage every
+          month. On the day you create the group, set its retention (Actions, then Edit retention
+          setting) to 14, 30 or 90 days. Then you can watch every server at once from your
+          terminal:
         </p>
         <CommandList
           title="Live tail"
           commands={[
-            { cmd: "aws logs tail /myapp/web --follow --since 10m", note: "Like docker logs -f, but for every server at once. Add --filter-pattern ERROR to see only errors" },
+            { cmd: "aws logs tail /myapp/web --follow --since 10m", note: "Works like docker logs -f, but for every server at once. Add --filter-pattern ERROR to see only errors" },
           ]}
         />
         <Callout kind="note" label="ALB access logs to S3">
           <p className="mb-0">
-            Separately, the load balancer can write a record of every request (client IP, path, status,
-            timing) to an S3 bucket — about $0.02 per GB to store, no CloudWatch charges. Enable it
-            under the ALB&apos;s attributes; query it with Athena when you need to investigate traffic
-            patterns or an attack. Cheap and often invaluable.
+            The load balancer can also write a record of every request to an S3 bucket. The record
+            has the client IP, the path, the status and the timing. Storage costs about $0.02 per GB,
+            and there are no CloudWatch charges. Turn it on in the ALB&apos;s attributes. When you need
+            to study traffic patterns or an attack, search the records with Athena (an AWS service
+            that runs SQL queries on files in S3). It is cheap and often very useful.
           </p>
         </Callout>
 
         <h2 id="structured">Step 4 — write logs you can actually search</h2>
         <p>
-          Compare these two lines describing the same event:
+          Compare these two ways of logging the same event:
         </p>
         <Script
           title="unstructured vs structured"
-          code={`# Hard: you can only grep it, and every developer phrases it differently
+          code={`# Hard: you can only search it as plain text (grep), and every developer words it differently
 Error saving order for user 42 after 1204ms: connection timeout
 
-# Easy: one JSON object per line, every value is a searchable field
+# Easy: one JSON object per line, and every value is a field you can search
 {"level":"error","time":"2026-01-15T09:30:12.041Z","msg":"order save failed","requestId":"Root=1-65a4-1c9d","tenantId":"acme","userId":"42","route":"/api/orders","status":500,"durationMs":1204,"err":"connection timeout"}`}
         />
         <p>
           With the second form, &ldquo;show me all errors for tenant acme on <code>/api/orders</code>{" "}
-          slower than a second&rdquo; is a one-line query instead of a regex adventure.
+          slower than one second&rdquo; is a one-line query. With the first form you would need a
+          complex text pattern (a regex).
         </p>
         <Script
           title="lib/log.ts (pino: the standard fast JSON logger for Node)"
           code={`import pino from "pino";
 
 export const log = pino({
-  level: process.env.LOG_LEVEL ?? "info",              // "debug" only when actively investigating
+  level: process.env.LOG_LEVEL ?? "info",              // use "debug" only while you are investigating a problem
   base: { service: "myapp", version: process.env.APP_VERSION },
   timestamp: pino.stdTimeFunctions.isoTime,
-  // Anything matching these paths is replaced with "[Redacted]" — do this from day one
+  // Anything at these paths is replaced with "[Redacted]". Do this from day one
   redact: ["*.password", "*.token", "*.secret", "req.headers.authorization", "req.headers.cookie"],
 });
 
@@ -427,38 +448,43 @@ export const log = pino({
         <h3>The rules of good logging</h3>
         <ul>
           <li>
-            <strong>One correlation ID per request</strong> on every line. The ALB already injects{" "}
-            <code>X-Amzn-Trace-Id</code>; log it and return it to the client, and &ldquo;a user sent us
-            this error ID&rdquo; becomes a one-second lookup.
+            <strong>One correlation ID for each request</strong>, on every log line. A correlation ID
+            is a unique code that ties together all the lines of one request. The ALB already adds{" "}
+            <code>X-Amzn-Trace-Id</code>. Log it and also return it to the client. Then, when a user
+            sends you an error ID, you can find the matching log lines in one second.
           </li>
           <li>
-            <strong>Include the tenant.</strong> In a multi-tenant product, &ldquo;is it only one
-            customer?&rdquo; is the first question in every incident.
+            <strong>Include the tenant.</strong> A multi-tenant product serves many customers from
+            one app. In such a product, &ldquo;is it only one customer?&rdquo; is the first question
+            in every incident.
           </li>
           <li>
-            <strong>Use levels honestly.</strong> <code>error</code> = a human should probably look;{" "}
-            <code>warn</code> = unexpected but handled; <code>info</code> = normal business events;{" "}
-            <code>debug</code> = off in production.
+            <strong>Use log levels honestly.</strong> <code>error</code> means a person should
+            probably look. <code>warn</code> means something unexpected happened but the app handled
+            it. <code>info</code> means normal business events. <code>debug</code> means very
+            detailed messages, which stay off in production.
           </li>
           <li>
-            <strong>Never log secrets or personal data:</strong> passwords, tokens, session IDs, full
-            card numbers, national IDs. Logs are copied, retained and read by many people. This is a
-            compliance and breach issue, not a style point.
+            <strong>Never log secrets or personal data.</strong> This includes passwords, tokens,
+            session IDs, full card numbers and national ID numbers. Many people copy, keep and read
+            logs. Leaking such data is a legal and security problem, not a style problem.
           </li>
           <li>
-            <strong>Do not log every health check</strong> (every 15 seconds × every server) — it
-            drowns the signal and inflates the bill.
+            <strong>Do not log every health check.</strong> The load balancer checks every server
+            every few seconds. These lines hide the useful ones and make the bill larger.
           </li>
           <li>
-            <strong>One line per event, no multi-line stack traces</strong> (put the stack in a field), or
-            the lines fragment and Insights cannot parse them.
+            <strong>One line for each event, and no multi-line stack traces.</strong> Put the stack
+            trace (the list of function calls at the error) inside a field. Otherwise the lines are
+            split and Insights cannot read them.
           </li>
         </ul>
 
         <h2 id="insights">Step 5 — search with Logs Insights</h2>
         <p>
-          In the console: CloudWatch → Logs → Logs Insights → select <code>/myapp/web</code> → pick a
-          time range → paste a query. JSON fields are discovered automatically.
+          Logs Insights is the CloudWatch tool for searching logs with queries. In the console, go to
+          CloudWatch, then Logs, then Logs Insights. Select <code>/myapp/web</code>, pick a time
+          range and paste a query. Insights finds the JSON fields by itself.
         </p>
         <Script
           title="two queries worth saving"
@@ -474,71 +500,77 @@ filter ispresent(durationMs)
 | sort p95_ms desc`}
         />
         <p>
-          Save a few more: everything for one <code>requestId</code>, status codes over time in
-          5-minute bins, and errors grouped by <code>tenantId</code>.
+          Save a few more queries. One shows everything for one <code>requestId</code>. One shows
+          status codes over time in 5-minute groups. One shows errors grouped by{" "}
+          <code>tenantId</code>.
         </p>
         <p>
-          Insights bills by data scanned (about $0.005 per GB), so narrow the time range and the log
-          group before running a query over weeks of data.
+          Insights charges for the data it scans (about $0.005 per GB). So make the time range and the
+          log group small before you run a query over weeks of data.
         </p>
 
         <h2 id="metrics-from-logs">Step 6 — turn logs and business events into metrics</h2>
         <p>
-          A <strong>metric filter</strong> watches a log group and increments a metric whenever a line
-          matches — so an error <em>in your code</em> can trigger an alarm even though AWS never sees a
-          5xx (perhaps you handled it and returned a friendly 200).
+          A <strong>metric filter</strong> watches a log group. Each time a line matches a pattern, it
+          adds to a metric. So an error <em>in your code</em> can trigger an alarm even when AWS never
+          sees a 5xx. For example, you may have handled the error and returned a friendly 200.
         </p>
         <p>
-          In the log group: Actions → <strong>Create metric filter</strong>, pattern{" "}
-          <code>{'{ $.level = "error" }'}</code>, metric <code>MyApp/AppErrors</code>, value 1.
-          Then create an alarm on that metric like any other — for example, 10 or more in five
-          minutes.
+          In the log group, choose Actions, then <strong>Create metric filter</strong>. Use the
+          pattern <code>{'{ $.level = "error" }'}</code>, the metric <code>MyApp/AppErrors</code> and
+          the value 1. Then create an alarm on that metric like any other alarm. For example, alarm
+          on 10 or more in five minutes.
         </p>
         <p>
-          The same trick monitors <strong>the business</strong>, which is often what really matters.
-          Technical health can be green while signups have silently stopped. Emit a metric for the
-          events you care about.
+          The same trick can monitor <strong>the business</strong>, which is often what matters most.
+          Everything can look healthy on a technical level while signups have silently stopped. So
+          send a metric for the events you care about.
         </p>
         <p>
-          Send one data point per event from your code (the AWS SDK&apos;s{" "}
-          <code>PutMetricData</code>), or — cheaper — log it in <em>Embedded Metric Format</em>,
-          which turns a log line into a metric with no extra API call.
+          You can send one data point for each event from your code, using the AWS SDK&apos;s{" "}
+          <code>PutMetricData</code> call. A cheaper way is to write the event in{" "}
+          <em>Embedded Metric Format</em>. This is a special log format that CloudWatch turns into a
+          metric, so you need no extra API call.
         </p>
         <p>
-          Good candidates: signups, logins, payments succeeded/failed, emails sent, background jobs
-          completed, queue depth. An alarm on &ldquo;zero signups for an hour during business
-          hours&rdquo; has caught more real outages than most technical alarms.
+          Good events to measure are signups, logins, successful and failed payments, emails sent,
+          finished background jobs and queue depth (how many jobs are waiting). An alarm on
+          &ldquo;zero signups for an hour during business hours&rdquo; has caught more real outages
+          than most technical alarms.
         </p>
 
         <h2 id="agent">Step 7 — memory and disk with the CloudWatch agent</h2>
         <p>
-          The agent runs on each server, reads operating-system numbers and publishes them as custom
-          metrics. It belongs in the boot recipe (the user-data script of Lesson 12), so every new
-          server has it automatically. Attach the AWS-managed policy{" "}
-          <code>CloudWatchAgentServerPolicy</code> to the instance role first.
+          The agent is a small program that runs on each server. It reads numbers from the operating
+          system and publishes them as custom metrics. Put it in the boot recipe (the user-data
+          script of Lesson 12), so every new server gets it automatically. First attach the
+          AWS-managed policy <code>CloudWatchAgentServerPolicy</code> to the instance role.
         </p>
         <p>
-          The agent&apos;s config is a small JSON file: collect <code>mem_used_percent</code> and
-          the root disk&apos;s <code>used_percent</code> every 60 seconds, into the namespace{" "}
-          <code>MyApp/EC2</code>, grouped by Auto Scaling group. Keep it in SSM Parameter Store as{" "}
-          <code>/myapp/cloudwatch-agent</code>, so every server reads the same one.
+          The agent&apos;s config is a small JSON file. It says to collect{" "}
+          <code>mem_used_percent</code> and the root disk&apos;s <code>used_percent</code> every 60
+          seconds. The metrics go into the namespace <code>MyApp/EC2</code>, grouped by Auto Scaling
+          group. (CloudWatch shows the disk metric as <code>disk_used_percent</code>.) Keep the file
+          in SSM Parameter Store (an AWS service that stores settings) as{" "}
+          <code>/myapp/cloudwatch-agent</code>, so every server reads the same file.
         </p>
         <p>
-          In the user-data script, three extra steps: install the agent package, fetch that
-          config from SSM, and start the agent with it.
+          The user-data script needs three extra steps. Install the agent package. Fetch the config
+          from SSM. Start the agent with that config.
         </p>
         <p>
-          Aggregating by Auto Scaling group means one graph for &ldquo;memory across all servers&rdquo;
-          rather than one line per short-lived instance ID. Then add the memory and disk alarms from
-          the table (namespace <code>MyApp/EC2</code>, metrics <code>mem_used_percent</code> and{" "}
-          <code>disk_used_percent</code>).
+          Grouping by Auto Scaling group gives you one graph for &ldquo;memory across all
+          servers&rdquo;. Without it, you would get one line for each short-lived instance ID. Then
+          add the memory and disk alarms from the table (namespace <code>MyApp/EC2</code>, metrics{" "}
+          <code>mem_used_percent</code> and <code>disk_used_percent</code>).
         </p>
 
         <h2 id="dashboard">Step 8 — one dashboard</h2>
         <p>
-          A dashboard is for the moment someone asks &ldquo;is everything OK?&rdquo; It should answer in
-          five seconds without scrolling. CloudWatch → Dashboards → Create. A layout that works for this
-          architecture, top to bottom in the order a request travels:
+          A dashboard is for the moment when someone asks &ldquo;is everything OK?&rdquo; It should
+          answer in five seconds without scrolling. In CloudWatch, go to Dashboards and choose
+          Create. Here is a layout that works for this architecture. It goes from top to bottom in
+          the order that a request travels:
         </p>
         <div className="table-wrap">
           <table>
@@ -549,115 +581,121 @@ filter ispresent(durationMs)
               </tr>
             </thead>
             <tbody>
-              <tr><td><strong>Is anything broken?</strong></td><td>Alarm-status widget showing every alarm as a green/red box; 5xx count; healthy host count</td></tr>
+              <tr><td><strong>Is anything broken?</strong></td><td>An alarm-status widget that shows every alarm as a green or red box; the 5xx count; the healthy host count</td></tr>
               <tr><td><strong>Traffic &amp; latency</strong></td><td>ALB request count; p50/p95/p99 TargetResponseTime</td></tr>
-              <tr><td><strong>Servers</strong></td><td>Desired vs in-service instances; average CPU; memory % and disk % (agent)</td></tr>
-              <tr><td><strong>Database</strong></td><td>CPU; connections; free storage; read/write latency</td></tr>
+              <tr><td><strong>Servers</strong></td><td>Desired and in-service instances; average CPU; memory % and disk % (from the agent)</td></tr>
+              <tr><td><strong>Database</strong></td><td>CPU; connections; free storage; read and write latency</td></tr>
               <tr><td><strong>Cache</strong></td><td>Hit rate; memory %; evictions</td></tr>
               <tr><td><strong>The business</strong></td><td>Signups, logins, payments per hour</td></tr>
             </tbody>
           </table>
         </div>
         <p>
-          Your first three dashboards are free; then about $3 per dashboard per month. Keep one that
-          the whole team knows by name. And when you write Terraform for the estate, define the
-          dashboard there too, so it is rebuilt with everything else.
+          Your first three dashboards are free. After that, each costs about $3 a month. Keep one
+          dashboard that the whole team knows by name. When you write Terraform for your setup,
+          define the dashboard there too. Then it is rebuilt together with everything else.
         </p>
         <Callout kind="ok" label="Mark your deployments on the graphs">
           <p className="mb-0">
-            The most useful question in any incident is &ldquo;what changed?&rdquo;. Have the deploy
-            pipeline (Lesson 14) emit a metric or a log line on every release — even a{" "}
-            <code>put-metric-data --metric-name Deploy</code> — and add it to the dashboard. When the
-            error graph steps up at 14:02 and a deploy marker sits at 14:01, you have your suspect in
-            ten seconds.
+            The most useful question in any incident is &ldquo;what changed?&rdquo; Make the deploy
+            pipeline (Lesson 14) send a metric or a log line on every release. Even a{" "}
+            <code>put-metric-data --metric-name Deploy</code> command is enough. Add it to the
+            dashboard. Suppose the error graph jumps at 14:02 and a deploy marker sits at 14:01. Then
+            you have a suspect in ten seconds.
           </p>
         </Callout>
 
         <h2 id="alerting">How to alert without burning out your team</h2>
         <p>
-          Alarms that cry wolf get muted, and a muted alarm system is worse than none. The discipline
-          that separates mature teams:
+          Alarms that warn about nothing get muted. A muted alarm system is worse than no alarm
+          system. These habits separate experienced teams from the rest:
         </p>
         <ul>
           <li>
-            <strong>Alert on symptoms, not causes.</strong> &ldquo;Users are getting errors&rdquo; and
-            &ldquo;the site is slow&rdquo; always deserve attention. &ldquo;CPU is 75%&rdquo; may be
-            perfectly healthy. Cause metrics belong on the dashboard for diagnosis, not in your phone.
+            <strong>Alert on symptoms, not causes.</strong> A symptom is what users feel. &ldquo;Users
+            are getting errors&rdquo; and &ldquo;the site is slow&rdquo; always deserve attention.
+            &ldquo;CPU is 75%&rdquo; may be perfectly healthy. Put cause metrics on the dashboard to
+            help you diagnose. Do not send them to your phone.
           </li>
           <li>
-            <strong>Every alert must be actionable.</strong> If the reaction to an alert is &ldquo;ignore
-            it, that always happens&rdquo;, delete or retune it that day.
+            <strong>Every alert must lead to an action.</strong> If your reaction to an alert is
+            &ldquo;ignore it, that always happens&rdquo;, delete it or change its settings that day.
           </li>
           <li>
-            <strong>Two tiers.</strong> <em>Page</em> (wake a human now): total outage, sustained
-            errors, data at risk. <em>Ticket</em> (look tomorrow): disk at 70%, certificate expiring
-            in 20 days, a single failed job. Route them to different channels.
+            <strong>Two levels.</strong> A <em>page</em> wakes a person now. Use it for a total
+            outage, errors that continue, or data at risk. A <em>ticket</em> can wait until
+            tomorrow. Use it for a disk at 70%, a certificate that expires in 20 days, or one failed
+            job. Send the two levels to different channels.
           </li>
           <li>
-            <strong>Write a runbook link into every alarm description:</strong> what it means, how to
-            confirm, first three things to try, who to escalate to. The person at 3 a.m. is tired and
-            may not be the person who built it.
+            <strong>Put a runbook link in every alarm description.</strong> A runbook is a short
+            guide that says what the alarm means, how to confirm it, the first three things to try
+            and who to call next. The person at 3 a.m. is tired and may not be the person who built
+            the system.
           </li>
           <li>
-            <strong>Alert on the absence of good things.</strong> No traffic, no signups, no completed
-            jobs: the silent failures that produce no errors.
+            <strong>Alert when good things stop.</strong> No traffic, no signups, no finished jobs.
+            These silent failures produce no errors.
           </li>
           <li>
-            <strong>Review alerts monthly.</strong> Which fired? Which mattered? Which never did?
-            Alerts, like tests, rot.
+            <strong>Review your alerts every month.</strong> Which ones fired? Which ones mattered?
+            Which never fired? Alerts, like tests, go out of date.
           </li>
         </ul>
         <Callout kind="note" label="SLI, SLO, error budget in one paragraph">
           <p className="mb-0">
-            An <strong>SLI</strong> is a measurement (fraction of requests that succeed in under 500
-            ms). An <strong>SLO</strong> is your target for it (99.9% over 30 days). The gap — 0.1%,
-            about 43 minutes a month — is your <strong>error budget</strong>: room to ship risky
-            changes. When the budget is spent, you slow down and fix reliability. This turns &ldquo;how
-            reliable should we be?&rdquo; from an argument into a number.
+            An <strong>SLI</strong> (service level indicator) is a measurement, such as the share of
+            requests that succeed in under 500 ms. An <strong>SLO</strong> (service level objective)
+            is your target for it, such as 99.9% over 30 days. The gap is 0.1%, or about 43 minutes
+            a month. This gap is your <strong>error budget</strong>. It is the room you have for
+            risky changes. When you have used up the budget, you slow down and work on reliability.
+            This turns &ldquo;how reliable should we be?&rdquo; from an argument into a number.
           </p>
         </Callout>
 
         <h2 id="incident">When the alarm fires: a debugging routine</h2>
         <p>
-          Have a routine, so a tired mind follows steps instead of guessing:
+          Have a routine. Then a tired mind can follow steps instead of guessing:
         </p>
         <ol className="steps">
           <li>
             <h3>Is it real, and how big?</h3>
             <p>
-              Open the dashboard. Are errors up? For everyone or a slice (one tenant, one endpoint, one
-              AZ)? Since when — is there a deploy marker just before?
+              Open the dashboard. Are errors up? Is it for everyone, or for one part (one tenant, one
+              endpoint, one Availability Zone)? Since when? Is there a deploy marker just before?
             </p>
           </li>
           <li>
             <h3>Stop the bleeding first</h3>
             <p>
-              If a deploy caused it, <strong>roll back now</strong> (Lesson 14) and investigate after.
-              Restoring service beats understanding it. Scale up, fail over, disable the feature flag —
-              whichever restores users fastest.
+              If a deploy caused it, <strong>roll back now</strong> (Lesson 14) and investigate
+              afterwards. Getting the service back matters more than understanding the cause. You can
+              also add servers, switch to a standby, or turn off a feature flag (a switch that turns
+              a feature on or off). Use whatever restores service to users fastest.
             </p>
           </li>
           <li>
             <h3>Walk the golden signals down the stack</h3>
             <p>
-              ALB errors or latency? Then targets: healthy hosts, CPU, memory. Then dependencies: RDS
-              CPU, connections and storage; Redis memory and hit rate. The first red graph in the chain
-              is usually the culprit.
+              Start with the ALB errors or latency. Then check the servers behind it: healthy hosts,
+              CPU and memory. Then check what they depend on: RDS CPU, connections and storage, and
+              Redis memory and hit rate. The first red graph in this chain is usually the cause.
             </p>
           </li>
           <li>
             <h3>Read the logs for the exact minute</h3>
             <p>
-              Run the &ldquo;recent errors&rdquo; and &ldquo;errors by tenant&rdquo; Insights queries for
-              the incident window. Take one <code>requestId</code> and read its full story.
+              Run the &ldquo;recent errors&rdquo; and &ldquo;errors by tenant&rdquo; Insights queries
+              for the time of the incident. Take one <code>requestId</code> and read its whole story.
             </p>
           </li>
           <li>
             <h3>Write down what you learn, while it is fresh</h3>
             <p>
-              Timeline, cause, fix, and — most valuable — what would have caught it sooner? Add that
-              alarm or log field. A blameless post-mortem turns each outage into a permanent
-              improvement.
+              Write the timeline, the cause and the fix. Then write the most valuable part: what would
+              have caught it sooner? Add that alarm or log field. A blameless post-mortem is a review
+              that looks for what to improve, not for who to blame. It turns each outage into a
+              lasting improvement.
             </p>
           </li>
         </ol>
@@ -666,28 +704,30 @@ filter ispresent(durationMs)
         <div className="table-wrap">
           <table>
             <thead>
-              <tr><th>Item</th><th>Approx. price</th></tr>
+              <tr><th>Item</th><th>Approximate price</th></tr>
             </thead>
             <tbody>
               <tr><td>AWS service metrics (EC2 5-min, ALB, RDS, ElastiCache)</td><td className="font-semibold text-emerald-300">Free</td></tr>
-              <tr><td>Standard alarms</td><td>First 10 free, then ~$0.10 per alarm per month</td></tr>
-              <tr><td>Custom metrics (agent, business)</td><td>First 10 free, then ~$0.30 per metric per month</td></tr>
+              <tr><td>Standard alarms</td><td>First 10 free, then about $0.10 per alarm per month</td></tr>
+              <tr><td>Custom metrics (agent, business)</td><td>First 10 free, then about $0.30 per metric per month</td></tr>
               <tr><td>Dashboards</td><td>First 3 free, then $3 each per month</td></tr>
-              <tr><td>Log ingestion</td><td>~$0.50–0.70 per GB — <strong>the one that surprises people</strong></td></tr>
-              <tr><td>Log storage</td><td>~$0.03 per GB-month (after retention expires, free)</td></tr>
-              <tr><td>Logs Insights queries</td><td>~$0.005 per GB scanned</td></tr>
-              <tr><td>SNS email notifications</td><td className="font-semibold text-emerald-300">Free (1,000/month)</td></tr>
+              <tr><td>Log ingestion</td><td>about $0.50 to $0.70 per GB. <strong>This is the one that surprises people</strong></td></tr>
+              <tr><td>Log storage</td><td>about $0.03 per GB per month (free after the retention time ends, because the data is deleted)</td></tr>
+              <tr><td>Logs Insights queries</td><td>about $0.005 per GB scanned</td></tr>
+              <tr><td>SNS email notifications</td><td className="font-semibold text-emerald-300">Free (first 1,000 a month)</td></tr>
             </tbody>
           </table>
         </div>
         <Callout kind="warn" label="Log ingestion is where monitoring bills explode">
           <p className="mb-0">
-            A busy app logging 2 KB per request at 50 requests a second produces about 8 GB a day —
-            over $100 a month just to ingest, before storing. The usual culprits: leaving{" "}
-            <code>debug</code> on in production, logging every request body, logging health checks, and
-            log loops from retrying errors. Set the level to <code>info</code>, sample high-volume
-            lines, and check the log group&apos;s <em>stored bytes</em> monthly. The metrics, alarms and
-            dashboard from this lesson cost only a few dollars; logs are where discipline pays.
+            Suppose a busy app logs 2 KB for each request at 50 requests a second. That makes about 8
+            GB a day. It costs over $100 a month just to take in the data (ingest it), before you
+            store it. The usual causes are these: leaving <code>debug</code> on in production, logging
+            every request body, logging health checks, and endless loops of retried errors that each
+            write a log line. Set the level to <code>info</code>. Log only a sample of very frequent
+            lines. Check the log group&apos;s <em>stored bytes</em> every month. The metrics, alarms
+            and dashboard from this lesson cost only a few dollars. Logs are where careful habits save
+            money.
           </p>
         </Callout>
 
@@ -720,10 +760,10 @@ filter ispresent(durationMs)
               q: "What would you monitor for a web application?",
               a: (
                 <p className="mb-0">
-                  The four golden signals: latency (percentiles), traffic, errors and saturation. Concretely:
-                  load-balancer 5xx and p95 latency, healthy host count, CPU/memory/disk, database CPU,
-                  connections and free storage, cache hit rate and memory, plus business metrics such as
-                  signups and payments.
+                  I watch the four golden signals: latency (using percentiles), traffic, errors and
+                  saturation. In practice that means load balancer 5xx errors and p95 latency, the
+                  healthy host count, server CPU, memory and disk, database CPU, connections and free
+                  storage, cache hit rate and memory, and business metrics such as signups and payments.
                 </p>
               ),
             },
@@ -731,8 +771,9 @@ filter ispresent(durationMs)
               q: "Why percentiles instead of averages?",
               a: (
                 <p className="mb-0">
-                  Averages hide the tail: a few very slow requests barely move them while real users suffer.
-                  p95/p99 show what the slowest users experience and are what SLOs should target.
+                  Averages hide the slow tail. A few very slow requests barely change the average, but
+                  real users suffer. p95 and p99 show what the slowest users experience. SLOs should
+                  use them.
                 </p>
               ),
             },
@@ -740,9 +781,9 @@ filter ispresent(durationMs)
               q: "EC2 memory usage isn’t in CloudWatch by default. Why, and what do you do?",
               a: (
                 <p className="mb-0">
-                  The hypervisor sees CPU and network but not guest-OS internals. Install the CloudWatch
-                  agent (with an instance role) to publish memory and disk metrics, and bake it into the
-                  launch template so every instance has it.
+                  The hypervisor sees CPU and network, but not what happens inside the guest operating
+                  system. I install the CloudWatch agent, with an instance role, to publish memory and
+                  disk metrics. I add it to the launch template so every instance has it.
                 </p>
               ),
             },
@@ -750,9 +791,10 @@ filter ispresent(durationMs)
               q: "Metrics vs logs vs traces?",
               a: (
                 <p className="mb-0">
-                  Metrics are cheap aggregated numbers for detecting and alerting on problems; logs are
-                  detailed events for explaining them; traces follow a single request across services to
-                  locate latency. Detect with metrics, diagnose with logs, pinpoint with traces.
+                  Metrics are cheap summary numbers. I use them to detect problems and to alert. Logs are
+                  detailed events. I use them to explain problems. Traces follow one request across
+                  services. I use them to find where time is lost. So I detect with metrics, diagnose
+                  with logs, and pinpoint with traces.
                 </p>
               ),
             },
@@ -760,9 +802,10 @@ filter ispresent(durationMs)
               q: "How do you avoid alert fatigue?",
               a: (
                 <p className="mb-0">
-                  Alert on user-visible symptoms, make every alert actionable with a runbook, separate pages
-                  from tickets, tune thresholds and evaluation windows to ignore blips, delete alerts nobody
-                  acts on, and review them regularly.
+                  I alert on symptoms that users can see. I make every alert lead to an action, with a
+                  runbook. I separate pages from tickets. I set thresholds and evaluation windows so that
+                  short spikes are ignored. I delete alerts that nobody acts on, and I review the alerts
+                  regularly.
                 </p>
               ),
             },
@@ -770,9 +813,10 @@ filter ispresent(durationMs)
               q: "The site is down but there are no 5xx errors on the ALB. What alarm would have caught it?",
               a: (
                 <p className="mb-0">
-                  A traffic-absence alarm: RequestCount below a floor with missing data treated as
-                  breaching, or a Route 53/synthetic health check from outside. DNS, certificate or network
-                  failures produce no errors because no requests arrive.
+                  A traffic-absence alarm would have caught it. It alarms when RequestCount is below a
+                  minimum, and it treats missing data as a breach. A health check from outside, such as a
+                  Route 53 health check or a synthetic check (a scripted test), would also work. DNS,
+                  certificate or network failures produce no errors, because no requests arrive.
                 </p>
               ),
             },
@@ -780,9 +824,11 @@ filter ispresent(durationMs)
               q: "Your CloudWatch bill tripled. Where do you look?",
               a: (
                 <p className="mb-0">
-                  Log ingestion first: which log group grew (IncomingBytes), debug logging left on,
-                  unfiltered health checks or request bodies, error loops. Then custom metrics cardinality
-                  and Logs Insights scans. Fix with log levels, sampling, retention and metric filters.
+                  I look at log ingestion first. Which log group grew (the IncomingBytes metric shows
+                  this)? Is debug logging left on? Are health checks or request bodies logged? Are there
+                  error loops? Then I check how many different custom metrics there are (their
+                  cardinality) and the Logs Insights scans. I fix it with log levels, sampling,
+                  retention times and metric filters.
                 </p>
               ),
             },
@@ -799,68 +845,71 @@ filter ispresent(durationMs)
           </li>
           <li>
             Create the six alarms. Force each one into <code>ALARM</code> with{" "}
-            <code>set-alarm-state</code> and check the email arrives and the description is useful to a
-            stranger.
+            <code>set-alarm-state</code>. Check that the email arrives and that its description would
+            help a stranger.
           </li>
           <li>
-            Ship logs to CloudWatch with the <code>awslogs</code> driver, set a 30-day retention, and{" "}
-            <code>aws logs tail</code> them while you click around the site.
+            Send logs to CloudWatch with the <code>awslogs</code> driver. Set a 30-day retention. Run{" "}
+            <code>aws logs tail</code> while you click around the site.
           </li>
           <li>
             Switch the app to JSON logging with request IDs and tenant IDs. Save three Logs Insights
-            queries: recent errors, slowest routes, one request&apos;s story.
+            queries: recent errors, slowest routes and the story of one request.
           </li>
           <li>
-            Break something on purpose (stop the app on one server, or make a route throw) and watch: an
-            alarm fires, you find the cause in the logs, and the recovery email arrives.
+            Break something on purpose. Stop the app on one server, or make a route throw an error.
+            Then watch three things: an alarm fires, you find the cause in the logs, and the recovery
+            email arrives.
           </li>
           <li>
-            Install the CloudWatch agent on one server, then find <code>mem_used_percent</code> in the
-            console and add a memory alarm.
+            Install the CloudWatch agent on one server. Find <code>mem_used_percent</code> in the
+            console. Add a memory alarm.
           </li>
           <li>
-            Build the dashboard. Put a page-worthy alarm and a ticket-worthy alarm in two categories, and
-            write a three-line runbook for each.
+            Build the dashboard. Sort one alarm as page-worthy and one as ticket-worthy. Write a
+            three-line runbook for each.
           </li>
         </ol>
         <Callout kind="ok" label="Optional stretch">
           <p className="mb-0">
-            Create a free external uptime check (UptimeRobot or similar) on your public URL. It is
-            independent of AWS, so it also catches the case where your whole AWS setup, or your DNS, is
-            the thing that is down. Then try Container Insights or Application Signals in the console to
-            see what more automated observability looks like.
+            Create a free external uptime check (UptimeRobot or a similar service) on your public URL.
+            It does not depend on AWS. So it also catches the case where your whole AWS setup, or your
+            DNS, is down. Then try Container Insights or Application Signals in the console. They show
+            what more automatic monitoring looks like.
           </p>
         </Callout>
 
         <h2 id="conclusion">Conclusion</h2>
         <p>
-          You can now see the system, and it can call you. That changes operating it from anxious guessing
-          to routine.
+          You can now see the system, and it can call you. This changes how you run it. You no longer
+          guess nervously. You follow a routine.
         </p>
         <ul>
           <li>
-            <strong>Watch the four golden signals</strong> — latency (percentiles), traffic, errors,
-            saturation — and remember EC2 hides memory and disk until the agent is installed.
+            <strong>Watch the four golden signals</strong>: latency (percentiles), traffic, errors
+            and saturation. Remember that EC2 hides memory and disk until you install the agent.
           </li>
           <li>
-            <strong>Alarms send to SNS</strong>; confirm the subscription, test the path, and alert on
-            symptoms with a runbook in the description, including the absence of traffic.
+            <strong>Alarms send messages to SNS.</strong> Confirm the subscription and test the path.
+            Alert on symptoms, put a runbook in the description, and also alert when traffic
+            disappears.
           </li>
           <li>
-            <strong>Ship logs off the server</strong> with structured JSON, request IDs and tenant IDs,
-            never secrets; search with Logs Insights; turn log patterns and business events into metrics.
+            <strong>Send logs off the server.</strong> Use structured JSON with request IDs and tenant
+            IDs, and never log secrets. Search with Logs Insights. Turn log patterns and business
+            events into metrics.
           </li>
           <li>
-            <strong>One dashboard</strong> ordered like the request path, with deploy markers.
+            <strong>One dashboard</strong>, ordered like the path of a request, with deploy markers.
           </li>
           <li>
-            <strong>Log ingestion is the cost trap</strong>: info level, retention set, no health-check
-            spam.
+            <strong>Log ingestion is the cost trap.</strong> Use the info level, set a retention time,
+            and do not log health checks.
           </li>
         </ul>
         <p>
-          You can observe the system. Now make it hard to break into and impossible to lose: security
-          hardening and backups.
+          You can now observe the system. Next, make it hard to break into and impossible to lose.
+          That means security hardening (making a system harder to attack) and backups.
         </p>
 
         <hr />

@@ -66,15 +66,15 @@ const tiers: Row[] = [
 
 const levers: [string, string, string, string][] = [
   ["1", "Delete what you are not using", "Unattached disks, old snapshots, idle load balancers, forgotten dev environments, unused Elastic IPs", "Often 10–30% of a neglected bill; zero risk"],
-  ["2", "Right-size", "Look at CPU/memory over two weeks. A server at 8% CPU can drop a size. Compute Optimizer (free) recommends it", "20–50% of compute"],
-  ["3", "Move to Graviton (ARM)", "t4g / m7g / db.t4g / cache.t4g instead of x86. Multi-arch Docker builds make it a one-line change", "~20% cheaper for the same performance"],
-  ["4", "Commit to the steady baseline", "Compute Savings Plan or 1-year Reserved Instances for the servers and database that never go away", "30–60% off on-demand"],
-  ["5", "Turn off non-production", "Dev/staging ASG to 0 and RDS stopped outside working hours; or destroy and re-apply with Terraform", "60–70% of those environments"],
-  ["6", "Kill the NAT Gateway", "Use public subnets for app servers, free S3/DynamoDB gateway endpoints, only needed interface endpoints", "$40+/month per NAT"],
+  ["2", "Right-size", "Look at CPU and memory over two weeks. A server at 8% CPU can move down one size. Compute Optimizer (free) gives advice", "20–50% of compute"],
+  ["3", "Move to Graviton (ARM)", "Use t4g / m7g / db.t4g / cache.t4g instead of x86 types. Multi-arch Docker builds (one image that runs on both ARM and x86) make it a small change", "About 20% cheaper for similar performance"],
+  ["4", "Commit to the steady baseline", "Compute Savings Plan (servers) or 1-year Reserved Instances / Database Savings Plan (database) for what never goes away", "30–60% off on-demand"],
+  ["5", "Turn off non-production", "Set the dev/staging Auto Scaling group to 0 and stop RDS outside work hours; or destroy and re-create with Terraform", "60–70% of those environments"],
+  ["6", "Kill the NAT Gateway", "Put app servers in public subnets, use the free S3/DynamoDB gateway endpoints, and add only the interface endpoints you need", "$40+/month per NAT"],
   ["7", "Set log retention and log levels", "30-day retention, info level, no health-check logging; export old logs to S3", "Frequently the largest surprise on the bill"],
-  ["8", "Tier and expire in S3", "Lifecycle rules, Intelligent-Tiering, abort incomplete uploads, expire old versions", "Up to 40–70% of storage cost"],
+  ["8", "Tier and expire in S3", "Lifecycle rules (automatic move or delete after N days), Intelligent-Tiering, abort incomplete uploads, expire old versions", "Up to 40–70% of storage cost"],
   ["9", "Serve static content from the edge", "CloudFront in front of assets and cacheable pages: origin bandwidth and load drop", "Cuts egress and server count"],
-  ["10", "Use Spot for interruptible work", "Background workers and batch jobs (never the primary database)", "Up to ~70% off those instances"],
+  ["10", "Use Spot for interruptible work", "Background workers and batch jobs that can safely stop and restart (never the main database)", "Up to about 90% off (often 60–70% in practice)"],
 ];
 
 const architecture: [string, string, string, string, string][] = [
@@ -116,10 +116,10 @@ const recap: [string, string][] = [
 ];
 
 const readiness: [string, string][] = [
-  ["Reliability", "≥ 2 servers in 2 AZs; health checks tested by killing a server; RDS backups on and a restore drilled; rollback rehearsed"],
+  ["Reliability", "At least 2 servers in 2 AZs; health checks tested by killing a server; RDS backups on and a restore practised; rollback rehearsed"],
   ["Security", "Lesson 18 checklist complete; nothing but the ALB public; no keys anywhere; MFA everywhere; secrets in SSM/Secrets Manager"],
   ["Performance", "Load tested at 2× expected peak; p95 known; DB connection budget computed at max scale; static assets on the CDN"],
-  ["Observability", "Golden-signal alarms tested; logs structured; dashboard exists; someone is on the alert address; runbooks linked"],
+  ["Observability", "Alarms on the four golden signals (latency, traffic, errors, saturation) tested; logs structured; dashboard exists; someone is on the alert address; runbooks linked"],
   ["Operations", "Everything in Terraform; deploys via the pipeline with an approval; a documented way to reach a server (SSM)"],
   ["Cost", "Budget alerts set; tags active; log retention set; no NAT unless justified; monthly review scheduled"],
   ["People", "At least two people can deploy, roll back and restore; one runbook for “the site is down”; escalation path written"],
@@ -133,12 +133,27 @@ export default function LessonNineteenPage() {
       <div className="lesson">
         <h2 id="concept">Concept</h2>
         <p>
-          You have built a complete production system. This last lesson does the two things every
+          You have built a complete production system. This last lesson does two things that every
           engineer does at the end of a build: <strong>count the cost</strong> and{" "}
-          <strong>review the whole design</strong>. They are one activity — in the cloud the bill{" "}
-          <em>is</em> a description of the architecture, line by line. Every hour of a server, every
-          gigabyte of a log, every idle IP appears there.
+          <strong>review the whole design</strong>. They are one job. In the cloud, the bill{" "}
+          <em>is</em> a description of your design, line by line. Every hour a server runs, every
+          gigabyte of logs and every idle IP address appears on it.
         </p>
+        <Callout kind="note" label="Words used in this lesson">
+          <ul className="mb-0">
+            <li><strong>On-demand pricing</strong> is the normal price you pay per hour or per second, with no promise to keep using the service.</li>
+            <li><strong>EC2</strong> is the AWS service that rents you virtual servers. Each server is called an <strong>instance</strong>. <strong>EBS</strong> is the network disk attached to an instance.</li>
+            <li><strong>RDS</strong> is the AWS service that runs a database (here PostgreSQL) for you. <strong>ElastiCache</strong> is the AWS service that runs a fast in-memory cache (here Valkey, a Redis-compatible store).</li>
+            <li><strong>S3</strong> is the AWS service that stores files (called objects) in buckets. <strong>CloudFront</strong> is a CDN: a network of servers around the world that keeps copies of your files close to users.</li>
+            <li><strong>ALB (Application Load Balancer)</strong> is a service that receives web traffic and spreads it over several servers. An <strong>Availability Zone (AZ)</strong> is one separate data centre inside an AWS Region.</li>
+            <li><strong>NAT Gateway</strong> is a managed box that lets servers in a private subnet reach the internet, but does not let the internet reach them.</li>
+            <li><strong>Egress</strong> means data leaving AWS. <strong>Data transfer</strong> means data moving between places, and AWS charges for most of it.</li>
+            <li><strong>Right-sizing</strong> means choosing the smallest server size that still does the job well.</li>
+            <li><strong>Graviton</strong> is a family of ARM-based processors that AWS designs. They give the same work for a lower price than the usual x86 (Intel or AMD) processors.</li>
+            <li><strong>Spot Instances</strong> are spare EC2 servers sold at a big discount. AWS can take them back with a short warning.</li>
+            <li><strong>Terraform</strong> is a tool that creates cloud resources from code files. <strong>CI</strong> (continuous integration) is a system that builds and tests your code automatically on every change.</li>
+          </ul>
+        </Callout>
         <Callout kind="note" label="The analogy — a utility bill for a building you designed">
           <p className="mb-0">
             An electricity bill tells you which appliances you left on. The AWS bill does the same for
@@ -148,14 +163,14 @@ export default function LessonNineteenPage() {
           </p>
         </Callout>
         <p>
-          We will not treat cost as an afterthought to be optimised in a hurry, but as a property of the
-          design, like latency: measured, budgeted and reviewed.
+          Do not treat cost as something to fix in a hurry at the end. Treat it as a property of the
+          design, like latency. Measure it, set a budget for it and review it.
         </p>
 
         <h2 id="how-aws-bills">The five ways AWS charges you</h2>
         <p>
-          Almost every line on the invoice is one of five patterns. Recognise the pattern and you can
-          predict the cost of a service you have never used:
+          Almost every line on the invoice follows one of five patterns. If you know the pattern, you
+          can guess the cost of a service you have never used:
         </p>
         <div className="table-wrap">
           <table>
@@ -180,17 +195,18 @@ export default function LessonNineteenPage() {
           </table>
         </div>
         <p>
-          The through-line: <strong>AWS bills for existing, not for using.</strong> A server with zero
-          visitors costs the same as a busy one. That is the whole difference from the per-request
-          pricing of Lesson 0 — and the reason forgotten resources are the single biggest source of
-          waste.
+          The main idea: <strong>AWS bills for existing, not for using.</strong> A server with zero
+          visitors costs the same as a busy one. This is the big difference from the per-request
+          pricing of Lesson 0. It is also why forgotten resources are the biggest source of waste.
         </p>
 
         <h2 id="estimate">What the final architecture costs</h2>
         <p>
-          Here is the honest total for three sizes of the same design, in Mumbai, on-demand,
-          running 24/7. They are estimates to plan with, not quotes: prices change, traffic varies, and
-          the official <strong>AWS Pricing Calculator</strong> will refine any line.
+          Here is an honest total for three sizes of the same design. The prices are for the Mumbai
+          Region, on-demand, running 24 hours a day. They are estimates for planning, not quotes.
+          Prices change and traffic varies. The <strong>AWS Pricing Calculator</strong> (a free AWS
+          web tool where you enter your resources and get a monthly price) gives a more exact number
+          for any line.
         </p>
         <div className="table-wrap">
           <table>
@@ -222,34 +238,36 @@ export default function LessonNineteenPage() {
         </div>
         <ul>
           <li>
-            <strong>Reconciling with Lesson 0.</strong> It said &ldquo;$15 to $25&rdquo; for one small
-            server plus one small database. That was compute and database only. The Starter column adds
-            the disk, IP address, logging and backups that a real deployment also needs. It is still
-            small, because the build now happens in CI (Lesson 14), so a t3.micro is enough to
-            <em> run</em> the app.
+            <strong>Compare with Lesson 0.</strong> It said &ldquo;$15 to $25&rdquo; for one small
+            server plus one small database. That counted only the server and the database. The Starter
+            column also adds the disk, the IP address, logging and backups that a real deployment
+            needs. It is still small. The build now happens in CI (Lesson 14), so a t3.micro server is
+            enough to <em>run</em> the app.
           </li>
           <li>
             <strong>The big step is the load balancer tier.</strong> Going from Starter to Production
-            roughly triples the bill — not because servers are expensive but because each new component
-            (ALB, second server, cache, security services) has a fixed monthly charge. That is exactly
-            when to ask, honestly, whether you need it yet (Lesson 12&apos;s warning).
+            roughly triples the bill. Servers are not the reason. Each new part (load balancer, second
+            server, cache, security services) has a fixed monthly charge. This is the moment to ask
+            honestly whether you need it yet (the warning from Lesson 12).
           </li>
           <li>
-            <strong>Usage-driven costs stay small at this scale</strong>: requests, CDN traffic and log
-            volume matter far more once you have thousands of daily users.
+            <strong>Costs that depend on usage stay small at this scale.</strong> Requests, CDN traffic
+            and log volume matter much more once you have thousands of daily users.
           </li>
           <li>
-            <strong>Compare with the alternative.</strong> A platform (Vercel Pro, Railway, Render) often
-            costs $20–100 a month for a project of this size once you add a database, and includes the
-            operations. The comparison is not the AWS line items against the platform line items — it is
-            the AWS line items <em>plus your time</em> (see the honest verdict below).
+            <strong>Compare with the alternative.</strong> A platform (Vercel Pro, Railway, Render)
+            often costs $20–100 a month for a project of this size once you add a database. That price
+            also includes the operations work. So do not compare AWS line items with platform line
+            items only. Compare the AWS line items <em>plus your time</em> (see the honest verdict
+            below).
           </li>
         </ul>
 
         <h2 id="levers">The cost levers, ranked by payoff</h2>
         <p>
-          Work down this list in order. The top items are risk-free; the bottom ones need care. Most
-          bills drop 30–50% with the first five.
+          A <strong>cost lever</strong> is one change that lowers the bill. Work down this list in
+          order. The top items have no risk. The bottom ones need care. Most bills drop 30–50% after
+          the first five.
         </p>
         <div className="table-wrap">
           <table>
@@ -275,23 +293,26 @@ export default function LessonNineteenPage() {
         </div>
         <Callout kind="warn" label="Do not save money by removing safety">
           <p className="mb-0">
-            The wrong cuts are the ones that trade a small monthly saving for a large, rare loss: turning
-            off backups, dropping to a single server for production, disabling encryption or logging,
-            skipping the restore drill. Cut waste, not resilience. When in doubt, ask: &ldquo;what would
-            this cost us on the day it fails?&rdquo;
+            The wrong cuts save a little money every month but risk a large loss on a bad day. Examples
+            are turning off backups, running production on a single server, switching off encryption or
+            logging, and skipping the restore drill. Cut waste, not resilience. When in doubt, ask:
+            &ldquo;what would this cost us on the day it fails?&rdquo;
           </p>
         </Callout>
         <h3>Right-sizing with evidence</h3>
         <p>
-          Opt in to <strong>Compute Optimizer</strong> (free). After about 14 days of metrics it
-          lists each instance as <em>over-provisioned</em>, <em>optimized</em> or{" "}
-          <em>under-provisioned</em>, with a suggested size. You can check by hand too: two weeks of
-          daily average and maximum CPU for the Auto Scaling group, in CloudWatch. Average 8% and
-          maximum 30% means a smaller size is safe.
+          <strong>Right-sizing</strong> means moving each server to the smallest size that still copes.
+          <strong> Compute Optimizer</strong> is a free AWS service that does this analysis for you. You
+          opt in, and it needs at least 30 hours of CloudWatch metrics from the last 14 days. Then it
+          marks each instance as <em>over-provisioned</em> (too big), <em>optimized</em> (about
+          right) or <em>under-provisioned</em> (too small), and suggests a size. You can also check by
+          hand: look at two weeks of daily average and maximum CPU for the Auto Scaling group in
+          CloudWatch. An average of 8% and a maximum of 30% means a smaller size is safe.
         </p>
         <p>
-          Watch <strong>memory</strong> as well as CPU (from the agent of Lesson 17); CPU alone can
-          mislead, and memory-bound apps often need the same RAM at a cheaper vCPU ratio.
+          Watch <strong>memory</strong> as well as CPU (you get memory numbers from the agent in
+          Lesson 17). CPU alone can mislead you. An app that needs a lot of memory but little CPU
+          should move to a type with a better memory-to-CPU ratio, not to a smaller one.
         </p>
 
         <h2 id="transfer">Data transfer: the most overlooked cost</h2>
@@ -306,7 +327,7 @@ export default function LessonNineteenPage() {
             </thead>
             <tbody>
               <tr><td>Internet → AWS (inbound)</td><td className="font-semibold text-emerald-300">Free</td><td>Uploads cost nothing to receive</td></tr>
-              <tr><td>AWS → internet, from EC2/ALB</td><td>First 100 GB/month free, then ~$0.109/GB</td><td>Serve big files from S3 + CloudFront instead</td></tr>
+              <tr><td>AWS → internet, from EC2/ALB</td><td>First 100 GB/month free, then about $0.109/GB</td><td>Serve big files from S3 + CloudFront instead</td></tr>
               <tr><td>S3 → CloudFront</td><td className="font-semibold text-emerald-300">Free</td><td>The CDN is often cheaper than serving the bytes yourself</td></tr>
               <tr><td>CloudFront → internet</td><td>First 1 TB/month free, then ~$0.11/GB (India)</td><td>Cache aggressively</td></tr>
               <tr><td>Between Availability Zones</td><td>~$0.01/GB each direction</td><td>Chatty cross-AZ traffic (app ↔ DB in another AZ) is a hidden tax</td></tr>
@@ -317,14 +338,18 @@ export default function LessonNineteenPage() {
           </table>
         </div>
         <p>
-          You cannot avoid these, but you can see them. In Cost Explorer, filter by usage type containing{" "}
-          <code>DataTransfer</code> to find the culprit.
+          You cannot avoid all of these costs, but you can see them. In Cost Explorer (the AWS tool
+          that charts your spending), filter by a usage type that contains <code>DataTransfer</code>
+          to find the cause.
         </p>
 
         <h2 id="commitments">Savings Plans and Reserved Instances</h2>
         <p>
-          On-demand pricing is the highest price, in return for zero commitment. If a resource will run
-          for a year regardless, you can promise that and get a discount:
+          On-demand pricing is the highest price. You pay it because you promise nothing. If you know a
+          resource will run for a year anyway, you can promise that and get a discount. A{" "}
+          <strong>Savings Plan</strong> is a promise to spend a fixed amount per hour for 1 or 3
+          years. A <strong>Reserved Instance (RI)</strong> is a promise to run one specific instance
+          type for 1 or 3 years. In both cases AWS gives you a lower price in return:
         </p>
         <div className="table-wrap">
           <table>
@@ -338,8 +363,8 @@ export default function LessonNineteenPage() {
             <tbody>
               <tr><td><strong>You commit to</strong></td><td>A dollar amount per hour of compute for 1 or 3 years</td><td>A specific instance type/engine/region for 1 or 3 years</td></tr>
               <tr><td><strong>Flexibility</strong></td><td className="font-semibold text-emerald-300">Applies across instance families, sizes, regions, even Fargate and Lambda</td><td>Tied to what you reserved (Convertible RIs bend a little)</td></tr>
-              <tr><td><strong>Covers</strong></td><td>EC2, Fargate, Lambda</td><td>EC2, plus <strong>RDS and ElastiCache</strong> (which Savings Plans do not cover)</td></tr>
-              <tr><td><strong>Discount</strong></td><td>Up to ~50–66% vs on-demand</td><td>Roughly 30–60%</td></tr>
+              <tr><td><strong>Covers</strong></td><td>EC2, Fargate, Lambda</td><td>EC2, plus <strong>RDS and ElastiCache</strong>. (Compute Savings Plans do not cover databases. A separate <em>Database Savings Plan</em>, 1 year only, now exists with smaller discounts, up to about 20% for provisioned RDS and ElastiCache Valkey.)</td></tr>
+              <tr><td><strong>Discount</strong></td><td>Up to 66% vs on-demand</td><td>Up to about 70%; commonly 30–60%</td></tr>
               <tr><td><strong>Payment</strong></td><td>No upfront / partial / all upfront (more upfront = bigger discount)</td><td>Same options</td></tr>
             </tbody>
           </table>
@@ -347,42 +372,47 @@ export default function LessonNineteenPage() {
         <Callout kind="ok" label="A safe way to commit">
           <p className="mb-0">
             Wait until the workload has run steadily for two to three months. Commit only to the{" "}
-            <strong>baseline you are certain to keep</strong> (say the two servers that never go away),
-            leave the spikes on-demand, choose 1 year and no upfront to start, and keep a note of the
-            expiry date. Committing to capacity you later shrink is the mistake, because the commitment
-            is a bill you owe either way.
+            <strong>baseline you are sure to keep</strong> (for example, the two servers that never go
+            away). Leave the spikes on-demand. Start with 1 year and no upfront payment, and write down
+            the expiry date. The common mistake is to commit to capacity that you shrink later. You still
+            owe that money.
           </p>
         </Callout>
 
         <h2 id="visibility">Seeing the bill: tags, Cost Explorer, budgets, anomalies</h2>
         <p>
-          You cannot manage a cost you cannot attribute. Four tools, in order of value:
+          You cannot manage a cost if you cannot tell what caused it. Four tools help, in order of
+          value:
         </p>
         <ol className="steps">
           <li>
             <h3>Tag everything — Terraform did most of it already</h3>
             <p>
-              The <code>default_tags</code> block from Lesson 15 stamps every resource with{" "}
-              <code>Project</code>, <code>Environment</code> and <code>ManagedBy</code>. One more step
-              makes them useful: <strong>activate them as cost allocation tags</strong> in Billing →
-              Cost allocation tags (they appear in reports about a day later, and only for costs after
-              activation). Now the bill splits by project and environment.
+              A <strong>tag</strong> is a label (a key and a value) that you attach to a resource. The{" "}
+              <code>default_tags</code> block from Lesson 15 already puts <code>Project</code>,{" "}
+              <code>Environment</code> and <code>ManagedBy</code> on every resource. One more step makes
+              them useful: <strong>activate them as cost allocation tags</strong> in Billing → Cost
+              allocation tags. They show up in reports about a day later, and only for costs after you
+              activate them. Then the bill splits by project and environment.
             </p>
           </li>
           <li>
             <h3>Cost Explorer — read it weekly at first</h3>
             <p>
-              In the console, group by <em>Service</em> first, then drill into the biggest by{" "}
-              <em>Usage type</em>. Look at daily granularity for the month to spot the day a cost
-              jumped, then match it to a deploy or a change.
+              <strong>Cost Explorer</strong> is the AWS tool that charts your spending over time. Group
+              by <em>Service</em> first. Then open the biggest one and group by <em>Usage type</em>.
+              Switch to daily view to find the day the cost jumped. Then match that day to a deploy or
+              a change.
             </p>
           </li>
           <li>
             <h3>Budgets — the smoke detector</h3>
             <p>
-              Lesson 5 set one account-wide budget. Refine it: a monthly budget for the project with
-              alerts at <strong>50%, 80% and 100% of actual</strong> and at <strong>100% of forecast</strong>{" "}
-              (which fires <em>early</em>, when AWS predicts you will overspend, not after).
+              A <strong>budget</strong> is a limit you set for your spending. AWS sends an alert when you
+              get near it. Lesson 5 set one budget for the whole account. Now make one for the project,
+              with alerts at <strong>50%, 80% and 100% of actual</strong> spending and at{" "}
+              <strong>100% of forecast</strong>. The forecast alert fires <em>early</em>, when AWS
+              predicts that you will go over the limit, not after you have.
             </p>
             <p>
               Billing → <strong>Budgets</strong> → Create: monthly cost budget for{" "}
@@ -393,18 +423,24 @@ export default function LessonNineteenPage() {
           <li>
             <h3>Cost Anomaly Detection — the tripwire</h3>
             <p>
-              Free. It learns your normal spend per service and alerts when something departs from it
-              (a runaway log group, a crypto-miner in an unused region). Create a monitor for all
-              services in Billing → Cost Anomaly Detection, and point the alert at the same SNS topic as
-              your operational alarms. It would have caught most of the costly mistakes described in Lesson 5 within a day.
+              <strong>Cost Anomaly Detection</strong> is a free AWS feature that learns your normal
+              spending for each service and alerts you when it sees something unusual. Examples are a
+              runaway log group, or a crypto-miner running in a Region you never use. Create a monitor
+              for all services in Billing → Cost Anomaly Detection. Send the alert to the same SNS topic
+              (a messaging channel that can email you) as your operational alarms. It would have caught
+              most of the costly mistakes described in Lesson 5 within a day.
             </p>
           </li>
         </ol>
 
         <h2 id="unit">Unit economics: what does one customer cost?</h2>
         <p>
-          For a multi-tenant SaaS, the total bill is the wrong number. The useful one is{" "}
-          <strong>cost per tenant</strong>, because that is what you compare with what they pay you.
+          A <strong>multi-tenant SaaS</strong> is one software service (SaaS means software sold as a
+          service) that many customers, called <strong>tenants</strong>, share. For this kind of
+          product, the total bill is not the most useful number. The useful number is{" "}
+          <strong>cost per tenant</strong>, because you compare it with what each tenant pays you.
+          This is called <strong>unit economics</strong>: the cost and income of one unit, here one
+          customer.
         </p>
         <Script
           title="a back-of-envelope model"
@@ -421,17 +457,21 @@ Add per-tenant variable costs:
 ≈ $4.25 per tenant per month.   Price of a plan: $29   →   ~85% gross margin on infrastructure`}
         />
         <p>
-          The point is not the exact figures — it is that you can answer &ldquo;what happens when we
-          have 400 tenants?&rdquo; (the fixed part barely moves; storage and transfer grow) and{" "}
-          <strong>&ldquo;which customers are unprofitable?&rdquo;</strong> (the one storing 500 GB of
-          video on a $29 plan). Use tenant-prefixed S3 keys and tenant IDs in logs (Lessons 11, 17) to
-          measure real per-tenant storage and traffic, and set plan limits that protect your margin.
+          The exact numbers do not matter. What matters is that you can now answer two questions. The
+          first is &ldquo;what happens when we have 400 tenants?&rdquo; The fixed part barely moves,
+          while storage and transfer grow. The second is{" "}
+          <strong>&ldquo;which customers lose us money?&rdquo;</strong> One example is a customer who
+          stores 500 GB of video on a $29 plan. Use tenant names in S3 key prefixes and tenant IDs in
+          logs (Lessons 11 and 17) to measure real storage and traffic for each tenant. Then set plan
+          limits that protect your margin. (Gross margin is the share of the price left after the
+          direct costs.)
         </p>
 
         <h2 id="sweep">The orphan sweep: finding what you forgot</h2>
         <p>
-          Everything you create keeps billing until deleted. A quarterly sweep pays for itself.
-          Check these:
+          An <strong>orphan</strong> is a resource that nothing uses any more but that still bills you.
+          Everything you create keeps billing until you delete it. A sweep every three months pays for
+          itself. Check these:
         </p>
         <div className="table-wrap">
           <table>
@@ -456,15 +496,16 @@ Add per-tenant variable costs:
 
         <h2 id="final-architecture">The final architecture, box by box</h2>
         <p>
-          Everything the series built, in one place. First the path a user&apos;s request takes, then
-          the network it runs in, then the path a code change takes to get there.
+          Here is everything the series built, in one place. First you see the path a user&apos;s
+          request takes. Then you see the network it runs in. Then you see the path a code change
+          takes to get there.
         </p>
         <FullStackMap />
         <VpcLayout />
         <DeployPipeline />
         <p>
-          And the same system as a table: what each piece does, what breaks when it fails (the
-          question that reveals whether you understand it), and what it costs:
+          Here is the same system as a table. It shows what each piece does, what breaks when it fails
+          (the question that shows whether you really understand it) and what it costs:
         </p>
         <div className="table-wrap">
           <table>
@@ -492,36 +533,40 @@ Add per-tenant variable costs:
         </div>
         <h3>Single points of failure left in this design</h3>
         <p>
-          A candid review lists what is <em>not</em> resilient, so you can decide what to spend on next:
+          A <strong>single point of failure</strong> is one part that, if it breaks, stops the whole
+          system. An honest review lists them, so you can decide what to spend money on next:
         </p>
         <ul>
           <li>
-            <strong>The database is single-AZ.</strong> An AZ outage means minutes of failover-by-restore.
-            Fix: Multi-AZ (doubles the RDS line).
+            <strong>The database is single-AZ.</strong> It runs in one Availability Zone only. If that
+            zone fails, you must restore from a backup, and that takes time. Fix: Multi-AZ, which keeps
+            a standby copy in a second zone (it doubles the RDS line).
           </li>
           <li>
-            <strong>One region.</strong> A whole-region outage takes you down. Fix: cross-region backups
-            (already advised) for recovery; active-active is a large, expensive step most products never
-            need.
+            <strong>One Region.</strong> If a whole Region fails, you are down. Fix: keep backup copies in
+            another Region (advised earlier) so you can recover. Active-active (running live in two
+            Regions at the same time) is a large, costly step that most products never need.
           </li>
           <li>
-            <strong>One AWS account.</strong> Production, staging and backups share a blast radius. Fix: AWS
-            Organizations with separate accounts, the standard next step.
+            <strong>One AWS account.</strong> Production, staging and backups share one blast radius (the
+            amount of damage one mistake or breach can cause). Fix: AWS Organizations, a service that
+            manages many separate accounts together. This is the usual next step.
           </li>
           <li>
-            <strong>One Redis node</strong> (sessions lost on failure). Fix: a replica with automatic
-            failover.
+            <strong>One cache node</strong> (sessions are lost if it fails). Fix: add a replica, a second
+            copy that takes over automatically.
           </li>
           <li>
-            <strong>One person who understands it.</strong> Fix: the runbooks, the Terraform repository and
-            the drills you wrote — plus a second person who has actually run them.
+            <strong>One person who understands it.</strong> Fix: use the runbooks (step-by-step guides for
+            incidents), the Terraform repository and the drills you wrote. Also train a second person
+            who has really run them.
           </li>
         </ul>
 
         <h2 id="readiness">Go-live readiness checklist</h2>
         <p>
-          Before a real launch, walk this table with someone else. Each row folds a whole lesson into one
-          question:
+          Before a real launch, go through this table with another person. Each row turns a whole
+          lesson into one question:
         </p>
         <div className="table-wrap">
           <table>
@@ -544,10 +589,11 @@ Add per-tenant variable costs:
 
         <h2 id="honest">Honest verdict: AWS or a platform?</h2>
         <p>
-          After nineteen lessons, you are qualified to say something a beginner cannot:{" "}
-          <strong>most projects should not run on raw AWS.</strong> You now know precisely what a
-          platform such as Vercel, Railway or Render does for you (Lessons 6–18 compressed into a git
-          push) and what it costs you in control. Weigh it with the real numbers:
+          After nineteen lessons, you can say something a beginner cannot:{" "}
+          <strong>most projects should not run on raw AWS.</strong> A <strong>platform</strong> (a
+          service such as Vercel, Railway or Render that runs your app for you) does the work of
+          Lessons 6–18 when you run <code>git push</code>. Now you know exactly what it does for you and
+          what control you give up. Compare them with real numbers:
         </p>
         <div className="table-wrap">
           <table>
@@ -571,11 +617,11 @@ Add per-tenant variable costs:
         </div>
         <Callout kind="ok" label="A useful rule">
           <p className="mb-0">
-            Engineer time is your most expensive resource. If operating AWS costs you ten hours a month,
-            that is far more than the whole infrastructure bill. Move to your own AWS when a{" "}
-            <strong>concrete need</strong> — workload limits, cost at scale, compliance, control — outweighs
-            that time, and not before. Many teams settle on a hybrid: the front end on a platform,
-            the heavy backend and data on AWS.{" "}
+            An engineer&apos;s time is your most expensive resource. If running AWS takes ten hours a
+            month, that time costs more than the whole infrastructure bill. Move to your own AWS only
+            when a <strong>real need</strong> is bigger than that time cost. Real needs are workload
+            limits, cost at scale, compliance rules or control. Many teams choose a mix: the front end on
+            a platform, and the heavy backend and data on AWS.{" "}
             {hostingReading ? (
               <>
                 See <Link href={readingHref(hostingReading)}>{hostingReading.title}</Link> for the full
@@ -585,14 +631,14 @@ Add per-tenant variable costs:
           </p>
         </Callout>
         <p>
-          Knowing all of this is still valuable when you stay on a platform: you can debug what it hides,
-          read its bill, evaluate its limits, and leave when you must. That was the goal from{" "}
+          This knowledge is still useful if you stay on a platform. You can find problems that it
+          hides, read its bill, judge its limits and leave when you must. That was the goal from{" "}
           <Link href={lessonHref(getLesson("lesson-0")!)}>Lesson 0</Link>.
         </p>
 
         <h2 id="next">Where to go next</h2>
         <p>
-          You have the foundations. Sensible next steps, by direction and by where you are in your career:
+          You now have the foundations. Here are sensible next steps, by direction:
         </p>
         <div className="table-wrap">
           <table>
@@ -604,24 +650,24 @@ Add per-tenant variable costs:
               </tr>
             </thead>
             <tbody>
-              <tr><td><strong>Fewer servers to run</strong></td><td>ECS on Fargate, App Runner, Lambda</td><td>Run your containers without managing EC2 — the natural next step after Lesson 9</td></tr>
-              <tr><td><strong>Bigger orchestration</strong></td><td>Kubernetes (EKS)</td><td>When you have many services and teams; expect a real operational cost</td></tr>
-              <tr><td><strong>Better infra code</strong></td><td>Terraform modules and testing, AWS CDK, Pulumi</td><td>Reuse and safety at scale</td></tr>
-              <tr><td><strong>Multi-account</strong></td><td>AWS Organizations, Control Tower, SCPs, IAM Identity Center for all</td><td>Isolation between environments and blast-radius control</td></tr>
-              <tr><td><strong>Deeper data</strong></td><td>Aurora, read replicas, DynamoDB, OpenSearch, data pipelines</td><td>When Postgres on one instance is outgrown</td></tr>
-              <tr><td><strong>Better operations</strong></td><td>OpenTelemetry, SLOs, incident response, chaos testing</td><td>Reliability as a discipline</td></tr>
-              <tr><td><strong>FinOps</strong></td><td>Cost allocation, showback, commitments strategy</td><td>Cost as an engineering practice</td></tr>
+              <tr><td><strong>Fewer servers to run</strong></td><td>ECS on Fargate, App Runner, Lambda</td><td>Run your containers without managing servers yourself. This is the natural next step after Lesson 9</td></tr>
+              <tr><td><strong>Bigger orchestration</strong></td><td>Kubernetes (EKS)</td><td>Kubernetes is a system that runs and manages many containers across many servers. Use it when you have many services and teams. Expect real operating work</td></tr>
+              <tr><td><strong>Better infra code</strong></td><td>Terraform modules and testing, AWS CDK, Pulumi</td><td>Reuse code and stay safe at scale (AWS CDK and Pulumi let you write infrastructure in a normal programming language)</td></tr>
+              <tr><td><strong>Multi-account</strong></td><td>AWS Organizations, Control Tower, SCPs, IAM Identity Center for all</td><td>Keep environments apart and limit the damage of one mistake (SCPs are rules that cap what every account may do)</td></tr>
+              <tr><td><strong>Deeper data</strong></td><td>Aurora, read replicas, DynamoDB, OpenSearch, data pipelines</td><td>For when one Postgres instance is no longer enough</td></tr>
+              <tr><td><strong>Better operations</strong></td><td>OpenTelemetry, SLOs, incident response, chaos testing</td><td>Treat reliability as a skill of its own (SLO = a target for how reliable the service must be; chaos testing = breaking things on purpose to learn)</td></tr>
+              <tr><td><strong>FinOps</strong></td><td>Cost allocation, showback (showing each team its own costs), commitment strategy</td><td>Treat cost as an engineering practice (FinOps = managing cloud money well)</td></tr>
               <tr><td><strong>Credentials</strong></td><td>AWS Solutions Architect Associate, then Professional or DevOps Engineer</td><td>A structured path through the rest of the platform</td></tr>
             </tbody>
           </table>
         </div>
         <p>
-          <strong>If you are early in your career:</strong> repeat the series once from an empty account
-          with Terraform only, and destroy it at the end. Doing it twice is what turns understanding into
-          skill. <strong>If you have several years behind you:</strong> concentrate on the judgement this
-          series tried to teach — what not to build, where the failure modes are, how to measure, how to
-          say &ldquo;not yet&rdquo; to a component — because that, not the console clicks, is what
-          seniority looks like.
+          <strong>If you are early in your career:</strong> do the series again from an empty account,
+          using only Terraform, and destroy everything at the end. Doing it twice turns understanding
+          into skill. <strong>If you have several years of experience:</strong> focus on the judgement
+          this series tried to teach. That means what not to build, where things can fail, how to
+          measure, and how to say &ldquo;not yet&rdquo; to a new component. This judgement, not the
+          console clicks, is what seniority looks like.
         </p>
 
         <h2 id="recap">The whole course in twenty sentences</h2>
@@ -648,8 +694,8 @@ Add per-tenant variable costs:
 
         <h2 id="interview">Interview corner</h2>
         <p>
-          The last set is the kind of open, whole-system question that senior interviews revolve around.
-          Answer aloud, in a structured way, before opening.
+          These last questions are open questions about a whole system. Senior interviews are often
+          built around them. Answer aloud, in a clear order, before you open the answer.
         </p>
         <InterviewQA
           items={[
@@ -658,28 +704,29 @@ Add per-tenant variable costs:
               a: (
                 <>
                   <p>
-                    <strong>Edge:</strong> Route 53 (wildcard alias for tenant subdomains) → CloudFront for
+                    <strong>Edge:</strong> Route 53 (a wildcard alias sends every tenant subdomain, like acme.yourapp.com, to the same place) → CloudFront for
                     assets and cacheable content, TLS via ACM.
                   </p>
                   <p>
                     <strong>Compute:</strong> ALB across two AZs → Auto Scaling group of stateless
-                    containerised app servers (min 2, target-tracking on CPU or requests), rolled with instance
+                    containerised app servers (at least 2 servers; target tracking adds or removes servers to keep CPU or requests per server near a target), rolled with instance
                     refresh from a CI/CD pipeline using OIDC.
                   </p>
                   <p>
                     <strong>Data:</strong> RDS PostgreSQL in private subnets (Multi-AZ when revenue justifies
-                    it), tenant isolation in queries/RLS; S3 with tenant-prefixed keys and presigned uploads;
+                    it), tenant isolation in queries or with RLS (row-level security, a PostgreSQL feature that hides other tenants&apos; rows); S3 with tenant-prefixed keys and presigned uploads;
                     ElastiCache for sessions, cache and rate limits.
                   </p>
                   <p>
                     <strong>Operate:</strong> Terraform, CloudWatch alarms on golden signals, structured tenant-tagged
-                    logs, backups with a tested restore, GuardDuty/CloudTrail, least-privilege IAM. Size it by
-                    converting users to requests per second and load testing; check DB connections at max
+                    logs, backups with a tested restore, GuardDuty/CloudTrail, least-privilege IAM. Work out the size by
+                    turning users into requests per second, then load test it; check DB connections at max
                     scale.
                   </p>
                   <p className="mb-0">
-                    <strong>Trade-offs to name:</strong> ALB tier cost vs a single server early, single-region
-                    risk, and operating burden vs a platform.
+                    <strong>Trade-offs to name:</strong> the extra cost of the load balancer tier compared with a
+                    single server at the start, the risk of one Region, and the work of running it yourself
+                    compared with a platform.
                   </p>
                 </>
               ),
@@ -691,7 +738,7 @@ Add per-tenant variable costs:
                   Cost Explorer grouped by service, then usage type, at daily granularity to find the day it
                   changed; compare with deploys and changes. Common culprits: NAT or data-transfer charges,
                   log ingestion, a new instance or load balancer, a forgotten environment, an unexpected
-                  region (check all regions). Use cost allocation tags to attribute it, Cost Anomaly Detection
+                  region (check all Regions). Use cost allocation tags to attribute it, Cost Anomaly Detection
                   to confirm, fix the cause, and add a budget or anomaly alert so it is caught sooner next time.
                 </p>
               ),
@@ -711,10 +758,10 @@ Add per-tenant variable costs:
               q: "What is your strategy if the whole region fails?",
               a: (
                 <p className="mb-0">
-                  Decide the RTO/RPO first. Baseline: infrastructure in Terraform so it can be recreated in
+                  Decide the RTO and RPO first. (RTO is how long you can be down. RPO is how much recent data you can lose.) Baseline: infrastructure in Terraform so it can be recreated in
                   another region, cross-region copies of RDS snapshots and S3 replication, DNS control in
-                  Route 53, and a rehearsed runbook. Warm-standby or active-active shrink recovery time but
-                  cost far more and add data-consistency complexity; choose by business need.
+                  Route 53, and a rehearsed runbook. Warm standby (a small copy always running in a second Region) or active-active makes recovery faster.
+                  It costs much more and makes keeping data consistent harder. Choose by business need.
                 </p>
               ),
             },
@@ -763,11 +810,12 @@ Add per-tenant variable costs:
             recover with the rollback workflow. Record the time to recover.
           </li>
           <li>
-            <strong>Run a game day</strong>: kill a server under load, stop Redis, fill a disk, revoke a
-            key. For each, write what alarm fired (or failed to) and how long detection took.
+            <strong>Run a game day</strong> (a planned practice session where you break things on
+            purpose): kill a server under load, stop Redis, fill a disk, revoke a key. For each one,
+            write down which alarm fired (or failed to) and how long it took to notice.
           </li>
           <li>
-            <strong>Do the restore drill</strong> and write down your measured RTO and RPO.
+            <strong>Do the restore drill</strong> and write down the RTO and RPO you measured.
           </li>
           <li>
             <strong>Price it</strong> with the AWS Pricing Calculator, compare with your actual first-week
@@ -784,14 +832,14 @@ Add per-tenant variable costs:
 
         <h2 id="teardown">Tear it all down safely</h2>
         <p>
-          When you are finished practising, remove everything so nothing bills while you are not looking.
-          In order:
+          When you finish practising, remove everything so that nothing bills while you are not
+          looking. Follow this order:
         </p>
         <ol className="steps">
           <li>
             <h3>Export anything you want to keep</h3>
             <p>
-              Your notes, the Terraform code (in Git), a snapshot you still want. Once deleted, it is gone.
+              Keep your notes, the Terraform code (in Git) and any snapshot you still want. After you delete something, it is gone.
             </p>
           </li>
           <li>
@@ -807,10 +855,10 @@ Add per-tenant variable costs:
           <li>
             <h3>Delete what you made by hand</h3>
             <ul>
-              <li>S3 buckets: empty them <em>including old versions</em>, then delete. Also the CloudTrail and state buckets last.</li>
+              <li>S3 buckets: empty them <em>including old versions</em>, then delete them. Delete the CloudTrail and Terraform state buckets last.</li>
               <li>ECR repositories and their images; CloudWatch log groups.</li>
               <li>RDS manual snapshots, EBS snapshots and cross-region copies.</li>
-              <li>The Route 53 hosted zone (it bills $0.50 a month while it exists) and any domain you no longer want, which auto-renews unless turned off.</li>
+              <li>The Route 53 hosted zone (it bills $0.50 a month while it exists) and any domain you no longer want (a domain renews by itself unless you turn that off).</li>
               <li>IAM roles, policies, users, the OIDC provider and access keys created for the exercise.</li>
               <li>GuardDuty detector, AWS Config recorder, CloudFront distributions (disable first, then delete).</li>
             </ul>
@@ -818,8 +866,8 @@ Add per-tenant variable costs:
           <li>
             <h3>Run the orphan sweep in every region, and check the bill tomorrow</h3>
             <p>
-              Use the sweep commands above, then look at Cost Explorer the next day and again in a week. Keep
-              the billing alert from Lesson 5 forever: it is free, and it is the smoke detector for the day
+              Use the orphan sweep table above. Then look at Cost Explorer the next day and again after a
+              week. Keep the billing alert from Lesson 5 for good. It is free, and it warns you on the day
               you forget something.
             </p>
           </li>
@@ -827,9 +875,9 @@ Add per-tenant variable costs:
 
         <h2 id="conclusion">Conclusion</h2>
         <p>
-          You started this series knowing how to <code>git push</code>. You can now design, build, secure,
-          observe, price and rebuild a production system, and — more importantly — explain <em>why</em>{" "}
-          every piece is there and what happens when it breaks.
+          You started this series knowing how to <code>git push</code>. Now you can design, build,
+          secure, watch, price and rebuild a production system. More importantly, you can explain{" "}
+          <em>why</em> every piece is there and what happens when it breaks.
         </p>
         <ul>
           <li>
@@ -853,9 +901,10 @@ Add per-tenant variable costs:
           </li>
         </ul>
         <p>
-          Servers, networks, databases and pipelines are just tools. The lasting skill is the mindset
-          behind them: understand the layer beneath, automate what you have done by hand, assume things
-          fail, and measure before you decide. Go build something, and destroy it, and build it again.
+          Servers, networks, databases and pipelines are only tools. The lasting skill is the way of
+          thinking behind them. Understand the layer below you. Automate what you have done by hand.
+          Expect things to fail. Measure before you decide. Go and build something, destroy it, and
+          build it again.
         </p>
 
         <hr />

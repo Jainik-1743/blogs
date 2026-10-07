@@ -26,11 +26,11 @@ const outline = [
 const ladder = [
   {
     title: "Vercel / Railway / Render",
-    desc: "Managed PaaS. Zero setup. You only push code, they run everything.",
+    desc: "Managed PaaS (a service that runs your app for you). Almost no setup. You push code and they run everything.",
   },
   {
     title: "Dokploy / Coolify / CapRover",
-    desc: "Self-hosted PaaS. Same easy experience, but installed on your own server.",
+    desc: "Self-hosted PaaS. The same easy experience, but you install it on your own server.",
   },
   {
     title: "Raw AWS (this course)",
@@ -38,7 +38,7 @@ const ladder = [
   },
   {
     title: "Kubernetes / ECS",
-    desc: "Container orchestration for very large scale and big teams.",
+    desc: "Container orchestration (software that runs and manages many containers) for very large systems and big teams.",
   },
 ];
 
@@ -63,8 +63,9 @@ export default function HostingPlatformsPage() {
           {reading.title}
         </h1>
         <p className="max-w-[60ch] text-[1.15rem] text-ink-dim">
-          Vercel, Railway, Render, Dokploy, Coolify, AWS, Kubernetes — where each one fits, what it
-          can and cannot do, and why the choice depends on one simple idea: stateless or persistent.
+          Vercel, Railway, Render, Dokploy, Coolify, AWS and Kubernetes. See where each one fits and
+          what it can and cannot do. The choice depends on one simple idea: stateless or
+          persistent.
         </p>
       </header>
 
@@ -86,9 +87,9 @@ export default function HostingPlatformsPage() {
       <div className="lesson">
         <h2 id="ladder">The hosting ladder</h2>
         <p>
-          All hosting options sit on one single ladder. As you go down this ladder, your{" "}
-          <strong>control increases</strong>, but your <strong>setup responsibility also
-          increases</strong>. And generally, the cost at large scale goes down.
+          All hosting options sit on one ladder. As you go down the ladder, your{" "}
+          <strong>control grows</strong>, and so does your <strong>responsibility for setup</strong>.
+          At large scale, the cost usually goes down as well.
         </p>
         <FlowChain nodes={ladder} />
         <div className="-mt-3 mb-6 flex justify-between font-mono text-[0.75rem] text-ink-dim">
@@ -100,82 +101,104 @@ export default function HostingPlatformsPage() {
 
         <h3>1. Vercel</h3>
         <p>
-          Built mainly for frontend and Next.js. You push to GitHub, it builds and deploys
-          automatically, gives free HTTPS and a global CDN. Really excellent developer experience.
+          Vercel is built mainly for frontend code and for Next.js (a framework for building React
+          websites that can also run backend code). You push to GitHub, and it builds and
+          deploys your app automatically. It gives you free HTTPS and a global CDN (a network of
+          servers around the world that keep copies of your files close to users). The developer
+          experience is excellent.
         </p>
         <p>
-          One important point people get wrong: <strong>Vercel can run backend code.</strong>{" "}
-          Next.js API routes run as serverless functions. So &ldquo;Vercel is frontend only&rdquo;
-          is not fully correct.
+          Many people get one point wrong: <strong>Vercel can run backend code.</strong> Next.js API
+          routes run as serverless functions. A serverless function is a small piece of backend code
+          that the platform starts when a request arrives and stops afterwards. So &ldquo;Vercel is
+          frontend only&rdquo; is not correct.
         </p>
-        <p>What Vercel genuinely cannot do:</p>
+        <p>Where Vercel is a poor fit:</p>
         <ul>
           <li>
-            Long-running work — functions have a time limit (10 seconds on free plan, up to 60
-            seconds on paid). Heavy PDF generation or long calculation will fail in between.
+            Long-running work. Every function has a time limit. The default is short, and the
+            maximum depends on your plan and settings. The maximum is minutes, not hours. A heavy PDF
+            job or a long calculation can be stopped half way. Check the current limits in
+            Vercel&apos;s documentation.
           </li>
-          <li>WebSockets and always-open connections.</li>
-          <li>Background jobs and scheduled workers that keep running.</li>
-          <li>PHP, Python (Django), Laravel — no support for these runtimes.</li>
+          <li>
+            WebSockets and other always-open connections. A WebSocket is a connection that stays
+            open so the server and the browser can send messages to each other at any time. Vercel
+            now has some WebSocket support, but a normal always-on server is simpler for this.
+          </li>
+          <li>
+            Background workers that keep running all the time. Vercel can run short background
+            tasks and scheduled jobs (cron jobs, which are tasks that run at set times). It does not run a worker that never stops.
+          </li>
+          <li>
+            Some languages and frameworks. Python works. PHP and Laravel are not officially
+            supported. Only a community runtime exists for PHP.
+          </li>
         </ul>
         <TimeLimitBars />
 
         <h3>2. Railway and Render</h3>
         <p>
-          Also managed PaaS, but designed for full-stack applications, not only frontend. They run
-          a <strong>real always-on server process</strong> for you, and give managed PostgreSQL and
-          Redis as add-ons.
+          These are also managed PaaS, but they are made for full-stack applications, not only
+          frontend. They run a <strong>real always-on server process</strong> for you. A process is
+          a running program. They also offer managed PostgreSQL and Redis as add-ons (a managed
+          database is one that the provider runs and backs up for you).
         </p>
         <p>
-          Pricing is based on usage (compute hours plus resources). For a long-running Node.js
-          backend this usually comes cheaper than Vercel. Setup remains very easy — but you still
-          do not own or control the underlying machine.
+          The price is based on usage, which means compute hours plus resources. For a long-running
+          Node.js backend this is often cheaper than Vercel. Setup stays very easy. But you still do
+          not own or control the machine underneath.
         </p>
         <Callout kind="ok" label="Good fit when">
           <p className="mb-0">
-            You want to launch fast, you need a real backend with background jobs, and you do not
-            want to learn servers right now.
+            You want to launch fast and you need a real backend with background jobs. You do not
+            want to learn about servers right now.
           </p>
         </Callout>
 
         <h3>3. Dokploy, Coolify, CapRover</h3>
         <p>
-          These are different in nature, not just different in level. These are{" "}
-          <strong>self-hosted PaaS software</strong> — open source tools that give you a Vercel-like
-          experience (git push, auto build, auto deploy, automatic SSL), but <em>you</em> install
-          them on your own server. That server can be an AWS EC2 instance, a Hostinger VPS, a
-          DigitalOcean droplet — anything running Linux.
+          These are a different kind of thing, not just another step on the ladder. They are{" "}
+          <strong>self-hosted PaaS software</strong>. Self-hosted means you run it yourself. They
+          are open-source tools that give you an experience like Vercel: git push, automatic build,
+          automatic deploy and automatic SSL (HTTPS certificates). But <em>you</em> install them on
+          your own server. The server can be an AWS EC2 instance, a Hostinger VPS (a rented virtual
+          server) or a DigitalOcean droplet (DigitalOcean&apos;s name for a rented virtual server). Any server that runs Linux will do.
         </p>
         <p>
-          So Dokploy is not a hosting company. It is a dashboard that you run on infrastructure you
-          already own.
+          So Dokploy is not a hosting company. It is a dashboard that you run on servers you
+          already have.
         </p>
         <Callout kind="note" label="Key insight">
           <p className="mb-0">
-            Dokploy needs exactly the things this course teaches — a Linux server, networking, DNS,
-            HTTPS and Docker. If you learn raw AWS first, then Dokploy becomes very easy later,
-            because it is just software installed on an EC2 box you already know how to secure and
-            debug.
+            Dokploy needs exactly what this course teaches: a Linux server, networking, DNS (the
+            system that turns a domain name into a server address), HTTPS (web traffic encrypted
+            with a certificate) and Docker (a tool that packs an app into a container). If you learn raw AWS first, Dokploy is easy later. It is only software
+            installed on an EC2 server that you already know how to secure and debug.
           </p>
         </Callout>
 
         <h3>4. Raw AWS</h3>
         <p>
-          Maximum flexibility. Your frontend can go on S3 plus CloudFront (fast and cheap), while
-          your backend runs on EC2. Or in the beginning, run both together on one single EC2
-          instance — simpler, and that is exactly what we build first in this course.
+          Raw AWS gives you the most flexibility. You can put your frontend on S3 plus CloudFront
+          (S3 stores the files and CloudFront delivers them fast and cheaply). Your backend runs on
+          EC2, which is a virtual server. At the start you can also run both on one single EC2
+          server. That is simpler, and it is what we build first in this course.
         </p>
         <p>
-          Cost is mostly fixed per resource, not per request. Around{" "}
-          <strong>$15 to $25 per month</strong> for a small EC2 plus small RDS, whether you have 10
-          users or 500.
+          The cost is mostly fixed for each resource, not for each request. A small EC2 server plus a
+          small RDS database costs roughly <strong>$15 to $25 per month</strong>, whether you have
+          10 users or 500. (RDS is a database that AWS runs for you. Prices change by region, so
+          check the current price list.)
         </p>
 
         <h3>5. Kubernetes and ECS</h3>
         <p>
-          The advanced end. Container orchestration for teams running many services at real scale.
-          Definitely worth knowing that it exists — but not worth learning at this stage. For a new
-          SaaS this is over-engineering.
+          This is the advanced end. Kubernetes and ECS (the AWS container service) start, stop and
+          connect many containers for teams that run many services at large scale. A container is a
+          packaged app that runs the same everywhere. It is good to know these tools exist. But do
+          not learn them yet. For a new SaaS (a product sold as an online subscription) they are
+          too much.
         </p>
 
         <h2 id="who-runs-what">Which platform runs what</h2>
@@ -194,9 +217,9 @@ export default function HostingPlatformsPage() {
               <tr>
                 <td><strong>Vercel</strong></td>
                 <td className={yes}>Excellent</td>
-                <td>Serverless only</td>
-                <td className={no}>No</td>
-                <td>No long-running or always-on processes</td>
+                <td>Serverless functions</td>
+                <td className={no}>Not officially</td>
+                <td>No always-on server process. Functions have time limits</td>
               </tr>
               <tr>
                 <td><strong>Railway / Render</strong></td>
@@ -210,52 +233,52 @@ export default function HostingPlatformsPage() {
                 <td className={yes}>Yes</td>
                 <td className={yes}>Yes</td>
                 <td className={yes}>Yes</td>
-                <td>You configure every single thing yourself</td>
+                <td>You set up every part yourself</td>
               </tr>
               <tr>
                 <td><strong>Dokploy</strong></td>
                 <td className={yes}>Yes</td>
                 <td className={yes}>Yes</td>
                 <td className={yes}>Yes</td>
-                <td>You manage the server underneath it</td>
+                <td>You look after the server underneath it</td>
               </tr>
             </tbody>
           </table>
         </div>
         <p>
-          So if your project is in PHP, Vercel is completely out. Railway, AWS, Dokploy or classic
-          shared PHP hosting are your options.
+          So if your project is in PHP, Vercel is not a good choice. Railway, AWS, Dokploy or
+          classic shared PHP hosting are better options.
         </p>
 
         <h2 id="stateless-vs-persistent">The real deciding factor: stateless vs persistent</h2>
         <p>
-          People usually think the question is &ldquo;frontend or backend&rdquo;. That is not the
+          People often think the question is &ldquo;frontend or backend&rdquo;. That is not the
           real question. The real question is <strong>stateless or persistent</strong>.
         </p>
         <div className="my-6 grid gap-4 sm:grid-cols-2">
           <div className="rounded-xl border border-line bg-bg-elev px-5 py-4">
             <h3 className="mt-0">Stateless</h3>
             <p className="mb-0 text-[0.95rem] text-ink-dim">
-              The server has no memory of anything from before this exact request. Every request is
-              handled fresh, in isolation, and whatever happened during it disappears the moment it
-              is answered.
+              The server remembers nothing from before this request. Each request is handled on its
+              own, from a clean start. Anything that happened during it is gone once the answer is
+              sent.
             </p>
           </div>
           <div className="rounded-xl border border-line bg-bg-elev px-5 py-4">
             <h3 className="mt-0">Persistent</h3>
             <p className="mb-0 text-[0.95rem] text-ink-dim">
-              The server is one continuously running process. It can hold things in memory — a
-              variable, a cache, an open connection — and that memory stays across many requests.
+              The server is one process that keeps running. It can hold things in memory, such as a
+              variable, a cache or an open connection. That memory stays across many requests.
             </p>
           </div>
         </div>
 
         <Callout kind="note" label="Simple analogy">
           <p className="mb-0">
-            Stateless is like a food truck that packs up and drives away after every single
-            customer, and a fresh truck comes for the next customer — it has no idea what the
-            previous person ordered. Persistent is like a restaurant that stays open the whole day —
-            same kitchen, same staff, remembers what is cooking, keeps a running account.
+            Stateless is like a food truck that drives away after every customer. A fresh truck
+            comes for the next customer and has no idea what the last person ordered. Persistent is
+            like a restaurant that stays open all day. It has the same kitchen and the same staff. It
+            knows what is cooking and keeps a running bill.
           </p>
         </Callout>
 
@@ -266,12 +289,12 @@ export default function HostingPlatformsPage() {
           <div className="rounded-xl border border-line bg-bg-elev px-5 py-4">
             <h3 className="mt-0">On Vercel (stateless)</h3>
             <p className="text-[0.95rem] text-ink-dim">
-              Each request may run on a different isolated instance, so this counter can reset to 0
-              at any time.
+              Each request may run on a different, separate instance of your code. So this counter
+              can go back to 0 at any time.
             </p>
             <pre className="my-0">
               <code>{`// pages/api/counter.js
-let counter = 0;   // unreliable
+let counter = 0;   // not reliable
 
 export default function handler(req, res) {
   counter++;
@@ -282,10 +305,10 @@ export default function handler(req, res) {
           <div className="rounded-xl border border-line bg-bg-elev px-5 py-4">
             <h3 className="mt-0">On EC2 or Railway (persistent)</h3>
             <p className="text-[0.95rem] text-ink-dim">
-              Same process answers every request, so the counter genuinely increases every time.
+              The same process answers every request, so the counter really does go up every time.
             </p>
             <pre className="my-0">
-              <code>{`// server.js — runs 24/7
+              <code>{`// server.js — runs all the time
 let counter = 0;   // reliable
 
 app.get('/counter', (req, res) => {
@@ -298,37 +321,38 @@ app.get('/counter', (req, res) => {
 
         <Callout kind="warn" label="The rule to remember">
           <p className="mb-0">
-            On a stateless platform you must never keep real state in a variable. Always put it in
-            a database or in Redis. On a persistent server you get the choice — and that choice is
-            exactly why we learn EC2.
+            On a stateless platform, never keep important data (state) in a variable. Always save
+            it in a database or in Redis (a fast in-memory store). On a persistent server you can
+            choose. That choice is why we learn EC2. Even on a persistent server, remember this: if
+            you run more than one server, a variable in one server is not seen by the others.
           </p>
         </Callout>
 
         <h2 id="how-to-choose">How to choose, practically</h2>
         <ul>
           <li>
-            <strong>Only frontend, or small API routes with quick database queries?</strong> Vercel
-            is perfectly fine. Do not over-engineer.
+            <strong>Only a frontend, or small API routes with quick database queries?</strong>{" "}
+            Vercel is fine. Keep it simple.
           </li>
           <li>
-            <strong>Need background jobs, PDF generation, WebSockets, or a PHP runtime?</strong> You
-            need a persistent server — Railway, Dokploy or AWS.
+            <strong>Need long background jobs, PDF generation, WebSockets or PHP?</strong> A
+            persistent server is the easier choice: Railway, Dokploy or AWS.
           </li>
           <li>
-            <strong>Want to launch fast without learning servers today?</strong> Railway. Migrate
-            later when you have paying customers.
+            <strong>Want to launch fast without learning servers today?</strong> Use Railway. Move
+            later, when you have paying customers.
           </li>
           <li>
-            <strong>Want full control and lowest cost at scale?</strong> Raw AWS — and that is what
-            this course builds, step by step.
+            <strong>Want full control and the lowest cost at scale?</strong> Use raw AWS. This course
+            builds it step by step.
           </li>
         </ul>
         <p>
-          Many solo SaaS builders actually launch on Railway or self-hosted Dokploy first, because
-          shipping fast matters more in the beginning, and then move to raw AWS once real users and
-          real scale arrive. This course gives you the raw AWS foundation either way — because it is
-          the skill that turns every option above it, including Dokploy, into something you can set
-          up, secure and debug yourself instead of guessing.
+          Many solo SaaS builders launch first on Railway or on self-hosted Dokploy. Launching fast
+          matters more at the start. Later, when real users and real scale arrive, they move to raw
+          AWS. This course gives you the raw AWS foundation in both cases. It is the skill that lets
+          you set up, secure and debug every option above it, including Dokploy, instead of
+          guessing.
         </p>
 
         <hr />
