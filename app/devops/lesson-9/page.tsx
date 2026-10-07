@@ -37,33 +37,33 @@ const outline = [
 ];
 
 const words: [string, string, string][] = [
-  ["Image", "A frozen, read-only package: your code + Node + libraries + settings. Built once.", "A recipe card plus all the ingredients, sealed in a box"],
-  ["Container", "A running instance of an image. Start ten from one image, get ten identical processes.", "A dish cooked from that box"],
-  ["Registry", "A server that stores images so other machines can download them.", "The warehouse: Docker Hub, GitHub Container Registry, AWS ECR"],
-  ["Dockerfile", "The text file of instructions to build an image.", "The recipe"],
-  ["Volume", "A folder that lives outside the container and survives it being deleted.", "A fridge the dish cannot throw away"],
+  ["Image", "A read-only package that holds your code, Node, libraries and settings. You build it once and it never changes.", "A recipe card plus all the ingredients, sealed in a box"],
+  ["Container", "A running copy of an image. Start ten containers from one image and you get ten identical running programs.", "A dish cooked from that box"],
+  ["Registry", "A server that stores images, so that other machines can download them.", "The warehouse: Docker Hub, GitHub Container Registry, AWS ECR"],
+  ["Dockerfile", "A text file with the steps to build an image.", "The recipe"],
+  ["Volume", "A folder that lives outside the container, so the data stays even if the container is deleted.", "A fridge that stays when the dish is thrown away"],
 ];
 
 const vs: [string, string, string][] = [
-  ["Contains", "Your app + its libraries", "A whole operating system + your app"],
+  ["Contains", "Your app and its libraries", "A whole operating system and your app"],
   ["Size", "Tens to hundreds of MB", "Gigabytes"],
   ["Starts in", "Under a second", "Tens of seconds to minutes"],
-  ["Isolation", "Shares the host’s kernel; process-level walls", "Own kernel; hardware-level walls"],
-  ["Density", "Dozens per machine", "A handful per machine"],
+  ["Isolation", "Shares the host’s kernel (the core of the operating system). Walls are at process level", "Has its own kernel. Walls are at hardware level"],
+  ["Density", "Dozens per machine", "A few per machine"],
   ["An EC2 instance is", "—", "A virtual machine. Containers run inside it"],
 ];
 
 const mistakes: [string, string][] = [
-  ["Using the :latest tag in production", "You cannot tell which version is running or roll back. Tag with the Git commit SHA."],
-  ["Running as root inside the container", "A break-out has full power. Add a USER line with a normal user."],
-  ["Copying .env or .git into the image", "Secrets baked into a layer are readable by anyone who pulls it. Use .dockerignore and runtime env."],
+  ["Using the :latest tag in production", "You cannot tell which version is running, and you cannot roll back. Tag with the Git commit SHA (the short ID of a commit)."],
+  ["Running as root inside the container", "If an attacker breaks out, they have full power. Add a USER line with a normal user."],
+  ["Copying .env or .git into the image", "Secrets inside a layer can be read by anyone who pulls the image. Use .dockerignore and pass variables at run time."],
   ["COPY . . before npm install", "Every code change reinstalls all dependencies. Copy the lockfile first."],
-  ["Storing uploads or databases inside the container", "It is deleted with the container. Use volumes, S3 or RDS."],
-  ["One giant image with Node, build tools and source", "Slow, large and exposes more. Use a multi-stage build."],
+  ["Storing uploads or databases inside the container", "They are deleted with the container. Use volumes, S3 or RDS."],
+  ["One giant image with Node, build tools and source", "It is slow, large and has more to attack. Use a multi-stage build."],
   ["Forgetting the restart policy", "A crash or a reboot leaves the site down. Use --restart unless-stopped."],
-  ["Binding the app to 127.0.0.1 inside the container", "Nothing outside can connect. Bind to 0.0.0.0."],
-  ["Using localhost as the database host in Compose", "localhost inside a container is the container itself. Use the service name."],
-  ["Never pruning", "Old images fill the 20 GB disk. docker system prune on a schedule."],
+  ["Binding the app to 127.0.0.1 inside the container", "Nothing outside the container can connect. Bind to 0.0.0.0."],
+  ["Using localhost as the database host in Compose", "Inside a container, localhost means the container itself. Use the service name."],
+  ["Never pruning", "Old images fill the 20 GB disk. Run docker system prune on a schedule."],
 ];
 
 export default function LessonNinePage() {
@@ -74,48 +74,50 @@ export default function LessonNinePage() {
       <div className="lesson">
         <h2 id="concept">Concept</h2>
         <p>
-          <strong>Docker</strong> packages your application together with everything it needs to run
-          — the exact Node version, the libraries, the system tools, the start command — into a
-          single <strong>image</strong>. Any computer with Docker can run that image and get{" "}
-          <strong>exactly the same behaviour</strong>: your laptop, your teammate&apos;s Windows PC,
-          a CI server, an EC2 instance.
+          <strong>Docker</strong> is a tool that packs your application and everything it needs
+          into one package called an <strong>image</strong>. That includes the exact Node version,
+          the libraries, the system tools and the start command. Any computer with Docker can run
+          the image and get <strong>exactly the same behaviour</strong>. This works on your laptop,
+          your teammate&apos;s Windows PC, a CI server (a machine that builds and tests your code
+          automatically) and an EC2 instance.
         </p>
         <Callout kind="note" label="The analogy — the shipping container">
           <p className="mb-0">
-            Before standard shipping containers, every cargo was loaded differently for every ship
-            and port. Then the industry agreed on one box: any crane, ship or truck can move it
-            without caring what is inside. Docker is that box for software. The server does not care
-            whether the app inside is Node, Python or Java — it just runs the box.
+            Before standard shipping containers, every cargo was loaded in a different way for
+            every ship and port. Then the industry agreed on one standard box. Any crane, ship or
+            truck can move it without knowing what is inside. Docker is that box for software. The
+            server does not care whether the app inside is Node, Python or Java. It just runs the
+            box.
           </p>
         </Callout>
 
         <h2 id="why-this-matters">Why this matters</h2>
         <p>
-          In Lesson 7 you set up a server by hand: install Node, clone, build, PM2. It worked — but
-          look at what you created: <strong>a server that only you know how to rebuild</strong>.
+          In Lesson 7 you set up a server by hand: install Node, clone, build, PM2. It worked. But
+          look at what you made: <strong>a server that only you know how to rebuild</strong>.
         </p>
         <ul>
           <li>
-            <strong>&ldquo;Works on my machine.&rdquo;</strong> Your laptop has Node 22.3, the
-            server has 22.11, and a native module behaves differently. Docker removes the
-            difference: the same image everywhere.
+            <strong>&ldquo;Works on my machine.&rdquo;</strong> Your laptop has Node 22.3 and the
+            server has 22.11, so a native module (code written in C or C++ that Node loads) behaves
+            differently. Docker removes the difference: the same image runs everywhere.
           </li>
           <li>
-            <strong>Slow, error-prone setup.</strong> A new server means repeating 20 manual steps.
-            With Docker the steps are written once, in the Dockerfile.
+            <strong>Slow setup with many mistakes.</strong> A new server means repeating 20 manual
+            steps. With Docker you write the steps once, in the Dockerfile.
           </li>
           <li>
             <strong>Auto Scaling needs it.</strong> Lesson 12 creates servers automatically when
-            traffic rises. A fresh server must become ready with zero human steps — &ldquo;install
-            Docker, pull image, run&rdquo; is three commands.
+            traffic grows. A new server must be ready with no human steps. &ldquo;Install Docker,
+            pull the image, run it&rdquo; is only three commands.
           </li>
           <li>
-            <strong>Easy rollback.</strong> Every release is an image with a version. Rolling back
-            is running the previous tag.
+            <strong>Easy rollback.</strong> Every release is an image with a version. To roll back
+            (go back to the old version), you run the previous tag.
           </li>
           <li>
-            <strong>Build once, ship the artefact.</strong> The build happens in CI, not on the
-            production server that is trying to serve customers.
+            <strong>Build once, ship the result.</strong> The build happens in CI, not on the
+            production server that is busy serving customers.
           </li>
         </ul>
         <DeployPipeline />
@@ -142,16 +144,23 @@ export default function LessonNinePage() {
           </table>
         </div>
         <p>
-          The relationship, the one to burn in: <strong>Dockerfile → (build) → Image → (run) →
-          Container</strong>. And images travel between machines through a registry: build once,{" "}
-          <em>push</em>, then <em>pull</em> anywhere.
+          Remember this chain: <strong>Dockerfile → (build) → Image → (run) → Container</strong>.
+          In one line: an image is the frozen package, and a container is that package running.
+          Images move between machines through a registry. Build once, <em>push</em> the image to
+          the registry, then <em>pull</em> it on any machine.
+        </p>
+        <p>
+          A <strong>tag</strong> is a label on an image, such as <code>myapp:1.0.0</code>. The part
+          before the colon is the name, and the part after it is the version.
         </p>
 
         <h2 id="vs-vm">Container vs virtual machine</h2>
         <p>
-          Your EC2 instance <em>is</em> a virtual machine: a whole pretend computer with its own
-          operating system. Containers are lighter: they share the host&apos;s operating-system
-          kernel and only isolate the <em>process</em> and its files.
+          A <strong>virtual machine</strong> (VM) is a whole pretend computer, with its own
+          operating system, running on real hardware. Your EC2 instance <em>is</em> a virtual
+          machine. A <strong>container</strong> is lighter. It shares the host&apos;s
+          operating-system kernel and only separates a <em>process</em> and its files from the
+          others.
         </p>
         <div className="table-wrap">
           <table>
@@ -174,34 +183,35 @@ export default function LessonNinePage() {
           </table>
         </div>
         <p>
-          They stack, they do not compete: <strong>containers run on top of EC2</strong>. AWS also
-          offers services that run containers for you (ECS, EKS, App Runner — see Lesson 19), but
-          the skill of writing a good image is identical.
+          They work together, not against each other: <strong>containers run on top of EC2</strong>.
+          AWS also has services that run containers for you (ECS, EKS and App Runner; see Lesson
+          19). Writing a good image is the same skill for all of them.
         </p>
 
         <h2 id="install">Install Docker</h2>
         <h3>On your laptop</h3>
         <p>
-          Install <strong>Docker Desktop</strong> (Mac, Windows) or Docker Engine (Linux). On
-          Windows use the WSL 2 backend from Lesson 1. Then check it works:
+          Install <strong>Docker Desktop</strong> (Mac, Windows) or Docker Engine (Linux). Docker
+          Engine is the background program that builds and runs containers. On Windows, use the
+          WSL 2 backend (Linux inside Windows) from Lesson 1. Then check that it works:
         </p>
         <CommandList
           title="Laptop"
           commands={[
-            { cmd: "docker run hello-world", note: "Downloads a tiny image and runs it. “Hello from Docker!” means everything works end to end" },
+            { cmd: "docker run hello-world", note: "Downloads a tiny image and runs it. The message “Hello from Docker!” means that everything works" },
           ]}
         />
         <h3>On the Ubuntu EC2 server</h3>
         <p>
-          Follow Docker&apos;s own &ldquo;Install Docker Engine on Ubuntu&rdquo; page: it adds
-          Docker&apos;s signed package repository, then installs the engine plus the Compose
-          plugin. Afterwards, add the <code>ubuntu</code> user to the <code>docker</code> group so
-          you don&apos;t need <code>sudo</code> each time, and log out and back in.
+          Follow Docker&apos;s own &ldquo;Install Docker Engine on Ubuntu&rdquo; page. It adds
+          Docker&apos;s signed package source, then installs the engine and the Compose plugin.
+          Afterwards, add the <code>ubuntu</code> user to the <code>docker</code> group, so that
+          you do not need <code>sudo</code> each time. Then log out and log in again.
         </p>
         <Callout kind="warn" label="Membership of the docker group equals root">
           <p className="mb-0">
-            Anyone who can run <code>docker</code> can mount the host&apos;s filesystem and become
-            root. Add only trusted admins to that group, exactly as you would to{" "}
+            Anyone who can run <code>docker</code> can attach the host&apos;s files to a container
+            and become root. Add only trusted admins to that group, as you would for{" "}
             <code>sudo</code> (Lesson 1).
           </p>
         </Callout>
@@ -210,48 +220,52 @@ export default function LessonNinePage() {
         <CommandList
           title="Your first container"
           commands={[
-            { cmd: "docker run -d --name web -p 8080:80 nginx", note: "Download the official nginx image, start it in the background (-d), and map laptop port 8080 → container port 80. Visit http://localhost:8080" },
+            { cmd: "docker run -d --name web -p 8080:80 nginx", note: "Download the official nginx image (nginx is a web server), start it in the background (-d), and connect laptop port 8080 to container port 80. Visit http://localhost:8080" },
           ]}
         />
         <p>
-          From there the verbs are what you would guess: list running containers, follow one
-          container&apos;s logs (that is where app output goes), open a shell inside it, stop it,
-          remove it. Removing a container leaves its image on disk for next time.
+          The other commands are easy to guess. You can list running containers (<code>docker
+          ps</code>), follow a container&apos;s logs (<code>docker logs</code>, where the app&apos;s
+          output goes), open a shell inside it (<code>docker exec -it</code>), stop it (
+          <code>docker stop</code>) and remove it (<code>docker rm</code>). Removing a container
+          keeps its image on disk for next time.
         </p>
         <p>
-          <strong>Port mapping</strong> deserves a sentence, because it confuses everyone once:{" "}
-          <code>-p 8080:80</code> means <em>host port : container port</em>. The container has its
-          own private network; without <code>-p</code>, nothing outside can reach it. The number on
-          the <em>left</em> is the door on your machine that a visitor uses.
+          <strong>Port mapping</strong> confuses everyone at first. <code>-p 8080:80</code> means{" "}
+          <em>host port : container port</em>. The container has its own private network. Without{" "}
+          <code>-p</code>, nothing outside can reach it. The number on the <em>left</em> is the
+          door on your machine that a visitor uses.
         </p>
 
         <h2 id="layers">Layers and the build cache</h2>
         <p>
-          An image is a stack of <strong>layers</strong>, one per Dockerfile instruction. Docker
-          caches each layer and reuses it if the instruction and everything before it are unchanged.
-          This one fact explains most Dockerfile advice.
+          An image is a stack of <strong>layers</strong>. A layer is one saved step of the build.
+          Instructions that change files (<code>RUN</code>, <code>COPY</code>, <code>ADD</code>)
+          each make a layer. Docker keeps each layer in a <strong>cache</strong> (a store of
+          earlier results). It reuses a layer if its instruction and everything before it did not
+          change. This one fact explains most Dockerfile advice.
         </p>
         <Script
           title="The order of instructions decides your build time"
-          code={`# SLOW: any code change invalidates the COPY, so npm install re-runs every time
+          code={`# SLOW: any code change makes the COPY layer new, so npm install runs again every time
 COPY . .
 RUN npm install
 
-# FAST: dependencies change rarely, code changes constantly — put the rarely-changing thing first
+# FAST: dependencies change rarely and code changes often, so put the rarely-changing step first
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile     # cached until the lockfile changes
 COPY . .                               # only this layer rebuilds on a code change`}
         />
         <p>
-          Rule: <strong>put what changes least at the top, what changes most at the bottom.</strong>{" "}
-          A cached rebuild takes seconds; an uncached one takes minutes.
+          Rule: <strong>put what changes least at the top and what changes most at the bottom.</strong>{" "}
+          A rebuild that uses the cache takes seconds. One without the cache takes minutes.
         </p>
 
         <h2 id="dockerfile">A production Dockerfile for Next.js</h2>
         <p>
-          First enable Next.js&apos;s <strong>standalone output</strong>, which traces exactly which
-          files the server needs and copies only those (typically shrinking the image from 1 GB to
-          about 150 MB):
+          First turn on Next.js&apos;s <strong>standalone output</strong>. It finds exactly which
+          files the server needs and copies only those. This can shrink the app files a lot, so
+          the image is often a few hundred MB instead of over 1 GB:
         </p>
         <Script
           title="next.config.ts"
@@ -263,7 +277,11 @@ const nextConfig: NextConfig = {
 
 export default nextConfig;`}
         />
-        <p>Now the Dockerfile — a <strong>multi-stage build</strong>, read top to bottom:</p>
+        <p>
+          Now the Dockerfile. It is a <strong>multi-stage build</strong>: one Dockerfile with
+          several steps (stages), where only the last stage becomes the final image. Read it from
+          top to bottom:
+        </p>
         <Script
           title="Dockerfile"
           code={`# ---------- Stage 1: install dependencies ----------
@@ -310,39 +328,39 @@ CMD ["node", "server.js"]`}
             <tbody>
               <tr>
                 <td><code>FROM node:22-alpine AS deps</code></td>
-                <td>Start from an official image with Node 22 on Alpine Linux (tiny, ~50 MB). <code>AS</code> names the stage so later stages can copy from it. Pin the same major version you use locally.</td>
+                <td>Start from an official image with Node 22 on Alpine Linux (a very small Linux; the whole image is roughly 150 MB on disk). <code>AS</code> gives the stage a name, so later stages can copy from it. Use the same major Node version as on your laptop (Node 24 also works if that is what you use everywhere).</td>
               </tr>
               <tr>
                 <td><code>COPY package.json pnpm-lock.yaml</code> then <code>RUN pnpm install --frozen-lockfile</code></td>
-                <td>The cache trick above. <code>--frozen-lockfile</code> fails instead of silently changing versions.</td>
+                <td>This is the cache trick from above. <code>--frozen-lockfile</code> stops with an error instead of quietly changing package versions.</td>
               </tr>
               <tr>
                 <td>Three <code>FROM</code>s (multi-stage)</td>
-                <td>Each stage is thrown away except the last. Compilers, dev dependencies and source never reach the shipped image: smaller and safer.</td>
+                <td>Every stage is thrown away except the last one. Compilers, dev dependencies and source code never reach the shipped image, so it is smaller and safer.</td>
               </tr>
               <tr>
                 <td><code>ENV HOSTNAME=0.0.0.0</code></td>
-                <td>Makes the server listen on all interfaces. Without it the standalone server can bind to the container&apos;s own loopback and be unreachable.</td>
+                <td>Makes the server listen on all network interfaces. Without it, the standalone server may listen only on the container&apos;s own loopback address (127.0.0.1, which only the container itself can reach), so nothing outside can connect.</td>
               </tr>
               <tr>
                 <td><code>adduser</code> + <code>USER app</code></td>
-                <td>The process runs unprivileged. If someone exploits the app, they are not root in the container.</td>
+                <td>The process runs as a normal user, not as root. If someone breaks into the app, they are not root in the container.</td>
               </tr>
               <tr>
                 <td><code>EXPOSE 3000</code></td>
-                <td>Documentation only. It does <em>not</em> publish the port — <code>-p</code> does.</td>
+                <td>A note for readers only. It does <em>not</em> open the port. Only <code>-p</code> does that.</td>
               </tr>
               <tr>
                 <td><code>CMD [&quot;node&quot;, &quot;server.js&quot;]</code></td>
-                <td>The command that runs when a container starts. The array form runs Node as PID 1 so it receives stop signals properly.</td>
+                <td>The command that runs when a container starts. The array form runs Node directly, without a shell in between. Node becomes PID 1 (the first process in the container), so it receives stop signals from Docker.</td>
               </tr>
             </tbody>
           </table>
         </div>
         <h3>The .dockerignore file — do not skip it</h3>
         <p>
-          <code>COPY . .</code> copies everything in the folder. <code>.dockerignore</code> tells
-          Docker what to leave out. Without it, your <code>.env</code> secrets, your{" "}
+          <code>COPY . .</code> copies everything in the folder. The <code>.dockerignore</code>{" "}
+          file tells Docker what to leave out. Without it, your <code>.env</code> secrets, your{" "}
           <code>.git</code> history and a 1 GB local <code>node_modules</code> go into the build.
         </p>
         <Script
@@ -358,17 +376,17 @@ CMD ["node", "server.js"]`}
         <CommandList
           title="On your laptop"
           commands={[
-            { cmd: "docker build -t myapp:dev .", note: "Build an image named myapp, tag dev, from the Dockerfile here. First build is slow; the cached second one takes seconds. Expect roughly 150–250 MB" },
-            { cmd: "docker run --rm -p 3000:3000 --env-file .env.local myapp:dev", note: "Run it, loading variables at run time. --rm deletes the container on exit. Visit http://localhost:3000" },
+            { cmd: "docker build -t myapp:dev .", note: "Build an image named myapp with the tag dev, from the Dockerfile in this folder. The first build is slow. A second build that uses the cache takes seconds. Expect a few hundred MB" },
+            { cmd: "docker run --rm -p 3000:3000 --env-file .env.local myapp:dev", note: "Run it and load the variables when it starts. --rm deletes the container when it stops. Visit http://localhost:3000" },
           ]}
         />
         <Callout kind="note" label="Build-time vs run-time variables">
           <p className="mb-0">
-            <code>NEXT_PUBLIC_*</code> variables are baked into the JavaScript during{" "}
-            <code>pnpm build</code>, so inside Docker they must be supplied at <em>build</em> time
-            (<code>ARG NEXT_PUBLIC_API_URL</code> then <code>docker build --build-arg …</code>).
-            Everything else (database URL, secrets) is read at <em>run</em> time and must never be in
-            the image.
+            <code>NEXT_PUBLIC_*</code> variables are copied into the JavaScript during{" "}
+            <code>pnpm build</code>. So inside Docker you must give them at <em>build</em> time
+            (<code>ARG NEXT_PUBLIC_API_URL</code>, then <code>docker build --build-arg …</code>).
+            Everything else, such as the database URL and secrets, is read at <em>run</em> time
+            and must never be in the image.
           </p>
         </Callout>
 
@@ -390,7 +408,7 @@ CMD ["node", "server.js"]`}
               </tr>
               <tr>
                 <td>AWS permissions</td>
-                <td>The instance&apos;s IAM role — containers inherit it automatically</td>
+                <td>The instance&apos;s IAM role. Containers use it automatically (see the hop limit note below)</td>
                 <td>Access keys inside the image</td>
               </tr>
               <tr>
@@ -405,7 +423,7 @@ CMD ["node", "server.js"]`}
               </tr>
               <tr>
                 <td>Logs</td>
-                <td>Write to stdout/stderr; Docker and CloudWatch collect them</td>
+                <td>Write to stdout and stderr (the normal output streams); Docker and CloudWatch collect them</td>
                 <td>Log files inside the container</td>
               </tr>
             </tbody>
@@ -413,17 +431,18 @@ CMD ["node", "server.js"]`}
         </div>
         <Callout kind="warn" label="Anything in an image layer is public to whoever can pull it">
           <p className="mb-0">
-            Deleting a secret in a later Dockerfile line does <strong>not</strong> remove it — it
-            still exists in the earlier layer. If a secret ever entered an image, rotate the secret;
-            do not just rebuild.
+            Deleting a secret in a later Dockerfile line does <strong>not</strong> remove it. It
+            still exists in the earlier layer. If a secret ever got into an image, replace the
+            secret with a new one. Do not just rebuild.
           </p>
         </Callout>
 
         <h2 id="compose">Docker Compose — the whole stack in one file</h2>
         <p>
-          Real apps are several containers: the app, a database, later Redis. <strong>Docker
-          Compose</strong> describes them all in one file and starts them with one command. It is
-          the standard tool for local development and for simple single-server setups.
+          Real apps use several containers: the app, a database, and later Redis (a fast in-memory
+          data store). <strong>Docker Compose</strong> is a tool that describes all of them in one
+          file and starts them with one command. It is the standard tool for local development
+          and for simple single-server setups.
         </p>
         <Script
           title="docker-compose.yml — local development"
@@ -444,33 +463,34 @@ volumes:
   pgdata:`}
         />
         <p>
-          <code>docker compose up -d</code> builds and starts everything in the background;{" "}
-          <code>docker compose down</code> stops and removes the containers but keeps the data
-          volume (add <code>-v</code> to delete the data too).
+          <code>docker compose up -d</code> builds and starts everything in the background.{" "}
+          <code>docker compose down</code> stops and removes the containers, but it keeps the data
+          volume. Add <code>-v</code> to delete the data too.
         </p>
         <Callout kind="note" label="Why “db” works as a hostname">
           <p className="mb-0">
-            Compose creates a private network for the project and gives each service a DNS name equal
-            to its service name. From <code>app</code>, the host <code>db</code> resolves to the
-            database container. That is also why <code>localhost</code> would be wrong: inside the{" "}
-            <code>app</code> container, localhost is <code>app</code> itself.
+            Compose creates a private network for the project. Each service gets a DNS name (a
+            name that points to an address) equal to its service name. From <code>app</code>, the
+            name <code>db</code> points to the database container. This is also why{" "}
+            <code>localhost</code> would be wrong. Inside the <code>app</code> container,
+            localhost means <code>app</code> itself.
           </p>
         </Callout>
         <p>
           <strong>In production, do not put the database in Compose.</strong> Use RDS (Lesson 8) and
-          set <code>DATABASE_URL</code> to its endpoint. The dev compose file above mirrors production
-          closely enough to catch mistakes, without the cost.
+          set <code>DATABASE_URL</code> to its endpoint. The dev compose file above is close
+          enough to production to catch mistakes, and it costs nothing.
         </p>
 
         <h2 id="ec2">Run it on EC2</h2>
         <p>
-          Here is where Lesson 7&apos;s twenty manual steps collapse. On the server, once Docker is
-          installed, deploying is <em>pull and run</em>. (We copy the image over by hand this time;
-          the next section uses a registry, which is the real answer.)
+          Here the twenty manual steps of Lesson 7 shrink to a few. Once Docker is installed on the
+          server, deploying means <em>pull and run</em>. (This time we copy the image to the server
+          by hand. The next sections use a registry, which is the proper way.)
         </p>
         <p>
-          Put the production variables in <code>~/myapp.env</code> on the server (set to{" "}
-          <code>600</code>, never in Git, never in the image), then:
+          Put the production variables in <code>~/myapp.env</code> on the server. Set its
+          permissions to <code>600</code>, and never put it in Git or in the image. Then run:
         </p>
         <Script
           title="on the server"
@@ -485,73 +505,76 @@ volumes:
         <p>Each flag earns its place:</p>
         <ul>
           <li>
-            <code>--restart unless-stopped</code> replaces PM2: Docker restarts the container after a
-            crash and after a reboot.
+            <code>--restart unless-stopped</code> replaces PM2. Docker starts the container again
+            after a crash and after a reboot.
           </li>
           <li>
-            <code>-p 127.0.0.1:3000:3000</code> publishes the port <strong>only on the
-            server&apos;s loopback</strong>. Nginx (Lesson 10) reaches it; the internet cannot.
-            Compare that with plain <code>-p 3000:3000</code>, which listens on every interface —
-            and note Docker edits the firewall itself, so it can be reachable even when you thought
-            a rule blocked it.
+            <code>-p 127.0.0.1:3000:3000</code> opens the port <strong>only on the server&apos;s
+            loopback address</strong> (127.0.0.1, which only the server itself can reach). Nginx
+            (Lesson 10) can reach it, and the internet cannot. Plain <code>-p 3000:3000</code>{" "}
+            listens on every interface. Docker also changes the firewall rules by itself, so the
+            port can be open to the world even if you thought a firewall rule blocked it.
           </li>
           <li>
-            <code>--memory 1g</code> caps memory so a leak restarts one container instead of
-            starving the whole server.
+            <code>--memory 1g</code> limits memory. If the app leaks memory, only one container
+            restarts and the whole server does not run out of memory.
           </li>
           <li>
-            <code>--log-opt max-size</code> stops the JSON logs from silently filling the disk — a
-            classic outage.
+            <code>--log-opt max-size</code> stops the JSON log files from quietly filling the disk.
+            This is a common cause of outages.
           </li>
         </ul>
 
         <Callout kind="warn" label="If the container cannot find AWS credentials">
           <p className="mb-0">
-            The instance metadata service (Lesson 7) answers only a limited number of network hops.
-            A container is one hop further than the host, so with the default limit of 1 the AWS SDK
-            inside the container fails with &ldquo;could not load credentials&rdquo; even though the
-            host works. Raise it once to 2, keeping IMDSv2 required: EC2 → your instance → Actions
-            → Instance settings → <strong>Modify instance metadata options</strong>.
+            The instance metadata service (Lesson 7) only answers requests that travel a limited
+            number of network hops (steps between devices). A container is one hop further away
+            than the host. On many instances the hop limit is 1, so the AWS SDK inside the
+            container fails with &ldquo;could not load credentials&rdquo;, even though the host
+            works. (Some images, such as Amazon Linux 2023, already use 2.) Set it to 2 once, and
+            keep IMDSv2 required: EC2 → your instance → Actions → Instance settings →{" "}
+            <strong>Modify instance metadata options</strong>.
           </p>
         </Callout>
 
         <h2 id="ecr">Registries and ECR</h2>
         <p>
-          &ldquo;Copy the image to the server&rdquo; does not scale. A registry is the standard
-          hand-off: CI pushes an image, every server pulls it. AWS&apos;s own is{" "}
-          <strong>ECR</strong> (Elastic Container Registry): private by default, integrated with IAM,
-          and free to pull from inside the same region.
+          &ldquo;Copy the image to the server&rdquo; does not work for many servers. A registry is
+          the standard hand-over point. CI pushes an image, and every server pulls it. AWS&apos;s
+          own registry is <strong>ECR</strong> (Elastic Container Registry). It is private by
+          default, works with IAM, and has no data transfer charge when you pull from inside the
+          same region.
         </p>
-        <p>The flow has three steps, from your laptop or (later) from CI:</p>
+        <p>The flow has three steps. You can do them from your laptop or (later) from CI:</p>
         <ol>
           <li>
-            Create a private repository in ECR named <code>myapp</code>, with{" "}
-            <strong>scan on push</strong> turned on so every image is checked for known
-            vulnerabilities.
+            Create a private repository in ECR named <code>myapp</code>. Turn on{" "}
+            <strong>scan on push</strong>, so every image is checked for known vulnerabilities
+            (security holes that are already public).
           </li>
-          <li>Log Docker in to ECR with a temporary token from the AWS CLI (it lasts 12 hours).</li>
+          <li>Log Docker in to ECR with a temporary token from the AWS CLI. The token lasts 12 hours.</li>
           <li>
-            Build the image, tag it with the Git commit (<code>myapp:a1b2c3d</code>), and push.
+            Build the image, tag it with the Git commit (<code>myapp:a1b2c3d</code>), and push it.
           </li>
         </ol>
         <p>
-          You don&apos;t need to memorise the exact commands: the ECR console&apos;s{" "}
-          <strong>View push commands</strong> button shows them, filled in with your account and
-          region.
+          You do not need to memorise the exact commands. The <strong>View push commands</strong>{" "}
+          button in the ECR console shows them, already filled in with your account and region.
         </p>
         <p>
-          On the server, the <em>role</em> from Lesson 5 needs permission to pull. Attach the AWS
-          managed policy <code>AmazonEC2ContainerRegistryReadOnly</code> to{" "}
-          <code>myapp-ec2-role</code>; the server then logs in and pulls the same way, with no
-          keys — the role is used.
+          On the server, the <em>role</em> from Lesson 5 needs permission to pull images. Attach
+          the AWS-managed policy <code>AmazonEC2ContainerRegistryReadOnly</code> to{" "}
+          <code>myapp-ec2-role</code>. The server then logs in and pulls in the same way, using
+          the role and no keys.
         </p>
         <Callout kind="ok" label="Tag with the commit SHA, never rely on latest">
           <p className="mb-0">
-            <code>myapp:latest</code> is a moving label. Two servers pulling &ldquo;latest&rdquo; an
-            hour apart can run different code, and you can never say what production is running.{" "}
-            <code>myapp:a1b2c3d</code> always points to one exact build, is instantly traceable to a
-            commit, and rollback is running the previous SHA. Add an ECR lifecycle rule to expire
-            old images so storage (about $0.10 per GB-month) does not grow forever.
+            <code>myapp:latest</code> is a label that moves to each new image. Two servers that pull
+            &ldquo;latest&rdquo; an hour apart can run different code, and you can never say what
+            production is running. <code>myapp:a1b2c3d</code> always points to one exact build, you
+            can trace it to one commit, and a rollback means running the previous SHA. Add an ECR
+            lifecycle rule (an automatic cleanup rule) to delete old images, so storage (about
+            $0.10 per GB-month) does not keep growing.
           </p>
         </Callout>
 
@@ -569,27 +592,27 @@ volumes:
               <tr>
                 <td>Container exits immediately</td>
                 <td><code>docker ps -a</code> then <code>docker logs myapp</code></td>
-                <td>Exit code and the last error. Exit 1 = app crashed; 137 = killed for memory</td>
+                <td>The exit code and the last error. Exit 1 means the app crashed. Exit 137 means the container was killed, often because it ran out of memory</td>
               </tr>
               <tr>
                 <td>Cannot reach it from the browser</td>
                 <td><code>docker port myapp</code> and <code>ss -tlnp</code></td>
-                <td>Is the port published? Is the app bound to 0.0.0.0, not 127.0.0.1?</td>
+                <td>Is the port opened with -p? Does the app listen on 0.0.0.0 and not only on 127.0.0.1?</td>
               </tr>
               <tr>
                 <td>Env var missing or wrong</td>
                 <td><code>docker exec myapp env</code></td>
-                <td>The real environment the process sees</td>
+                <td>The real environment variables that the process sees</td>
               </tr>
               <tr>
                 <td>Cannot reach RDS or another service</td>
                 <td><code>docker exec -it myapp sh</code> then <code>wget -qO- host:port</code></td>
-                <td>Test the network from the container&apos;s point of view</td>
+                <td>Test the network from inside the container</td>
               </tr>
               <tr>
                 <td>Disk full</td>
                 <td><code>docker system df</code></td>
-                <td>Images, build cache and container logs. Clean with <code>docker system prune -a</code></td>
+                <td>How much space images, the build cache and container logs use. Clean up with <code>docker system prune -a</code></td>
               </tr>
               <tr>
                 <td>Image too big</td>
@@ -601,10 +624,11 @@ volumes:
         </div>
         <Callout kind="warn" label="docker exec edits do not last">
           <p className="mb-0">
-            If you fix something by shelling into a container, that fix disappears the next time the
-            container is replaced. Containers are disposable. Make the fix in the Dockerfile or the
-            config, rebuild, redeploy. This is the mindset shift from Lesson 7&apos;s pet server to
-            cattle.
+            If you fix something by logging into a container, the fix disappears the next time the
+            container is replaced. Containers are disposable. Make the fix in the Dockerfile or in
+            the config, then rebuild and redeploy. This is a change of thinking. The server in
+            Lesson 7 was like a pet that you care for one by one. Containers are like farm
+            animals: you replace them, you do not repair them.
           </p>
         </Callout>
 
@@ -635,9 +659,9 @@ volumes:
               q: "What is the difference between an image and a container?",
               a: (
                 <p className="mb-0">
-                  An image is an immutable, layered template. A container is a running (or stopped)
-                  instance of an image with a thin writable layer on top. Many containers can start
-                  from one image.
+                  An image is a template that cannot be changed, made of layers. A container is a
+                  running (or stopped) copy of an image, with a thin writable layer on top. Many
+                  containers can start from one image.
                 </p>
               ),
             },
@@ -645,9 +669,11 @@ volumes:
               q: "How is a container different from a virtual machine?",
               a: (
                 <p className="mb-0">
-                  A VM virtualises hardware and runs its own kernel; a container shares the host
-                  kernel and isolates processes using namespaces and cgroups. Containers are
-                  smaller, start in milliseconds and pack more densely, with weaker isolation.
+                  A VM imitates hardware and runs its own kernel. A container shares the host
+                  kernel and separates processes using Linux namespaces (which hide other processes
+                  and files) and cgroups (which limit CPU and memory). Containers are smaller, start
+                  in a fraction of a second and pack more tightly on a machine, but the separation
+                  is weaker.
                 </p>
               ),
             },
@@ -655,9 +681,9 @@ volumes:
               q: "Why order Dockerfile instructions the way we did?",
               a: (
                 <p className="mb-0">
-                  Layer caching: an unchanged instruction and everything above it is reused. Copy
-                  dependency manifests and install first, copy source last, so a code edit does not
-                  reinstall dependencies.
+                  Layer caching. Docker reuses a layer if its instruction and everything above it are
+                  unchanged. Copy the dependency files and install first, and copy the source code
+                  last. Then a code edit does not reinstall the dependencies.
                 </p>
               ),
             },
@@ -665,9 +691,9 @@ volumes:
               q: "What is a multi-stage build and why use one?",
               a: (
                 <p className="mb-0">
-                  Several <code>FROM</code> stages in one Dockerfile; only the last becomes the
-                  image. Build tools, dev dependencies and source stay in earlier stages, producing a
-                  smaller, safer runtime image.
+                  It is a Dockerfile with several <code>FROM</code> stages. Only the last stage
+                  becomes the final image. Build tools, dev dependencies and source code stay in the
+                  earlier stages, so the final image is smaller and safer.
                 </p>
               ),
             },
@@ -675,9 +701,10 @@ volumes:
               q: "How do you handle secrets with Docker?",
               a: (
                 <p className="mb-0">
-                  Never bake them into the image. Inject at run time via environment variables or
-                  files from a secret store (SSM Parameter Store, Secrets Manager), and use the
-                  instance/task IAM role for AWS access. If one leaks into a layer, rotate it.
+                  Never put them inside the image. Give them to the container at run time, as
+                  environment variables or as files from a secret store (SSM Parameter Store or
+                  Secrets Manager). Use the instance or task IAM role for AWS access. If a secret
+                  gets into a layer, replace it with a new one.
                 </p>
               ),
             },
@@ -685,10 +712,11 @@ volumes:
               q: "Your container keeps restarting. Walk me through it.",
               a: (
                 <p className="mb-0">
-                  <code>docker ps -a</code> for exit code and restart count; <code>docker logs</code>{" "}
-                  for the error; exit 137 suggests out-of-memory (raise the limit or fix the leak);
-                  check env vars with <code>docker exec … env</code>; run the same image
-                  interactively to reproduce.
+                  First run <code>docker ps -a</code> to see the exit code and restart count. Then
+                  run <code>docker logs</code> to read the error. Exit 137 points to running out of
+                  memory (raise the limit or fix the leak). Check the environment variables with{" "}
+                  <code>docker exec … env</code>. Then run the same image by hand to reproduce the
+                  problem.
                 </p>
               ),
             },
@@ -696,9 +724,10 @@ volumes:
               q: "Why not tag production images :latest?",
               a: (
                 <p className="mb-0">
-                  It is mutable, so you cannot identify what is deployed, servers can diverge, and
-                  rollback is ambiguous. Immutable tags (commit SHA or semantic version) make
-                  deployments traceable and reversible.
+                  The tag can be moved to a different image, so you cannot tell what is deployed.
+                  Servers can end up running different code, and a rollback is unclear. Tags that
+                  never change (a commit SHA or a version number) make deployments easy to trace and
+                  to undo.
                 </p>
               ),
             },
@@ -715,7 +744,7 @@ volumes:
             image size.
           </li>
           <li>
-            Change one line of source, rebuild, and watch which steps say <code>CACHED</code>. Now
+            Change one line of source, rebuild, and watch which steps say <code>CACHED</code>. Then
             change a dependency and see the difference.
           </li>
           <li>
@@ -748,8 +777,8 @@ volumes:
         <h2 id="conclusion">Conclusion</h2>
         <p>
           Docker turns &ldquo;a server only you can rebuild&rdquo; into &ldquo;an image anyone can
-          run&rdquo;. It is the hinge between the manual world of Lesson 7 and the automated world
-          of Lessons 12–15.
+          run&rdquo;. It is the link between the manual work of Lesson 7 and the automation of
+          Lessons 12–15.
         </p>
         <ul>
           <li>
@@ -760,12 +789,12 @@ volumes:
             <strong>Layer order = build speed.</strong> Lockfile and install first, source last.
           </li>
           <li>
-            <strong>Ship small and safe</strong>: multi-stage build, standalone output, non-root
-            user, a real <code>.dockerignore</code>.
+            <strong>Ship small and safe</strong>: use a multi-stage build, standalone output, a
+            non-root user and a proper <code>.dockerignore</code>.
           </li>
           <li>
-            <strong>Config at run time, never in the image.</strong> Secrets from the environment or
-            a secret store; AWS access from the IAM role.
+            <strong>Give config at run time, never inside the image.</strong> Take secrets from the
+            environment or a secret store, and get AWS access from the IAM role.
           </li>
           <li>
             <strong>Containers are disposable.</strong> State lives in RDS and S3; fixes go into the
@@ -773,8 +802,9 @@ volumes:
           </li>
         </ul>
         <p>
-          The app now runs in a container listening on a private port. Next we put a proper
-          receptionist in front of it: Nginx.
+          The app now runs in a container that listens on a private port. Next we put a proper
+          receptionist in front of it: Nginx (a web server that receives requests and passes them
+          to your app).
         </p>
 
         <hr />

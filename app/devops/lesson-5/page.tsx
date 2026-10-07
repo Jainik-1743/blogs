@@ -83,40 +83,48 @@ export default function LessonFivePage() {
       <div className="lesson">
         <h2 id="concept">Concept</h2>
         <p>
-          IAM stands for Identity and Access Management. It answers exactly one question:{" "}
+          <strong>IAM</strong> (Identity and Access Management) is the AWS service that controls
+          logins and permissions. It answers one question:{" "}
           <strong>who is allowed to do what in your AWS account?</strong>
         </p>
         <p>
-          Every single AWS action — launching a server, reading a file, deleting a database —
-          passes through IAM first. If IAM does not explicitly allow it, it is denied.
+          Every AWS action goes through IAM first. Launching a server, reading a file and deleting
+          a database are all checked. If IAM does not clearly allow an action, it is denied.
+        </p>
+        <p>
+          Two words come up all the time. <strong>Authentication</strong> means proving who you
+          are (a login). <strong>Authorization</strong> means checking what you may do after you
+          are logged in. In one line: authentication asks &ldquo;who are you?&rdquo;, authorization
+          asks &ldquo;what may you do?&rdquo;. IAM does both.
         </p>
         <Callout kind="ok" label="IAM is completely free">
           <p className="mb-0">
-            Unlimited users, groups, roles and policies. You only pay for the resources those
-            identities create. Adding a team member costs nothing.
+            You can create as many users, groups, roles and policies as you want. You only pay
+            for the resources those people create. Adding a team member costs nothing.
           </p>
         </Callout>
 
         <h2 id="why-this-matters">Why this matters</h2>
         <p>
-          This lesson protects you from the most costly AWS mistakes. These are real incidents
-          that happen to new users:
+          This lesson protects you from the most costly AWS mistakes. These are real problems that
+          happen to new users:
         </p>
         <ul>
           <li>
-            Access keys committed to a public GitHub repository. Bots find them within minutes.
-            Someone runs crypto mining on your account, and a bill of several lakh rupees arrives
-            by the weekend.
+            Access keys (a secret ID and password pair that lets a program use your account) are
+            uploaded to a public GitHub repository. Bots find them within minutes. Someone uses
+            your account to mine crypto coins, and a bill of several lakh rupees arrives by the
+            weekend.
           </li>
-          <li>A developer with full admin access accidentally deletes the production database.</li>
+          <li>A developer with full admin access deletes the production database by accident.</li>
           <li>
-            One leaked key gives an attacker access to <em>everything</em>, because nobody set up
-            any boundaries.
+            One leaked key gives an attacker access to <em>everything</em>, because nobody set
+            limits.
           </li>
         </ul>
         <p>
-          Every one of those is an IAM failure, not an AWS failure. Get this lesson right and the
-          rest of the course is safe to practise on.
+          Each of these is a mistake in how IAM was set up. It is not a fault in AWS. Get this
+          lesson right and the rest of the course is safe to practise.
         </p>
 
         <h2 id="hotel">The hotel — the whole idea in one story</h2>
@@ -124,7 +132,7 @@ export default function LessonFivePage() {
         <Callout kind="note" label="Your hotel">
           <p>
             The hotel has many areas: guest rooms, the kitchen, the laundry, the store room, the
-            cash counter and the manager&apos;s office. The central question is:{" "}
+            cash counter and the manager&apos;s office. The main question is:{" "}
             <strong>who can enter which area?</strong>
           </p>
           <p className="mb-0">
@@ -153,16 +161,17 @@ export default function LessonFivePage() {
           </table>
         </div>
         <p>
-          Keep this hotel in your head for the rest of the lesson. Every technical term below is
-          just one of these six things.
+          Keep this hotel in mind for the rest of the lesson. Every term below is one of these six
+          things.
         </p>
 
         <h2 id="blocks">The four building blocks</h2>
         <IamBlocks />
         <h3>1. IAM User — the staff member</h3>
         <p>
-          Rahul is your accountant. He gets his own ID badge and enters using it. In AWS, every
-          developer gets their own separate login.
+          An <strong>IAM user</strong> is one person (or one program) with its own name and login
+          inside your AWS account. Think of Rahul, your accountant. He gets his own ID badge and
+          enters with it. In AWS, every developer gets a separate login.
         </p>
         <p>
           <strong>Never share one login between two people.</strong> If something breaks, you need
@@ -170,25 +179,31 @@ export default function LessonFivePage() {
         </p>
         <h3>2. IAM Group — the department</h3>
         <p>
-          A hotel with 20 staff cannot manage 20 separate sets of keys. So you create departments,
-          and give the keys to the department.
+          An <strong>IAM group</strong> is a named list of users. You attach permissions to the
+          group, and every user in it gets them. A hotel with 20 staff cannot manage 20 separate
+          sets of keys. So you make departments and give the keys to the department.
         </p>
         <p>
-          New person joins, put them in the department, and they automatically get the right
-          access. Someone leaves, remove them from the department. You never touch 20 individual
-          key cards.
+          When a new person joins, put them in the department. They get the right access at once.
+          When someone leaves, remove them from the department. You never touch 20 individual key
+          cards.
         </p>
         <h3>3. IAM Policy — the rule card</h3>
         <p>
-          This is the written document that actually lists what is allowed. In AWS it is a JSON
-          file, covered in detail below.
+          An <strong>IAM policy</strong> is a document that lists what is allowed or denied. In
+          AWS it is a JSON file (a text file in a fixed format). It is covered in detail below.
         </p>
         <h3>4. IAM Role — the temporary key card</h3>
-        <p>The most important one, explained fully in its own section below.</p>
+        <p>
+          An <strong>IAM role</strong> is an identity with permissions that anyone (or any server)
+          can wear for a short time. It has no password of its own. It is the most important
+          block, so it has its own section below.
+        </p>
 
         <h2 id="root">Owner vs staff — root user vs IAM user</h2>
         <p>
-          When you sign up for AWS, you automatically get a <strong>root user</strong>. That is
+          When you sign up for AWS, you automatically get a <strong>root user</strong>. This is
+          the login made from your sign-up email address. It has full power over the account, like
           the hotel owner with the master key.
         </p>
         <div className="table-wrap">
@@ -213,7 +228,7 @@ export default function LessonFivePage() {
               </tr>
               <tr>
                 <td><strong>Can be restricted?</strong></td>
-                <td className={no}>No, never</td>
+                <td className={no}>Not by IAM policies</td>
                 <td className={yes}>Yes</td>
               </tr>
               <tr>
@@ -226,20 +241,24 @@ export default function LessonFivePage() {
         </div>
         <p>
           A sensible hotel owner does not carry the master key around for everyday work. They keep
-          it in the safe and use their own normal badge instead.
+          it in the safe and use a normal badge instead.
         </p>
         <Callout kind="warn" label="Lock the root user away">
           <p className="mb-0">
-            Strong password, MFA turned on (you did this in Lesson 0), and never attach access
-            keys to it. Only a handful of tasks genuinely need root — closing the account, changing
-            your support plan, a few billing settings. Everything else is IAM.
+            Use a strong password. Turn on MFA (multi-factor authentication: a second proof of
+            identity, such as a code from your phone app. You did this in Lesson 0). Never create
+            access keys for root. Only a few tasks really need root, such as closing the account,
+            changing your support plan and some billing settings. Use IAM users for everything
+            else.
           </p>
         </Callout>
 
         <h2 id="roles">The big idea — IAM roles</h2>
         <p>
-          This is the single most important concept in the lesson, and the one that separates a
-          developer who knows AWS from one who just uses it.
+          An <strong>IAM role</strong> is a set of permissions that a person, a server or a service
+          can wear for a short time. The role hands out temporary credentials that expire by
+          themselves. This is the most important idea in the lesson. It is what separates a
+          developer who understands AWS from one who only clicks through it.
         </p>
         <Callout kind="note" label="The plumber">
           <p>
@@ -253,13 +272,13 @@ export default function LessonFivePage() {
           </p>
         </Callout>
         <p>
-          Coming from Vercel, your instinct is to put credentials in a <code>.env</code> file. On
-          AWS, that instinct is wrong and dangerous.
+          If you come from Vercel, you may want to put credentials in a <code>.env</code> file. On
+          AWS this habit is wrong and dangerous.
         </p>
         <KeysVsRole />
         <p>
-          With a role attached, your code changes <strong>nothing</strong>. The AWS SDK
-          automatically finds the temporary credentials:
+          With a role attached to the server, your code does not change. The AWS SDK (the library
+          your code uses to call AWS) finds the temporary credentials by itself:
         </p>
         <Script
           title="upload.ts — no keys anywhere in code or .env"
@@ -267,7 +286,7 @@ export default function LessonFivePage() {
 
 const s3 = new S3Client({ region: "ap-south-1" });
 
-// The SDK automatically picks up credentials from the attached role
+// The SDK finds the credentials from the attached role by itself
 await s3.send(new PutObjectCommand({
   Bucket: "myapp-pdfs",
   Key: "quotation-1024.pdf",
@@ -276,20 +295,23 @@ await s3.send(new PutObjectCommand({
         />
         <Callout kind="warn" label="Why keys on disk are a disaster">
           <p className="mb-0">
-            If someone breaks into a server with keys on disk, they copy those keys and use them
-            from anywhere in the world, forever, until you notice. With a role, the credentials
-            expire in a few hours and only work from that instance.
+            Suppose someone breaks into a server that has keys on disk. They copy the keys and
+            use them from anywhere in the world until you notice. With a role, the credentials
+            expire after a few hours. A thief gets only a short window.
           </p>
         </Callout>
         <Callout kind="ok" label="The rule to memorise">
           <p className="mb-0">
-            Access keys are for humans and outside systems. Roles are for anything running inside
-            AWS.
+            Access keys are for people and for systems outside AWS. Roles are for anything running
+            inside AWS.
           </p>
         </Callout>
 
         <h2 id="policies">Policies — how permissions are written</h2>
-        <p>A policy is a JSON document. Only three parts really matter.</p>
+        <p>
+          A policy is a JSON document. JSON is a plain-text format made of names and values in
+          curly brackets. Only three parts of a policy really matter.
+        </p>
         <Script
           title="policy.json"
           code={`{
@@ -333,15 +355,17 @@ await s3.send(new PutObjectCommand({
           </table>
         </div>
         <p>
-          ARN means Amazon Resource Name — AWS&apos;s unique ID format for every resource. The
-          policy above says: <em>this identity may upload and download files, only in the
-          myapp-pdfs bucket, and nothing else anywhere.</em>
+          An ARN (Amazon Resource Name) is the unique ID that AWS gives to every resource, like a
+          full postal address. In the policy above, <code>myapp-pdfs</code> is an S3 bucket (a
+          storage folder in AWS) and the <code>/*</code> at the end means every file inside it. The
+          policy says: <em>this identity may upload and download files, only in the myapp-pdfs
+          bucket, and nothing else anywhere.</em>
         </p>
         <h3>Two default behaviours to remember</h3>
         <ul>
           <li>
-            <strong>Everything is denied by default.</strong> No policy means no access. Same as a
-            hotel where every door stays locked unless your card is programmed for it.
+            <strong>Everything is denied by default.</strong> No policy means no access. This is
+            like a hotel where every door stays locked unless your card is set up for it.
           </li>
           <li>
             <strong>An explicit Deny always wins</strong>, even if another policy says Allow. A
@@ -351,18 +375,18 @@ await s3.send(new PutObjectCommand({
 
         <h2 id="least">Least privilege</h2>
         <p>
-          This is the main principle of IAM, and it has one simple rule:{" "}
+          <strong>Least privilege</strong> is the main rule of IAM:{" "}
           <strong>give the minimum access needed to do the job, and nothing more.</strong>
         </p>
         <p>
-          You would not give the room service boy a master key just because it is convenient. The
-          same discipline applies in AWS.
+          You would not give the room service boy a master key just because it is easy. Use the
+          same care in AWS.
         </p>
         <Callout kind="warn" label="The most common beginner mistake">
           <p className="mb-0">
-            Attaching <code>AdministratorAccess</code> to everyone, because then nothing ever gets
-            blocked and work moves fast. Then one person&apos;s mistake takes down all of
-            production, and one leaked key exposes the entire account.
+            Attaching <code>AdministratorAccess</code> (the policy that allows everything) to
+            everyone, because then nothing is ever blocked. Then one person&apos;s mistake can take
+            down all of production, and one leaked key exposes the whole account.
           </p>
         </Callout>
 
@@ -372,99 +396,99 @@ await s3.send(new PutObjectCommand({
             <h3>Create groups, one per job function</h3>
             <p>
               In the console: IAM → User groups → Create. Make <strong>Developers</strong>{" "}
-              (read-mostly: can look, cannot change production) and <strong>DevOps</strong> (can
-              build infrastructure, but not manage IAM itself).
+              (mostly read-only: can look, cannot change production) and <strong>DevOps</strong>{" "}
+              (can build infrastructure, but cannot manage IAM itself).
             </p>
           </li>
           <li>
             <h3>Attach policies to the group, never to individual users</h3>
             <p>
-              Give Developers the AWS-managed <code>ReadOnlyAccess</code> policy (read
-              everything, change nothing) and DevOps <code>PowerUserAccess</code> (everything
-              except IAM and account settings). AWS maintains both, so you never write them by
-              hand.
+              An AWS-managed policy is a ready-made policy that AWS writes and updates for you.
+              Give Developers <code>ReadOnlyAccess</code> (read everything, change nothing). Give
+              DevOps <code>PowerUserAccess</code> (do everything except manage IAM and account
+              settings). You never write these by hand.
             </p>
           </li>
           <li>
             <h3>Create a user and put them in a group</h3>
             <p>
-              One person, one identity. Create <code>rahul</code> and add him to Developers —
-              he now inherits everything that group allows, and nothing else.
+              One person, one identity. Create <code>rahul</code> and add him to Developers. He
+              now gets everything that group allows, and nothing else.
             </p>
           </li>
           <li>
             <h3>Check who has what</h3>
             <p>
-              IAM&apos;s user list and its <strong>Access advisor</strong> tab show every identity,
-              the groups each one is in, and which services they actually used recently — the
-              place to spot permissions nobody needs.
+              IAM&apos;s user list shows every identity and the groups each one is in. The{" "}
+              <strong>Access advisor</strong> tab shows which services a user really used
+              recently. Use it to spot permissions that nobody needs.
             </p>
           </li>
         </ol>
         <Callout kind="note" label="Why groups matter">
           <p className="mb-0">
-            When a new developer joins, you add them to a group — one command. When someone
-            leaves, you remove them. You never edit twenty individual users. This is the same
-            &ldquo;manage the department, not the person&rdquo; logic as Linux file groups in
-            Lesson 1.
+            When a new developer joins, you add them to a group. When someone leaves, you remove
+            them. You never edit twenty individual users. This is the same &ldquo;manage the
+            department, not the person&rdquo; idea as Linux file groups in Lesson 1.
           </p>
         </Callout>
 
         <h2 id="sso">For real teams — IAM Identity Center</h2>
         <p>
-          For human beings, AWS now recommends <strong>IAM Identity Center</strong> (previously
-          called AWS SSO) instead of creating IAM users.
+          For people, AWS recommends <strong>IAM Identity Center</strong> (older name: AWS SSO,
+          where SSO means single sign-on) instead of creating IAM users. It is a service where
+          each person logs in once and can reach several AWS accounts.
         </p>
         <p>
-          It gives each person a single login across multiple AWS accounts, with{" "}
-          <strong>temporary credentials</strong> instead of permanent access keys — the same
-          security benefit as roles, applied to people. It is also free.
+          It gives each person <strong>temporary credentials</strong> instead of permanent access
+          keys. This is the same safety benefit as roles, but for people. It is also free.
         </p>
         <p>
-          For solo learning, plain IAM users are fine. For a team of twenty, Identity Center is
-          the right answer.
+          For solo learning, plain IAM users are fine. For a team of twenty, use Identity Center.
         </p>
 
         <h2 id="billing">The step you must not skip</h2>
         <p>
-          Set up a billing alert today, before Lesson 7 when you start creating real resources.
-          This is how you sleep peacefully while learning.
+          Set up a billing alert today, before Lesson 7, when you start creating real resources. A
+          billing alert is an email that AWS sends when your spending reaches a limit you chose.
+          It lets you learn without worry.
         </p>
         <Callout kind="ok" label="Easiest way, in the console">
           <p className="mb-0">
             Billing → Budgets → Create budget → set a monthly amount such as ₹800 → add your
-            email. You get a warning email long before anything becomes painful.
+            email. You get a warning email long before the bill hurts.
           </p>
         </Callout>
 
         <h2 id="keys">Access key hygiene</h2>
         <p>
-          If you must use access keys — for the AWS CLI on your own laptop, for example — follow
-          these rules:
+          An <strong>access key</strong> is a pair of values (an ID and a secret) that lets a
+          program or the AWS CLI act as an IAM user. If you must use access keys, for example for
+          the AWS CLI on your own laptop, follow these rules:
         </p>
         <ul>
           <li>
-            Never commit them. Add <code>.env</code> and <code>*.pem</code> to{" "}
+            Never commit them to Git. Add <code>.env</code> and <code>*.pem</code> to{" "}
             <code>.gitignore</code> on day one.
           </li>
-          <li>Rotate them every 90 days.</li>
-          <li>Delete unused keys immediately.</li>
+          <li>Rotate them every 90 days. (To rotate means to replace an old key with a new one.)</li>
+          <li>Delete unused keys at once.</li>
           <li>Turn on MFA for any user that has keys.</li>
         </ul>
         <p>
-          Rotating a key is two steps: create the new key and switch your CLI to it, then delete
-          the old one once everything still works. IAM shows when each key was last used, which
-          tells you which keys are safe to delete.
+          Rotating a key takes two steps. First create a new key and switch your CLI to it. Then
+          delete the old key after you check that everything still works. IAM shows when each key
+          was last used, so you know which keys are safe to delete.
         </p>
         <h3>Cost</h3>
         <p>
           IAM users, groups, roles, policies and Identity Center are all{" "}
-          <strong>completely free</strong>. Billing alarms are free for the first ten.
+          <strong>completely free</strong>. CloudWatch billing alarms are free for the first ten.
         </p>
         <Callout kind="note" label="One idea, many tools">
           <p className="mb-0">
-            This same &ldquo;who can do what&rdquo; thinking applies to your GitHub repository
-            too — branch protection and CODEOWNERS are IAM for your code. Read{" "}
+            The same &ldquo;who can do what&rdquo; idea applies to your GitHub repository.
+            Branch protection and CODEOWNERS are like IAM for your code. Read{" "}
             <Link href={readingHref(githubReading)}>{githubReading.title} →</Link>
           </p>
         </Callout>
@@ -473,8 +497,8 @@ await s3.send(new PutObjectCommand({
 
         <h2 id="practice">Practice task before Lesson 6</h2>
         <p>
-          Everything here is free. By the end, your account has the shape a real team&apos;s
-          account has — even if you are the only member.
+          Everything here is free. At the end, your account is set up like a real team&apos;s
+          account, even if you are the only member.
         </p>
         <ol>
           <li>
@@ -490,7 +514,8 @@ await s3.send(new PutObjectCommand({
             <code>policy.json</code> above: one bucket, two actions, nothing else.
           </li>
           <li>
-            Feel least privilege. Add the reader&apos;s key as a second CLI profile, then try:
+            See least privilege in action. Add the reader&apos;s key as a second CLI profile (a named
+            set of login details), then try:
             <Script
               title="as the reader"
               code={`aws configure --profile reader                            # paste reader's keys
@@ -501,8 +526,8 @@ aws iam create-group --group-name Hack --profile reader   # AccessDenied — as 
           <li>
             Create the <strong>role</strong> EC2 will wear in Lesson 7: IAM → Roles → Create role
             → trusted entity <em>AWS service: EC2</em> → attach <code>myapp-pdfs-rw</code> → name
-            it <code>myapp-ec2-role</code>. Picking &ldquo;EC2&rdquo; writes the trust document
-            for you.
+            it <code>myapp-ec2-role</code>. The trust document is a small JSON file that says who
+            may wear the role. Picking &ldquo;EC2&rdquo; writes it for you.
           </li>
           <li>Delete the reader&apos;s access key. Keep the group, policy and role — Lesson 7 uses them.</li>
           <li>Billing → Budgets → Create → ₹800 / month → your email. This one protects your wallet.</li>
@@ -510,67 +535,65 @@ aws iam create-group --group-name Hack --profile reader   # AccessDenied — as 
         <p>Then answer these in your own words:</p>
         <ol>
           <li>
-            Step 4 produced an <code>AccessDenied</code>. Which of the two default behaviours
-            caused it — and would adding a second policy with <code>Deny</code> on{" "}
+            Step 4 gave an <code>AccessDenied</code> error. Which of the two default behaviours
+            caused it? Would a second policy with <code>Deny</code> on{" "}
             <code>iam:CreateGroup</code> change anything?
           </li>
           <li>
-            Explain the difference between the policy in step 3 and the role's trust document in step 5.
-            Which one says <em>what</em> is allowed, and which one says <em>who</em> may wear the
-            role?
+            Explain the difference between the policy in step 3 and the role&apos;s trust document
+            in step 5. Which one says <em>what</em> is allowed, and which one says <em>who</em> may
+            wear the role?
           </li>
           <li>
-            Your EC2 server needs to upload PDFs to S3. List the three ways to give it access,
-            and rank them from worst to best with one reason each.
+            Your EC2 server needs to upload PDFs to S3. List three ways to give it access. Rank
+            them from worst to best, with one reason each.
           </li>
           <li>
-            A developer leaves the company. What is the one command you run — and why is it one
-            command instead of twenty?
+            A developer leaves the company. What single step do you take (hint: it is about
+            groups)? Why is it one step and not twenty?
           </li>
         </ol>
         <Callout kind="ok" label="Optional stretch">
           <p className="mb-0">
             In the console, open IAM → Users → your admin user → Security credentials, and check
             that MFA is on and that you have exactly one active access key. Then open IAM →
-            Account settings and read the password policy. Tighten it: 14 characters minimum,
-            expire in 90 days.
+            Account settings and read the password policy. Make it stricter: at least 14
+            characters, and passwords expire after 90 days.
           </p>
         </Callout>
 
         <h2 id="conclusion">Conclusion</h2>
         <p>
           IAM is the hotel&apos;s key-card system. The root user is the owner&apos;s master key
-          kept in the safe; users are staff badges; groups are departments; policies are the rule
-          cards; roles are temporary key cards for visitors and machines. Every door is locked
-          until a card is programmed for it.
+          kept in the safe. Users are staff badges. Groups are departments. Policies are the rule
+          cards. Roles are temporary key cards for visitors and machines. Every door is locked
+          until a card is set up for it.
         </p>
         <ul>
           <li>
             <strong>Root</strong>: MFA on, no access keys, never used for daily work.
           </li>
           <li>
-            <strong>Groups, not users</strong>: attach policies to departments, put people in
-            departments. Joining and leaving become one command.
+            <strong>Groups, not users</strong>: attach policies to groups and put people in the
+            groups. Joining and leaving become one small step.
           </li>
           <li>
-            <strong>Roles for machines</strong>: anything running inside AWS — EC2, Lambda, a
-            GitHub Actions deploy — wears a role with temporary credentials. Long-lived keys
-            in <code>.env</code> on a server are the single most expensive mistake in this
-            course.
+            <strong>Roles for machines</strong>: anything running inside AWS (EC2, Lambda, a
+            GitHub Actions deploy) wears a role with temporary credentials. Long-lived keys in a{" "}
+            <code>.env</code> file on a server are the most expensive mistake in this course.
           </li>
           <li>
-            <strong>Policies</strong>: Effect, Action, Resource. Denied by default; an explicit
-            Deny always wins. Least privilege means writing the narrow policy, not reaching for{" "}
-            <code>AdministratorAccess</code>.
+            <strong>Policies</strong>: Effect, Action, Resource. Everything is denied by default,
+            and an explicit Deny always wins. Least privilege means writing a narrow policy
+            instead of using <code>AdministratorAccess</code>.
           </li>
           <li>
-            <strong>Billing alert</strong>: set before Lesson 7. It is the one alarm that guards
-            your bank account instead of your uptime.
+            <strong>Billing alert</strong>: set it before Lesson 7. It is the one alarm that
+            protects your bank account instead of your uptime.
           </li>
         </ul>
         <p>
-          Identity is in place. Next we build the network those identities will work inside: the
-          VPC.
+          Identity is ready. Next we build the network where these identities will work: the VPC.
         </p>
 
         <hr />

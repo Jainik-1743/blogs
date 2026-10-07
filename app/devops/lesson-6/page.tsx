@@ -33,13 +33,13 @@ const outline = [
 ];
 
 const pieces: [string, string, string][] = [
-  ["VPC", "The whole private network. One address range, inside one AWS region.", "10.0.0.0/16"],
-  ["Subnet", "A slice of the VPC that lives in exactly one Availability Zone.", "10.0.1.0/24 in ap-south-1a"],
-  ["Route table", "A list of rules: “traffic going to X, send it to Y”. Every subnet uses one.", "0.0.0.0/0 → igw-…"],
-  ["Internet Gateway (IGW)", "The VPC’s front door to the public internet. Free. One per VPC.", "igw-0abc…"],
-  ["NAT Gateway", "A one-way door: private servers can call out, nobody can call in.", "nat-0abc… (paid)"],
-  ["Security Group", "A firewall attached to a resource (server, database, load balancer).", "web-sg, db-sg"],
-  ["Network ACL", "A coarse firewall attached to a whole subnet. Rarely edited.", "default: allow all"],
+  ["VPC", "Your whole private network. It has one address range and lives inside one AWS region.", "10.0.0.0/16"],
+  ["Subnet", "A smaller slice of the VPC’s address range. It lives in exactly one Availability Zone.", "10.0.1.0/24 in ap-south-1a"],
+  ["Route table", "A list of rules that say “traffic going to X, send it to Y”. Every subnet uses one.", "0.0.0.0/0 → igw-…"],
+  ["Internet Gateway (IGW)", "A VPC component that connects the VPC to the public internet, like a front door. Free. One per VPC.", "igw-0abc…"],
+  ["NAT Gateway", "A one-way door. Private servers can call out to the internet, but nobody can call in.", "nat-0abc… (paid)"],
+  ["Security Group", "A firewall attached to a resource (server, database or load balancer). It lists which traffic is allowed.", "web-sg, db-sg"],
+  ["Network ACL", "A basic firewall attached to a whole subnet. You rarely edit it.", "default: allow all"],
 ];
 
 const checklist: [string, string, string][] = [
@@ -48,8 +48,8 @@ const checklist: [string, string, string][] = [
   ["3", "Does the Security Group allow this port from your IP?", "Inbound rules — most common cause, by far"],
   ["4", "Does the subnet’s route table have 0.0.0.0/0 → igw?", "This is what makes a subnet public"],
   ["5", "Does the Network ACL allow it in both directions?", "Default NACL allows everything; custom ones deny by default"],
-  ["6", "Is something actually listening on that port on the server?", "ss -tlnp on the server. A closed port is not a firewall problem"],
-  ["7", "Is the OS firewall (ufw) blocking it?", "Ubuntu AMIs ship with ufw disabled, but check: sudo ufw status"],
+  ["6", "Is a program really listening on that port on the server?", "Run ss -tlnp on the server. A port with no program behind it is not a firewall problem"],
+  ["7", "Is the server’s own firewall (ufw) blocking it?", "Ubuntu AMIs have ufw turned off, but check with: sudo ufw status"],
 ];
 
 export default function LessonSixPage() {
@@ -61,51 +61,53 @@ export default function LessonSixPage() {
         <h2 id="concept">Concept</h2>
         <p>
           A <strong>VPC</strong> (Virtual Private Cloud) is <strong>your own private network
-          inside AWS</strong>. It is a section of AWS&apos;s giant data centres that belongs to you
-          alone, with its own range of IP addresses, its own doors to the internet, and its own
-          firewalls. Nothing gets in or out unless you built a door for it.
+          inside AWS</strong>. It is a part of AWS&apos;s huge data centres that belongs only to
+          you. It has its own range of IP addresses, its own doors to the internet and its own
+          firewalls. (An IP address is the number that identifies a computer on a network. A
+          firewall is a filter that allows or blocks network traffic.) Nothing gets in or out
+          unless you built a door for it.
         </p>
         <p>
-          In Lesson 2 you learned how one request travels across the internet to a server. A VPC
-          is <em>the network on the server&apos;s side of that journey</em> — and unlike Vercel,
-          where this layer is invisible, on AWS you design it yourself.
+          In Lesson 2 you learned how a request travels across the internet to a server. A VPC is{" "}
+          <em>the network on the server&apos;s side of that journey</em>. On Vercel this layer is
+          hidden. On AWS you design it yourself.
         </p>
         <Callout kind="ok" label="A VPC costs nothing">
           <p className="mb-0">
             The VPC, subnets, route tables, Internet Gateway and Security Groups are all free. You
-            only pay for the <em>things you put inside</em> (servers, databases) and for one
-            optional piece, the NAT Gateway, which we treat carefully below.
+            only pay for the <em>things you put inside</em> (servers, databases). You also pay
+            for one optional piece, the NAT Gateway, which we cover carefully below.
           </p>
         </Callout>
 
         <h2 id="why-this-matters">Why this matters</h2>
-        <p>Almost every serious AWS mistake is a networking mistake:</p>
+        <p>Many serious AWS mistakes are networking mistakes:</p>
         <ul>
           <li>
-            A database launched with a public IP and a Security Group that says{" "}
-            <code>0.0.0.0/0</code> on port 5432. Within hours, bots are trying passwords against it.
-            This is how most &ldquo;company X leaked millions of records&rdquo; stories begin.
+            A database is launched with a public IP and a Security Group that allows{" "}
+            <code>0.0.0.0/0</code> (every address on the internet) on port 5432 (the PostgreSQL
+            port). Within hours, bots try passwords against it. This is how many &ldquo;company X
+            leaked millions of records&rdquo; stories begin.
           </li>
           <li>
-            A server that &ldquo;cannot be reached&rdquo; for two days because nobody knew the{" "}
-            <em>route table</em> was the problem, not the Security Group.
+            A server &ldquo;cannot be reached&rdquo; for two days, because nobody knew that the{" "}
+            <em>route table</em> was the problem and not the Security Group.
           </li>
           <li>
-            A NAT Gateway left running for a month that quietly cost more than the servers
-            themselves.
+            A NAT Gateway is left running for a month. It quietly costs more than the servers.
           </li>
         </ul>
         <p>
-          A well-designed VPC makes the safe choice the default: the database <em>physically
-          cannot</em> be reached from the internet, because there is no path to it. That is far
-          stronger than a firewall rule you hope nobody edits.
+          A well-designed VPC makes the safe choice the default. The database <em>physically
+          cannot</em> be reached from the internet, because there is no path to it. This is much
+          stronger than a firewall rule that you hope nobody edits.
         </p>
         <Callout kind="note" label="Fresher or four years in — same idea">
           <p className="mb-0">
-            If you are new, treat this lesson as learning the vocabulary of every AWS diagram you
-            will ever see. If you have some experience, the value is the mental model: a subnet is
-            public <em>only</em> because of one route-table row, and security is two independent
-            layers (network shape + firewall) that should both say no.
+            If you are new, use this lesson to learn the words you will see in every AWS diagram.
+            If you have some experience, keep the main idea. A subnet is public <em>only</em>{" "}
+            because of one route-table row. Security has two separate layers (the network shape
+            and the firewall), and both should say no.
           </p>
         </Callout>
 
@@ -152,21 +154,24 @@ export default function LessonSixPage() {
           </table>
         </div>
         <p>
-          The reception desk and the shop-front live on the public floor. The finance department
-          and the safe live on a staff-only floor with <strong>no door to the street at all</strong>.
-          That single design decision does most of the security work.
+          The reception desk and the shop front are on the public floor. The finance department
+          and the safe are on a staff-only floor with <strong>no door to the street at all</strong>.
+          This one design choice does most of the security work.
         </p>
 
         <h2 id="cidr">IP ranges and CIDR, once and for all</h2>
         <p>
-          You met CIDR in Lesson 2. Here it stops being theory, because AWS asks you to choose a
-          range when you create a VPC. The rule is short:
+          <strong>CIDR</strong> (Classless Inter-Domain Routing) is a short way to write a whole
+          range of IP addresses, such as <code>10.0.0.0/16</code>. You met it in Lesson 2. Now it
+          is practical, because AWS asks you to choose a range when you create a VPC. The rule is
+          short:
         </p>
         <Callout kind="note" label="The only CIDR rule you need">
           <p className="mb-0">
-            <code>10.0.0.0/16</code> means &ldquo;the first 16 bits are fixed, the remaining 16 are
-            free&rdquo;. <strong>2^(32 − prefix) addresses.</strong> So /16 = 65,536 addresses,
-            /24 = 256, /28 = 16, /32 = exactly one.
+            An IPv4 address has 32 bits (32 on/off switches). In <code>10.0.0.0/16</code>, the
+            number after the slash says that the first 16 bits are fixed and the other 16 are
+            free. The count of addresses is <strong>2^(32 − prefix)</strong>. So /16 = 65,536
+            addresses, /24 = 256, /28 = 16, and /32 = exactly one.
           </p>
         </Callout>
         <div className="table-wrap">
@@ -203,25 +208,27 @@ export default function LessonSixPage() {
           </table>
         </div>
         <p>
-          <strong>Why 251 and not 256?</strong> AWS reserves five addresses in every subnet: the
-          network address, the VPC router, the DNS server, one reserved for future use, and the
-          broadcast address. It is a favourite interview trivia question.
+          <strong>Why 251 and not 256?</strong> AWS keeps five addresses in every subnet for its own
+          use: the network address, the VPC router, the DNS server, one saved for future use, and
+          the broadcast address. (The router passes traffic between networks. DNS turns names into
+          IP addresses. A broadcast address sends a message to every device at once.) This is a
+          favourite interview question.
         </p>
         <h3>Choosing the range — three practical rules</h3>
         <ul>
           <li>
             Use a <strong>private range</strong>: <code>10.0.0.0/8</code>,{" "}
-            <code>172.16.0.0/12</code> or <code>192.168.0.0/16</code>. These are never routed on the
-            public internet.
+            <code>172.16.0.0/12</code> or <code>192.168.0.0/16</code>. These ranges are reserved
+            for private networks and are never used on the public internet.
           </li>
           <li>
-            <strong>Do not overlap</strong> with anything you may connect to later — your office
-            network, a second VPC, a partner. Two networks with the same range cannot be joined.
-            This is painful to fix afterwards, which is why real teams plan it on paper first.
+            <strong>Do not overlap</strong> with any network you may connect later, such as your
+            office, a second VPC or a partner. Two networks with the same range cannot be joined.
+            This is hard to fix afterwards, so real teams plan the ranges on paper first.
           </li>
           <li>
-            Leave room to grow. Making the VPC a /16 and each subnet a /24 costs nothing and gives
-            you 256 subnets of 251 addresses each.
+            Leave room to grow. A /16 VPC with /24 subnets costs nothing. It gives you room for 256
+            subnets of 251 usable addresses each.
           </li>
         </ul>
 
@@ -250,32 +257,35 @@ export default function LessonSixPage() {
         <VpcLayout />
         <h3>Availability Zones — why we make four subnets, not two</h3>
         <p>
-          A region such as <code>ap-south-1</code> (Mumbai) is made of several separate data
-          centres called <strong>Availability Zones</strong> (AZs): <code>ap-south-1a</code>,{" "}
-          <code>1b</code>, <code>1c</code>. They are far enough apart that a fire or power cut in one
-          does not touch the others.
+          A <strong>region</strong> is a geographic area where AWS runs data centres, such as{" "}
+          <code>ap-south-1</code> (Mumbai). Each region has several separate groups of data
+          centres called <strong>Availability Zones</strong> (AZs), for example{" "}
+          <code>ap-south-1a</code>, <code>1b</code> and <code>1c</code>. They are far enough apart
+          that a fire or a power cut in one does not affect the others.
         </p>
         <p>
-          A subnet lives in <em>one</em> AZ. So to survive an AZ failure you need each kind of
-          subnet in at least two AZs. Two services force this on you later:
+          A subnet lives in <em>one</em> AZ. To survive the failure of an AZ, you need each kind of
+          subnet in at least two AZs. Two services require this later:
         </p>
         <ul>
           <li>
-            The <strong>load balancer</strong> (Lesson 12) needs subnets in at least two AZs.
+            The <strong>load balancer</strong> (Lesson 12) needs subnets in at least two AZs. A
+            load balancer is a service that shares incoming requests between several servers.
           </li>
           <li>
             An <strong>RDS subnet group</strong> (Lesson 8) needs subnets in at least two AZs, even
-            if you only run a single database.
+            if you run only one database. RDS is the AWS managed database service.
           </li>
         </ul>
         <p>
-          So we create <strong>four subnets</strong>: public and private, each in AZ <code>a</code>{" "}
-          and AZ <code>b</code>. It is cheap (subnets are free) and saves a rebuild.
+          So we create <strong>four subnets</strong>: one public and one private in AZ{" "}
+          <code>a</code>, and one public and one private in AZ <code>b</code>. This is cheap
+          (subnets are free) and saves you a rebuild later.
         </p>
 
         <h2 id="public-private">What makes a subnet public or private</h2>
         <p>
-          This is the most misunderstood idea in AWS networking, and it is beautifully simple.
+          Many people misunderstand this idea in AWS networking, but it is simple.
         </p>
         <Callout kind="warn" label="The definition — memorise it">
           <p className="mb-0">
@@ -284,7 +294,10 @@ export default function LessonSixPage() {
             does not. <em>There is no &ldquo;public&rdquo; checkbox on the subnet itself.</em>
           </p>
         </Callout>
-        <p>Reading a route table works like reading a sign in a lift. Rows are matched by the most specific range first:</p>
+        <p>
+          A route table works like the signs in a lift. When traffic leaves, AWS looks for the
+          row with the most specific matching range first. Here are two examples:
+        </p>
         <Script
           title="Route table of a PUBLIC subnet"
           code={`Destination       Target
@@ -298,26 +311,34 @@ export default function LessonSixPage() {
                                  # no 0.0.0.0/0 row = no path to the internet at all`}
         />
         <p>
-          The <code>local</code> row is added automatically and cannot be deleted. It is why an app
-          server in a public subnet can reach a database in a private subnet without any extra
-          setup: inside the VPC, everything can route to everything. <em>Security Groups</em>, not
-          routes, decide who is actually allowed in.
+          The <code>local</code> row is added automatically and cannot be deleted. It is the reason
+          an app server in a public subnet can reach a database in a private subnet with no extra
+          setup. Inside the VPC, every subnet has a route to every other subnet.{" "}
+          <em>Security Groups</em>, not routes, decide who is actually allowed in.
         </p>
         <h3>A public subnet is not enough — the public IP</h3>
         <p>
-          For a server to be reachable from the internet it needs <strong>both</strong> a public
-          subnet <strong>and</strong> a public IP address (auto-assigned, or an Elastic IP from
-          Lesson 7). A server in a public subnet with no public IP can talk to other servers inside
-          the VPC, but it cannot reach the internet and the internet cannot reach it, because the
-          IGW only translates addresses for instances that have a public one. This is a common mistake,
-          so remember: route <em>and</em> public IP, both.
+          For a server to be reachable from the internet, it needs <strong>both</strong> a public
+          subnet <strong>and</strong> a public IP address. The public IP can be assigned
+          automatically, or it can be an Elastic IP (a fixed public address, from Lesson 7). A
+          server in a public subnet without a public IP can talk to other servers inside the VPC.
+          It cannot reach the internet, and the internet cannot reach it. The reason is that the
+          IGW only translates addresses for instances that have a public one. This is a common
+          mistake. Remember: you need the route <em>and</em> the public IP.
         </p>
 
         <h2 id="security">Security Groups vs Network ACLs</h2>
         <p>
-          You have used Security Groups since Lesson 2. AWS gives you a second, older firewall
-          too. Here is how they differ, because &ldquo;explain SG vs NACL&rdquo; is asked in almost
-          every AWS interview.
+          You have used Security Groups since Lesson 2. AWS also gives you a second, older
+          firewall called a <strong>Network ACL</strong> (NACL, where ACL means access control
+          list). Here is how they differ. The question &ldquo;explain SG vs NACL&rdquo; is asked in
+          almost every AWS interview.
+        </p>
+        <p>
+          Two words in the table need a plain explanation. <strong>Stateful</strong> means the
+          firewall remembers a connection. If a request is allowed in, the reply is allowed out
+          automatically. <strong>Stateless</strong> means the firewall remembers nothing, so you
+          must write a rule for the reply traffic too.
         </p>
         <div className="table-wrap">
           <table>
@@ -363,14 +384,14 @@ export default function LessonSixPage() {
           </table>
         </div>
         <p>
-          <strong>Our rule:</strong> leave the NACL at its default (allow all) and do all your real
-          work with Security Groups. Reach for a NACL only for one job Security Groups cannot do:
-          <em> explicitly blocking</em> a bad IP range for a whole subnet.
+          <strong>Our rule:</strong> leave the NACL at its default (allow all) and do your real work
+          with Security Groups. Use a NACL only for one job that Security Groups cannot do:{" "}
+          <em>block</em> a bad IP range for a whole subnet.
         </p>
         <h3>The best Security Group trick — reference another group</h3>
         <p>
-          Instead of writing an IP address, a rule can name <em>another Security Group</em> as the
-          source. This is how we make the database private in a way that survives scaling:
+          Instead of an IP address, a rule can name <em>another Security Group</em> as the source.
+          This keeps the database private, even when you add more servers:
         </p>
         <Script
           title="Security Groups we create in this lesson"
@@ -381,8 +402,9 @@ db-sg    inbound: 5432      from web-sg           # only app servers may reach P
 cache-sg inbound: 6379      from web-sg           # only app servers may reach Redis`}
         />
         <p>
-          When Auto Scaling launches a tenth server it joins <code>web-sg</code> and instantly may
-          reach the database — no rule to edit, no IP to whitelist. And a stranger with the
+          Auto Scaling is the AWS feature that adds or removes servers when traffic changes. When
+          it launches a tenth server, that server joins <code>web-sg</code> and may reach the
+          database at once. There is no rule to edit and no IP to allow. A stranger who has the
           database password still cannot connect, because their machine is not in{" "}
           <code>web-sg</code>. Layer one (the private subnet) and layer two (the Security Group)
           both say no.
@@ -390,80 +412,86 @@ cache-sg inbound: 6379      from web-sg           # only app servers may reach R
 
         <h2 id="nat">NAT Gateway — and why it can raise your bill</h2>
         <p>
-          Here is a real problem. Your database server in the private subnet needs to download
-          operating-system security updates. But it has no route to the internet — that was the
-          whole point. How does it reach the update servers?
+          Here is a real problem. A server in the private subnet needs to download operating-system
+          security updates. But it has no route to the internet. That was the whole point. How does
+          it reach the update servers?
         </p>
         <p>
-          A <strong>NAT Gateway</strong> sits in a <em>public</em> subnet. Private servers send
-          their outbound traffic to it; it forwards the traffic using its own public IP and passes
-          the replies back. Outsiders cannot start a connection to the private server — the door
-          only opens one way, like a phone that can call out but has no number.
+          A <strong>NAT Gateway</strong> (NAT means Network Address Translation) is an AWS service
+          that lets private servers start connections to the internet without being reachable from
+          it. It sits in a <em>public</em> subnet. Private servers send their outbound traffic to
+          it. It forwards the traffic using its own public IP and passes the replies back.
+          Outsiders cannot start a connection to the private server. The door opens one way only,
+          like a phone that can call out but has no number for people to call in.
         </p>
         <Callout kind="warn" label="The bill nobody warns you about">
           <p>
             A NAT Gateway costs roughly <strong>$0.056 per hour (about $40 a month) plus $0.056
-            per GB</strong> it processes in Mumbai — even when idle. For a small project that can
-            be double the cost of everything else combined. Prices change, so check the current
-            VPC pricing page.
+            per GB</strong> it processes in Mumbai. The hourly charge applies even when it is idle.
+            For a small project this can be double the cost of everything else together. Prices
+            change, so check the current VPC pricing page.
           </p>
           <p className="mb-0">
-            Many beginners create one during the wizard, forget it, and discover it a month later.
+            Many beginners create one in the wizard, forget it, and find the cost a month later.
           </p>
         </Callout>
         <h3>Ways to avoid paying for it</h3>
         <ul>
           <li>
             <strong>Our approach in this course: skip the NAT.</strong> The database never needs to
-            call the internet — AWS patches RDS for you. Only the app servers need outbound access,
-            and they live in the public subnet where the Internet Gateway already gives it to them
+            call the internet, because AWS patches RDS for you. Only the app servers need outbound
+            access. They live in the public subnet, where the Internet Gateway gives it to them
             for free.
           </li>
           <li>
-            <strong>VPC endpoints for S3 and DynamoDB (Gateway type) are free.</strong> They give
-            private servers a private path to S3 without a NAT and without touching the internet.
-            Add one whenever a private server talks to S3.
+            <strong>VPC endpoints</strong> are private doors from your VPC to an AWS service. The{" "}
+            <strong>Gateway type, for S3 and DynamoDB, is free.</strong> It lets private servers
+            reach S3 without a NAT and without using the internet. Add one whenever a private
+            server talks to S3.
           </li>
           <li>
             <strong>Interface endpoints</strong> (for SSM, ECR, Secrets Manager and others) cost
-            about $0.011/hour per AZ. Cheaper than a NAT if you only need a few services.
+            about $0.011 per hour per AZ. This can be cheaper than a NAT if you need only a few
+            services.
           </li>
           <li>
-            <strong>Real production</strong> usually does use a NAT (one per AZ for resilience). If
-            your traffic is high, it is worth it. At the scale of this course, it is not.
+            <strong>Real production</strong> usually does use a NAT (one per AZ, so that one AZ
+            failure does not cut off the others). If your traffic is high, it is worth it. At the
+            size of this course, it is not.
           </li>
         </ul>
         <Callout kind="note" label="Public IPv4 is not free either">
           <p className="mb-0">
-            Since February 2024 AWS charges about $0.005 per hour (roughly $3.60 a month) for every
-            public IPv4 address, including the ones on your own servers and load balancers. Small
-            per address, but it is why you should not hand out public IPs to things that do not need
-            them.
+            Since February 2024, AWS charges about $0.005 per hour (roughly $3.60 a month) for every
+            public IPv4 address. This includes the ones on your own servers and load balancers. It
+            is small for one address, but it is a good reason not to give public IPs to things that
+            do not need them.
           </p>
         </Callout>
 
         <h2 id="default-vpc">The default VPC — and why we do not use it</h2>
         <p>
-          Every region in a new AWS account already contains a <strong>default VPC</strong>, with
-          public subnets in every AZ and an Internet Gateway attached. That is why the &ldquo;launch
-          instance&rdquo; wizard just works for a beginner: it quietly drops your server in there.
+          Every region in a new AWS account already has a <strong>default VPC</strong>. It has a
+          public subnet in every AZ and an Internet Gateway attached. This is why the
+          &ldquo;launch instance&rdquo; wizard works for a beginner: it puts your server in the
+          default VPC without telling you.
         </p>
-        <p>The default VPC is fine for learning EC2 in ten minutes. It is wrong for anything real:</p>
+        <p>The default VPC is fine for learning EC2 in ten minutes. It is wrong for real work:</p>
         <ul>
-          <li>Every subnet is public — there is nowhere to hide a database.</li>
+          <li>Every subnet is public, so there is nowhere safe to put a database.</li>
           <li>Instances get public IPs by default.</li>
-          <li>You did not design it, so you do not know what is in it.</li>
+          <li>You did not design it, so you do not know exactly what is in it.</li>
         </ul>
         <p>
-          You should know it exists, and know that you can leave it alone (do not delete it; some
-          services expect it). We build our own.
+          You should know that it exists and that you can leave it alone. Do not delete it,
+          because some services expect it. We build our own VPC.
         </p>
 
         <h2 id="build">Build it: the full VPC, step by step</h2>
         <p>
-          The console builds most of this in one screen. Take your time and read each field — every
-          box maps to one piece from the diagram above. Lesson 15 turns the same network into
-          Terraform.
+          The console builds most of this on one screen. Take your time and read each field. Every
+          box matches one piece from the diagram above. In Lesson 15 you will write the same
+          network as code with Terraform (a tool that creates cloud resources from text files).
         </p>
         <ol className="steps">
           <li>
@@ -473,21 +501,21 @@ cache-sg inbound: 6379      from web-sg           # only app servers may reach R
               <code>myapp</code>, CIDR <code>10.0.0.0/16</code>, <strong>2</strong> Availability
               Zones, <strong>2</strong> public and <strong>2</strong> private subnets, NAT gateways{" "}
               <strong>None</strong> (they cost money — see above), VPC endpoints{" "}
-              <strong>None</strong>, and keep DNS hostnames enabled (RDS needs it).
+              <strong>None</strong>, and keep DNS hostnames enabled (RDS endpoint names need it).
             </p>
             <p>
-              The preview on the right is the resource map: four subnets, one Internet Gateway, and
-              route tables already wired. Create it.
+              The preview on the right is the resource map. It shows four subnets, one Internet
+              Gateway and route tables that are already connected. Create it.
             </p>
           </li>
           <li>
             <h3>Read what the wizard made</h3>
             <p>
               Open the <strong>public</strong> route table: it has the <code>local</code> row plus{" "}
-              <code>0.0.0.0/0 → igw-…</code>. That single row is the whole difference between
-              public and private. The private route tables have only <code>local</code>. An
-              Internet Gateway that no route points to does nothing — the route is the sign that
-              sends traffic to the door.
+              <code>0.0.0.0/0 → igw-…</code>. That one row is the whole difference between public
+              and private. The private route tables have only <code>local</code>. An Internet
+              Gateway that no route points to does nothing. The route is the sign that sends
+              traffic to the door.
             </p>
             <p>
               On each public subnet, turn on <strong>auto-assign public IPv4</strong> (Edit subnet
@@ -532,14 +560,16 @@ cache-sg inbound: 6379      from web-sg           # only app servers may reach R
             </div>
             <p>
               For the group-to-group rules, type <code>sg-</code> in the source box and pick the
-              group by name. That is the trick from above: the rule follows the servers, not their
-              IPs.
+              group by name. This is the trick from above: the rule follows the servers, not their
+              IP addresses.
             </p>
             <Callout kind="warn" label="Your IP changes">
               <p className="mb-0">
-                Home and mobile connections change IP every few days. When SSH suddenly times out
-                next week, the fix is to update the &ldquo;My IP&rdquo; rule. In Lesson 18 you will
-                remove port 22 entirely and use SSM Session Manager instead.
+                Home and mobile connections often get a new IP address after some days. If SSH
+                suddenly times out next week, update the &ldquo;My IP&rdquo; rule. SSH is the secure
+                remote login tool, and it uses port 22. In Lesson 18 you will remove port 22 and
+                use SSM Session Manager instead (an AWS tool that opens a shell without any open
+                port).
               </p>
             </Callout>
           </li>
@@ -547,17 +577,17 @@ cache-sg inbound: 6379      from web-sg           # only app servers may reach R
             <h3>Write down the IDs</h3>
             <p>
               Later lessons ask for &ldquo;the private subnets&rdquo; or &ldquo;web-sg&rdquo;.
-              Keep a note of the VPC ID, the four subnet IDs and the three Security Group IDs —
-              the console shows them all on the VPC&apos;s resource map.
+              Keep a note of the VPC ID, the four subnet IDs and the three Security Group IDs. The
+              console shows them all on the VPC&apos;s resource map.
             </p>
           </li>
         </ol>
 
         <h2 id="debugging">When something cannot connect — the checklist</h2>
         <p>
-          Sooner or later you will stare at a hanging <code>ssh</code> command or a browser
-          spinner. Networking problems are solved by walking the request&apos;s path{" "}
-          <em>in order</em> instead of guessing. Follow the packet:
+          Sooner or later you will watch an <code>ssh</code> command hang or a browser spinner
+          turn forever. Do not guess. Check the request&apos;s path <em>in order</em>. A packet is
+          a small piece of data sent over the network, so follow the packet:
         </p>
         <div className="table-wrap">
           <table>
@@ -591,24 +621,24 @@ cache-sg inbound: 6379      from web-sg           # only app servers may reach R
             <tbody>
               <tr>
                 <td><code>Connection timed out</code> (hangs)</td>
-                <td>Something is <em>silently dropping</em> packets: Security Group, route table or NACL. Nothing answered at all.</td>
+                <td>Something is <em>silently dropping</em> the packets: a Security Group, a route table or a NACL. Nothing answered at all.</td>
               </tr>
               <tr>
                 <td><code>Connection refused</code> (instant)</td>
-                <td>The packet <em>arrived</em>, but nothing is listening on that port. The network is fine; the app is not running or is bound to the wrong address.</td>
+                <td>The packet <em>arrived</em>, but no program is listening on that port. The network is fine. The app is not running, or it listens on the wrong address.</td>
               </tr>
               <tr>
                 <td><code>Permission denied (publickey)</code></td>
-                <td>The network is fine. Wrong key file, wrong username (<code>ubuntu</code> not <code>ec2-user</code>), or <code>.pem</code> permissions too open.</td>
+                <td>The network is fine. The key file is wrong, the username is wrong (use <code>ubuntu</code> on Ubuntu, not <code>ec2-user</code>), or the <code>.pem</code> file permissions are too open.</td>
               </tr>
             </tbody>
           </table>
         </div>
         <Callout kind="ok" label="A useful tool: VPC Reachability Analyzer">
           <p className="mb-0">
-            In the console, VPC → Reachability Analyzer. Pick a source and a destination and AWS
-            tells you <em>exactly which component</em> (Security Group, route, NACL) blocks the
-            path. It costs about $0.10 per analysis and saves hours.
+            In the console, go to VPC → Reachability Analyzer. Pick a source and a destination. AWS
+            then tells you <em>exactly which part</em> (Security Group, route or NACL) blocks the
+            path. It costs about $0.10 per analysis and can save hours.
           </p>
         </Callout>
 
@@ -638,8 +668,8 @@ cache-sg inbound: 6379      from web-sg           # only app servers may reach R
 
         <h2 id="interview">Interview corner</h2>
         <p>
-          Read the question, try to answer out loud in two sentences, then open it. Every one of
-          these comes up in real AWS interviews.
+          Read the question and try to answer out loud in two sentences. Then open the answer.
+          These questions come up in real AWS interviews.
         </p>
         <InterviewQA
           items={[
@@ -647,9 +677,9 @@ cache-sg inbound: 6379      from web-sg           # only app servers may reach R
               q: "What makes a subnet public?",
               a: (
                 <p className="mb-0">
-                  Its route table contains a route for <code>0.0.0.0/0</code> that targets an
-                  Internet Gateway. Nothing on the subnet itself says &ldquo;public&rdquo;. Instances
-                  in it also need a public or Elastic IP to be reachable from the internet.
+                  Its route table has a route for <code>0.0.0.0/0</code> that points to an Internet
+                  Gateway. The subnet has no &ldquo;public&rdquo; setting of its own. Instances in
+                  it also need a public IP or an Elastic IP to be reachable from the internet.
                 </p>
               ),
             },
@@ -657,10 +687,10 @@ cache-sg inbound: 6379      from web-sg           # only app servers may reach R
               q: "Security Group vs Network ACL?",
               a: (
                 <p className="mb-0">
-                  Security Groups are stateful, attach to resources, and only have allow rules.
-                  NACLs are stateless, attach to subnets, support allow and deny, and are evaluated
-                  in numbered order. In practice you manage Security Groups and leave NACLs at the
-                  default.
+                  Security Groups are stateful, attach to resources, and have only allow rules.
+                  NACLs are stateless, attach to subnets, have both allow and deny rules, and are
+                  checked in number order. In practice you manage Security Groups and leave NACLs at
+                  the default.
                 </p>
               ),
             },
@@ -668,9 +698,9 @@ cache-sg inbound: 6379      from web-sg           # only app servers may reach R
               q: "How can a private-subnet server download updates without being reachable from the internet?",
               a: (
                 <p className="mb-0">
-                  Through a NAT Gateway in a public subnet: outbound connections are translated and
-                  replies return, but inbound connections cannot be initiated. For S3 specifically, a
-                  free Gateway VPC endpoint avoids the NAT altogether.
+                  Through a NAT Gateway in a public subnet. Outbound connections go out and the
+                  replies come back, but nobody outside can start a connection in. For S3 only, a
+                  free Gateway VPC endpoint avoids the NAT completely.
                 </p>
               ),
             },
@@ -678,8 +708,8 @@ cache-sg inbound: 6379      from web-sg           # only app servers may reach R
               q: "Why does a subnet have only 251 usable addresses in a /24?",
               a: (
                 <p className="mb-0">
-                  AWS reserves five per subnet: network address, VPC router, DNS, one for future
-                  use, and broadcast.
+                  AWS keeps five addresses in each subnet: the network address, the VPC router, DNS,
+                  one for future use, and the broadcast address.
                 </p>
               ),
             },
@@ -687,9 +717,9 @@ cache-sg inbound: 6379      from web-sg           # only app servers may reach R
               q: "Your app in a public subnet cannot reach the internet, though the route to the IGW exists. Why?",
               a: (
                 <p className="mb-0">
-                  The instance has no public or Elastic IP. The Internet Gateway only performs
-                  address translation for instances that have one. Also check the outbound Security
-                  Group rules and the NACL.
+                  The instance has no public IP or Elastic IP. The Internet Gateway only translates
+                  addresses for instances that have one. Also check the outbound Security Group
+                  rules and the NACL.
                 </p>
               ),
             },
@@ -697,10 +727,11 @@ cache-sg inbound: 6379      from web-sg           # only app servers may reach R
               q: "Design a VPC for a web app with a database. What goes where?",
               a: (
                 <p className="mb-0">
-                  One VPC, two AZs, a public and a private subnet in each. Load balancer in public
-                  subnets. App servers in public (cheap) or private (stricter, needs NAT or
-                  endpoints). Database and cache in private subnets with Security Groups that accept
-                  traffic only from the app&apos;s Security Group.
+                  One VPC, two AZs, and a public and a private subnet in each. Put the load balancer
+                  in the public subnets. Put the app servers in public subnets (cheap) or private
+                  subnets (stricter, but they need a NAT or endpoints). Put the database and cache in
+                  private subnets, with Security Groups that accept traffic only from the app&apos;s
+                  Security Group.
                 </p>
               ),
             },
@@ -708,8 +739,10 @@ cache-sg inbound: 6379      from web-sg           # only app servers may reach R
               q: "Two VPCs need to talk to each other. What are the options and the catch?",
               a: (
                 <p className="mb-0">
-                  VPC peering (simple, one-to-one, not transitive) or Transit Gateway (hub for many
-                  VPCs, costs more). The catch for both: the CIDR ranges must not overlap.
+                  VPC peering is a direct link between two VPCs. It is simple, but it is not
+                  transitive (if A peers with B and B peers with C, A still cannot reach C). Transit
+                  Gateway is a central hub that connects many VPCs, and it costs more. The catch for
+                  both: the CIDR ranges must not overlap.
                 </p>
               ),
             },
@@ -720,8 +753,8 @@ cache-sg inbound: 6379      from web-sg           # only app servers may reach R
 
         <h2 id="practice">Practice task before Lesson 7</h2>
         <p>
-          Build the network from the previous section, then prove to yourself that it behaves as
-          designed. Everything is free.
+          Build the network from the previous section. Then check that it works as designed.
+          Everything is free.
         </p>
         <ol>
           <li>
@@ -735,8 +768,8 @@ cache-sg inbound: 6379      from web-sg           # only app servers may reach R
             subnets? Add it back.
           </li>
           <li>
-            Draw the VPC on paper — no looking. Label each subnet with its CIDR, AZ and whether it
-            is public. Compare with the figure above.
+            Draw the VPC on paper without looking. Label each subnet with its CIDR, its AZ and
+            whether it is public. Compare your drawing with the figure above.
           </li>
           <li>
             Write down, for each Security Group, <em>who</em> may connect on <em>which port</em>.
@@ -750,18 +783,18 @@ cache-sg inbound: 6379      from web-sg           # only app servers may reach R
         </ol>
         <Callout kind="ok" label="Cleaning up">
           <p className="mb-0">
-            Nothing here costs money, so keep it all — Lessons 7 and 8 launch resources into these
-            subnets. If you ever need to delete, do it in reverse: instances, then Security Groups
-            (not the default one), detach and delete the IGW, subnets, route tables, and finally
-            the VPC.
+            Nothing here costs money, so keep it all. Lessons 7 and 8 launch resources into these
+            subnets. If you ever need to delete, work in reverse order: instances first, then
+            Security Groups (not the default one), then detach and delete the IGW, then the
+            subnets and route tables, and last the VPC.
           </p>
         </Callout>
 
         <h2 id="conclusion">Conclusion</h2>
         <p>
-          A VPC is a private building you rent inside AWS. Subnets are its floors, route tables are
-          the signs that decide where traffic goes, the Internet Gateway is the front door, and
-          Security Groups are the guards at each office.
+          A VPC is a private building you rent inside AWS. Subnets are its floors. Route tables are
+          the signs that decide where traffic goes. The Internet Gateway is the front door. Security
+          Groups are the guards at each office.
         </p>
         <ul>
           <li>
@@ -769,7 +802,7 @@ cache-sg inbound: 6379      from web-sg           # only app servers may reach R
             Delete it and the subnet is private.
           </li>
           <li>
-            <strong>Two layers of safety</strong>: the database sits in a private subnet <em>and</em>{" "}
+            <strong>Two layers of safety</strong>: the database is in a private subnet <em>and</em>{" "}
             its Security Group accepts only the app&apos;s Security Group.
           </li>
           <li>
@@ -777,17 +810,17 @@ cache-sg inbound: 6379      from web-sg           # only app servers may reach R
             it.
           </li>
           <li>
-            <strong>NAT Gateways are paid and easy to forget.</strong> Skip them until traffic
-            justifies them; use free S3 endpoints instead.
+            <strong>NAT Gateways cost money and are easy to forget.</strong> Skip them until your
+            traffic needs them. Use free S3 endpoints instead.
           </li>
           <li>
             <strong>Debug in path order</strong>: instance → public IP → Security Group → route →
-            NACL → listening port. &ldquo;Timed out&rdquo; means blocked; &ldquo;refused&rdquo; means
-            nothing was listening.
+            NACL → listening port. &ldquo;Timed out&rdquo; means something blocked the traffic.
+            &ldquo;Refused&rdquo; means no program was listening.
           </li>
         </ul>
         <p>
-          The network exists and is empty. Next we put the first real server in it: EC2.
+          The network exists, but it is empty. Next we put the first real server in it: EC2.
         </p>
 
         <hr />
