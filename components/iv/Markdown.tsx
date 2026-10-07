@@ -28,7 +28,8 @@ export const slugify = (s: string) =>
 export function outlineOf(src: string): { id: string; label: string }[] {
   return Lexer.lex(src)
     .filter((t): t is Tokens.Heading => t.type === "heading" && t.depth === 2)
-    .map((t) => ({ id: slugify(t.text), label: t.text.replace(/[`*_]/g, "") }));
+    // The "On this page" list is an <ol> that numbers itself, so drop any "1. " the heading already starts with.
+    .map((t) => ({ id: slugify(t.text), label: t.text.replace(/[`*_]/g, "").replace(/^\d+[.)]\s+/, "") }));
 }
 
 function inline(tokens: Token[] | undefined, key = "i"): ReactNode[] {
