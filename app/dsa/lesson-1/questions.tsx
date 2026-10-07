@@ -30,13 +30,13 @@ export default function Questions() {
           },
           {
             name: "Two values separated by a comma",
-            idea: <p><code>console.log</code> can print several values; it puts one space between them.</p>,
+            idea: <p><code>console.log</code> can print several values. It puts one space between them.</p>,
             code: `console.log("Hello,", "World!"); // Hello, World!`,
             explain: <p>The first value is <code>&quot;Hello,&quot;</code> and the second is <code>&quot;World!&quot;</code>. The space between them is added automatically.</p>,
           },
           {
             name: "Join two pieces of text with +",
-            idea: <p>Between two pieces of text, <code>+</code> joins them into one.</p>,
+            idea: <p>Between two pieces of text, <code>+</code> joins them into one longer piece of text. This is called <strong>concatenation</strong>.</p>,
             code: `console.log("Hello, " + "World!"); // Hello, World!`,
             explain: <p>The space is inside the first piece of text (<code>&quot;Hello, &quot;</code>). With <code>+</code>, no space is added for you, so you must include it yourself.</p>,
           },
@@ -86,7 +86,7 @@ My name is Asha
 I live in Pune
 I am learning DSA
 */`,
-            explain: <p><code>\n</code> is called the <strong>newline character</strong>. It is not printed; it moves the output to the next line.</p>,
+            explain: <p><code>\n</code> is called the <strong>newline character</strong>. It is not printed. It moves the output to the next line.</p>,
           },
         ]}
         compare={<p>Use three statements while learning — it is easier to read. Knowing <code>\n</code> is still useful, because you will see it in many programs.</p>}
@@ -128,11 +128,11 @@ console.log("2" + "3"); // 23`,
           },
           {
             name: "Check the type with typeof",
-            idea: <p><code>typeof</code> tells you what kind of value something is. Use it to confirm your answer.</p>,
+            idea: <p><code>typeof</code> is an operator that tells you the type of a value (what kind of value it is, such as number or text). Use it to confirm your answer.</p>,
             code: `console.log(typeof (2 + 3));     // number
 console.log(typeof "2 + 3");     // string
 console.log(typeof ("2" + "3")); // string`,
-            explain: <p>A <strong>string</strong> is text. The third result is a string, which confirms that <code>+</code> joined the two pieces of text into <code>&quot;23&quot;</code>.</p>,
+            explain: <p>A <strong>string</strong> is a value that is text. The third result is a string, which confirms that <code>+</code> joined the two pieces of text into <code>&quot;23&quot;</code>.</p>,
           },
         ]}
         compare={<p>In an interview you will reason it out (Approach 1). When you are unsure while practising, <code>typeof</code> gives a quick, certain answer.</p>}
@@ -168,7 +168,7 @@ A
 7
 B
 */`,
-            explain: <p>The order of the output always follows the order of the statements — not the alphabet and not anything else. Only line 3 calculates something.</p>,
+            explain: <p>The order of the output always follows the order of the statements. It does not follow the alphabet or anything else. Only line 3 calculates something.</p>,
           },
         ]}
       >
@@ -193,16 +193,16 @@ B
             name: "Add the missing double quote",
             idea: <p>The text opens with <code>&quot;</code> but never closes. Add the closing <code>&quot;</code>.</p>,
             code: `console.log("Hello");  // Hello`,
-            explain: <p>Without the closing quote, JavaScript keeps reading until the end of the line, looking for the end of the text. It never finds it, so the code is not valid JavaScript — a <code>SyntaxError</code>.</p>,
+            explain: <p>Without the closing quote, JavaScript keeps reading until the end of the line, looking for the end of the text. It never finds it. The code breaks the rules of JavaScript, so you get a <code>SyntaxError</code> (an error about wrong code shape).</p>,
           },
           {
             name: "Use single quotes instead",
             idea: <p>Text can also be written between single quotes. Both quotes must be the same kind.</p>,
             code: `console.log('Hello');  // Hello`,
-            explain: <p><code>&quot;Hello&quot;</code> and <code>&apos;Hello&apos;</code> are exactly the same text. Just never mix them: <code>&quot;Hello&apos;</code> is still an error.</p>,
+            explain: <p><code>&quot;Hello&quot;</code> and <code>&apos;Hello&apos;</code> are exactly the same text. Just never mix them. <code>&quot;Hello&apos;</code> is still an error.</p>,
           },
         ]}
-        compare={<p>Either fix is correct. Pick one style of quote and use it everywhere in your code; this series uses double quotes.</p>}
+        compare={<p>Either fix is correct. Pick one style of quote and use it everywhere in your code. This series uses double quotes.</p>}
       >
         <p>This line does not run. Find the problem and fix it so it prints <code>Hello</code>.</p>
       </Problem>
@@ -222,9 +222,9 @@ B
         approaches={[
           {
             name: "Correct the capital letter",
-            idea: <p>JavaScript is case-sensitive. The built-in name is <code>console</code>, with a small c.</p>,
+            idea: <p>JavaScript is case-sensitive, which means a capital letter and a small letter are different. The built-in name is <code>console</code>, with a small c.</p>,
             code: `console.log("Hi");  // Hi`,
-            explain: <p><code>Console</code> and <code>console</code> are two different names to JavaScript. Only <code>console</code> exists, so <code>Console</code> causes a <code>ReferenceError</code> — &ldquo;I do not know this name&rdquo;.</p>,
+            explain: <p><code>Console</code> and <code>console</code> are two different names to JavaScript. Only <code>console</code> exists, so <code>Console</code> causes a <code>ReferenceError</code>, which means &ldquo;I do not know this name&rdquo;.</p>,
           },
         ]}
       >
@@ -272,10 +272,10 @@ console.log(edge);
 *   *
 *****
 */`,
-            explain: <p><code>edge</code> and <code>middle</code> are <strong>variables</strong> — named boxes that hold a value. You will learn them properly in Lesson 2. If the box ever needs to change, you change it in one place.</p>,
+            explain: <p><code>edge</code> and <code>middle</code> are <strong>variables</strong> — named boxes that hold a value. You will learn them properly in Lesson 2. If the text ever needs to change, you change it in one place.</p>,
           },
         ]}
-        compare={<p>Both are correct. Approach 2 avoids writing the same thing twice, which becomes important as programs grow. In Lesson 6 you will draw boxes of any size with loops.</p>}
+        compare={<p>Both are correct. Approach 2 avoids writing the same thing twice. This matters more as programs grow. In Lesson 6 you will draw boxes of any size with loops.</p>}
       >
         <p>Print this shape exactly. The middle line has 3 spaces between the stars.</p>
         <CodeBlock lang="text" code={`*****\n*   *\n*****`} />

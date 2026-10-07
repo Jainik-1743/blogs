@@ -15,13 +15,13 @@ export default function Questions() {
           { input: "0", output: "1", why: "Edge case: 0 is written with one digit." },
         ]}
         hints={[
-          <>Each time you divide by 10 (and drop the decimal part), the number loses one digit.</>,
+          <>Each time you divide by 10 and drop the decimal part, the number loses one digit.</>,
           <>Count how many times you can do that before the number becomes 0. Be careful with the input 0 itself.</>,
         ]}
         approaches={[
           {
             name: "Divide by 10 until nothing is left",
-            idea: <p>Remove one digit per iteration with <code>Math.floor(n / 10)</code> and count the iterations.</p>,
+            idea: <p>Remove one digit in each iteration with <code>Math.floor(n / 10)</code>, and count the iterations.</p>,
             code: `function countDigits(n) {
   if (n === 0) return 1;       // the loop below would not run for 0
   let count = 0;
@@ -41,18 +41,18 @@ console.log(countDigits(0));    // 1`,
           },
           {
             name: "Convert to text and measure its length",
-            idea: <p>The number of digits is the number of characters in the number written as text.</p>,
+            idea: <p>The number of digits is the number of characters in the number when it is written as text (a string).</p>,
             code: `function countDigits(n) {
   return String(n).length;
 }
 
 console.log(countDigits(4729)); // 4
 console.log(countDigits(0));    // 1`,
-            explain: <p><code>String(4729)</code> is <code>&quot;4729&quot;</code>, which has length 4. Short and correct for non-negative whole numbers.</p>,
+            explain: <p><code>String(4729)</code> is <code>&quot;4729&quot;</code>, which has length 4. It is short and correct for non-negative whole numbers.</p>,
           },
           {
             name: "Logarithm",
-            idea: <p>A number with k digits is between 10<sup>k−1</sup> and 10<sup>k</sup>, so k = ⌊log₁₀ n⌋ + 1.</p>,
+            idea: <p>A logarithm tells you how many times you can divide by a base. A number with k digits is at least 10<sup>k−1</sup> and less than 10<sup>k</sup>, so k = ⌊log₁₀ n⌋ + 1. (The symbol ⌊ ⌋ means &ldquo;round down&rdquo;.)</p>,
             code: `function countDigits(n) {
   if (n === 0) return 1;
   return Math.floor(Math.log10(n)) + 1;
@@ -60,10 +60,10 @@ console.log(countDigits(0));    // 1`,
 
 console.log(countDigits(4729)); // 4
 console.log(countDigits(1000)); // 4`,
-            explain: <p><code>Math.log10(4729)</code> is about 3.67; rounding down gives 3, plus 1 gives 4. This is a maths shortcut — good to know, not required.</p>,
+            explain: <p><code>Math.log10(4729)</code> is about 3.67. Rounding down gives 3, and adding 1 gives 4. This is a maths shortcut. It is good to know, but not required. Be careful: computers store decimals with small rounding errors, so for very large numbers (for example 999999999999999) this method can give a wrong answer.</p>,
           },
         ]}
-        compare={<p>Learn Approach 1: it is the digit loop that every other question in this list builds on. Approach 2 is fine in everyday code.</p>}
+        compare={<p>Learn Approach 1. It is the digit loop that every other question in this list builds on. Approach 2 is fine in everyday code.</p>}
       >
         <p>Count how many digits a non-negative whole number has.</p>
       </Problem>
@@ -80,7 +80,7 @@ console.log(countDigits(1000)); // 4`,
         approaches={[
           {
             name: "Digit loop",
-            idea: <p>Take the last digit, add it, remove it — repeat while digits remain.</p>,
+            idea: <p>Take the last digit, add it to the sum, and remove it. Repeat while digits remain.</p>,
             code: `function sumDigits(n) {
   let sum = 0;
   while (n > 0) {
@@ -91,11 +91,11 @@ console.log(countDigits(1000)); // 4`,
 }
 
 console.log(sumDigits(4729)); // 22`,
-            explain: <p>This is the traced example from the lesson, wrapped in a function. It works for a number of any length.</p>,
+            explain: <p>This is the traced example from the lesson, put inside a function. It works for a number of any length.</p>,
           },
           {
             name: "Loop over the characters of the text",
-            idea: <p>Write the number as text and add up each character as a number.</p>,
+            idea: <p>Write the number as text. Then turn each character into a number and add them up.</p>,
             code: `function sumDigits(n) {
   let sum = 0;
   for (const ch of String(n)) {
@@ -105,10 +105,10 @@ console.log(sumDigits(4729)); // 22`,
 }
 
 console.log(sumDigits(4729)); // 22`,
-            explain: <p><code>for (const ch of text)</code> visits every character (Lesson 9). <code>Number(&quot;7&quot;)</code> turns the character into the number 7.</p>,
+            explain: <p><code>for (const ch of text)</code> is a loop that visits every character of the text one by one (Lesson 9). <code>Number(&quot;7&quot;)</code> turns the character into the number 7.</p>,
           },
         ]}
-        compare={<p>Interviewers usually expect Approach 1, because it works with numbers only. Approach 2 is also correct and easy to read.</p>}
+        compare={<p>Interviewers usually expect Approach 1, because it uses numbers only. Approach 2 is also correct and easy to read.</p>}
       >
         <p>Find the sum of the digits of n.</p>
       </Problem>
@@ -128,7 +128,7 @@ console.log(sumDigits(4729)); // 22`,
         approaches={[
           {
             name: "Build the reverse digit by digit",
-            idea: <p>Take the last digit of n and attach it to the end of <code>rev</code>; repeat until n is 0.</p>,
+            idea: <p>Take the last digit of n and attach it to the end of <code>rev</code>. Repeat until n is 0.</p>,
             code: `function reverseNumber(n) {
   let rev = 0;
   while (n > 0) {
@@ -146,17 +146,17 @@ console.log(reverseNumber(1200)); // 21`,
           },
           {
             name: "Reverse the text",
-            idea: <p>Turn the number into text, reverse the characters, and turn it back into a number.</p>,
+            idea: <p>Turn the number into text, reverse the characters, and turn the result back into a number.</p>,
             code: `function reverseNumber(n) {
   return Number(String(n).split("").reverse().join(""));
 }
 
 console.log(reverseNumber(1234)); // 4321
 console.log(reverseNumber(1200)); // 21`,
-            explain: <p><code>split(&quot;&quot;)</code> makes a list of characters, <code>reverse()</code> reverses the list and <code>join(&quot;&quot;)</code> joins it back into text. <code>Number(&quot;0021&quot;)</code> is 21.</p>,
+            explain: <p><code>split(&quot;&quot;)</code> makes a list of single characters. <code>reverse()</code> reverses the list. <code>join(&quot;&quot;)</code> joins the list back into text. <code>Number(&quot;0021&quot;)</code> is 21.</p>,
           },
         ]}
-        compare={<p>Approach 1 is the expected interview answer. LeetCode 7 (Reverse Integer) adds negative numbers and a size limit — handle the sign separately and check the limit before returning.</p>}
+        compare={<p>Approach 1 is the answer interviewers expect. LeetCode 7 (Reverse Integer) adds negative numbers and a size limit (the result must fit in a 32-bit integer). Handle the sign separately and check the limit before you return.</p>}
       >
         <p>Reverse the digits of a positive number.</p>
       </Problem>
@@ -170,7 +170,7 @@ console.log(reverseNumber(1200)); // 21`,
           { input: "123", output: "false", why: "Reversed, 123 is 321, which is different." },
           { input: "10", output: "false", why: "Reversed, 10 is 01, which is 1." },
         ]}
-        hints={[<>A palindrome equals its own reverse. You already know how to reverse a number.</>, <>The digit loop changes n. Save a copy of the original before the loop so you can compare at the end.</>]}
+        hints={[<>A palindrome is something that reads the same forwards and backwards. A palindrome number equals its own reverse. You already know how to reverse a number.</>, <>The digit loop changes n. Save a copy of the original before the loop so you can compare at the end.</>]}
         approaches={[
           {
             name: "Reverse it and compare",
@@ -192,7 +192,7 @@ console.log(isPalindromeNumber(10));   // false`,
           },
           {
             name: "Compare digits from both ends as text",
-            idea: <p>Write the number as text. Compare the first and last characters, then move both inwards.</p>,
+            idea: <p>Write the number as text. Compare the first and last characters, then move both positions towards the middle.</p>,
             code: `function isPalindromeNumber(n) {
   const s = String(n);
   let left = 0, right = s.length - 1;
@@ -206,11 +206,11 @@ console.log(isPalindromeNumber(10));   // false`,
 
 console.log(isPalindromeNumber(1221)); // true
 console.log(isPalindromeNumber(123));  // false`,
-            explain: <p>This is the <strong>two pointers</strong> technique you will meet again in Lessons 8, 9 and 21. It stops at the first mismatch.</p>,
+            explain: <p>This is the <strong>two pointers</strong> technique. A pointer here is just a variable that holds a position (<code>left</code> and <code>right</code>). You will meet this technique again in Lessons 8, 9 and 21. The loop stops at the first mismatch.</p>,
           },
           {
             name: "Reverse only half of the number",
-            idea: <p>Move digits from n into rev until rev is at least as large as n. Then compare the two halves.</p>,
+            idea: <p>Move digits from n into rev until rev is at least as large as n. At that point you have reversed half of the number. Then compare the two halves.</p>,
             code: `function isPalindromeNumber(n) {
   if (n < 0 || (n % 10 === 0 && n !== 0)) return false;   // e.g. 10, 120
   let rev = 0;
@@ -225,10 +225,10 @@ console.log(isPalindromeNumber(123));  // false`,
 console.log(isPalindromeNumber(1221));  // true
 console.log(isPalindromeNumber(12321)); // true
 console.log(isPalindromeNumber(10));    // false`,
-            explain: <p>For 12321: after three iterations n = 12 and rev = 123; <code>Math.floor(123 / 10)</code> = 12 = n, so it is a palindrome. Only half the digits are processed, and the reversed number can never become too large. This is the follow-up answer for LeetCode 9.</p>,
+            explain: <p>For 12321: after three iterations n = 12 and rev = 123; <code>Math.floor(123 / 10)</code> = 12 = n, so it is a palindrome. Only half of the digits are processed, and the reversed number can never become too large. This is the follow-up answer for LeetCode 9.</p>,
           },
         ]}
-        compare={<p>Start with Approach 1 — it is clear and correct. If asked to avoid converting to text, Approach 1 or 3 is required; Approach 3 is the most efficient.</p>}
+        compare={<p>Start with Approach 1, because it is clear and correct. If the interviewer says not to convert to text, use Approach 1 or 3. Approach 3 is the most efficient.</p>}
       >
         <p>Return <code>true</code> if the number reads the same forwards and backwards. (LeetCode 9.)</p>
       </Problem>
@@ -238,11 +238,11 @@ console.log(isPalindromeNumber(10));    // false`,
         title="Smallest power of 2 that is at least N"
         level="Easy"
         examples={[
-          { input: "20", output: "32", why: "The powers of 2 are 1, 2, 4, 8, 16, 32 … 16 is too small; 32 is the first one ≥ 20." },
+          { input: "20", output: "32", why: "The powers of 2 are 1, 2, 4, 8, 16, 32 and so on. 16 is too small. 32 is the first one that is 20 or more." },
           { input: "64", output: "64", why: "64 is already a power of 2." },
           { input: "1", output: "1", why: "1 is 2⁰." },
         ]}
-        hints={[<>You do not know how many doublings you need — only when to stop. Which loop fits?</>, <>Start at 1 and double while the value is still smaller than N.</>]}
+        hints={[<>You do not know how many doublings you need. You only know when to stop. Which loop fits?</>, <>Start at 1 and double while the value is still smaller than N.</>]}
         approaches={[
           {
             name: "Keep doubling",
@@ -262,17 +262,17 @@ console.log(nextPowerOfTwo(1));  // 1`,
           },
           {
             name: "Logarithm",
-            idea: <p>The exponent needed is ⌈log₂ N⌉, so the answer is 2 raised to that power.</p>,
+            idea: <p>The power you need is ⌈log₂ N⌉ (the logarithm to base 2, rounded up). The answer is 2 raised to that power.</p>,
             code: `function nextPowerOfTwo(N) {
   return 2 ** Math.ceil(Math.log2(N));
 }
 
 console.log(nextPowerOfTwo(20)); // 32
 console.log(nextPowerOfTwo(64)); // 64`,
-            explain: <p><code>Math.log2(20)</code> is about 4.32; rounding up gives 5, and 2⁵ = 32. A one-line maths shortcut.</p>,
+            explain: <p><code>Math.log2(20)</code> is about 4.32. Rounding up gives 5, and 2⁵ = 32. This is a one-line maths shortcut. For very large N (above about 5 × 10¹⁴), rounding errors in decimals can make it give a wrong answer.</p>,
           },
         ]}
-        compare={<p>Approach 1 is the clearest example of when to use <code>while</code>. Approach 2 is shorter but depends on remembering the maths.</p>}
+        compare={<p>Approach 1 is the clearest example of when to use <code>while</code>. Approach 2 is shorter, but you need to remember the maths.</p>}
       >
         <p>Find the smallest power of 2 (1, 2, 4, 8, …) that is greater than or equal to N.</p>
       </Problem>
@@ -302,11 +302,11 @@ console.log(nextPowerOfTwo(64)); // 64`,
 
 console.log(countEvenDigits(4729)); // 2
 console.log(countEvenDigits(2468)); // 4`,
-            explain: <p>Lessons 3 and 5 combined: a condition inside the digit loop. Most real problems are small building blocks like this, combined.</p>,
+            explain: <p>This combines Lessons 3 and 5: a condition inside the digit loop. Most real problems are made of small building blocks like this.</p>,
           },
           {
             name: "Loop over the characters",
-            idea: <p>Check each character of the number written as text.</p>,
+            idea: <p>Check each character of the number when it is written as text.</p>,
             code: `function countEvenDigits(n) {
   let count = 0;
   for (const ch of String(n)) {
@@ -316,10 +316,10 @@ console.log(countEvenDigits(2468)); // 4`,
 }
 
 console.log(countEvenDigits(4729)); // 2`,
-            explain: <p>The same idea, reading digits from left to right instead of right to left. The order does not matter for counting.</p>,
+            explain: <p>This is the same idea, but it reads the digits from left to right instead of right to left. The order does not matter for counting.</p>,
           },
         ]}
-        compare={<p>Both are correct. Approach 1 uses only arithmetic, which is what most interviewers expect for digit questions.</p>}
+        compare={<p>Both are correct. Approach 1 uses only arithmetic (maths with numbers), which is what most interviewers expect for digit questions.</p>}
       >
         <p>How many digits of n are even?</p>
       </Problem>
@@ -334,8 +334,8 @@ console.log(countEvenDigits(4729)); // 2`,
           { input: "123", output: "false", why: "1³ + 2³ + 3³ = 36, which is not 123." },
         ]}
         hints={[
-          <>You need two things: the number of digits k, and the sum of each digit raised to the power k.</>,
-          <>Do it in two passes. The first pass counts digits on a copy of n; the second pass builds the sum.</>,
+          <>You need two things: the number of digits k, and the sum of each digit raised to the power k (a digit to the power 3 means digit × digit × digit).</>,
+          <>Do it in two passes. The first pass counts the digits using a copy of n. The second pass builds the sum.</>,
         ]}
         approaches={[
           {
@@ -367,11 +367,11 @@ console.log(countEvenDigits(4729)); // 2`,
 console.log(isArmstrong(153));  // true
 console.log(isArmstrong(9474)); // true
 console.log(isArmstrong(123));  // false`,
-            explain: <p>The first loop uses its own copy (<code>temp</code>) so that <code>n</code> is still unchanged when the second loop runs. Splitting a problem into two simple passes is a perfectly good interview answer.</p>,
+            explain: <p>The first loop uses its own copy (<code>temp</code>), so <code>n</code> is still unchanged when the second loop runs. Splitting a problem into two simple passes is a good interview answer.</p>,
           },
           {
             name: "Use the text length for k",
-            idea: <p>Get the digit count from the text form, then do a single digit loop.</p>,
+            idea: <p>Get the digit count from the length of the text, then do a single digit loop.</p>,
             code: `function isArmstrong(n) {
   const k = String(n).length;
   let sum = 0, temp = n;
@@ -384,12 +384,12 @@ console.log(isArmstrong(123));  // false`,
 
 console.log(isArmstrong(153)); // true
 console.log(isArmstrong(370)); // true`,
-            explain: <p>Shorter: one loop instead of two. Working on <code>temp</code> keeps <code>n</code> available for the final comparison.</p>,
+            explain: <p>This is shorter, with one loop instead of two. Working on <code>temp</code> keeps <code>n</code> available for the final comparison.</p>,
           },
         ]}
-        compare={<p>Both are correct. Approach 2 is shorter; Approach 1 shows you can do everything with arithmetic, which some interviewers ask for.</p>}
+        compare={<p>Both are correct. Approach 2 is shorter. Approach 1 shows that you can do everything with arithmetic, which some interviewers ask for.</p>}
       >
-        <p>An Armstrong number equals the sum of its digits, each raised to the power of the number of digits. Check whether n is one.</p>
+        <p>An Armstrong number is a number that equals the sum of its digits, each raised to the power of the number of digits. Check whether n is one.</p>
       </Problem>
 
       <Problem
@@ -400,11 +400,11 @@ console.log(isArmstrong(370)); // true`,
           { input: "6", output: "8", why: "6 → 3 → 10 → 5 → 16 → 8 → 4 → 2 → 1 is 8 steps." },
           { input: "1", output: "0", why: "Already 1, so no steps are needed." },
         ]}
-        hints={[<>You cannot know the number of steps in advance — n sometimes goes up. Which loop fits?</>, <>Loop while <code>n !== 1</code>. Inside, apply the even or odd rule and count one step.</>]}
+        hints={[<>You cannot know the number of steps in advance, because n sometimes goes up. Which loop fits?</>, <>Loop while <code>n !== 1</code>. Inside the loop, apply the even or odd rule and count one step.</>]}
         approaches={[
           {
             name: "while with if / else",
-            idea: <p>Repeat until n is 1: halve it if even, otherwise make it 3n + 1, and count the step.</p>,
+            idea: <p>Repeat until n is 1. If n is even, halve it. Otherwise make it 3n + 1. Count each step.</p>,
             code: `function collatzSteps(n) {
   let steps = 0;
   while (n !== 1) {
@@ -420,11 +420,11 @@ console.log(isArmstrong(370)); // true`,
 
 console.log(collatzSteps(6)); // 8
 console.log(collatzSteps(1)); // 0`,
-            explain: <p>The clearest case for <code>while</code>: the only thing you know is the stopping condition.</p>,
+            explain: <p>This is the clearest case for <code>while</code>. The only thing you know is the stopping condition.</p>,
           },
           {
             name: "while with a ternary update",
-            idea: <p>The same loop, choosing the next value in one line.</p>,
+            idea: <p>The same loop, but it picks the next value in one line with a ternary (Lesson 3).</p>,
             code: `function collatzSteps(n) {
   let steps = 0;
   while (n !== 1) {
@@ -435,12 +435,12 @@ console.log(collatzSteps(1)); // 0`,
 }
 
 console.log(collatzSteps(6)); // 8`,
-            explain: <p>Shorter, and the update is in one place, which makes it easy to check that n changes on every iteration.</p>,
+            explain: <p>This is shorter, and the update is in one place. That makes it easy to check that n changes in every iteration.</p>,
           },
         ]}
-        compare={<p>Either is fine. Use the version that you find easier to read aloud.</p>}
+        compare={<p>Either one is fine. Use the version that you find easier to read aloud.</p>}
       >
-        <p>If n is even, halve it; if odd, make it 3n + 1. Count the steps until n becomes 1.</p>
+        <p>If n is even, halve it. If n is odd, make it 3n + 1. Count the steps until n becomes 1.</p>
       </Problem>
 
       <Problem
@@ -452,8 +452,8 @@ console.log(collatzSteps(6)); // 8`,
           { input: "17, 5", output: "1", why: "17 and 5 share no divisor other than 1." },
         ]}
         hints={[
-          <>Simple idea: try every number from the smaller input down to 1, and stop at the first one that divides both.</>,
-          <>Faster idea (Euclid): gcd(a, b) = gcd(b, a % b), and gcd(a, 0) = a.</>,
+          <>Simple idea: try every number from the smaller input down to 1. Stop at the first one that divides both.</>,
+          <>Faster idea (Euclid, a Greek mathematician): gcd(a, b) = gcd(b, a % b), and gcd(a, 0) = a.</>,
         ]}
         approaches={[
           {
@@ -468,11 +468,11 @@ console.log(collatzSteps(6)); // 8`,
 
 console.log(gcd(48, 18)); // 6
 console.log(gcd(17, 5));  // 1`,
-            explain: <p>Easy to understand, but for large numbers it may try millions of candidates.</p>,
+            explain: <p>This is easy to understand, but for large numbers it may try millions of candidates.</p>,
           },
           {
             name: "Euclid's algorithm with %",
-            idea: <p>Replace the pair (a, b) with (b, a % b) until b is 0. Then a is the answer.</p>,
+            idea: <p>Replace the pair (a, b) with (b, a % b) again and again until b is 0. Then a is the answer.</p>,
             code: `function gcd(a, b) {
   while (b !== 0) {
     const r = a % b;
@@ -500,12 +500,12 @@ console.log(gcd(17, 5));  // 1`,
 }
 
 console.log(gcd(48, 18)); // 6`,
-            explain: <p>The original form of the method. It gives the same answer, but <code>%</code> does many subtractions in one step, so Approach 2 is much faster. (This version assumes both numbers are positive.)</p>,
+            explain: <p>This is the original form of the method. It gives the same answer, but <code>%</code> does many subtractions in one step, so Approach 2 is much faster. (This version assumes both numbers are positive.)</p>,
           },
         ]}
-        compare={<p>Use Approach 2. It is over 2,000 years old and still the standard method; it needs very few iterations even for huge numbers.</p>}
+        compare={<p>Use Approach 2. It is over 2,000 years old and is still the standard method. It needs very few iterations, even for huge numbers.</p>}
       >
-        <p>Find the largest number that divides both a and b.</p>
+        <p>Find the largest number that divides both a and b exactly. This is the greatest common divisor (GCD).</p>
       </Problem>
 
       <Problem
@@ -516,11 +516,11 @@ console.log(gcd(48, 18)); // 6`,
           { input: "14", output: "6", why: "14 → 7 (halve) → 6 (subtract 1) → 3 → 2 → 1 → 0. That is 6 steps." },
           { input: "8", output: "4", why: "8 → 4 → 2 → 1 → 0." },
         ]}
-        hints={[<>Repeat while n is greater than 0. If n is even, divide it by 2; otherwise subtract 1.</>, <>Count every step.</>]}
+        hints={[<>Repeat while n is greater than 0. If n is even, divide it by 2. Otherwise, subtract 1.</>, <>Count every step.</>]}
         approaches={[
           {
             name: "Simulate the steps",
-            idea: <p>Apply the rule exactly as described and count.</p>,
+            idea: <p>Follow the rule exactly as it is described, and count the steps.</p>,
             code: `function numberOfSteps(n) {
   let steps = 0;
   while (n > 0) {
@@ -532,11 +532,11 @@ console.log(gcd(48, 18)); // 6`,
 
 console.log(numberOfSteps(14)); // 6
 console.log(numberOfSteps(8));  // 4`,
-            explain: <p>A direct simulation. Each even step halves n, so the loop runs only a few dozen times even for very large numbers.</p>,
+            explain: <p>This is a direct simulation (you do what the question says, step by step). Each even step halves n, so the loop runs only a few dozen times, even for very large numbers.</p>,
           },
           {
             name: "Count using the binary form",
-            idea: <p>In binary, halving removes the last digit and subtracting 1 turns a final 1 into 0. So the steps are: (number of binary digits − 1) + (number of 1s).</p>,
+            idea: <p>Binary is the way computers write numbers using only 0 and 1. In binary, halving an even number removes its last digit (a 0). Subtracting 1 from an odd number turns its last 1 into 0. So the number of steps is (number of binary digits − 1) + (number of 1s).</p>,
             code: `function numberOfSteps(n) {
   if (n === 0) return 0;
   const bits = n.toString(2);                 // 14 → "1110"
@@ -547,10 +547,10 @@ console.log(numberOfSteps(8));  // 4`,
 
 console.log(numberOfSteps(14)); // 6
 console.log(numberOfSteps(8));  // 4`,
-            explain: <p><code>n.toString(2)</code> writes n in binary. This is a preview of bit manipulation (Lesson 58); the simulation is perfectly acceptable in an interview.</p>,
+            explain: <p><code>n.toString(2)</code> writes n in binary. This is a preview of bit manipulation (working with the 0s and 1s of a number; Lesson 58). The simulation is perfectly fine in an interview.</p>,
           },
         ]}
-        compare={<p>Give Approach 1. Approach 2 is a nice observation to mention if you have time.</p>}
+        compare={<p>Give Approach 1. Approach 2 is a nice extra point to mention if you have time.</p>}
       >
         <p>If n is even, divide it by 2; if it is odd, subtract 1. Return how many steps it takes to reach 0. (LeetCode 1342.)</p>
       </Problem>

@@ -10,7 +10,7 @@ export default function Questions() {
         title="Solid square"
         level="Easy"
         examples={[{ input: "N = 4", output: "****\n****\n****\n****", why: "4 rows, and every row has 4 stars." }]}
-        hints={[<>How many rows? How many stars in each row — does that number change from row to row?</>, <>Outer loop for the rows. Inner loop adds N stars to a row string, then print the row.</>]}
+        hints={[<>How many rows? How many stars in each row — does that number change from row to row?</>, <>Use the outer loop for the rows. The inner loop adds N stars to a row string. Then print the row.</>]}
         approaches={[
           {
             name: "Nested loops",
@@ -30,7 +30,7 @@ for (let i = 1; i <= N; i++) {
 ****
 ****
 */`,
-            explain: <p>The inner count (N) does not depend on <code>i</code>, so every row is the same. This is the template for every pattern below.</p>,
+            explain: <p>The inner count (N) does not depend on <code>i</code>, so every row is the same. This is the template (the basic shape to copy) for every pattern below.</p>,
           },
           {
             name: "Build the row once with repeat",
@@ -47,10 +47,10 @@ for (let i = 1; i <= N; i++) {
 ****
 ****
 */`,
-            explain: <p><code>text.repeat(k)</code> returns the text repeated k times. Building the row once avoids repeating the same work in every row.</p>,
+            explain: <p><code>text.repeat(k)</code> is a string method (a function that belongs to text) that returns the text repeated k times. Building the row once avoids doing the same work in every row.</p>,
           },
         ]}
-        compare={<p>Write Approach 1 while learning — interviewers asking pattern questions want to see the two loops. Use <code>repeat</code> in everyday code.</p>}
+        compare={<p>Write Approach 1 while you are learning. Interviewers who ask pattern questions want to see the two loops. Use <code>repeat</code> in everyday code.</p>}
       >
         <p>Print an N × N square of stars.</p>
       </Problem>
@@ -59,12 +59,12 @@ for (let i = 1; i <= N; i++) {
         n={2}
         title="Right-angled triangle"
         level="Easy"
-        examples={[{ input: "N = 4", output: "*\n**\n***\n****", why: "Row 1 has 1 star, row 2 has 2 stars, … row 4 has 4 stars." }]}
+        examples={[{ input: "N = 4", output: "*\n**\n***\n****", why: "Row 1 has 1 star, row 2 has 2 stars, and so on. Row 4 has 4 stars." }]}
         hints={[<>Write down the number of stars in rows 1, 2, 3, 4. How does it relate to the row number <code>i</code>?</>, <>Row <code>i</code> has <code>i</code> stars, so the inner loop runs while <code>j &lt;= i</code>.</>]}
         approaches={[
           {
             name: "Inner loop up to i",
-            idea: <p>The only change from the square: the inner loop stops at <code>i</code> instead of N.</p>,
+            idea: <p>This is the same as the square, with one change: the inner loop stops at <code>i</code> instead of N.</p>,
             code: `const N = 4;
 for (let i = 1; i <= N; i++) {
   let row = "";
@@ -80,11 +80,11 @@ for (let i = 1; i <= N; i++) {
 ***
 ****
 */`,
-            explain: <p>&ldquo;The inner limit depends on the outer variable&rdquo; is the key to every triangle.</p>,
+            explain: <p>The key to every triangle is this: the stopping point of the inner loop depends on the outer variable.</p>,
           },
           {
             name: "One loop, a growing row",
-            idea: <p>Each row is the previous row plus one star. Keep the row between iterations and add one star each time.</p>,
+            idea: <p>Each row is the previous row plus one star. Keep the row from one iteration to the next, and add one star each time.</p>,
             code: `const N = 4;
 let row = "";
 for (let i = 1; i <= N; i++) {
@@ -114,10 +114,10 @@ for (let i = 1; i <= N; i++) {
 ***
 ****
 */`,
-            explain: <p>The shortest version. It hides the inner loop inside <code>repeat</code>.</p>,
+            explain: <p>This is the shortest version. The inner loop is hidden inside <code>repeat</code>.</p>,
           },
         ]}
-        compare={<p>Approach 1 is the one to understand. Approach 2 shows a useful idea: when each row extends the previous one, keep the previous row instead of rebuilding it.</p>}
+        compare={<p>Approach 1 is the one to understand. Approach 2 shows a useful idea. When each row extends the previous one, keep the previous row instead of building it again.</p>}
       >
         <p>Row i has i stars.</p>
       </Problem>
@@ -131,7 +131,7 @@ for (let i = 1; i <= N; i++) {
         approaches={[
           {
             name: "Print the column number j",
-            idea: <p>Same loops as the triangle, but add <code>j</code> and a space instead of a star.</p>,
+            idea: <p>Use the same loops as the triangle, but add <code>j</code> and a space instead of a star.</p>,
             code: `const N = 4;
 for (let i = 1; i <= N; i++) {
   let row = "";
@@ -147,7 +147,7 @@ for (let i = 1; i <= N; i++) {
 1 2 3
 1 2 3 4
 */`,
-            explain: <p><code>trimEnd()</code> removes spaces at the end of the text. Online judges compare output character by character, so a trailing space can make a correct answer fail.</p>,
+            explain: <p><code>trimEnd()</code> removes spaces at the end of the text. Some online judges (websites that check your answer automatically) compare output character by character. For them, a space at the end of a line can make a correct answer fail.</p>,
           },
           {
             name: "One loop, a growing row",
@@ -165,10 +165,10 @@ for (let i = 1; i <= N; i++) {
 1 2 3
 1 2 3 4
 */`,
-            explain: <p>Adding the space <em>before</em> each number (except the first) avoids a trailing space without needing <code>trimEnd</code>.</p>,
+            explain: <p>Adding the space <em>before</em> each number (except the first) avoids a space at the end, so you do not need <code>trimEnd</code>.</p>,
           },
         ]}
-        compare={<p>Both are correct. Approach 1 matches the general recipe and is easier to adapt to other patterns.</p>}
+        compare={<p>Both are correct. Approach 1 matches the general recipe, and it is easier to change for other patterns.</p>}
       >
         <p>Row i shows the numbers 1 to i.</p>
       </Problem>
@@ -182,7 +182,7 @@ for (let i = 1; i <= N; i++) {
         approaches={[
           {
             name: "Print the row number i",
-            idea: <p>Question 3 with one letter changed: print <code>i</code> instead of <code>j</code>.</p>,
+            idea: <p>This is question 3 with one letter changed. Print <code>i</code> instead of <code>j</code>.</p>,
             code: `const N = 4;
 for (let i = 1; i <= N; i++) {
   let row = "";
@@ -198,11 +198,11 @@ for (let i = 1; i <= N; i++) {
 3 3 3
 4 4 4 4
 */`,
-            explain: <p>Being able to say &ldquo;this value depends on the row&rdquo; or &ldquo;on the column&rdquo; is exactly what pattern questions train.</p>,
+            explain: <p>Pattern questions train you to say whether a value depends on the row or on the column.</p>,
           },
           {
             name: "repeat a small piece",
-            idea: <p>Repeat the piece <code>&quot;i &quot;</code> i times, then remove the final space.</p>,
+            idea: <p>Repeat the small piece of text <code>&quot;i &quot;</code> (the number i and a space) i times. Then remove the final space.</p>,
             code: `const N = 4;
 for (let i = 1; i <= N; i++) {
   console.log((i + " ").repeat(i).trimEnd());
@@ -214,7 +214,7 @@ for (let i = 1; i <= N; i++) {
 3 3 3
 4 4 4 4
 */`,
-            explain: <p><code>(i + &quot; &quot;)</code> is text like <code>&quot;3 &quot;</code>; repeating it 3 times gives <code>&quot;3 3 3 &quot;</code>.</p>,
+            explain: <p><code>(i + &quot; &quot;)</code> is text like <code>&quot;3 &quot;</code>. Repeating it 3 times gives <code>&quot;3 3 3 &quot;</code>.</p>,
           },
         ]}
       >
@@ -226,11 +226,11 @@ for (let i = 1; i <= N; i++) {
         title="Inverted triangle"
         level="Easy"
         examples={[{ input: "N = 4", output: "****\n***\n**\n*", why: "Row 1 has 4 stars and each row after it has one fewer." }]}
-        hints={[<>Make a small table: row 1 → 4 stars, row 2 → 3, row 3 → 2, row 4 → 1. What formula in N and i gives these numbers?</>, <>Stars in row i = N − i + 1. Or count i down from N to 1.</>]}
+        hints={[<>Make a small table: row 1 has 4 stars, row 2 has 3, row 3 has 2 and row 4 has 1. What formula using N and i gives these numbers?</>, <>Stars in row i = N − i + 1. Or count i down from N to 1.</>]}
         approaches={[
           {
             name: "Formula N − i + 1",
-            idea: <p>Keep rows counting up, and give row <code>i</code> exactly N − i + 1 stars.</p>,
+            idea: <p>Let the rows count up, and give row <code>i</code> exactly N − i + 1 stars.</p>,
             code: `const N = 4;
 for (let i = 1; i <= N; i++) {
   let row = "";
@@ -266,12 +266,12 @@ for (let i = N; i >= 1; i--) {
 **
 *
 */`,
-            explain: <p>The triangle from question 2, with the outer loop reversed. Often the easiest way to flip a pattern upside down.</p>,
+            explain: <p>This is the triangle from question 2, with the outer loop reversed. It is often the easiest way to turn a pattern upside down.</p>,
           },
         ]}
-        compare={<p>Both are correct. Pick whichever rule you can explain most easily; Approach 2 is usually quicker to write.</p>}
+        compare={<p>Both are correct. Pick the rule that you can explain most easily. Approach 2 is usually quicker to write.</p>}
       >
-        <p>Row 1 has N stars and each following row has one fewer.</p>
+        <p>Row 1 has N stars, and each row after it has one star fewer.</p>
       </Problem>
 
       <Problem
@@ -281,7 +281,7 @@ for (let i = N; i >= 1; i--) {
         examples={[{ input: "N = 4", output: "   *\n  ***\n *****\n*******", why: "Row i has N − i spaces, then 2i − 1 stars: 3+1, 2+3, 1+5, 0+7." }]}
         hints={[
           <>Each row has two parts: some spaces, then some stars.</>,
-          <>Fill in a table for rows 1–4: spaces and stars. Find a formula in <code>i</code> for each column.</>,
+          <>Fill in a table for rows 1 to 4 with the number of spaces and stars. Find a formula that uses <code>i</code> for each column of the table.</>,
           <>Spaces = N − i. Stars = 2i − 1. Use two inner loops, one after the other.</>,
         ]}
         approaches={[
@@ -306,7 +306,7 @@ for (let i = 1; i <= N; i++) {
           },
           {
             name: "Visit every cell and decide",
-            idea: <p>The pyramid fits in a grid that is 2N − 1 columns wide. A cell gets a star if its distance from the centre column is less than <code>i</code>.</p>,
+            idea: <p>The pyramid fits in a grid that is 2N − 1 columns wide. A cell gets a star if its distance from the centre column is less than <code>i</code>. Otherwise it gets a space.</p>,
             code: `const N = 4;
 const width = 2 * N - 1;
 const centre = N;                      // columns are numbered 1..width
@@ -324,11 +324,11 @@ for (let i = 1; i <= N; i++) {
  *****
 *******
 */`,
-            explain: <p><code>Math.abs(j - centre)</code> is how far column j is from the centre. In row 1 only the centre itself (distance 0) qualifies; in row 4 every column with distance up to 3 does.</p>,
+            explain: <p><code>Math.abs(j - centre)</code> is how far column j is from the centre (<code>Math.abs</code> removes a minus sign, so the distance is never negative). In row 1, only the centre itself (distance 0) gets a star. In row 4, every column with a distance of up to 3 gets one.</p>,
           },
           {
             name: "repeat",
-            idea: <p>Build each row from two repeated pieces.</p>,
+            idea: <p>Build each row from two repeated pieces of text: spaces and stars.</p>,
             code: `const N = 4;
 for (let i = 1; i <= N; i++) {
   console.log(" ".repeat(N - i) + "*".repeat(2 * i - 1));
@@ -340,24 +340,24 @@ for (let i = 1; i <= N; i++) {
  *****
 *******
 */`,
-            explain: <p>The same formulas as Approach 1, without writing the inner loops yourself.</p>,
+            explain: <p>These are the same formulas as in Approach 1, but you do not write the inner loops yourself.</p>,
           },
         ]}
-        compare={<p>Approach 1 is the standard answer. Approach 2 is a powerful general technique: for any shape, ask &ldquo;for cell (i, j), what belongs here?&rdquo;.</p>}
+        compare={<p>Approach 1 is the standard answer. Approach 2 is a powerful general technique. For any shape, ask: &ldquo;for cell (i, j), what belongs here?&rdquo;</p>}
       >
-        <p>Print a pyramid of stars centred on each row.</p>
+        <p>Print a pyramid of stars, with each row centred.</p>
       </Problem>
 
       <Problem
         n={7}
         title="Hollow square"
         level="Medium"
-        examples={[{ input: "N = 4", output: "****\n*  *\n*  *\n****", why: "Stars only on the border: first and last row, first and last column." }]}
-        hints={[<>Visit every cell of the N × N grid.</>, <>A cell is on the border if it is in the first or last row, or the first or last column. Print a star there, a space everywhere else.</>]}
+        examples={[{ input: "N = 4", output: "****\n*  *\n*  *\n****", why: "Stars only on the border: the first and last row, and the first and last column." }]}
+        hints={[<>Visit every cell of the N × N grid.</>, <>A cell is on the border if it is in the first or last row, or in the first or last column. Print a star there and a space everywhere else.</>]}
         approaches={[
           {
             name: "Decide for every cell",
-            idea: <p>Loop over every (row, column) and print a star only on the border.</p>,
+            idea: <p>Loop over every (row, column) cell and print a star only on the border.</p>,
             code: `const N = 4;
 for (let i = 1; i <= N; i++) {
   let row = "";
@@ -374,11 +374,11 @@ for (let i = 1; i <= N; i++) {
 *  *
 ****
 */`,
-            explain: <p>This &ldquo;what belongs in cell (i, j)?&rdquo; approach works for every pattern, and it is how you will handle matrices in Lesson 25.</p>,
+            explain: <p>This &ldquo;what belongs in cell (i, j)?&rdquo; approach works for every pattern. You will use it for matrices (grids of numbers) in Lesson 25.</p>,
           },
           {
             name: "Build the two kinds of row",
-            idea: <p>There are only two different rows: a full row of stars, and a row with a star at each end and spaces in between.</p>,
+            idea: <p>There are only two kinds of row: a full row of stars, and a row with a star at each end and spaces in between.</p>,
             code: `const N = 4;
 const full = "*".repeat(N);
 const middle = N === 1 ? "*" : "*" + " ".repeat(N - 2) + "*";
@@ -392,10 +392,10 @@ for (let i = 1; i <= N; i++) {
 *  *
 ****
 */`,
-            explain: <p>Each row type is built once. The check for <code>N === 1</code> is an edge case: with N = 1, <code>N - 2</code> would be −1 and <code>repeat</code> would throw an error.</p>,
+            explain: <p>Each kind of row is built once. The check for <code>N === 1</code> handles an edge case (an unusual input). With N = 1, <code>N - 2</code> would be −1, and <code>repeat</code> would throw an error.</p>,
           },
         ]}
-        compare={<p>Approach 1 is the general method and handles N = 1 automatically. Approach 2 is faster to run, but you must think about the edge case.</p>}
+        compare={<p>Approach 1 is the general method, and it handles N = 1 by itself. Approach 2 is faster to run, but you must think about the edge case.</p>}
       >
         <p>Print the border of an N × N square, with spaces inside.</p>
       </Problem>
@@ -405,11 +405,11 @@ for (let i = 1; i <= N; i++) {
         title="Floyd's triangle"
         level="Easy"
         examples={[{ input: "N = 4", output: "1\n2 3\n4 5 6\n7 8 9 10", why: "The numbers keep counting from row to row: row 2 continues where row 1 stopped." }]}
-        hints={[<>The shape is the right triangle. The numbers do not restart in each row.</>, <>Keep one counter that lives outside both loops, and add 1 to it after every number you print.</>]}
+        hints={[<>The shape is the right triangle. The numbers do not start again in each row.</>, <>Keep one counter that is declared outside both loops. Add 1 to it after every number you print.</>]}
         approaches={[
           {
             name: "A counter outside both loops",
-            idea: <p>Print the counter in every cell and increase it after each number.</p>,
+            idea: <p>Print the counter in every cell. Increase it after each number.</p>,
             code: `const N = 4;
 let num = 1;                       // lives outside both loops
 for (let i = 1; i <= N; i++) {
@@ -427,7 +427,7 @@ for (let i = 1; i <= N; i++) {
 4 5 6
 7 8 9 10
 */`,
-            explain: <p>If <code>num</code> were declared inside the outer loop, it would reset to 1 in every row. Where a variable is declared decides how long it keeps its value.</p>,
+            explain: <p>If <code>num</code> were declared inside the outer loop, it would go back to 1 in every row. The place where you declare a variable decides how long it keeps its value.</p>,
           },
           {
             name: "Calculate the first number of each row",
@@ -448,20 +448,20 @@ for (let i = 1; i <= N; i++) {
 4 5 6
 7 8 9 10
 */`,
-            explain: <p>Row 4 starts at 4 × 3 / 2 + 1 = 7. This version can print any single row without printing the rows before it.</p>,
+            explain: <p>Row 4 starts at 4 × 3 / 2 + 1 = 7. This version can print any single row without working out the rows before it.</p>,
           },
         ]}
-        compare={<p>Approach 1 is the simplest. Approach 2 uses the sum formula from Lesson 4 and is useful if only one row is needed.</p>}
+        compare={<p>Approach 1 is the simplest. Approach 2 uses the sum formula from Lesson 4. It is useful if you need only one row.</p>}
       >
-        <p>Fill a right triangle with consecutive numbers starting at 1.</p>
+        <p>Fill a right triangle with consecutive numbers (1, 2, 3, and so on) starting at 1.</p>
       </Problem>
 
       <Problem
         n={9}
         title="0-1 triangle"
         level="Medium"
-        examples={[{ input: "N = 4", output: "1\n0 1\n1 0 1\n0 1 0 1", why: "Values alternate. A cell holds 1 when its row number plus column number is even." }]}
-        hints={[<>Write the row number and column number for a few cells and add them. When is the value 1?</>, <>Value = 1 if <code>(i + j) % 2 === 0</code>, otherwise 0.</>]}
+        examples={[{ input: "N = 4", output: "1\n0 1\n1 0 1\n0 1 0 1", why: "The values alternate between 1 and 0. A cell holds 1 when its row number plus its column number is even." }]}
+        hints={[<>Write the row number and the column number for a few cells and add them. When is the value 1?</>, <>Value = 1 if <code>(i + j) % 2 === 0</code>, otherwise 0.</>]}
         approaches={[
           {
             name: "Formula from (i + j)",
@@ -481,11 +481,11 @@ for (let i = 1; i <= N; i++) {
 1 0 1
 0 1 0 1
 */`,
-            explain: <p>Cell (1,1): 1 + 1 = 2, even → 1. Cell (2,1): 3, odd → 0. Cell (2,2): 4 → 1. It is the same rule that colours a chessboard.</p>,
+            explain: <p>Cell (1,1): 1 + 1 = 2, which is even, so the value is 1. Cell (2,1): 3 is odd, so the value is 0. Cell (2,2): 4 is even, so the value is 1. It is the same rule that colours a chessboard.</p>,
           },
           {
             name: "Start value per row, then flip",
-            idea: <p>Odd rows start with 1, even rows start with 0. After each number, flip the value (1 becomes 0, 0 becomes 1).</p>,
+            idea: <p>Odd rows start with 1 and even rows start with 0. After each number, flip the value (1 becomes 0, and 0 becomes 1).</p>,
             code: `const N = 4;
 for (let i = 1; i <= N; i++) {
   let value = i % 2 === 1 ? 1 : 0;
@@ -503,10 +503,10 @@ for (let i = 1; i <= N; i++) {
 1 0 1
 0 1 0 1
 */`,
-            explain: <p><code>1 - value</code> turns 1 into 0 and 0 into 1. This follows the pattern exactly as you would describe it in words.</p>,
+            explain: <p><code>1 - value</code> turns 1 into 0 and 0 into 1. The code follows the pattern in the same way as you would describe it in words.</p>,
           },
         ]}
-        compare={<p>Both are correct. Approach 1 shows the habit of looking for a formula in (i, j); Approach 2 is easier to discover by looking at the output.</p>}
+        compare={<p>Both are correct. Approach 1 shows the habit of looking for a formula that uses (i, j). Approach 2 is easier to find by looking at the output.</p>}
       >
         <p>Print a triangle of alternating 1s and 0s, as in the example.</p>
       </Problem>
@@ -516,7 +516,7 @@ for (let i = 1; i <= N; i++) {
         title="Count the pairs"
         level="Medium"
         examples={[{ input: "N = 4", output: "6", why: "The pairs are (1,2) (1,3) (1,4) (2,3) (2,4) (3,4)." }]}
-        hints={[<>For each first number i, which second numbers j are allowed?</>, <>Start the inner loop at <code>i + 1</code>, so that j is always bigger than i and no pair is counted twice.</>]}
+        hints={[<>For each first number i, which second numbers j are allowed?</>, <>Start the inner loop at <code>i + 1</code>. Then j is always bigger than i, and no pair is counted twice.</>]}
         approaches={[
           {
             name: "Nested loops, inner starts at i + 1",
@@ -533,7 +533,7 @@ for (let i = 1; i <= N; i++) {
 
 console.log(countPairs(4)); // 6
 console.log(countPairs(5)); // 10`,
-            explain: <p>This is the shape of every brute-force &ldquo;compare every pair&rdquo; solution, such as the first approach to Two Sum (Lesson 26).</p>,
+            explain: <p>This is the shape of every brute-force &ldquo;compare every pair&rdquo; solution. Brute force means trying every possibility. An example is the first approach to Two Sum (Lesson 26).</p>,
           },
           {
             name: "Formula N × (N − 1) / 2",
@@ -544,10 +544,10 @@ console.log(countPairs(5)); // 10`,
 
 console.log(countPairs(4)); // 6
 console.log(countPairs(5)); // 10`,
-            explain: <p>The sum formula from Lesson 4 again. The count grows like N² — a hint that comparing every pair becomes very slow for large N.</p>,
+            explain: <p>This is the sum formula from Lesson 4 again. The count grows like N², which is a hint that comparing every pair becomes very slow for large N.</p>,
           },
         ]}
-        compare={<p>If you only need the count, use the formula. If you need to do something with each pair, you need the loops — and that is why Part 4 teaches ways to avoid checking every pair.</p>}
+        compare={<p>If you only need the count, use the formula. If you need to do something with each pair, you need the loops. This is why Part 4 teaches ways to avoid checking every pair.</p>}
       >
         <p>How many pairs (i, j) are there with 1 ≤ i &lt; j ≤ N?</p>
       </Problem>
@@ -556,15 +556,15 @@ console.log(countPairs(5)); // 10`,
         n={11}
         title="Pascal's triangle"
         level="Medium"
-        examples={[{ input: "N = 5", output: "1\n1 1\n1 2 1\n1 3 3 1\n1 4 6 4 1", why: "Each row starts and ends with 1. Every inner number is the sum of the two numbers above it, e.g. 3 = 1 + 2." }]}
+        examples={[{ input: "N = 5", output: "1\n1 1\n1 2 1\n1 3 3 1\n1 4 6 4 1", why: "Each row starts and ends with 1. Every number in the middle is the sum of the two numbers above it, for example 3 = 1 + 2." }]}
         hints={[
           <>Each row can be built from the row above it.</>,
-          <>Keep the previous row in a list. The new row is 1, then the sums of neighbouring pairs from the previous row, then 1.</>,
+          <>Keep the previous row in a list. The new row is 1, then the sums of neighbouring pairs from the previous row, then 1 again.</>,
         ]}
         approaches={[
           {
             name: "Build each row from the previous one",
-            idea: <p>Keep the previous row as an array. For the new row, add neighbouring pairs from the previous row and put 1 at both ends.</p>,
+            idea: <p>Keep the previous row as an array (a list). For the new row, add neighbouring pairs from the previous row, and put 1 at both ends.</p>,
             code: `const N = 5;
 let prev = [];
 for (let i = 0; i < N; i++) {
@@ -584,11 +584,11 @@ for (let i = 0; i < N; i++) {
 1 3 3 1
 1 4 6 4 1
 */`,
-            explain: <p>This uses arrays from Lesson 8: <code>push</code> adds to the end, <code>prev[j]</code> reads a position, and <code>join(&quot; &quot;)</code> turns the row into text. It is LeetCode 118.</p>,
+            explain: <p>This uses arrays from Lesson 8. <code>push</code> adds an item to the end. <code>prev[j]</code> reads the item at a position. <code>join(&quot; &quot;)</code> turns the row into text. This is LeetCode 118.</p>,
           },
           {
             name: "Calculate each number directly",
-            idea: <p>The numbers in row i are i choose 0, i choose 1, … Each one can be calculated from the one before it: next = current × (i − k) / (k + 1).</p>,
+            idea: <p>The numbers in row i are &ldquo;i choose 0&rdquo;, &ldquo;i choose 1&rdquo; and so on. &ldquo;i choose k&rdquo; is the number of ways to pick k items from i items. Each number can be worked out from the one before it: next = current × (i − k) / (k + 1).</p>,
             code: `const N = 5;
 for (let i = 0; i < N; i++) {
   let value = 1;
@@ -607,10 +607,10 @@ for (let i = 0; i < N; i++) {
 1 3 3 1
 1 4 6 4 1
 */`,
-            explain: <p>For row 4: 1 → 1 × 4 / 1 = 4 → 4 × 3 / 2 = 6 → 6 × 2 / 3 = 4 → 4 × 1 / 4 = 1. No previous row needs to be stored.</p>,
+            explain: <p>For row 4 (counting rows from 0, so this is the fifth row): 1, then 1 × 4 / 1 = 4, then 4 × 3 / 2 = 6, then 6 × 2 / 3 = 4, then 4 × 1 / 4 = 1. You do not need to store the previous row.</p>,
           },
         ]}
-        compare={<p>Approach 1 is the expected interview answer and is easier to explain. Approach 2 is a compact maths alternative that uses no extra list.</p>}
+        compare={<p>Approach 1 is the answer interviewers expect, and it is easier to explain. Approach 2 is a short maths option that needs no extra list.</p>}
       >
         <p>Print the first N rows of Pascal&apos;s triangle.</p>
       </Problem>

@@ -66,7 +66,7 @@ function digitTrace() {
   t.step(2, "start", "let sum = 0", "Accumulator for the answer.", { n, sum }, "sum");
   while (true) {
     if (!(n > 0)) {
-      t.step(3, "stop", `CHECK: ${n} > 0 is false`, "Every digit has been removed — n is 0 — so the loop ends. We never had to know there were 3 digits.", { n, sum });
+      t.step(3, "stop", `CHECK: ${n} > 0 is false`, "Every digit has been removed, so n is 0 and the loop ends. We never had to know that there were 3 digits.", { n, sum });
       break;
     }
     t.step(3, "check", `CHECK: ${n} > 0 is true`, "There are still digits left.", { n, sum });
@@ -75,7 +75,7 @@ function digitTrace() {
     t.step(4, "run", `sum += ${n} % 10 → +${d} = ${sum}`, `${n} % 10 is ${d}, the last digit. Add it.`, { n, sum }, "sum");
     const old = n;
     n = Math.floor(n / 10);
-    t.step(5, "update", `n = floor(${old} / 10) = ${n}`, "Chop off the last digit. This is the update that moves us towards n = 0.", { n, sum }, "n");
+    t.step(5, "update", `n = floor(${old} / 10) = ${n}`, "Cut off the last digit. This is the update that moves us towards n = 0.", { n, sum }, "n");
   }
   t.print(String(sum));
   t.step(7, "print", "console.log(sum)", "4 + 7 + 2 = 13.", { n, sum });
@@ -94,7 +94,7 @@ console.log(rev); // 4321`;
 const infinite = `let i = 1;
 while (i <= 5) {
   console.log(i);
-  // i++ is missing — i stays 1 forever, prints 1 forever. Press Ctrl+C to stop.
+  // i++ is missing, so i stays 1 and 1 is printed forever. Press Ctrl+C to stop.
 }`;
 
 const doWhile = `let n = 0;
@@ -110,28 +110,31 @@ export default function DsaLessonFivePage() {
     <DsaLessonPage lesson={lesson} outline={outline}>
       <h2 id="concept">Repeat while a condition is true</h2>
       <p>
-        A <code>for</code> loop is perfect when you know the range: 1 to N, 0 to length − 1. But
-        sometimes you only know the <strong>stopping condition</strong>: &ldquo;keep dividing until
-        nothing is left&rdquo;, &ldquo;keep doubling until you pass 1000&rdquo;, &ldquo;keep asking
-        until the password is right&rdquo;. That is a <code>while</code> loop: it repeats its body
-        for as long as a condition stays true.
+        A <code>for</code> loop is perfect when you know the range, such as 1 to N or 0 to length − 1.
+        But sometimes you only know the <strong>stopping condition</strong>. Examples are &ldquo;keep
+        dividing until nothing is left&rdquo;, &ldquo;keep doubling until you pass 1000&rdquo; and
+        &ldquo;keep asking until the password is right&rdquo;. For these, use a <code>while</code>{" "}
+        loop. A <code>while</code> loop is a loop that repeats its body for as long as a condition
+        stays true.
       </p>
 
       <h2 id="syntax">The while loop, next to for</h2>
       <CodeBlock lang="js" code={sideBySide} />
       <p>
-        A <code>while</code> loop has only the <strong>check</strong> in its brackets. The start
-        goes before the loop and the update goes inside the body — usually last. The order of
-        execution from Lesson 4 is unchanged: check → body → check → body → … → check fails → exit.
+        A <code>while</code> loop has only the <strong>check</strong> in its brackets. The start goes
+        before the loop. The update goes inside the body, usually as the last line. The order of
+        execution from Lesson 4 is the same: check, body, check, body, and so on, until a check
+        fails and the loop ends.
       </p>
 
       <h2 id="digits">The digit loop: n % 10 and Math.floor(n / 10)</h2>
       <p>
-        In Lesson 2 you took the digits off a three-digit number by writing the same two lines three
-        times. A <code>while</code> loop does it for a number of <em>any</em> length, because it
-        just keeps going until there are no digits left:
+        A <strong>digit</strong> is one of the symbols 0 to 9 that make up a number. The number 472 has
+        three digits. In Lesson 2 you took the digits off a three-digit number by writing the same two
+        lines three times. A <code>while</code> loop can do it for a number of <em>any</em> length,
+        because it keeps going until there are no digits left:
       </p>
-      <Callout kind="ok" label="The digit loop — memorise this shape">
+      <Callout kind="ok" label="The digit loop: learn this shape by heart">
         <pre className="my-1">
           <code>{`while (n > 0) {
   const digit = n % 10;      // the last digit
@@ -141,8 +144,8 @@ export default function DsaLessonFivePage() {
         </pre>
       </Callout>
       <p>
-        Count digits, sum digits, reverse a number, check a palindrome number, Armstrong numbers —
-        all of them are this loop with a different line in the middle.
+        Counting digits, adding digits, reversing a number, checking a palindrome number and finding
+        Armstrong numbers all use this same loop. Only the line in the middle is different.
       </p>
 
       <h2 id="trace">Traced: the sum of the digits of 472</h2>
@@ -165,9 +168,10 @@ export default function DsaLessonFivePage() {
 
       <h2 id="build">Building a number: reverse</h2>
       <p>
-        Taking digits apart is half the skill. The other half is putting them back together.{" "}
-        <code>rev * 10</code> shifts every digit of <code>rev</code> one place to the left, making
-        an empty slot at the end; <code>+ digit</code> fills it.
+        Taking digits apart is half the skill. The other half is putting them back together. To
+        reverse a number, you build a new number, <code>rev</code>, one digit at a time.{" "}
+        <code>rev * 10</code> moves every digit of <code>rev</code> one place to the left. This makes
+        an empty place at the end. Then <code>+ digit</code> fills that place.
       </p>
       <CodeBlock lang="js" code={reverse} />
       <DryRun
@@ -185,23 +189,24 @@ export default function DsaLessonFivePage() {
       <h2 id="infinite">Infinite loops, and how to avoid them</h2>
       <p>
         A <code>while</code> loop stops only when its condition becomes false. If nothing in the body
-        moves towards that, it runs forever:
+        moves towards that, the loop runs forever. This is called an <strong>infinite loop</strong>:
       </p>
       <CodeBlock lang="js" code={infinite} />
       <p>Before running any <code>while</code> loop, ask one question:</p>
       <Callout kind="warn" label="Ask: what line makes the condition false eventually?">
         <p className="mb-0">
-          Find that line. In the digit loop it is <code>n = Math.floor(n / 10)</code> — n shrinks every
-          iteration, so it must reach 0. If you can&apos;t point at such a line, you have an infinite loop.
-          If one is already running, <strong>Ctrl+C</strong> in the terminal stops it.
+          Find that line. In the digit loop it is <code>n = Math.floor(n / 10)</code>. The number n
+          becomes smaller in every iteration, so it must reach 0. If you cannot point at such a line,
+          you probably have an infinite loop. If one is already running, press <strong>Ctrl+C</strong>{" "}
+          in the terminal to stop it.
         </p>
       </Callout>
 
       <h2 id="dowhile">do … while (rarely needed)</h2>
       <p>
-        <code>do {"{ … }"} while (condition)</code> runs the body first and checks afterwards, so
-        the body always runs at least once. It is useful in exactly the kind of case below — the
-        number 0 still has one digit — but you will rarely need it in DSA.
+        <code>do {"{ … }"} while (condition)</code> is a loop that runs the body first and checks the
+        condition afterwards. So the body always runs at least once. It helps in a case like the one
+        below, where the number 0 still has one digit. But you will rarely need it in DSA.
       </p>
       <CodeBlock lang="js" code={doWhile} />
 
@@ -221,7 +226,7 @@ export default function DsaLessonFivePage() {
           </tbody>
         </table>
       </div>
-      <p>Anything one can do, the other can too — this rule just picks the one that reads more naturally.</p>
+      <p>Anything one loop can do, the other can do too. This rule only helps you pick the one that is easier to read.</p>
 
       <h2 id="practice">Practice questions</h2>
 
@@ -235,7 +240,7 @@ export default function DsaLessonFivePage() {
           <>Rewrite <code>for (let i = 10; i &gt; 0; i -= 3)</code> as a <code>while</code> loop and list the values of i.</>,
         ]}
       />
-      <p>Next lesson: loops <em>inside</em> loops — and drawing patterns with them.</p>
+      <p>Next lesson: loops <em>inside</em> other loops (nested loops), and how to draw patterns with them.</p>
     </DsaLessonPage>
   );
 }

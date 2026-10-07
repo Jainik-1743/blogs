@@ -23,7 +23,7 @@ export default function Questions() {
             name: "A variable for each result",
             idea: (
               <ol>
-                <li>Store the inputs in <code>length</code> and <code>width</code>.</li>
+                <li>Store the inputs in two variables, <code>length</code> and <code>width</code>.</li>
                 <li>Calculate <code>area</code> and <code>perimeter</code> into their own variables.</li>
                 <li>Print both.</li>
               </ol>
@@ -46,17 +46,17 @@ const width = 3;
 
 console.log("Area:", length * width);             // Area: 15
 console.log("Perimeter:", 2 * (length + width));  // Perimeter: 16`,
-            explain: <p>JavaScript calculates the expression first, then prints the result. Shorter, but you cannot reuse the results later.</p>,
+            explain: <p>JavaScript calculates the expression first, then prints the result. The code is shorter, but you cannot reuse the results later.</p>,
           },
           {
             name: "Build the text with a template literal",
-            idea: <p>Use backticks and <code>{"${…}"}</code> to place the values inside a sentence.</p>,
+            idea: <p>A template literal is text between backticks. Use <code>{"${…}"}</code> inside it to place values in a sentence.</p>,
             code: `const length = 5;
 const width = 3;
 
 console.log(\`Area: \${length * width}, Perimeter: \${2 * (length + width)}\`);
 // Area: 15, Perimeter: 16`,
-            explain: <p>Everything inside <code>{"${ }"}</code> is calculated and placed into the text. This is the clearest way to print a sentence that contains several values.</p>,
+            explain: <p>JavaScript calculates everything inside <code>{"${ }"}</code> and puts the result into the text. This is the clearest way to print a sentence that contains several values.</p>,
           },
         ]}
         compare={<p>Approach 1 is the best habit: clear names, each value calculated once. Use a template literal (Approach 3) whenever you print a sentence with values inside it.</p>}
@@ -83,7 +83,7 @@ console.log(\`Area: \${length * width}, Perimeter: \${2 * (length + width)}\`);
             idea: (
               <ol>
                 <li>Copy <code>a</code> into a spare variable, <code>temp</code>.</li>
-                <li>Copy <code>b</code> into <code>a</code>. The old value of <code>a</code> is lost from <code>a</code> — but <code>temp</code> still has it.</li>
+                <li>Copy <code>b</code> into <code>a</code>. The old value of <code>a</code> is gone from <code>a</code>, but <code>temp</code> still has it.</li>
                 <li>Copy <code>temp</code> into <code>b</code>.</li>
               </ol>
             ),
@@ -106,18 +106,18 @@ console.log("a =", a, "b =", b); // a = 9 b = 5`,
           },
           {
             name: "Array destructuring",
-            idea: <p>JavaScript can assign two variables at once: <code>[a, b] = [b, a]</code>.</p>,
+            idea: <p>Destructuring is a short way to take values out of a list and put them into variables. It lets JavaScript assign two variables at once: <code>[a, b] = [b, a]</code>.</p>,
             code: `let a = 5;
 let b = 9;
 
 [a, b] = [b, a];
 
 console.log("a =", a, "b =", b); // a = 9 b = 5`,
-            explain: <p>The right side, <code>[b, a]</code>, is built first from the current values: <code>[9, 5]</code>. Then the first value goes into <code>a</code> and the second into <code>b</code>. (You will learn about arrays — lists in square brackets — in Lesson 8.)</p>,
+            explain: <p>The right side, <code>[b, a]</code>, is built first from the current values: <code>[9, 5]</code>. Then the first value goes into <code>a</code> and the second into <code>b</code>. (You will learn about arrays, which are lists written in square brackets, in Lesson 8.)</p>,
           },
           {
             name: "Arithmetic, without a third variable",
-            idea: <p>Store the sum in <code>a</code>, then recover each original value by subtracting.</p>,
+            idea: <p>Store the sum in <code>a</code>. Then get each original value back by subtracting.</p>,
             code: `let a = 5;
 let b = 9;
 
@@ -126,10 +126,10 @@ b = a - b;  // b = 14 - 9 = 5
 a = a - b;  // a = 14 - 5 = 9
 
 console.log("a =", a, "b =", b); // a = 9 b = 5`,
-            explain: <p>This is sometimes asked as a puzzle (&ldquo;swap without a temporary variable&rdquo;). It only works for numbers, and it is harder to read, so it is not used in real code.</p>,
+            explain: <p>This is sometimes asked as a puzzle (&ldquo;swap without a temporary variable&rdquo;). It only works for numbers, and it is harder to read, so people do not use it in real code.</p>,
           },
         ]}
-        compare={<p>Know Approach 1 by heart — it is exactly what happens inside sorting algorithms (Lesson 16). Approach 2 is the short form you will see in modern JavaScript. Mention Approach 3 only if asked.</p>}
+        compare={<p>Know Approach 1 by heart. The same swap happens inside sorting algorithms (Lesson 16). Approach 2 is the short form you will see in modern JavaScript. Mention Approach 3 only if the interviewer asks.</p>}
       >
         <p>Swap the values of <code>a</code> and <code>b</code>, then print them.</p>
       </Problem>
@@ -172,17 +172,17 @@ console.log(hours + " hours " + minutes + " minutes"); // 2 hours 15 minutes`,
           },
           {
             name: "Math.floor, then subtract",
-            idea: <p>After finding the hours, subtract the minutes they use up. What remains is the minutes.</p>,
+            idea: <p>After finding the hours, subtract the minutes that those hours use up. What remains is the minutes.</p>,
             code: `const total = 135;
 
 const hours = Math.floor(total / 60);  // 2
 const minutes = total - hours * 60;    // 135 - 120 = 15
 
 console.log(hours + " hours " + minutes + " minutes"); // 2 hours 15 minutes`,
-            explain: <p>This gives the same answer as <code>%</code> and shows what the remainder really means: the part that did not fit into a whole hour.</p>,
+            explain: <p>This gives the same answer as <code>%</code>. It also shows what the remainder really means: the part that did not fit into a whole hour.</p>,
           },
         ]}
-        compare={<p>Approach 1 is the standard pair and the one to remember: <code>Math.floor</code> for &ldquo;how many whole groups&rdquo; and <code>%</code> for &ldquo;how much is left&rdquo;. It solves every unit-conversion question.</p>}
+        compare={<p>Approach 1 is the standard pair, so remember it: <code>Math.floor</code> for &ldquo;how many whole groups&rdquo; and <code>%</code> for &ldquo;how much is left&rdquo;. It solves every unit-conversion question.</p>}
       >
         <p>Convert a number of minutes into hours and remaining minutes.</p>
       </Problem>
@@ -192,7 +192,7 @@ console.log(hours + " hours " + minutes + " minutes"); // 2 hours 15 minutes`,
         title="Last digit, and the number without it"
         level="Easy"
         examples={[
-          { input: "4729", output: "Last digit: 9\nRest: 472", why: "4729 ÷ 10 = 472 remainder 9. The remainder is the last digit; the whole part is what remains." },
+          { input: "4729", output: "Last digit: 9\nRest: 472", why: "4729 ÷ 10 = 472 remainder 9. The remainder is the last digit. The whole part is the rest of the number." },
           { input: "50", output: "Last digit: 0\nRest: 5", why: "50 ÷ 10 = 5 remainder 0." },
         ]}
         hints={[<>Think about dividing by 10. What happens to each digit?</>, <>The remainder of dividing by 10 is the last digit. The whole part of the division is the rest.</>]}
@@ -201,7 +201,7 @@ console.log(hours + " hours " + minutes + " minutes"); // 2 hours 15 minutes`,
             name: "% 10 and Math.floor(n / 10)",
             idea: (
               <ol>
-                <li><code>n % 10</code> is the remainder after dividing by 10 — the last digit.</li>
+                <li><code>n % 10</code> is the remainder after dividing by 10, which is the last digit.</li>
                 <li><code>Math.floor(n / 10)</code> removes the last digit.</li>
               </ol>
             ),
@@ -212,7 +212,7 @@ const rest = Math.floor(n / 10);
 
 console.log("Last digit:", last); // Last digit: 9
 console.log("Rest:", rest);       // Rest: 472`,
-            explain: <p>Dividing by 10 moves every digit one place to the right: 4729 becomes 472.9. <code>Math.floor</code> drops the .9, and <code>% 10</code> gives exactly that 9.</p>,
+            explain: <p>Dividing by 10 moves every digit one place to the right: 4729 becomes 472.9. <code>Math.floor</code> drops the .9. The expression <code>% 10</code> gives the last digit, 9.</p>,
           },
           {
             name: "Subtract the last digit, then divide",
@@ -228,7 +228,7 @@ console.log("Rest:", rest);       // Rest: 472`,
           },
           {
             name: "Treat the number as text",
-            idea: <p>Turn the number into a string with <code>String(n)</code>, then take its last character.</p>,
+            idea: <p>Turn the number into a string (text) with <code>String(n)</code>, then take its last character.</p>,
             code: `const n = 4729;
 const s = String(n);                        // "4729"
 
@@ -237,10 +237,10 @@ const rest = Number(s.slice(0, s.length - 1)); // 472
 
 console.log("Last digit:", last); // Last digit: 9
 console.log("Rest:", rest);       // Rest: 472`,
-            explain: <p><code>s[s.length - 1]</code> is the last character and <code>s.slice(0, s.length - 1)</code> is everything before it (strings are covered in Lesson 9). This works, but it converts back and forth between numbers and text.</p>,
+            explain: <p><code>s[s.length - 1]</code> is the last character. (The number in square brackets is a position, counted from 0. <code>s.length</code> is the number of characters.) <code>s.slice(0, s.length - 1)</code> is everything before the last character. Strings are covered in Lesson 9. This works, but it converts back and forth between numbers and text.</p>,
           },
         ]}
-        compare={<p>Use Approach 1. Interviewers expect the <code>% 10</code> / <code>Math.floor(n / 10)</code> pair, and Lesson 5 builds on it to visit every digit of any number.</p>}
+        compare={<p>Use Approach 1. Interviewers expect the <code>% 10</code> and <code>Math.floor(n / 10)</code> pair. Lesson 5 builds on it to visit every digit of any number.</p>}
       >
         <p>Given a positive whole number, print its last digit and the number with the last digit removed.</p>
       </Problem>
@@ -260,7 +260,7 @@ console.log("Rest:", rest);       // Rest: 472`,
         approaches={[
           {
             name: "Take the last digit three times",
-            idea: <p>Add the last digit to a total, remove it, and repeat until all three digits are used.</p>,
+            idea: <p>Add the last digit to a running total, remove that digit, and repeat until all three digits are used.</p>,
             code: `let n = 472;
 let sum = 0;
 
@@ -296,11 +296,11 @@ const tens = Math.floor(n / 10) % 10;   // 47 % 10 = 7
 const ones = n % 10;                    // 2
 
 console.log(hundreds + tens + ones); // 13`,
-            explain: <p>Each digit has its own formula, so the original number is never changed. This works only because we know there are exactly three digits.</p>,
+            explain: <p>Each digit has its own formula, so the original number is never changed. This works only because we know the number has exactly three digits.</p>,
           },
           {
             name: "Read the digits as text",
-            idea: <p>Convert the number to a string and turn each character back into a number.</p>,
+            idea: <p>Convert the number to a string, then turn each character back into a number.</p>,
             code: `const s = String(472);   // "472"
 
 const sum = Number(s[0]) + Number(s[1]) + Number(s[2]);
@@ -309,7 +309,7 @@ console.log(sum); // 13`,
             explain: <p><code>s[0]</code> is the character <code>&quot;4&quot;</code>, which is text. <code>Number</code> turns it into the number 4. Without <code>Number</code>, <code>+</code> would join the characters into <code>&quot;472&quot;</code> instead of adding them.</p>,
           },
         ]}
-        compare={<p>Approach 1 is the one to learn: it repeats the same two lines, and in Lesson 5 a loop does that repetition for a number of any length. Approach 2 is compact when the number of digits is fixed.</p>}
+        compare={<p>Approach 1 is the one to learn. It repeats the same two lines, and in Lesson 5 a loop does that repetition for a number of any length. Approach 2 is short when the number of digits is fixed.</p>}
       >
         <p>Find the sum of the digits of a three-digit number.</p>
       </Problem>
@@ -326,7 +326,7 @@ console.log(sum); // 13`,
         approaches={[
           {
             name: "Apply the rule one + at a time",
-            idea: <p>Evaluate each expression from left to right and decide, at every step, whether <code>+</code> adds or joins.</p>,
+            idea: <p>Work out each expression from left to right. At every step, decide whether <code>+</code> adds or joins.</p>,
             code: `console.log("5" + 3);     // 53
 console.log("5" - 3);     // 2
 console.log(5 + 3 + "5"); // 85
@@ -375,11 +375,11 @@ console.log(5 + 3 + Number("5")); // 13`,
 const average = (a + b + c) / 3;
 
 console.log(average); // 7`,
-            explain: <p>Without the brackets, <code>a + b + c / 3</code> divides only <code>c</code> by 3 (division happens before addition), giving 15 instead of 7.</p>,
+            explain: <p>Without the brackets, <code>a + b + c / 3</code> divides only <code>c</code> by 3, because division happens before addition. That gives 15 instead of 7.</p>,
           },
           {
             name: "Keep a separate total",
-            idea: <p>Store the total in its own variable first; then the division is easy to read.</p>,
+            idea: <p>Store the total in its own variable first. Then the division is easy to read.</p>,
             code: `const a = 1, b = 2, c = 2;
 
 const total = a + b + c;      // 5
@@ -388,12 +388,12 @@ const average = total / 3;
 console.log(average);                 // 1.6666666666666667
 console.log(Math.round(average));     // 2     nearest whole number
 console.log(average.toFixed(2));      // 1.67  two decimal places, as text`,
-            explain: <p>When an answer must be a whole number, use <code>Math.round</code> (nearest) or <code>Math.floor</code> (round down). <code>toFixed(2)</code> gives two decimal places for display.</p>,
+            explain: <p>When an answer must be a whole number, use <code>Math.round</code> (nearest) or <code>Math.floor</code> (round down). <code>toFixed(2)</code> gives the number as text with two decimal places, for display.</p>,
           },
         ]}
         compare={<p>Both are correct. Approach 2 is easier to read and lets you format the result in different ways. Always check whether a question wants the exact value, a rounded value, or a whole number.</p>}
       >
-        <p>Print the average of three numbers.</p>
+        <p>Print the average of three numbers (the total divided by how many numbers there are).</p>
       </Problem>
 
       <Problem
@@ -414,8 +414,8 @@ console.log(average.toFixed(2));      // 1.67  two decimal places, as text`,
             name: "Math.floor and % twice",
             idea: (
               <ol>
-                <li>Hours = <code>Math.floor(total / 3600)</code>; seconds left = <code>total % 3600</code>.</li>
-                <li>Minutes = <code>Math.floor(left / 60)</code>; seconds = <code>left % 60</code>.</li>
+                <li>Hours = <code>Math.floor(total / 3600)</code>. Seconds left = <code>total % 3600</code>.</li>
+                <li>Minutes = <code>Math.floor(left / 60)</code>. Seconds = <code>left % 60</code>.</li>
               </ol>
             ),
             code: `const total = 3725;
@@ -438,8 +438,8 @@ console.log(\`\${hours}h \${minutes}m \${seconds}s\`); // 1h 2m 5s`,
             name: "Convert everything to minutes first",
             idea: (
               <ol>
-                <li>Total minutes = <code>Math.floor(total / 60)</code>; seconds = <code>total % 60</code>.</li>
-                <li>Hours = <code>Math.floor(totalMinutes / 60)</code>; minutes = <code>totalMinutes % 60</code>.</li>
+                <li>Total minutes = <code>Math.floor(total / 60)</code>. Seconds = <code>total % 60</code>.</li>
+                <li>Hours = <code>Math.floor(totalMinutes / 60)</code>. Minutes = <code>totalMinutes % 60</code>.</li>
               </ol>
             ),
             code: `const total = 3725;
@@ -450,10 +450,10 @@ const hours = Math.floor(totalMinutes / 60); // 1
 const minutes = totalMinutes % 60;           // 2
 
 console.log(\`\${hours}h \${minutes}m \${seconds}s\`); // 1h 2m 5s`,
-            explain: <p>This uses only the number 60, which some people find easier to remember. 3725 seconds is 62 minutes and 5 seconds; 62 minutes is 1 hour and 2 minutes.</p>,
+            explain: <p>This uses only the number 60, which some people find easier to remember. 3725 seconds is 62 minutes and 5 seconds. 62 minutes is 1 hour and 2 minutes.</p>,
           },
         ]}
-        compare={<p>Both use the same idea — <code>Math.floor</code> for whole units and <code>%</code> for the remainder — just in a different order. Choose whichever you can explain clearly.</p>}
+        compare={<p>Both use the same idea: <code>Math.floor</code> for whole units and <code>%</code> for the remainder. They only use a different order. Choose the one you can explain clearly.</p>}
       >
         <p>Convert a number of seconds into hours, minutes and seconds.</p>
       </Problem>

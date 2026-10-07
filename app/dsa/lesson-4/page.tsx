@@ -105,7 +105,7 @@ console.log(sum);`;
 function sumTrace() {
   const t = tracer();
   let sum = 0;
-  t.step(1, "start", "let sum = 0", "The accumulator starts empty — 0 is “nothing added yet”. It lives OUTSIDE the loop so it keeps its value between iterations.", { sum }, "sum");
+  t.step(1, "start", "let sum = 0", "The accumulator starts empty. 0 means “nothing added yet”. It lives OUTSIDE the loop so it keeps its value between iterations.", { sum }, "sum");
   let i = 1;
   t.step(2, "start", "START: let i = 1", "Create the loop variable.", { sum, i }, "i");
   while (true) {
@@ -153,17 +153,24 @@ export default function DsaLessonFourPage() {
       <p>Print the numbers from 1 to 5. With what you know so far:</p>
       <CodeBlock lang="js" code={withoutLoop} />
       <p>
-        A <strong>loop</strong> says &ldquo;repeat this block, and stop when a condition is no
-        longer true&rdquo;. The same output in three lines:
+        A <strong>loop</strong> is a statement that repeats a block of code again and again, and stops
+        when a condition is no longer true. Each time the block runs is called an{" "}
+        <strong>iteration</strong>. Here is the same output in three lines:
       </p>
       <CodeBlock lang="js" code={firstLoop} />
       <p>
-        Change <code>5</code> to <code>1000</code> and it prints a thousand lines — the code stays
-        three lines long. Nearly every DSA solution has at least one loop in it, so this lesson is
-        the foundation for everything after. Take your time and trace every example.
+        Change <code>5</code> to <code>1000</code> and it prints a thousand lines, but the code is
+        still three lines long. Nearly every DSA solution has at least one loop. So this lesson is
+        the base for everything after it. Take your time and trace every example.
       </p>
 
       <h2 id="anatomy">The three parts of a for loop</h2>
+      <p>
+        A <code>for</code> loop is a loop that keeps all its counting in one place. Inside the
+        round brackets it has three parts, separated by semicolons: start, check and update. After
+        the brackets comes the body (the code to repeat) in curly braces. The table lists all four
+        steps in the order you read them in the code.
+      </p>
       <CodeBlock lang="js" code={anatomy} />
       <div className="table-wrap">
         <table>
@@ -176,19 +183,20 @@ export default function DsaLessonFourPage() {
           </thead>
           <tbody>
             <tr><td>1. Start</td><td><code>let i = 1</code></td><td>Create the loop variable. Runs <strong>once</strong>.</td></tr>
-            <tr><td>2. Check</td><td><code>i &lt;= 5</code></td><td>Asked <strong>before every iteration</strong>. True → run the body. False → leave the loop.</td></tr>
+            <tr><td>2. Check</td><td><code>i &lt;= 5</code></td><td>Asked <strong>before every iteration</strong>. If true, run the body. If false, leave the loop.</td></tr>
             <tr><td>3. Body</td><td><code>console.log(i)</code></td><td>The work to repeat. Can use <code>i</code>.</td></tr>
-            <tr><td>4. Update</td><td><code>i++</code></td><td>Runs <strong>after every iteration</strong>, moving <code>i</code> towards the stopping point.</td></tr>
+            <tr><td>4. Update</td><td><code>i++</code></td><td>Runs <strong>after every iteration</strong>. It moves <code>i</code> closer to the stopping point.</td></tr>
           </tbody>
         </table>
       </div>
       <p>
-        The variable is usually called <code>i</code> (for &ldquo;index&rdquo;). It is the loop
-        variable: the counter that changes every iteration and decides when the loop stops.
+        The variable is usually called <code>i</code> (short for &ldquo;index&rdquo;). It is the{" "}
+        <strong>loop variable</strong>: the counter that changes in every iteration and decides when
+        the loop stops.
       </p>
 
       <h2 id="order">The exact order things happen</h2>
-      <p>This is the most important part to remember. For <code>for (start; check; update) {"{ body }"}</code>:</p>
+      <p>This is the most important part to remember. For <code>for (start; check; update) {"{ body }"}</code>, the order is:</p>
       <Callout kind="ok" label="The order of execution">
         <p className="mb-0 font-mono text-[0.95rem]">
           start → check → body → update → check → body → update → check → … → check (false) → exit
@@ -196,16 +204,16 @@ export default function DsaLessonFourPage() {
       </Callout>
       <ul>
         <li>Start happens <strong>once</strong>, before anything else.</li>
-        <li>Check happens <strong>one more time than the body</strong> — the final, failing check is what ends the loop.</li>
+        <li>Check happens <strong>one more time than the body</strong>. The last check fails, and that failing check ends the loop.</li>
         <li>Update always comes <strong>after</strong> the body, never before.</li>
       </ul>
 
       <h2 id="trace1">Traced: printing 1 to 3</h2>
-      <p>Press Next and say each step out loud before you see it. Pay attention to the order of check, body and update:</p>
+      <p>Press Next, and say each step out loud before you see it. Watch the order of check, body and update:</p>
       <CodeTrace
         code={printCode}
         steps={printTrace()}
-        caption="Yellow is a check, blue the body printing, violet the update. The loop ends on a check, with i = 4."
+        caption="Yellow is a check, blue is the body printing, violet is the update. The loop ends on a check, when i is 4."
       />
       <DryRun
         title="for (let i = 1; i <= 3; i++)"
@@ -217,11 +225,11 @@ export default function DsaLessonFourPage() {
           ["—", "4", "false", "(loop ends)", "—"],
         ]}
         highlight={3}
-        note="Three iterations of the body, four checks. After the loop, i would be 4 — one past the last value printed."
+        note="Three iterations of the body, four checks. After the loop, i is 4, which is one more than the last value printed."
       />
 
       <h2 id="count">How many times will it run?</h2>
-      <p>You will be asked this constantly — and it is how you will later work out Big-O (Lesson 12). Two forms cover almost everything:</p>
+      <p>You will be asked this often. It is also how you will later work out Big-O (Lesson 12), a way to describe how the running time of code grows with the input size. Three forms cover almost everything:</p>
       <div className="table-wrap">
         <table>
           <thead>
@@ -239,8 +247,9 @@ export default function DsaLessonFourPage() {
         </table>
       </div>
       <p>
-        The second form (start at 0, use <code>&lt;</code>) may look unusual now, but it is the most
-        common one in DSA, because arrays and strings number their items from 0 (Lesson 8).
+        The second form (start at 0, use <code>&lt;</code>) may look strange now. But it is the most
+        common form in DSA, because arrays (lists of values) and strings number their items from 0
+        (Lesson 8).
       </p>
 
       <h2 id="variations">Counting down, skipping, starting at 0</h2>
@@ -248,27 +257,30 @@ export default function DsaLessonFourPage() {
       <CodeBlock lang="js" code={variations} />
       <Callout kind="note" label="Short bodies">
         <p className="mb-0">
-          When the body is one statement you may leave out the braces, as above. While learning,
-          keep the braces — it prevents a common mistake when you add a second line later.
+          When the body is one statement, you may leave out the braces, as above. While you are
+          learning, keep the braces. Then you will not make a common mistake when you add a second
+          line later (the second line would not be part of the loop).
         </p>
       </Callout>
 
       <h2 id="accumulator">The accumulator: adding things up</h2>
       <p>
         Printing is useful, but most loop problems ask for <strong>one answer</strong> built from
-        many steps: a total, a count, a product. The pattern is always the same three moves:
+        many steps, such as a total, a count or a product. The pattern always has the same three
+        moves:
       </p>
       <ol>
         <li>
           <strong>Before the loop</strong>, create a variable for the answer and give it a starting
-          value: <code>0</code> for a sum or a count, <code>1</code> for a product.
+          value. Use <code>0</code> for a sum or a count. Use <code>1</code> for a product.
         </li>
-        <li><strong>Inside the loop</strong>, update it with this iteration&apos;s value.</li>
-        <li><strong>After the loop</strong>, it holds the answer.</li>
+        <li><strong>Inside the loop</strong>, update it using the value of this iteration.</li>
+        <li><strong>After the loop</strong>, the variable holds the answer.</li>
       </ol>
       <p>
-        That variable is called an <strong>accumulator</strong>. It must live <em>outside</em> the
-        loop — declared inside, it would be reset to 0 on every iteration.
+        That variable is called an <strong>accumulator</strong> (a variable that collects a result step
+        by step, like a jar where you keep adding coins). It must be declared <em>outside</em> the
+        loop. If you declare it inside, it is reset to 0 in every iteration.
       </p>
 
       <h2 id="trace2">Traced: the sum of 1 to 4</h2>
@@ -292,9 +304,9 @@ export default function DsaLessonFourPage() {
 
       <h2 id="break">break and continue</h2>
       <p>
-        Two keywords change this normal order. <code>break</code> leaves the loop right now —
-        useful once you have found what you were looking for. <code>continue</code> skips the rest
-        of this iteration and jumps to the update.
+        Two keywords change this normal order. <code>break</code> leaves the loop right now. Use it
+        when you have found what you were looking for. <code>continue</code> skips the rest of this
+        iteration and jumps to the update.
       </p>
       <CodeBlock lang="js" code={breakContinue} />
 
@@ -312,22 +324,22 @@ export default function DsaLessonFourPage() {
             <tr>
               <td><strong>Off-by-one</strong></td>
               <td><code>i &lt; 5</code> when you meant <code>i &lt;= 5</code></td>
-              <td>Runs one time too few (or too many). The most common loop bug of all — always check the first and last value of i.</td>
+              <td>The loop runs one time too few (or one time too many). This is the most common loop bug. Always check the first and the last value of i.</td>
             </tr>
             <tr>
               <td>Accumulator inside the loop</td>
               <td><code>for (…) {"{ let sum = 0; sum += i; }"}</code></td>
-              <td>sum is reset every iteration; the answer is just the last i.</td>
+              <td>sum is reset in every iteration, so the answer is just the last i.</td>
             </tr>
             <tr>
               <td>Update goes the wrong way</td>
               <td><code>for (let i = 1; i &lt;= 5; i--)</code></td>
-              <td>i never reaches 5: an infinite loop. Press Ctrl+C to stop the program.</td>
+              <td>i never gets above 5, so the check is always true. This is an infinite loop (a loop that never stops). Press Ctrl+C to stop the program.</td>
             </tr>
             <tr>
               <td>Wrong starting value</td>
               <td>Product starting at <code>0</code></td>
-              <td>Anything × 0 is 0. Products start at 1.</td>
+              <td>Anything times 0 is 0. A product must start at 1.</td>
             </tr>
           </tbody>
         </table>
@@ -335,29 +347,29 @@ export default function DsaLessonFourPage() {
 
       <h2 id="recipe">A recipe for writing any loop</h2>
       <ol>
-        <li><strong>What values should i take?</strong> Write the first and the last one. That gives the start and the check.</li>
-        <li><strong>How does i move?</strong> +1, −1, +2… That is the update.</li>
-        <li><strong>What happens on each iteration?</strong> That is the body.</li>
-        <li><strong>Do I need an answer at the end?</strong> Then add an accumulator before the loop.</li>
-        <li><strong>Dry-run the first two and the last iteration.</strong> Most bugs appear there.</li>
+        <li><strong>What values should i take?</strong> Write the first and the last one. They give you the start and the check.</li>
+        <li><strong>How does i move?</strong> By +1, −1, +2 and so on. This is the update.</li>
+        <li><strong>What happens in each iteration?</strong> This is the body.</li>
+        <li><strong>Do I need one answer at the end?</strong> If yes, add an accumulator before the loop.</li>
+        <li><strong>Dry-run the first two iterations and the last one.</strong> Most bugs show up there.</li>
       </ol>
 
       <h2 id="practice">Practice questions</h2>
-      <p>Use the recipe for each one. Write the dry-run table for at least the first three before opening the answers.</p>
+      <p>Use the recipe for each question. Write the dry-run table for at least the first three before you open the answers.</p>
 
       <Questions />
 
       <h2 id="recall">Make it stick</h2>
       <Recall
         items={[
-          <>Write the order of execution from memory: start → check → body → update → … Where does the loop end?</>,
+          <>Write the order of execution from memory: start, check, body, update, and so on. Where does the loop end?</>,
           <>Without running it: how many times does <code>for (let i = 3; i &lt;= 9; i++)</code> run? And <code>for (let i = 0; i &lt; 9; i += 3)</code>? (7 and 3.)</>,
           <>Write factorial from scratch and dry-run it for n = 4 in a table.</>,
         ]}
       />
       <p>
-        Next lesson: the <code>while</code> loop — for when you don&apos;t know in advance how many
-        times to repeat — and taking a number apart digit by digit.
+        Next lesson: the <code>while</code> loop, which you use when you do not know in advance how
+        many times to repeat. You will also learn to take a number apart digit by digit.
       </p>
     </DsaLessonPage>
   );

@@ -26,14 +26,14 @@ if (n % 2 === 0) {
 } else {
   console.log("odd"); // odd
 }`,
-            explain: <p>Every whole number leaves a remainder of either 0 or 1 when divided by 2, so exactly one branch runs.</p>,
+            explain: <p>Every positive whole number leaves a remainder of either 0 or 1 when divided by 2, so exactly one branch runs. (A negative odd number such as -7 gives -1, not 1. This is why you should test <code>=== 0</code> and not <code>=== 1</code>.)</p>,
           },
           {
             name: "Ternary operator",
             idea: <p>Choose between the two words in one expression with <code>condition ? a : b</code>.</p>,
             code: `const n = 10;
 console.log(n % 2 === 0 ? "even" : "odd"); // even`,
-            explain: <p>The ternary operator is a short <code>if / else</code> that produces a value. It is ideal when each branch is just one value.</p>,
+            explain: <p>The ternary operator is a short <code>if / else</code> that gives back a value. It is best when each branch is just one value.</p>,
           },
           {
             name: "Look only at the last digit",
@@ -46,7 +46,7 @@ if (last === 0 || last === 2 || last === 4 || last === 6 || last === 8) {
 } else {
   console.log("odd");
 }`,
-            explain: <p>This matches the rule you learned at school. It works, but it is longer than checking <code>n % 2</code> directly.</p>,
+            explain: <p>This is the rule you learned at school. It works, but it is longer than checking <code>n % 2</code> directly.</p>,
           },
         ]}
         compare={<p>Use Approach 1 or 2. <code>n % 2 === 0</code> is the standard even-number check and appears inside many larger problems.</p>}
@@ -77,11 +77,11 @@ if (n > 0) {
 } else {
   console.log("zero");
 }`,
-            explain: <p>The final <code>else</code> needs no condition because zero is the only number left. Always test the edge case 0 — interviewers will.</p>,
+            explain: <p>The final <code>else</code> needs no condition, because zero is the only number left. Always test the edge case 0 (an unusual input at the edge of what is allowed). Interviewers will.</p>,
           },
           {
             name: "Math.sign",
-            idea: <p><code>Math.sign(n)</code> returns 1 for positive numbers, -1 for negative numbers and 0 for zero. Turn that into a word.</p>,
+            idea: <p><code>Math.sign(n)</code> is a built-in function that returns 1 for positive numbers, -1 for negative numbers and 0 for zero. Then turn that result into a word.</p>,
             code: `const n = 12;
 const sign = Math.sign(n);   // 1
 
@@ -91,7 +91,7 @@ else console.log("zero");`,
             explain: <p>The built-in function does the comparison for you. You still need a chain to turn the number into text.</p>,
           },
         ]}
-        compare={<p>Approach 1 is clearer and needs nothing special. Knowing <code>Math.sign</code> is useful when you only need the direction of a number.</p>}
+        compare={<p>Approach 1 is clearer and needs nothing special. Knowing <code>Math.sign</code> is useful when you only need to know if a number is positive, negative or zero.</p>}
       >
         <p>Print whether a number is <code>positive</code>, <code>negative</code> or <code>zero</code>.</p>
       </Problem>
@@ -149,13 +149,13 @@ console.log(best); // 9`,
           },
           {
             name: "Math.max",
-            idea: <p>JavaScript has a built-in function that returns the largest of its arguments.</p>,
+            idea: <p>JavaScript has a built-in function that returns the largest of the values you give it (these values are called its arguments).</p>,
             code: `console.log(Math.max(4, 9, 2)); // 9
 console.log(Math.max(7, 7, 3)); // 7`,
-            explain: <p>Correct and short. In an interview, mention it, but be ready to write Approach 2 by hand.</p>,
+            explain: <p>This is correct and short. In an interview, mention it, but be ready to write Approach 2 by hand.</p>,
           },
         ]}
-        compare={<p>Remember Approach 2. &ldquo;Keep the best so far&rdquo; is the pattern that finds the maximum of a whole array with a loop in Lesson 8, and it works no matter how many values there are.</p>}
+        compare={<p>Remember Approach 2. &ldquo;Keep the best so far&rdquo; is the pattern that finds the largest value in a whole array (a list of values) with a loop in Lesson 8. It works for any number of values.</p>}
       >
         <p>Print the largest of three numbers.</p>
       </Problem>
@@ -166,7 +166,7 @@ console.log(Math.max(7, 7, 3)); // 7`,
         level="Easy"
         examples={[
           { input: "91", output: "A", why: "91 is 90 or more." },
-          { input: "75", output: "B", why: "75 is below 90 but exactly on the B boundary (75 or more)." },
+          { input: "75", output: "B", why: "75 is below 90 and is exactly on the B boundary (75 or more)." },
           { input: "49", output: "F", why: "49 is below 50." },
         ]}
         hints={[<>Which grade should be checked first: A or F?</>, <>Start with the strictest condition (90 and above). Each later <code>else if</code> only runs if the earlier ones failed.</>]}
@@ -189,14 +189,14 @@ if (marks >= 90) {
           },
           {
             name: "Full ranges with &&",
-            idea: <p>Write each grade as a complete range, so the order no longer matters.</p>,
+            idea: <p>Write each grade as a complete range with a lower and upper limit, so the order no longer matters.</p>,
             code: `const marks = 91;
 
 if (marks >= 90) console.log("A"); // A
 if (marks >= 75 && marks < 90) console.log("B");
 if (marks >= 50 && marks < 75) console.log("C");
 if (marks < 50) console.log("F");`,
-            explain: <p>Every condition is checked, and exactly one is true. This is longer and easier to get wrong at the boundaries, which is why the else-if chain is preferred.</p>,
+            explain: <p>Every condition is checked, and exactly one is true. This is longer and easier to get wrong at the boundaries, so the else-if chain is better.</p>,
           },
         ]}
         compare={<p>Use Approach 1. An else-if chain is shorter, checks fewer conditions, and cannot print two grades by mistake.</p>}
@@ -214,13 +214,13 @@ if (marks < 50) console.log("F");`,
           { input: "2000", output: "true", why: "Divisible by 400, which always makes a leap year." },
         ]}
         hints={[
-          <>The rule: a year is a leap year if it is divisible by 400, <em>or</em> divisible by 4 but <em>not</em> by 100.</>,
+          <>The rule: a year is a leap year (a year with 366 days) if it is divisible by 400, <em>or</em> divisible by 4 but <em>not</em> by 100.</>,
           <>&ldquo;Divisible by 4&rdquo; is <code>year % 4 === 0</code>. Combine the parts with <code>||</code> and <code>&amp;&amp;</code>.</>,
         ]}
         approaches={[
           {
             name: "One combined condition",
-            idea: <p>Translate the rule word by word into a single boolean expression.</p>,
+            idea: <p>Translate the rule word by word into a single expression that gives <code>true</code> or <code>false</code>.</p>,
             code: `const year = 1900;
 
 const isLeap = year % 400 === 0 || (year % 4 === 0 && year % 100 !== 0);
@@ -253,10 +253,10 @@ else if (year % 4 === 0) isLeap = true;
 else isLeap = false;
 
 console.log(isLeap); // true`,
-            explain: <p>The order is the important part: the 400 rule must come before the 100 rule, or 2000 would be wrongly rejected.</p>,
+            explain: <p>The order is the important part. The 400 rule must come before the 100 rule, or 2000 would be wrongly rejected.</p>,
           },
         ]}
-        compare={<p>Both are correct. The chain (Approach 2) is easier to read and explain; the single expression (Approach 1) is shorter. In Approach 1, the <code>—</code> cells are never checked: once the left side of <code>||</code> is true, JavaScript skips the right side (this is called short-circuiting).</p>}
+        compare={<p>Both are correct. The chain (Approach 2) is easier to read and explain. The single expression (Approach 1) is shorter. In Approach 1, the <code>—</code> cells are never checked. Once the left side of <code>||</code> is true, JavaScript skips the right side. This is called short-circuiting.</p>}
       >
         <p>Print <code>true</code> if a year is a leap year, otherwise <code>false</code>.</p>
       </Problem>
@@ -294,7 +294,7 @@ console.log(valid); // true`,
             explain: <p><code>total - longest</code> is the sum of the two shorter sides. Only this check can ever fail, so it is the only one needed.</p>,
           },
         ]}
-        compare={<p>Approach 1 follows the rule directly and is the safest to write in an interview. Approach 2 shows a useful habit: think about which check is the hardest to pass.</p>}
+        compare={<p>Approach 1 follows the rule directly, so it is the safest to write in an interview. Approach 2 shows a useful habit: think about which check is the hardest to pass.</p>}
       >
         <p>Given three side lengths, print whether they can form a triangle.</p>
       </Problem>
@@ -309,7 +309,7 @@ console.log(valid); // true`,
           { input: "10", output: "Buzz", why: "10 is divisible by 5 but not by 3." },
           { input: "7", output: "7", why: "7 is divisible by neither, so the number itself is printed." },
         ]}
-        hints={[<>There are four possible outputs. Which case is the most specific?</>, <>Check &ldquo;divisible by both&rdquo; first. If you check &ldquo;divisible by 3&rdquo; first, 15 will print Fizz and stop.</>]}
+        hints={[<>There are four possible outputs. Which case is the most specific (the one that is true for the fewest numbers)?</>, <>Check &ldquo;divisible by both&rdquo; first. If you check &ldquo;divisible by 3&rdquo; first, 15 will print Fizz and stop.</>]}
         approaches={[
           {
             name: "else-if chain, most specific case first",
@@ -343,10 +343,10 @@ if (n % 3 === 0) word += "Fizz";
 if (n % 5 === 0) word += "Buzz";
 
 console.log(word === "" ? n : word); // Buzz`,
-            explain: <p>&ldquo;FizzBuzz&rdquo; appears naturally when both checks add their part. This version is easy to extend: adding a new rule (for example &ldquo;Bazz&rdquo; for 7) is one more line.</p>,
+            explain: <p>&ldquo;FizzBuzz&rdquo; appears by itself when both checks add their part. This version is easy to extend. To add a new rule (for example &ldquo;Bazz&rdquo; for 7), you add one more line.</p>,
           },
         ]}
-        compare={<p>Both are accepted. Approach 1 is the standard answer. Approach 2 is a good one to mention because it shows you think about how code changes over time.</p>}
+        compare={<p>Both are accepted. Approach 1 is the standard answer. Approach 2 is a good one to mention, because it shows that you think about how code may change later.</p>}
       >
         <p>Print <code>Fizz</code> if n is divisible by 3, <code>Buzz</code> if by 5, <code>FizzBuzz</code> if by both, otherwise the number itself.</p>
       </Problem>
@@ -366,7 +366,7 @@ console.log(word === "" ? n : word); // Buzz`,
         approaches={[
           {
             name: "One branch per range",
-            idea: <p>Decide which range the units fall in, then write the full cost for that range.</p>,
+            idea: <p>Decide which range the units fall in. Then write the full cost for that range.</p>,
             code: `const units = 250;
 let bill;
 
@@ -404,12 +404,12 @@ const slab2 = Math.min(Math.max(units - 100, 0), 100);    // 100
 const slab3 = Math.max(units - 200, 0);                   // 50
 
 console.log(slab1 * 5 + slab2 * 7 + slab3 * 10); // 1700`,
-            explain: <p><code>Math.max(x, 0)</code> stops a part from going negative, and <code>Math.min(x, 100)</code> stops it from going above the slab size. No branches are needed, and adding a fourth slab is easy.</p>,
+            explain: <p><code>Math.max(x, 0)</code> stops a part from going below 0. <code>Math.min(x, 100)</code> stops it from going above the slab size. No branches are needed, and adding a fourth slab is easy.</p>,
           },
         ]}
-        compare={<p>Approach 1 is the easiest to explain. Approach 2 avoids repeating the slab prices in every branch, which matters when there are many slabs.</p>}
+        compare={<p>Approach 1 is the easiest to explain. Approach 2 does not repeat the slab prices in every branch. This matters when there are many slabs.</p>}
       >
-        <p>The first 100 units cost 5 each, the next 100 cost 7 each, and every unit above 200 costs 10. Print the bill for a given number of units.</p>
+        <p>An electricity bill uses slabs (price bands). The first 100 units cost 5 each, the next 100 cost 7 each, and every unit above 200 costs 10. Print the bill for a given number of units.</p>
       </Problem>
 
       <Problem
@@ -421,7 +421,7 @@ console.log(slab1 * 5 + slab2 * 7 + slab3 * 10); // 1700`,
           { input: "7", output: "Sunday", why: "Day 7 is Sunday." },
           { input: "9", output: "Invalid day", why: "There is no day 9, so the default answer is printed." },
         ]}
-        hints={[<>You are matching one value against seven exact options. Which statement from this lesson fits that best?</>, <>Use <code>switch (day)</code> with one <code>case</code> per day, a <code>break</code> after each, and a <code>default</code>.</>]}
+        hints={[<>You are matching one value against seven exact options. Which statement from this lesson fits this best?</>, <>Use <code>switch (day)</code> with one <code>case</code> per day, a <code>break</code> after each, and a <code>default</code>.</>]}
         approaches={[
           {
             name: "switch",
@@ -463,17 +463,17 @@ console.log(name); // Monday`,
           },
           {
             name: "Look it up in a list",
-            idea: <p>Store the names in order in an array and use the day number as the position.</p>,
+            idea: <p>Store the names in order in an array (a list) and use the day number to find the right name.</p>,
             code: `const day = 9;
 const names = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
 const name = day >= 1 && day <= 7 ? names[day - 1] : "Invalid day";
 
 console.log(name); // Invalid day`,
-            explain: <p>Arrays (Lesson 8) number their items from 0, so day 1 is at position 0 — hence <code>day - 1</code>. This is the shortest version and is common in real code.</p>,
+            explain: <p>Arrays (Lesson 8) number their items from 0. So day 1 is at position 0, which is why the code uses <code>day - 1</code>. This is the shortest version, and it is common in real code.</p>,
           },
         ]}
-        compare={<p>Use <code>switch</code> (Approach 1) for this lesson. Once you know arrays, the lookup (Approach 3) is usually the cleanest choice for mapping numbers to names.</p>}
+        compare={<p>Use <code>switch</code> (Approach 1) for this lesson. Once you know arrays, the lookup (Approach 3) is usually the cleanest way to turn numbers into names.</p>}
       >
         <p>Given a number from 1 to 7, print the name of the day (1 is Monday). For any other number, print <code>Invalid day</code>.</p>
       </Problem>

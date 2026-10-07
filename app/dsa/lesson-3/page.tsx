@@ -152,10 +152,10 @@ function gradeTrace() {
   const marks = 82;
   t.step(1, "run", "const marks = 82", "Store the input.", { marks }, "marks");
   t.step(2, "check", "Is marks >= 90?", "82 >= 90 is false, so the block on line 3 is skipped. Move to the next else if.", { marks });
-  t.step(4, "check", "Is marks >= 75?", "82 >= 75 is true — enter this block.", { marks });
+  t.step(4, "check", "Is marks >= 75?", "82 >= 75 is true, so enter this block.", { marks });
   t.print("B");
   t.step(5, "print", "Print B", "Inside the block that matched.", { marks });
-  t.step(6, "run", "Skip the else", "One block of the ladder already ran, so every remaining else if / else is skipped without even being checked.", { marks });
+  t.step(6, "run", "Skip the else", "One block of the chain already ran, so every remaining else if / else is skipped without being checked.", { marks });
   t.print("done");
   t.step(9, "print", "Continue after the whole if", "Code after the ladder always runs.", { marks });
   return t.steps;
@@ -177,52 +177,64 @@ export default function DsaLessonThreePage() {
     <DsaLessonPage lesson={lesson} outline={outline}>
       <h2 id="concept">Making decisions in code</h2>
       <p>
-        So far every line runs, top to bottom. Real programs need to <em>decide</em>: if it is
-        raining, take an umbrella; otherwise, don&apos;t. A <strong>condition</strong> is a question
-        whose answer is <code>true</code> or <code>false</code>, and <code>if</code> runs a block of
-        code only when the answer is <code>true</code>.
+        So far every line runs, from top to bottom. Real programs also need to <em>decide</em>. For
+        example: if it is raining, take an umbrella. Otherwise, do not. A <strong>condition</strong>{" "}
+        is a question whose answer is <code>true</code> or <code>false</code>. Those two values are
+        called <strong>booleans</strong>. The <code>if</code> statement runs a <strong>block</strong>{" "}
+        (a group of lines inside curly braces) only when the condition is <code>true</code>.
       </p>
       <p>
-        Almost every DSA solution has decisions inside it: &ldquo;is this number bigger than my
-        best so far?&rdquo;, &ldquo;have I found the target?&rdquo;, &ldquo;is this character a
-        vowel?&rdquo;. This lesson is where those come from.
+        Almost every DSA solution has decisions inside it. Examples are &ldquo;is this number bigger
+        than my best so far?&rdquo;, &ldquo;have I found the target?&rdquo; and &ldquo;is this
+        character a vowel?&rdquo;. This lesson teaches how to write them.
       </p>
 
       <h2 id="compare">Comparisons give true or false</h2>
+      <p>
+        A <strong>comparison operator</strong> compares two values and gives <code>true</code> or{" "}
+        <code>false</code>. The operators are <code>&gt;</code> (greater than), <code>&lt;</code>{" "}
+        (less than), <code>&gt;=</code>, <code>&lt;=</code>, <code>===</code> (equal) and{" "}
+        <code>!==</code> (not equal).
+      </p>
       <CodeBlock lang="js" code={compare} />
       <Callout kind="warn" label="Always use === (three equals)">
         <p className="mb-0">
-          <code>==</code> (two) converts types before comparing, so <code>7 == &quot;7&quot;</code>{" "}
-          is <code>true</code> — a common source of hidden bugs. <code>===</code> compares value{" "}
-          <em>and</em> type. Use <code>===</code> and <code>!==</code> every time.
+          <code>==</code> (two equals signs) changes the type of a value before it compares. So{" "}
+          <code>7 == &quot;7&quot;</code> is <code>true</code>. This is a common cause of bugs that
+          are hard to see. <code>===</code> compares the value <em>and</em> the type. Use{" "}
+          <code>===</code> and <code>!==</code> every time.
         </p>
       </Callout>
 
       <h2 id="if">if and else</h2>
       <CodeBlock lang="js" code={ifElse} />
       <ul>
-        <li>The condition goes in round brackets <code>( )</code>; the code to run goes in curly braces <code>{"{ }"}</code>.</li>
-        <li><code>else</code> is optional. It runs when the condition is <code>false</code>.</li>
-        <li>Exactly one of the two blocks runs — never both, never neither.</li>
-        <li>Indent the code inside braces. The computer does not need it, but people reading your code (including interviewers) do.</li>
+        <li>The condition goes in round brackets <code>( )</code>. The code to run goes in curly braces <code>{"{ }"}</code>.</li>
+        <li><code>else</code> is optional. Its block runs when the condition is <code>false</code>.</li>
+        <li>When there is an <code>else</code>, exactly one of the two blocks runs. Never both, and never neither.</li>
+        <li>Indent the code inside the braces (move it to the right). The computer does not need this, but people who read your code, including interviewers, do.</li>
       </ul>
 
       <h2 id="ladder">else if — choosing one of many</h2>
       <p>
-        When there are more than two possibilities, chain them. The computer checks from the top
-        and runs <strong>only the first block whose condition is true</strong>, then jumps past the
-        whole chain.
+        When there are more than two possibilities, chain them with <code>else if</code>. The
+        computer checks the conditions from the top. It runs <strong>only the first block whose
+        condition is true</strong>, then it skips the rest of the chain.
       </p>
       <CodeBlock lang="js" code={ladder} />
       <Callout kind="ok" label="Order matters">
         <p className="mb-0">
-          82 is also &ge; 50, but &ldquo;C&rdquo; never prints because the ladder already stopped at
-          &ldquo;B&rdquo;. That is why you check the <strong>strictest</strong> condition first
-          (&ge; 90 before &ge; 75 before &ge; 50). Reverse the order and everyone above 50 gets a C.
+          82 is also &ge; 50, but &ldquo;C&rdquo; is never printed, because the chain already stopped at
+          &ldquo;B&rdquo;. So check the <strong>strictest</strong> condition first (&ge; 90, then
+          &ge; 75, then &ge; 50). If you reverse the order, everyone above 50 gets a C.
         </p>
       </Callout>
 
       <h2 id="logic">&amp;&amp;, || and ! — combining conditions</h2>
+      <p>
+        <strong>Logical operators</strong> join or change conditions. <code>&amp;&amp;</code> means
+        AND, <code>||</code> means OR, and <code>!</code> means NOT.
+      </p>
       <div className="table-wrap">
         <table>
           <thead>
@@ -243,59 +255,63 @@ export default function DsaLessonThreePage() {
 
       <h2 id="ternary">The one-line if: ? :</h2>
       <p>
-        When you only need to <em>choose a value</em>, <code>condition ? valueIfTrue :
-        valueIfFalse</code> does it in one line. Use it for simple choices; for anything with more
-        than one step, a normal <code>if</code> is clearer.
+        The <strong>ternary operator</strong> is an operator with three parts. It chooses one of two
+        values: <code>condition ? valueIfTrue : valueIfFalse</code>. If the condition is true, you
+        get the first value. If not, you get the second. Use it for simple choices. For anything
+        with more than one step, a normal <code>if</code> is clearer.
       </p>
       <CodeBlock lang="js" code={ternary} />
 
       <h2 id="truthy">Truthy and falsy values</h2>
       <p>
-        A condition does not have to be a comparison. JavaScript can turn <em>any</em> value into true or
-        false. Six values count as <strong>false</strong>; everything else counts as{" "}
-        <strong>true</strong>.
+        A condition does not have to be a comparison. JavaScript can treat <em>any</em> value as true or
+        false inside a condition. A value that counts as false is called <strong>falsy</strong>. A
+        value that counts as true is called <strong>truthy</strong>. These six common values are
+        falsy. Every other value is truthy. (There are two rare extra falsy values, <code>-0</code>{" "}
+        and <code>0n</code>, which you will not need now.)
       </p>
       <CodeBlock lang="js" code={truthy} />
       <Callout kind="warn" label="Be careful with 0">
         <p className="mb-0">
-          <code>if (count)</code> is false when <code>count</code> is <code>0</code>. If 0 is a valid
-          value in your problem (an index, a score), write the comparison in full:{" "}
+          <code>if (count)</code> is false when <code>count</code> is <code>0</code>. Sometimes 0 is a
+          real value in your problem, such as an index or a score. Then write the full comparison:{" "}
           <code>if (count !== undefined)</code> or <code>if (index &gt;= 0)</code>.
         </p>
       </Callout>
 
       <h2 id="switch">switch — matching one value against many</h2>
       <p>
-        When you compare <strong>one</strong> value against a list of exact options (a day number, a
-        command, a menu choice), <code>switch</code> is easier to read than a long{" "}
-        <code>else if</code> chain.
+        A <code>switch</code> statement compares <strong>one</strong> value against a list of exact
+        options (a day number, a command, a menu choice). Each option is a <code>case</code>. It is
+        easier to read than a long <code>else if</code> chain.
       </p>
       <CodeBlock lang="js" code={switchCode} />
       <ul>
         <li>JavaScript compares the value with each <code>case</code> using <code>===</code>.</li>
         <li>
           <code>break</code> ends the switch. Without it, the code <em>continues into the next
-          case</em> (this is called falling through).
+          case</em>. This is called falling through.
         </li>
-        <li><code>default</code> runs when no case matches, like a final <code>else</code>.</li>
+        <li><code>default</code> runs when no case matches. It works like a final <code>else</code>.</li>
       </ul>
       <p>Falling through is useful when several values share the same result:</p>
       <CodeBlock lang="js" code={fallThrough} />
       <Callout kind="note" label="switch or if?">
         <p className="mb-0">
           Use <code>switch</code> for exact matches against a list of values. Use{" "}
-          <code>if / else if</code> for ranges (<code>marks &gt;= 90</code>) and for conditions that
-          combine several checks.
+          <code>if / else if</code> for ranges (like <code>marks &gt;= 90</code>) and for conditions
+          that combine several checks.
         </p>
       </Callout>
 
       <h2 id="trace">Traced: a grading program</h2>
+      <p>Step through this program. It turns marks into a grade.</p>
       <CodeTrace
         code={gradeCode}
         steps={gradeTrace()}
-        caption="Watch the checks: line 2 is false and skipped, line 4 is true and runs, and the else is never even examined."
+        caption="Watch the checks. Line 2 is false, so its block is skipped. Line 4 is true, so its block runs. The else is never even checked."
       />
-      <p>Try it in your head with <code>marks = 95</code> and <code>marks = 40</code>: which lines run each time?</p>
+      <p>Now try it in your head with <code>marks = 95</code> and <code>marks = 40</code>. Which lines run each time?</p>
       <DryRun
         title="three inputs through the same ladder"
         cols={["marks", "marks >= 90?", "marks >= 75?", "Prints"]}
@@ -309,21 +325,24 @@ export default function DsaLessonThreePage() {
       <h2 id="mistakes">Four common mistakes</h2>
       <ol>
         <li>
-          <strong>One equals sign in a condition.</strong> <code>=</code> assigns,{" "}
-          <code>===</code> compares. This code has a serious bug:
+          <strong>One equals sign in a condition.</strong> <code>=</code> assigns a value,{" "}
+          <code>===</code> compares two values. This code has a serious bug:
           <CodeBlock lang="js" code={mistakeAssign} />
         </li>
         <li>
-          <strong>Wrong order in a ladder</strong> — a broad condition placed first matches
-          values meant for later branches (see above).
+          <strong>Wrong order in an else-if chain.</strong> A broad condition placed first matches
+          values that were meant for later branches (see above).
         </li>
         <li>
           <strong>Chaining comparisons like maths.</strong> <code>1 &lt; x &lt; 5</code> does not
-          mean &ldquo;x is between 1 and 5&rdquo;. Write <code>x &gt; 1 &amp;&amp; x &lt; 5</code>.
+          mean &ldquo;x is between 1 and 5&rdquo;. JavaScript first works out <code>1 &lt; x</code>,
+          which gives <code>true</code> or <code>false</code>, and then compares that result with 5.
+          Write <code>x &gt; 1 &amp;&amp; x &lt; 5</code> instead.
         </li>
         <li>
-          <strong>Separate ifs instead of else if.</strong> Three separate <code>if</code>s are all
-          checked and several can run; an <code>else if</code> chain runs at most one.
+          <strong>Separate ifs instead of else if.</strong> With three separate <code>if</code>{" "}
+          statements, all three are checked, and more than one can run. An <code>else if</code>{" "}
+          chain runs at most one block.
         </li>
       </ol>
 
@@ -340,8 +359,8 @@ export default function DsaLessonThreePage() {
         ]}
       />
       <p>
-        Next lesson — the most important one in Part 1: the <code>for</code> loop, traced step by
-        step until the pattern is clear.
+        Next lesson is the most important one in Part 1: the <code>for</code> loop (code that repeats
+        a block many times). We trace it step by step until the pattern is clear.
       </p>
     </DsaLessonPage>
   );

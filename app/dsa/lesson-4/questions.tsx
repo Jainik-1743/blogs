@@ -13,7 +13,7 @@ export default function Questions() {
           { input: "N = 5", output: "1\n2\n3\n4\n5", why: "Every whole number from 1 up to and including 5, one per line." },
           { input: "N = 1", output: "1", why: "The smallest case: the loop runs exactly once." },
         ]}
-        hints={[<>Which value should <code>i</code> start at, and which value is the last one printed?</>, <>Start at 1, keep going while <code>i &lt;= N</code>, add 1 each time.</>]}
+        hints={[<>Which value should <code>i</code> start at, and which value is the last one printed?</>, <>Start at 1, keep going while <code>i &lt;= N</code>, and add 1 each time.</>]}
         approaches={[
           {
             name: "for loop",
@@ -34,7 +34,7 @@ for (let i = 1; i <= N; i++) {
           },
           {
             name: "while loop",
-            idea: <p>The same three parts, spread out: start before the loop, check in the brackets, update at the end of the body.</p>,
+            idea: <p>A <code>while</code> loop repeats as long as its condition is true. It has the same three parts as <code>for</code>, but spread out: start before the loop, check in the brackets, update at the end of the body.</p>,
             code: `const N = 5;
 let i = 1;
 while (i <= N) {
@@ -49,21 +49,21 @@ while (i <= N) {
 4
 5
 */`,
-            explain: <p>Forgetting <code>i++</code> is the most common mistake here: <code>i</code> would stay 1 forever. Lesson 5 covers <code>while</code> in detail.</p>,
+            explain: <p>Forgetting <code>i++</code> is the most common mistake here. Then <code>i</code> stays 1 forever, and the loop never ends. Lesson 5 covers <code>while</code> in detail.</p>,
           },
           {
             name: "Build one string, print once",
-            idea: <p>Collect all the numbers into one piece of text and print it at the end.</p>,
+            idea: <p>Collect all the numbers into one string (a piece of text) and print it once at the end.</p>,
             code: `const N = 5;
 let out = "";
 for (let i = 1; i <= N; i++) {
   out += i + (i < N ? " " : "");   // a space after every number except the last
 }
 console.log(out); // 1 2 3 4 5`,
-            explain: <p>Useful when a problem asks for the numbers on one line. The <code>i &lt; N ? &quot; &quot; : &quot;&quot;</code> part avoids a space after the last number.</p>,
+            explain: <p>This is useful when a problem asks for the numbers on one line. The <code>i &lt; N ? &quot; &quot; : &quot;&quot;</code> part (a ternary, from Lesson 3) avoids a space after the last number.</p>,
           },
         ]}
-        compare={<p>Use the <code>for</code> loop (Approach 1): you know the exact range, which is exactly what <code>for</code> is for.</p>}
+        compare={<p>Use the <code>for</code> loop (Approach 1). You know the exact range, and that is what <code>for</code> is made for.</p>}
       >
         <p>Print every number from 1 to N, one per line.</p>
       </Problem>
@@ -89,11 +89,11 @@ for (let i = N; i >= 1; i--) {
 2
 1
 */`,
-            explain: <p>A common mistake is keeping <code>i &lt;= N</code> as the check. As <code>i</code> gets smaller, that stays true forever, so the loop never stops.</p>,
+            explain: <p>A common mistake is keeping <code>i &lt;= N</code> as the check. As <code>i</code> gets smaller, that stays true forever, so the loop never stops (an infinite loop).</p>,
           },
           {
             name: "Count up, print N − i + 1",
-            idea: <p>Keep the normal loop from 1 to N, but print a value calculated from <code>i</code>.</p>,
+            idea: <p>Keep the normal loop from 1 to N, but print a value that you work out from <code>i</code>.</p>,
             code: `const N = 4;
 for (let i = 1; i <= N; i++) {
   console.log(N - i + 1);
@@ -105,10 +105,10 @@ for (let i = 1; i <= N; i++) {
 2
 1
 */`,
-            explain: <p>When <code>i</code> is 1 the value is N; when <code>i</code> is N the value is 1. Printing a formula of the loop variable is a technique you will use often in pattern problems (Lesson 6).</p>,
+            explain: <p>When <code>i</code> is 1, the value is N. When <code>i</code> is N, the value is 1. Printing a formula that uses the loop variable is a technique you will use often in pattern problems (Lesson 6).</p>,
           },
         ]}
-        compare={<p>Approach 1 is clearer. Approach 2 is worth knowing because it shows that the value you print does not have to be the loop variable itself.</p>}
+        compare={<p>Approach 1 is clearer. Approach 2 is worth knowing. It shows that the value you print does not have to be the loop variable itself.</p>}
       >
         <p>Print the numbers from N down to 1.</p>
       </Problem>
@@ -121,7 +121,7 @@ for (let i = 1; i <= N; i++) {
           { input: "N = 10", output: "2\n4\n6\n8\n10", why: "The even numbers between 1 and 10." },
           { input: "N = 7", output: "2\n4\n6", why: "8 is larger than 7, so the last even number is 6." },
         ]}
-        hints={[<>One way: visit every number and keep only the even ones. How do you test for even?</>, <>A faster way: start at 2 and jump by 2 each time.</>]}
+        hints={[<>One way: visit every number and keep only the even ones. How do you test for even?</>, <>A faster way: start at 2 and add 2 each time.</>]}
         approaches={[
           {
             name: "Visit every number, keep the even ones",
@@ -136,7 +136,7 @@ for (let i = 1; i <= N; i++) {
 4
 6
 */`,
-            explain: <p>A loop combined with an <code>if</code> from Lesson 3. The loop runs N times, but only half of the numbers are printed.</p>,
+            explain: <p>This is a loop combined with an <code>if</code> from Lesson 3. The loop runs N times, but only about half of the numbers are printed.</p>,
           },
           {
             name: "Jump from even to even",
@@ -166,10 +166,10 @@ for (let k = 1; 2 * k <= N; k++) {
 4
 6
 */`,
-            explain: <p>The same amount of work as Approach 2, written as a formula. Thinking &ldquo;the k-th item is …&rdquo; helps in many sequence problems.</p>,
+            explain: <p>This does the same amount of work as Approach 2, but it is written as a formula. Thinking &ldquo;the k-th item is …&rdquo; helps in many problems about sequences (lists of numbers that follow a rule).</p>,
           },
         ]}
-        compare={<p>Approach 2 is the best: the least work and the clearest intent. Mentioning that it halves the number of iterations shows you think about efficiency.</p>}
+        compare={<p>Approach 2 is the best. It does the least work, and its purpose is clear. Saying that it halves the number of iterations shows that you think about efficiency.</p>}
       >
         <p>Print all even numbers from 1 to N.</p>
       </Problem>
@@ -205,24 +205,24 @@ console.log(sumTo(5));   // 15
 console.log(sumTo(100)); // 5050`,
             explain: (
               <>
-                <p>The loop is wrapped in a <strong>function</strong> (Lesson 7) so it can be tested with two inputs. For now, read <code>sumTo(5)</code> as &ldquo;run this with N = 5&rdquo;.</p>
+                <p>The loop is wrapped in a <strong>function</strong> (a named block of code that you can run many times with different inputs; Lesson 7 teaches it) so we can test it with two inputs. For now, read <code>sumTo(5)</code> as &ldquo;run this with N = 5&rdquo;. The word <code>return</code> sends the answer back to the caller.</p>
                 <DryRun title="sumTo(5)" cols={["i", "sum after"]} rows={[["1", "1"], ["2", "3"], ["3", "6"], ["4", "10"], ["5", "15"]]} highlight={4} />
               </>
             ),
           },
           {
             name: "The formula N × (N + 1) / 2",
-            idea: <p>Pair the first and last numbers: 1 + 100, 2 + 99, … Each pair adds to N + 1, and there are N / 2 pairs.</p>,
+            idea: <p>Pair the first and last numbers: 1 + 100, 2 + 99, and so on. Each pair adds up to N + 1, and there are N / 2 pairs.</p>,
             code: `function sumTo(N) {
   return (N * (N + 1)) / 2;
 }
 
 console.log(sumTo(5));   // 15
 console.log(sumTo(100)); // 5050`,
-            explain: <p>No loop at all: the answer takes the same time for N = 5 or N = 5,000,000. Lesson 12 calls this O(1) — constant time.</p>,
+            explain: <p>There is no loop at all. The answer takes the same time for N = 5 or N = 5,000,000. Lesson 12 calls this O(1), which means constant time.</p>,
           },
         ]}
-        compare={<p>Know both. Write the loop if the question is about practising loops; mention the formula afterwards. Interviewers like candidates who notice when a loop is not needed.</p>}
+        compare={<p>Know both. Write the loop if the question is about practising loops, and mention the formula afterwards. Interviewers like candidates who notice when a loop is not needed.</p>}
       >
         <p>Find 1 + 2 + … + N.</p>
       </Problem>
@@ -233,9 +233,9 @@ console.log(sumTo(100)); // 5050`,
         level="Easy"
         examples={[
           { input: "5", output: "120", why: "5! = 5 × 4 × 3 × 2 × 1 = 120." },
-          { input: "0", output: "1", why: "By definition, 0! = 1." },
+          { input: "0", output: "1", why: "By definition, 0! = 1. (n! means n factorial: n multiplied by every whole number below it, down to 1.)" },
         ]}
-        hints={[<>This is an accumulator, but for multiplication.</>, <>What must a product start at? (Anything multiplied by 0 is 0.)</>]}
+        hints={[<>This is an accumulator (see the accumulator section above), but for multiplication.</>, <>What must a product start at? (Anything multiplied by 0 is 0.)</>]}
         approaches={[
           {
             name: "Count up from 2",
@@ -253,13 +253,13 @@ console.log(factorial(0)); // 1`,
             explain: (
               <>
                 <DryRun title="factorial(5)" cols={["i", "product before", "product after"]} rows={[["2", "1", "2"], ["3", "2", "6"], ["4", "6", "24"], ["5", "24", "120"]]} highlight={3} />
-                <p>For n = 0 or 1 the loop never runs and the answer stays 1 — correct without a special case.</p>
+                <p>For n = 0 or 1 the loop never runs, so the answer stays 1. This is correct without a special case.</p>
               </>
             ),
           },
           {
             name: "Count down from n",
-            idea: <p>Multiply n × (n − 1) × … × 2, exactly as the definition is written.</p>,
+            idea: <p>Multiply n × (n − 1) × … × 2, in the same order as the definition.</p>,
             code: `function factorial(n) {
   let product = 1;
   for (let i = n; i >= 2; i--) {
@@ -284,10 +284,10 @@ console.log(factorial(5)); // 120`,
 }
 
 console.log(factorial(5)); // 120`,
-            explain: <p>The parameter <code>n</code> itself acts as the counter. Changing a parameter inside a function does not affect the caller&apos;s value.</p>,
+            explain: <p>The parameter <code>n</code> (the name for the input of a function) acts as the counter itself. Changing a number parameter inside a function does not change the value in the code that called it.</p>,
           },
         ]}
-        compare={<p>Any of the three is correct; Approach 1 is the most common. Factorials grow very fast — 21! is already too large for JavaScript to store exactly — so interview questions often ask for the answer modulo a number (Lesson 13).</p>}
+        compare={<p>Any of the three is correct, and Approach 1 is the most common. Factorials grow very fast. From 23! onwards, a JavaScript number cannot store the exact value. So interview questions often ask for the answer modulo a number (the remainder after dividing by it; Lesson 13).</p>}
       >
         <p>Find n! = n × (n − 1) × … × 1, for a whole number n ≥ 0.</p>
       </Problem>
@@ -297,7 +297,7 @@ console.log(factorial(5)); // 120`,
         title="Multiplication table"
         level="Easy"
         examples={[{ input: "7", output: "7 x 1 = 7\n7 x 2 = 14\n...\n7 x 10 = 70", why: "Ten lines: 7 multiplied by each number from 1 to 10." }]}
-        hints={[<>The loop variable does not have to be what you print. Here it is the multiplier.</>, <>Loop <code>i</code> from 1 to 10 and print <code>n</code>, <code>i</code> and <code>n * i</code>.</>]}
+        hints={[<>The loop variable does not have to be the thing you print. Here it is the multiplier.</>, <>Loop <code>i</code> from 1 to 10 and print <code>n</code>, <code>i</code> and <code>n * i</code>.</>]}
         approaches={[
           {
             name: "Join the text with +",
@@ -319,11 +319,11 @@ for (let i = 1; i <= 10; i++) {
 7 x 9 = 63
 7 x 10 = 70
 */`,
-            explain: <p><code>n * i</code> is calculated before the joining, because <code>*</code> has higher priority than <code>+</code>.</p>,
+            explain: <p><code>n * i</code> is worked out before the joining, because <code>*</code> has a higher priority than <code>+</code>.</p>,
           },
           {
             name: "Template literal",
-            idea: <p>Write the line as a sentence with <code>{"${ }"}</code> placeholders.</p>,
+            idea: <p>Write the line as text between backticks, with <code>{"${ }"}</code> placeholders for the values.</p>,
             code: `const n = 7;
 for (let i = 1; i <= 3; i++) {
   console.log(\`\${n} x \${i} = \${n * i}\`);
@@ -334,10 +334,10 @@ for (let i = 1; i <= 3; i++) {
 7 x 2 = 14
 7 x 3 = 21
 */`,
-            explain: <p>Easier to read than many <code>+</code> signs, and no risk of joining when you meant to add. (The example stops at 3 to keep the output short.)</p>,
+            explain: <p>This is easier to read than many <code>+</code> signs. There is also no risk of joining when you meant to add. (The example stops at 3 to keep the output short.)</p>,
           },
         ]}
-        compare={<p>Both print the same text. Template literals (Approach 2) are the modern, more readable choice.</p>}
+        compare={<p>Both print the same text. Template literals (Approach 2) are the newer way and are easier to read.</p>}
       >
         <p>Print the multiplication table of n, from × 1 to × 10.</p>
       </Problem>
@@ -346,12 +346,12 @@ for (let i = 1; i <= 3; i++) {
         n={7}
         title="Count multiples of 3 or 5"
         level="Easy"
-        examples={[{ input: "N = 15", output: "7", why: "The numbers are 3, 5, 6, 9, 10, 12 and 15 — seven in total. 15 is divisible by both but is counted once." }]}
+        examples={[{ input: "N = 15", output: "7", why: "The numbers are 3, 5, 6, 9, 10, 12 and 15, which is seven in total. 15 is divisible by both, but it is counted once." }]}
         hints={[<>Start a counter at 0 before the loop.</>, <>Inside the loop, add 1 when <code>i % 3 === 0 || i % 5 === 0</code>.</>]}
         approaches={[
           {
             name: "Loop and count",
-            idea: <p>Visit every number from 1 to N and count the ones that pass the test.</p>,
+            idea: <p>Visit every number from 1 to N. Count the ones that pass the test.</p>,
             code: `function countMultiples(N) {
   let count = 0;
   for (let i = 1; i <= N; i++) {
@@ -361,7 +361,7 @@ for (let i = 1; i <= 3; i++) {
 }
 
 console.log(countMultiples(15)); // 7`,
-            explain: <p>A counting accumulator. The <code>||</code> makes one yes/no decision per number, so numbers divisible by both are counted once.</p>,
+            explain: <p>This is a counting accumulator. The <code>||</code> (OR) makes one yes or no decision per number, so a number that is divisible by both is counted once.</p>,
           },
           {
             name: "Count with a formula (inclusion–exclusion)",
@@ -378,10 +378,10 @@ console.log(countMultiples(15)); // 7`,
 
 console.log(countMultiples(15));  // 7
 console.log(countMultiples(100)); // 47`,
-            explain: <p>For N = 15: 5 multiples of 3, plus 3 multiples of 5, minus 1 multiple of 15 = 7. No loop is needed, so it is instant for any N.</p>,
+            explain: <p>For N = 15: 5 multiples of 3, plus 3 multiples of 5, minus 1 multiple of 15, gives 7. No loop is needed, so it is instant for any N.</p>,
           },
         ]}
-        compare={<p>Start with the loop (Approach 1) — it is easy to get right. If the interviewer says N can be a billion, the formula (Approach 2) is the answer they want.</p>}
+        compare={<p>Start with the loop (Approach 1), because it is easy to get right. If the interviewer says N can be a billion, the formula (Approach 2) is the answer they want.</p>}
       >
         <p>How many numbers from 1 to N are divisible by 3 or by 5?</p>
       </Problem>
@@ -395,7 +395,7 @@ console.log(countMultiples(100)); // 47`,
         approaches={[
           {
             name: "else-if chain inside a loop",
-            idea: <p>Lesson 3&apos;s single-number answer, run for every number from 1 to N.</p>,
+            idea: <p>The answer from Lesson 3 for a single number, now run for every number from 1 to N.</p>,
             code: `const N = 15;
 for (let i = 1; i <= N; i++) {
   if (i % 15 === 0) console.log("FizzBuzz");
@@ -421,11 +421,11 @@ Fizz
 14
 FizzBuzz
 */`,
-            explain: <p>Divisible by 3 and by 5 is the same as divisible by 15, so the first check can be shorter.</p>,
+            explain: <p>Divisible by both 3 and 5 is the same as divisible by 15, so the first check can be shorter.</p>,
           },
           {
             name: "Counters instead of %",
-            idea: <p>Keep two counters that reach 3 and 5 and then reset. No division is needed at all.</p>,
+            idea: <p>Keep two counters that count up to 3 and 5 and then go back to 0. No division is needed at all.</p>,
             code: `const N = 6;
 let three = 0, five = 0;
 for (let i = 1; i <= N; i++) {
@@ -445,12 +445,12 @@ Fizz
 Buzz
 Fizz
 */`,
-            explain: <p><code>word || i</code> prints the word if it is not empty (an empty string is falsy), otherwise the number. This version is a well-known follow-up question: &ldquo;solve it without using %&rdquo;.</p>,
+            explain: <p><code>word || i</code> gives the word if it is not empty, and otherwise gives the number. (An empty string is falsy, from Lesson 3.) Interviewers sometimes ask this as a follow-up: &ldquo;solve it without using %&rdquo;.</p>,
           },
         ]}
         compare={<p>Approach 1 is the standard answer. Approach 2 is useful if the interviewer adds the rule &ldquo;no % allowed&rdquo;.</p>}
       >
-        <p>For every number from 1 to N print Fizz (÷3), Buzz (÷5), FizzBuzz (both) or the number. This is LeetCode 412.</p>
+        <p>For every number from 1 to N, print Fizz (divisible by 3), Buzz (divisible by 5), FizzBuzz (divisible by both) or the number itself. This is LeetCode 412.</p>
       </Problem>
 
       <Problem
@@ -458,17 +458,17 @@ Fizz
         title="First N Fibonacci numbers"
         level="Medium"
         examples={[
-          { input: "N = 7", output: "0 1 1 2 3 5 8", why: "Start with 0 and 1. Each next number is the sum of the two before it: 0+1=1, 1+1=2, 1+2=3, 2+3=5, 3+5=8." },
+          { input: "N = 7", output: "0 1 1 2 3 5 8", why: "Start with 0 and 1. Each next number is the sum of the two numbers before it: 0+1=1, 1+1=2, 1+2=3, 2+3=5, 3+5=8." },
           { input: "N = 1", output: "0", why: "Only the first number." },
         ]}
         hints={[
-          <>You only ever need the previous two numbers. Keep them in two variables, <code>a</code> and <code>b</code>.</>,
+          <>You only need the previous two numbers each time. Keep them in two variables, <code>a</code> and <code>b</code>.</>,
           <>Each step: print <code>a</code>, compute <code>next = a + b</code>, then move both forward: <code>a = b</code>, <code>b = next</code>.</>,
         ]}
         approaches={[
           {
             name: "Two variables that slide forward",
-            idea: <p><code>a</code> is the current number and <code>b</code> the next one. After printing <code>a</code>, slide both one position forward.</p>,
+            idea: <p><code>a</code> is the current number and <code>b</code> is the next one. After printing <code>a</code>, move both one place forward.</p>,
             code: `function fibonacci(N) {
   let a = 0, b = 1;
   let result = "";
@@ -493,7 +493,7 @@ console.log(fibonacci(1)); // 0`,
           },
           {
             name: "Keep the whole sequence in a list",
-            idea: <p>Store every number in an array and build each new one from the last two entries.</p>,
+            idea: <p>Store every number in an array (a list). Build each new number from the last two entries.</p>,
             code: `function fibonacci(N) {
   const fib = [0, 1];
   for (let i = 2; i < N; i++) {
@@ -504,12 +504,12 @@ console.log(fibonacci(1)); // 0`,
 
 console.log(fibonacci(7)); // 0 1 1 2 3 5 8
 console.log(fibonacci(1)); // 0`,
-            explain: <p>Arrays are covered in Lesson 8: <code>push</code> adds to the end, <code>fib[i - 1]</code> reads a position, and <code>slice(0, N)</code> keeps the first N items. This uses more memory, but you can look up any earlier number.</p>,
+            explain: <p>Arrays are covered in Lesson 8. <code>push</code> adds an item to the end. <code>fib[i - 1]</code> reads the item at a position. <code>slice(0, N)</code> keeps the first N items. <code>join(&quot; &quot;)</code> turns the list into one string with spaces. This uses more memory, but you can look up any earlier number.</p>,
           },
         ]}
-        compare={<p>Approach 1 uses only two variables no matter how big N is, so it is the one to give in an interview. Approach 2 is useful when you need to look back at earlier values — the idea behind dynamic programming (Lesson 54).</p>}
+        compare={<p>Approach 1 uses only two variables, however big N is, so give it in an interview. Approach 2 is useful when you need to look back at earlier values. This is the idea behind dynamic programming (Lesson 54), a method that saves the answers to small problems and reuses them.</p>}
       >
-        <p>Each Fibonacci number is the sum of the two before it, starting 0, 1. Print the first N numbers on one line.</p>
+        <p>Each Fibonacci number is the sum of the two numbers before it, starting with 0 and 1. Print the first N numbers on one line.</p>
       </Problem>
 
       <Problem
@@ -522,14 +522,14 @@ console.log(fibonacci(1)); // 0`,
           { input: "1", output: "false", why: "By definition a prime must be greater than 1." },
         ]}
         hints={[
-          <>Try dividing n by every number from 2 to n − 1. If any of them divides exactly, n is not prime.</>,
+          <>Try dividing n by every number from 2 to n − 1. If any of them divides n exactly (with remainder 0), n is not prime.</>,
           <>As soon as you find one divisor, you know the answer — stop the loop with <code>break</code>.</>,
-          <>You only need to try divisors up to √n. Why? Divisors come in pairs, and one of each pair is at most √n.</>,
+          <>You only need to try divisors up to √n (the square root of n). Why? Divisors come in pairs, and one number in each pair is at most √n.</>,
         ]}
         approaches={[
           {
             name: "Try every divisor from 2 to n − 1",
-            idea: <p>Assume n is prime. Try each divisor; if one divides n exactly, change the answer and stop.</p>,
+            idea: <p>Assume n is prime. Try each divisor. If one divides n exactly, change the answer to &ldquo;not prime&rdquo; and stop.</p>,
             code: `function isPrime(n) {
   if (n < 2) return false;
   let prime = true;              // a "flag": yes until proven no
@@ -545,11 +545,11 @@ console.log(fibonacci(1)); // 0`,
 console.log(isPrime(7));  // true
 console.log(isPrime(12)); // false
 console.log(isPrime(1));  // false`,
-            explain: <p>The <strong>flag</strong> variable <code>prime</code> starts as <code>true</code> and is switched to <code>false</code> the moment a divisor is found. For a prime like 97, this checks 95 divisors.</p>,
+            explain: <p>The <strong>flag</strong> variable <code>prime</code> (a true/false variable that records a yes or no answer) starts as <code>true</code>. It is switched to <code>false</code> as soon as a divisor is found. For a prime like 97, this checks 95 divisors.</p>,
           },
           {
             name: "Stop at the square root",
-            idea: <p>If n = a × b, one of a and b is at most √n. So if nothing up to √n divides n, nothing larger can either.</p>,
+            idea: <p>If n = a × b, one of a and b is at most √n. So if no number up to √n divides n, no larger number can divide it either.</p>,
             code: `function isPrime(n) {
   if (n < 2) return false;
   for (let d = 2; d * d <= n; d++) {
@@ -560,11 +560,11 @@ console.log(isPrime(1));  // false`,
 
 console.log(isPrime(97));  // true
 console.log(isPrime(91));  // false`,
-            explain: <p><code>d * d &lt;= n</code> means &ldquo;d is at most √n&rdquo; without calculating a square root. For 97 that is only 8 divisors instead of 95. For 91, the loop finds 7 (91 = 7 × 13).</p>,
+            explain: <p><code>d * d &lt;= n</code> means &ldquo;d is at most √n&rdquo;, and it needs no square root calculation. For 97 that is only 8 divisors (2 to 9) instead of 95. For 91, the loop finds 7 (91 = 7 × 13).</p>,
           },
           {
             name: "Square root, odd divisors only",
-            idea: <p>Handle 2 separately. After that, no even number can be a divisor of an odd n, so try only odd divisors.</p>,
+            idea: <p>Handle 2 on its own. After that, no even number can divide an odd n, so try only odd divisors.</p>,
             code: `function isPrime(n) {
   if (n < 2) return false;
   if (n % 2 === 0) return n === 2;   // 2 is the only even prime
@@ -577,10 +577,10 @@ console.log(isPrime(91));  // false`,
 console.log(isPrime(2));   // true
 console.log(isPrime(97));  // true
 console.log(isPrime(100)); // false`,
-            explain: <p>This halves the work again. The loop update <code>d += 2</code> visits 3, 5, 7, 9, …</p>,
+            explain: <p>This halves the work again. The update <code>d += 2</code> visits 3, 5, 7, 9, and so on.</p>,
           },
         ]}
-        compare={<p>Give Approach 2 in an interview — it is short and much faster than Approach 1. Mention Approach 3 as a further improvement. Lesson 13 shows how to find all primes up to N at once with the Sieve of Eratosthenes.</p>}
+        compare={<p>Give Approach 2 in an interview. It is short and much faster than Approach 1. Mention Approach 3 as a further improvement. Lesson 13 shows how to find all primes up to N at once with the Sieve of Eratosthenes.</p>}
       >
         <p>A prime is a whole number greater than 1 that is divisible only by 1 and itself. Return whether n is prime.</p>
       </Problem>
