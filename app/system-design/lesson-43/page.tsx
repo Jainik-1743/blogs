@@ -76,26 +76,26 @@ export default function SdLessonFourThreePage() {
 
       <div className="lesson">
         <Section id="the-problem" title="The Problem" kind="problem">
-          <p>Your public API is running smoothly. Then:</p>
+          <p>Your public API (an interface that other programs call over the internet) is running well. Then:</p>
           <ul>
             <li>
               A customer's script has a bug and calls <code>GET /orders</code> <strong>5,000 times per second</strong>{" "}
               in a loop.
             </li>
             <li>
-              A bot tries <strong>millions of passwords</strong> against your login endpoint.
+              A bot (a program that acts like a user) tries <strong>millions of passwords</strong> on your login endpoint.
             </li>
-            <li>Someone scrapes your entire product catalogue every hour.</li>
+            <li>Someone scrapes your whole product catalogue every hour. (Scraping means copying data from a site with a program.)</li>
             <li>A free-plan user's traffic slows the API down for paying customers.</li>
           </ul>
           <p>
-            Your servers are overwhelmed, the database is at 100%, and <strong>every</strong> customer suffers because
-            of <strong>one</strong> misbehaving client.
+            Your servers are overloaded, the database is at 100%, and <strong>every</strong> customer suffers because
+            of <strong>one</strong> client that behaves badly.
           </p>
           <p>
-            <strong>Rate limiting</strong> controls <strong>how many requests a client can make in a given time</strong>
-            . It protects your system, keeps usage fair between customers, controls costs, and blocks many kinds of
-            abuse.
+            <strong>Rate limiting</strong> is a rule that controls <strong>how many requests a client can make in a given
+            time</strong>. It protects your system, keeps usage fair between customers, controls costs, and blocks many
+            kinds of abuse.
           </p>
         </Section>
 
@@ -105,25 +105,25 @@ export default function SdLessonFourThreePage() {
           </p>
           <ul>
             <li>
-              The gates let people through at a <strong>steady rate</strong> the platform can handle.
+              The gates let people through at a <strong>steady rate</strong> that the platform can handle.
             </li>
             <li>
-              A short burst (a group of friends arriving together) is fine, but if <strong>thousands</strong> try to
-              enter at once, guards <strong>hold people back</strong> so the platform doesn't overflow.
+              A short burst (a group of friends arriving together) is fine. But if <strong>thousands</strong> try to
+              enter at once, guards <strong>hold people back</strong> so the platform does not overflow.
             </li>
             <li>Everyone gets a fair chance.</li>
           </ul>
           <p>
             A rate limiter is that gate. For each <strong>client</strong> (a user, an API key or an IP address), it
-            tracks recent requests and decides:
+            keeps track of recent requests and decides:
           </p>
           <ul>
             <li>
-              <strong>Allow</strong>: under the limit, go ahead.
+              <strong>Allow</strong>: the client is under the limit, so let the request pass.
             </li>
             <li>
-              <strong>Reject</strong>: over the limit, return <code>429 Too Many Requests</code> and say when to try
-              again.
+              <strong>Reject</strong>: the client is over the limit, so return <code>429 Too Many Requests</code> (an
+              HTTP status code) and say when to try again.
             </li>
           </ul>
         </Section>
@@ -131,26 +131,28 @@ export default function SdLessonFourThreePage() {
         <Section id="how-it-works" title="How It Works" kind="how">
           <h3 id="what-to-limit-and-where">What to limit, and where</h3>
           <p>
-            <strong>Who is limited (the "key"):</strong>
+            <strong>Who is limited (the "key"):</strong> the key is the label that the limiter counts requests for.
           </p>
           <ul>
             <li>
-              <strong>per user or per API key:</strong> the most common for authenticated APIs,
+              <strong>per user or per API key</strong> (a secret code that identifies a customer's app): the most common
+              choice for APIs where users log in,
             </li>
             <li>
-              <strong>per IP address:</strong> for anonymous traffic like login pages and sign-up (but many users can
-              share one IP behind NAT),
+              <strong>per IP address:</strong> for traffic from users who are not logged in, like login pages and sign-up.
+              (But many users can share one IP behind NAT, which lets many devices share one public address.)
             </li>
             <li>
               <strong>per endpoint:</strong> stricter limits on expensive endpoints (search, exports) or sensitive ones
               (login, OTP, password reset),
             </li>
             <li>
-              <strong>per tenant or plan:</strong> "Free: 100 requests per minute; Pro: 1,000",
+              <strong>per tenant or plan</strong> (a tenant is one customer account): "Free: 100 requests per minute; Pro:
+              1,000",
             </li>
             <li>
-              <strong>global:</strong> protect a fragile downstream system ("at most 500 calls per second to the SMS
-              provider").
+              <strong>global:</strong> protect a weak downstream system (one that you call), for example "at most 500 calls
+              per second to the SMS provider".
             </li>
           </ul>
           <p>
@@ -158,60 +160,64 @@ export default function SdLessonFourThreePage() {
           </p>
           <ul>
             <li>
-              <strong>the API gateway or edge</strong> (post 13): stops bad traffic early, before it costs anything,
+              <strong>the API gateway or edge</strong> (post 13; a gateway is the single entry point in front of your
+              services): it stops bad traffic early, before it costs anything,
             </li>
             <li>
-              <strong>the service itself:</strong> for business-aware limits ("5 OTP requests per phone number per
-              hour"),
+              <strong>the service itself:</strong> for limits that know your business ("5 OTP requests per phone number
+              per hour"; an OTP is a one-time password),
             </li>
             <li>
-              <strong>the client:</strong> a well-behaved SDK can limit itself to avoid being rejected.
+              <strong>the client:</strong> a well-made SDK (a code library for your API) can limit itself to avoid being
+              rejected.
             </li>
           </ul>
           <h3 id="algorithm-1-fixed-window-counter">Algorithm 1: Fixed window counter</h3>
           <p>
-            Count requests in <strong>fixed time windows</strong> (for example, each calendar minute). Reset the count
-            when the window changes.
+            Count requests in <strong>fixed time windows</strong> (for example, each calendar minute). Set the count back
+            to zero when the window changes. A window is a block of time.
           </p>
           <AsciiDiagram text={diagram1} />
           <CodeBlock code={code1} />
           <ul>
             <li>
-              ✅ <strong>Very simple</strong> and memory-cheap (one counter per key per window).
+              ✅ <strong>Very simple</strong> and uses little memory (one counter per key per window).
             </li>
             <li>
               ❌ <strong>The boundary burst problem.</strong> A client can send 100 requests at 12:00:59 and another 100
-              at 12:01:00, so <strong>200 requests in 2 seconds</strong>, double the intended rate.
+              at 12:01:00. That is <strong>200 requests in 2 seconds</strong>, double the intended rate.
             </li>
           </ul>
           <RateLimiter caption="Three limiters, each allowing 5 requests per 5 seconds. Fire requests by hand — try a burst just before and just after a fixed-window boundary." />
           <h3 id="algorithm-2-sliding-window-log">Algorithm 2: Sliding window log</h3>
           <p>
-            Store the <strong>timestamp of every request</strong>. For each new request, drop timestamps older than the
-            window, count what's left, and allow the request if the count is under the limit.
+            Store the <strong>time of every request</strong> (a timestamp). For each new request, remove the timestamps
+            that are older than the window, and count what is left. Allow the request if the count is under the limit.
           </p>
           <CodeBlock code={code2} />
           <p>
-            In Redis, a <strong>sorted set</strong> works well (the score is the timestamp).
+            Redis is a fast in-memory data store. In Redis, a <strong>sorted set</strong> (a list kept in order by a
+            score) works well. The score is the timestamp.
           </p>
           <ul>
             <li>
               ✅ <strong>Exact.</strong> No boundary bursts.
             </li>
             <li>
-              ❌ <strong>Memory-heavy.</strong> It stores one entry per request. A limit of 10,000 per hour means up to
-              10,000 timestamps per client.
+              ❌ <strong>Uses a lot of memory.</strong> It stores one entry per request. A limit of 10,000 per hour means
+              up to 10,000 timestamps per client.
             </li>
           </ul>
           <h3 id="algorithm-3-sliding-window-counter-approximate">Algorithm 3: Sliding window counter (approximate)</h3>
           <p>
-            A clever middle ground: keep counters for the <strong>current</strong> and <strong>previous</strong> fixed
-            windows, and <strong>weight</strong> the previous one by how much of it still overlaps the sliding window.
+            A good middle way: keep counters for the <strong>current</strong> and the <strong>previous</strong> fixed
+            window. Then <strong>weight</strong> the previous one by how much of it still overlaps the sliding window.
+            (A sliding window is a window that moves with the clock, always covering the last 60 seconds.)
           </p>
           <CodeBlock code={code3} />
           <p>
-            <strong>Example:</strong> limit 100 per minute. It's 12:01:15, which is <strong>25%</strong> into the
-            current minute.
+            <strong>Example:</strong> the limit is 100 per minute. The time is 12:01:15, which is <strong>25%</strong> into
+            the current minute. So 75% of the previous minute is still inside the sliding window.
           </p>
           <ul>
             <li>
@@ -231,19 +237,19 @@ export default function SdLessonFourThreePage() {
           />
           <ul>
             <li>
-              ✅ <strong>Smooths out boundary bursts</strong>, and uses <strong>just two counters</strong> per key.
+              ✅ <strong>Reduces boundary bursts</strong>, and uses <strong>only two counters</strong> per key.
             </li>
             <li>
-              ❌ <strong>Approximate.</strong> It assumes requests in the previous window were spread evenly, but in
-              practice it's very close.
+              ❌ <strong>Approximate.</strong> It assumes that requests in the previous window were spread evenly. In
+              practice the result is very close.
             </li>
-            <li>Widely used at large scale.</li>
+            <li>It is widely used at large scale.</li>
           </ul>
           <h3 id="algorithm-4-token-bucket-the-most-popular-for-apis">
             Algorithm 4: Token bucket (the most popular for APIs)
           </h3>
           <p>
-            Picture a <strong>bucket that holds tokens</strong>:
+            Picture a <strong>bucket that holds tokens</strong>. A token is a permission to make one request:
           </p>
           <ul>
             <li>
@@ -269,23 +275,23 @@ export default function SdLessonFourThreePage() {
             ]}
           />
           <p>
-            You don't need a timer adding tokens. Just store <code>tokens</code> and <code>last_refill_time</code>, and
-            on each request compute:
+            You do not need a timer that adds tokens. Just store <code>tokens</code> and <code>last_refill_time</code>.
+            On each request, work out the new count:
           </p>
           <CodeBlock code={code4} />
           <ul>
             <li>
-              ✅ <strong>Allows short bursts</strong> (good for real users, who click in bursts) while enforcing an{" "}
+              ✅ <strong>Allows short bursts</strong> (good for real users, who click in quick groups) and still enforces an{" "}
               <strong>average rate</strong>.
             </li>
             <li>
-              ✅ <strong>Memory-cheap</strong> (two numbers per key) and easy to reason about with two knobs:{" "}
+              ✅ <strong>Uses little memory</strong> (two numbers per key) and is easy to understand. It has two settings:{" "}
               <strong>burst</strong> and <strong>rate</strong>.
             </li>
-            <li>❌ Two parameters to tune.</li>
+            <li>❌ Two settings to tune.</li>
           </ul>
           <p>
-            This is why <strong>token bucket is the most common choice for APIs</strong>. It's used in AWS API
+            This is why <strong>token bucket is the most common choice for APIs</strong>. It is used in AWS API
             throttling, many API gateways, and Stripe's request limiter.
           </p>
           <h3 id="algorithm-5-leaky-bucket">Algorithm 5: Leaky bucket</h3>
@@ -294,7 +300,7 @@ export default function SdLessonFourThreePage() {
           </p>
           <ul>
             <li>
-              Requests pour <strong>into</strong> the bucket (a queue).
+              Requests pour <strong>into</strong> the bucket (a queue is a line of waiting items).
             </li>
             <li>
               They <strong>leak out</strong> and are processed at a <strong>constant rate</strong>.
@@ -314,15 +320,15 @@ export default function SdLessonFourThreePage() {
           />
           <ul>
             <li>
-              ✅ <strong>A perfectly smooth output rate.</strong> It's ideal for protecting a downstream system that
+              ✅ <strong>A perfectly smooth output rate.</strong> It is ideal for protecting a downstream system that
               needs steady traffic (like a partner API or an SMS gateway).
             </li>
             <li>
-              ❌ Bursts are <strong>queued</strong> (adding latency) or dropped. It's less friendly for interactive
-              APIs.
+              ❌ Bursts are <strong>queued</strong> (which adds latency, the waiting time) or dropped. It is less
+              friendly for interactive APIs.
             </li>
             <li>
-              NGINX's <code>limit_req</code> works on leaky-bucket principles.
+              NGINX (a popular web server) has a <code>limit_req</code> setting that uses the leaky bucket method.
             </li>
           </ul>
           <h3 id="comparison">Comparison</h3>
@@ -377,46 +383,51 @@ export default function SdLessonFourThreePage() {
                   <td>Queued/smoothed</td>
                   <td>Good</td>
                   <td>Queue</td>
-                  <td>Steady output to fragile downstreams</td>
+                  <td>Steady output to weak downstream services</td>
                 </tr>
               </tbody>
             </table>
           </div>
           <h3 id="distributed-rate-limiting">Distributed rate limiting</h3>
           <p>
-            With 20 API servers, each server can't keep its own counter. A client could get 20× the limit by spreading
-            requests across servers. You need a <strong>shared</strong> view.
+            Say you have 20 API servers. Each server cannot keep its own counter. A client could get 20× the limit by
+            spreading requests across servers. You need a <strong>shared</strong> view of the counts. This is
+            called <strong>distributed rate limiting</strong>.
           </p>
           <p>
             <strong>Option 1: A central store (usually Redis).</strong> Every server checks and updates the counter in
-            Redis. To avoid race conditions (two servers reading "99" at the same time and both allowing), make the
-            check-and-update <strong>atomic</strong>, using <code>INCR</code> or a <strong>Lua script</strong> that
-            Redis runs as one step:
+            Redis. A race condition can happen: two servers read "99" at the same time and both allow the request. To
+            avoid it, make the check-and-update <strong>atomic</strong> (one step that cannot be split). Use{" "}
+            <code>INCR</code> or a <strong>Lua script</strong> (a small program) that Redis runs as one step:
           </p>
           <CodeBlock lang="lua" code={code5} />
           <ul>
             <li>✅ Accurate and simple.</li>
             <li>
-              ❌ Adds a network hop per request (usually under a millisecond), and Redis becomes a dependency.{" "}
-              <strong>Decide what happens if Redis is down: fail open</strong> (allow traffic, which is usually right
-              for general APIs) <strong>or fail closed</strong> (block, which may be right for login or OTP endpoints).
+              ❌ Adds one network call per request (often about a millisecond), and Redis becomes a dependency.{" "}
+              <strong>Decide what happens if Redis is down.</strong> <strong>Fail open</strong> means allow the traffic.
+              This is usually right for general APIs. <strong>Fail closed</strong> means block the traffic. This may be
+              right for login or OTP endpoints.
             </li>
           </ul>
           <p>
             <strong>Option 2: Local counters with periodic sync.</strong> Each server enforces a <strong>share</strong>{" "}
-            of the limit locally, and syncs with the others every second or so. It's faster, but approximate.
+            of the limit by itself, and shares its counts with the others every second or so. It is faster, but not
+            exact.
           </p>
           <p>
-            <strong>Option 3: A dedicated rate-limit service</strong>, like Envoy's global rate-limit service, called by
-            gateways and proxies.
+            <strong>Option 3: A dedicated rate-limit service</strong>, like Envoy's global rate-limit service. Gateways
+            and proxies (servers that pass traffic on) call it.
           </p>
           <p>
-            <strong>Multi-region:</strong> counters in different regions are hard to keep perfectly in sync (posts
-            27–28). Common approaches are per-region budgets, or accepting slight over-allowance.
+            <strong>Multi-region:</strong> counters in different regions (separate cloud areas) are hard to keep exactly
+            the same (posts 27–28). Common ways are a separate budget for each region, or accepting that clients may
+            go a little over the limit.
           </p>
           <h3 id="telling-clients-about-limits">Telling clients about limits</h3>
           <p>
-            Good APIs make limits <strong>visible</strong>:
+            Good APIs make limits <strong>visible</strong> to the client. They do it with HTTP headers (extra lines of
+            information in a response):
           </p>
           <CodeBlock lang="http" code={code6} />
           <ul>
@@ -433,9 +444,10 @@ export default function SdLessonFourThreePage() {
               tells the client how long to wait. Well-behaved clients (post 41) honour it.
             </li>
             <li>
-              <code>RateLimit-*</code> headers (being standardised by the IETF; many APIs use <code>X-RateLimit-*</code>{" "}
-              variants) show the limit, how many requests remain, and when it resets. Clients can then{" "}
-              <strong>slow down before</strong> hitting the limit.
+              <code>RateLimit-*</code> headers show the limit, how many requests remain, and when it resets. The IETF is
+              still working on a standard for them as a draft, and the exact names may change. Many APIs use{" "}
+              <code>X-RateLimit-*</code> variants. With these headers, clients can{" "}
+              <strong>slow down before</strong> they hit the limit.
             </li>
             <li>
               <strong>Document</strong> limits clearly per plan and endpoint.
@@ -448,16 +460,16 @@ export default function SdLessonFourThreePage() {
               sending too much."
             </li>
             <li>
-              <strong>Throttling:</strong> often used to mean slowing requests down (queuing or delaying) rather than
+              <strong>Throttling:</strong> often means slowing requests down (making them wait in a queue) instead of
               rejecting them.
             </li>
             <li>
               <strong>Load shedding</strong> (post 44): rejects requests because <strong>the server</strong> is
-              overloaded, whoever sent them. "<em>We</em> can't handle more right now."
+              overloaded, no matter who sent them. "<em>We</em> cannot handle more right now."
             </li>
           </ul>
           <p>
-            You usually need <strong>both</strong> rate limiting and load shedding. Rate limits don't protect you if{" "}
+            You usually need <strong>both</strong> rate limiting and load shedding. Rate limits do not protect you if{" "}
             <strong>all</strong> clients are within their limits but the total is still too much.
           </p>
         </Section>
@@ -465,27 +477,27 @@ export default function SdLessonFourThreePage() {
         <Section id="trade-offs" title="Trade-offs" kind="tradeoffs">
           <ul>
             <li>
-              <strong>Strict limits:</strong> strong protection and predictable costs, but you may block legitimate
-              bursts and frustrate good customers.
+              <strong>Strict limits:</strong> strong protection and costs that you can predict, but you may block real
+              bursts and annoy good customers.
             </li>
             <li>
-              <strong>Generous limits:</strong> a happy user experience, but less protection against abuse and overload.
+              <strong>Generous limits:</strong> happy users, but less protection against abuse and overload.
             </li>
             <li>
-              <strong>Exact algorithms (sliding log):</strong> precise, but memory-heavy.{" "}
-              <strong>Approximate (sliding counter, token bucket):</strong> cheap and good enough for most cases.
+              <strong>Exact algorithms (sliding log):</strong> precise, but they use a lot of memory.{" "}
+              <strong>Approximate ones (sliding counter, token bucket):</strong> cheap and good enough for most cases.
             </li>
             <li>
-              <strong>Central Redis:</strong> accurate across servers, but an extra hop and a dependency.{" "}
-              <strong>Local:</strong> fast, but approximate.
+              <strong>Central Redis:</strong> accurate across servers, but it adds a network call and a dependency.{" "}
+              <strong>Local counters:</strong> fast, but not exact.
             </li>
             <li>
-              <strong>Fail open vs fail closed</strong> when the limiter is broken: availability vs protection. Choose
-              per endpoint.
+              <strong>Fail open vs fail closed</strong> when the limiter is broken: stay available, or stay protected.
+              Choose for each endpoint.
             </li>
             <li>
-              <strong>IP-based limits:</strong> simple for anonymous traffic, but unfair to many users behind one NAT
-              (offices, mobile carriers), and easy for attackers to spread across many IPs.
+              <strong>IP-based limits:</strong> simple for traffic without a login, but unfair to many users behind one
+              NAT (offices, mobile carriers). Attackers can also easily spread requests across many IPs.
             </li>
           </ul>
         </Section>
@@ -496,34 +508,36 @@ export default function SdLessonFourThreePage() {
           </p>
           <ol>
             <li>
-              a <strong>request rate limiter</strong> (token bucket per user),
+              a <strong>request rate limiter</strong> (a token bucket for each user),
             </li>
             <li>
-              a <strong>concurrent requests limiter</strong> (how many requests a user can have in flight at once),
+              a <strong>concurrent requests limiter</strong> (how many requests a user can have running at the same time),
             </li>
             <li>
-              a <strong>fleet usage load shedder</strong> (reserving capacity for critical requests),
+              a <strong>fleet usage load shedder</strong> (it keeps some capacity of the whole server fleet for critical
+              requests),
             </li>
             <li>
               a <strong>worker utilisation load shedder</strong> (dropping lower-priority traffic when workers are
               busy).
             </li>
           </ol>
-          <p>It's a great real example of combining rate limiting and load shedding.</p>
+          <p>It is a good real example of using rate limiting and load shedding together.</p>
           <p>
-            <strong>Cloudflare's rate limiting at scale.</strong> Cloudflare described building rate limiting across its
-            global network for millions of domains, using a <strong>sliding-window approximation</strong> with just two
-            counters per key, because storing every request's timestamp was far too expensive at its scale.
+            <strong>Cloudflare's rate limiting at scale.</strong> Cloudflare described how it built rate limiting across its
+            global network for millions of domains. It uses a <strong>sliding-window approximation</strong> with only two
+            counters per key, because storing the timestamp of every request would cost far too much at its scale.
           </p>
           <p>
             <strong>GitHub's API limits.</strong> GitHub's REST API allows a set number of requests per hour for
-            authenticated users (commonly 5,000) and far fewer for unauthenticated requests (60 per hour per IP), and
-            returns <code>X-RateLimit-*</code> headers with every response so clients can pace themselves.
+            logged-in (authenticated) users, commonly 5,000, and far fewer for requests without a login (60 per hour per
+            IP). It returns <code>X-RateLimit-*</code> headers with every response, so clients can pace themselves.
           </p>
           <p>
-            <strong>OTP and login protection.</strong> Banks, UPI apps and most login pages limit OTP requests and login
-            attempts per phone number, account and IP. This protects users from brute-force attacks and the company from
-            SMS bills run up by bots (a form of abuse sometimes called "SMS pumping").
+            <strong>OTP and login protection.</strong> Banks, UPI apps (apps for instant payments in India) and most login pages limit OTP requests and login
+            attempts per phone number, account and IP. This protects users from brute-force attacks (guessing many
+            passwords or codes). It also protects the company from big SMS bills that bots create (this abuse is
+            sometimes called "SMS pumping").
           </p>
         </Section>
 
@@ -535,10 +549,11 @@ export default function SdLessonFourThreePage() {
                 a: (
                   <>
                     <p>
-                      Fixed window counts per calendar window — simple, but allows up to 2× the limit around window
-                      boundaries. A sliding log is exact but stores every timestamp. A sliding window counter weights
-                      the previous window to approximate a true sliding window with two counters. A token bucket allows
-                      bursts up to its capacity and enforces an average refill rate, which is why most APIs use it.
+                      Fixed window counts per calendar window. It is simple, but it allows up to 2× the limit around
+                      window boundaries. A sliding log is exact, but it stores every timestamp. A sliding window counter
+                      weights the previous window, so two counters give a close match to a true sliding window. A token
+                      bucket allows bursts up to its capacity and enforces an average refill rate. This is why most APIs
+                      use it.
                     </p>
                   </>
                 ),
@@ -548,9 +563,9 @@ export default function SdLessonFourThreePage() {
                 a: (
                   <>
                     <p>
-                      Use a shared store like Redis with an atomic check-and-update (INCR, or a Lua script implementing
-                      the token bucket), or a dedicated rate-limit service. Otherwise each server counts separately and
-                      a client gets 20× the limit. Decide whether to fail open or closed if the store is down.
+                      Use a shared store like Redis with an atomic check-and-update (INCR, or a Lua script that
+                      implements the token bucket), or a dedicated rate-limit service. If not, each server counts on its
+                      own and a client gets 20× the limit. Decide whether to fail open or closed if the store is down.
                     </p>
                   </>
                 ),
@@ -560,9 +575,9 @@ export default function SdLessonFourThreePage() {
                 a: (
                   <>
                     <p>
-                      429 Too Many Requests with Retry-After, plus RateLimit (or X-RateLimit) headers giving the limit,
-                      remaining requests and reset time, and a clear error body naming the plan limit. Well-behaved
-                      clients back off and pace themselves from those headers.
+                      Status 429 Too Many Requests with a Retry-After header. Add RateLimit (or X-RateLimit) headers
+                      that show the limit, the remaining requests and the reset time. Add a clear error body that names
+                      the plan limit. Well-behaved clients wait and pace themselves using those headers.
                     </p>
                   </>
                 ),
@@ -572,9 +587,9 @@ export default function SdLessonFourThreePage() {
                 a: (
                   <>
                     <p>
-                      Many legitimate users share one IP behind NAT (offices, mobile carriers), so they get blocked
-                      unfairly, while attackers spread requests across thousands of IPs. Prefer limits per API key, user
-                      or account, and use IP limits mainly for anonymous endpoints.
+                      Many real users share one IP behind NAT (offices, mobile carriers), so they get blocked
+                      unfairly. Attackers spread requests across thousands of IPs. Prefer limits per API key, user or
+                      account. Use IP limits mainly for endpoints without a login.
                     </p>
                   </>
                 ),
@@ -585,8 +600,9 @@ export default function SdLessonFourThreePage() {
                   <>
                     <p>
                       Rate limiting caps each client's fair share (“you are sending too much”). Load shedding rejects
-                      work because the server as a whole is overloaded, whoever sent it (“we can't take more right
-                      now”). You need both: every client can be within its limit while the total still exceeds capacity.
+                      work because the whole server is overloaded, no matter who sent it (“we cannot take more right
+                      now”). You need both: every client can be within its limit while the total is still more than the
+                      capacity.
                     </p>
                   </>
                 ),
@@ -596,8 +612,9 @@ export default function SdLessonFourThreePage() {
                 a: (
                   <>
                     <p>
-                      A leaky bucket: it queues bursts and releases them at a fixed rate, which is exactly what a
-                      downstream with a hard throughput cap needs. A token bucket would let bursts straight through.
+                      A leaky bucket. It queues bursts and releases them at a fixed rate. This is what a downstream
+                      service with a hard limit on throughput needs. A token bucket would let bursts go straight
+                      through.
                     </p>
                   </>
                 ),

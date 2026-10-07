@@ -40,7 +40,11 @@ export default function SdLessonThreeEightPage() {
 
       <div className="lesson">
         <Section id="the-problem" title="The Problem" kind="problem">
-          <p>Your app has a lot of work that shouldn't happen inside a web request:</p>
+          <p>
+            A <strong>background job</strong> is a piece of work that runs outside the web request, so the user does
+            not wait for it. A <strong>worker</strong> is a program that picks jobs from a queue and runs them. Your app
+            has a lot of work that should not happen inside a web request:
+          </p>
           <ul>
             <li>sending welcome emails,</li>
             <li>generating a 40-page PDF report,</li>
@@ -48,10 +52,10 @@ export default function SdLessonThreeEightPage() {
             <li>cleaning up expired sessions every night,</li>
             <li>syncing data to a partner's API that is slow and often down.</li>
           </ul>
-          <p>You move it all into background jobs, and things get better, until:</p>
+          <p>You move it all into background jobs, and things get better. Then problems start:</p>
           <ul>
             <li>
-              one malformed job <strong>fails forever</strong> and blocks everything behind it,
+              one broken job <strong>fails forever</strong> and blocks everything behind it,
             </li>
             <li>
               a partner API outage causes <strong>millions of retries</strong> that make the outage worse,
@@ -60,12 +64,12 @@ export default function SdLessonThreeEightPage() {
               a nightly cleanup job <strong>runs twice</strong> because two servers both thought they should run it,
             </li>
             <li>
-              a deploy <strong>kills</strong> a half-finished video transcode.
+              a deploy <strong>stops</strong> a video conversion in the middle.
             </li>
           </ul>
           <p>
-            Background jobs are simple to start and surprisingly easy to get wrong. This post covers how to run them
-            reliably, and what to do with the jobs that <strong>keep failing</strong>.
+            Background jobs are easy to start, but also easy to get wrong. This post shows how to run them reliably,
+            and what to do with jobs that <strong>keep failing</strong>.
           </p>
         </Section>
 
@@ -79,16 +83,17 @@ export default function SdLessonThreeEightPage() {
             </li>
             <li>Washers (workers) take bags from the pile and process them.</li>
             <li>
-              <strong>Express bags</strong> go in a separate pile so they're not stuck behind huge wedding loads
+              <strong>Express bags</strong> go in a separate pile, so they are not stuck behind huge wedding loads
               (priority queues).
             </li>
             <li>
-              If a machine jams, they <strong>try again</strong> later, not instantly and not forever.
+              If a machine jams, the staff <strong>try again</strong> later. Not at once, and not forever.
             </li>
             <li>
-              If a bag <strong>can't</strong> be washed (a strange fabric, no label), it goes to a{" "}
-              <strong>"problem shelf"</strong> where a manager decides what to do. It doesn't stay in the main pile
-              blocking others. That shelf is the <strong>dead-letter queue</strong>.
+              If a bag <strong>cannot</strong> be washed (a strange fabric, no label), it goes to a{" "}
+              <strong>"problem shelf"</strong> where a manager decides what to do. It does not stay in the main pile
+              and block the others. That shelf is the <strong>dead-letter queue</strong> (a queue that holds jobs
+              which failed too many times).
             </li>
           </ul>
         </Section>
@@ -97,11 +102,12 @@ export default function SdLessonThreeEightPage() {
           <h3 id="task-queues-vs-message-brokers">Task queues vs message brokers</h3>
           <ul>
             <li>
-              A <strong>message broker</strong> (RabbitMQ, SQS, Redis, Kafka) moves messages.
+              A <strong>message broker</strong> (RabbitMQ, SQS, Redis, Kafka) is a server that stores messages and
+              passes them from senders to receivers.
             </li>
             <li>
-              A <strong>task queue framework</strong> runs <strong>jobs</strong> on top of a broker, with helpful
-              features: retries, scheduling, priorities, job status and dashboards.
+              A <strong>task queue framework</strong> is a library that runs <strong>jobs</strong> on top of a broker.
+              It adds useful features: retries, scheduling, priorities, job status and dashboards.
             </li>
           </ul>
           <div className="table-wrap">
@@ -169,7 +175,8 @@ export default function SdLessonThreeEightPage() {
           <CodeBlock lang="js" code={code1} />
           <h3 id="designing-good-jobs">Designing good jobs</h3>
           <p>
-            <strong>1. Keep job payloads small: pass IDs, not whole objects.</strong>
+            <strong>1. Keep job payloads small: pass IDs, not whole objects.</strong> The payload is the data you put
+            inside the job message.
           </p>
           <Compare
             caption="Pass IDs, not objects."
@@ -193,18 +200,19 @@ export default function SdLessonThreeEightPage() {
             ]}
           />
           <p>
-            <strong>2. Make every job idempotent.</strong> Jobs <strong>will</strong> run more than once, because of
-            retries, crashes and redeliveries (post 37). "Send welcome email" should check "already sent?" first.
-            "Charge invoice" should use an idempotency key.
+            <strong>2. Make every job idempotent.</strong> Idempotent means running it many times gives the same result
+            as running it once. Jobs <strong>will</strong> run more than once, because of retries, crashes and
+            redelivery (post 37). "Send welcome email" should first check "already sent?". "Charge invoice" should use
+            an idempotency key (a unique label that lets the receiver spot a repeat).
           </p>
           <p>
-            <strong>3. Make big jobs resumable, or split them.</strong> A job processing 1 million rows should work in{" "}
-            <strong>chunks</strong> (like 1,000 rows each) and record progress, or fan out into many small jobs. Then a
-            crash means redoing 1,000 rows, not 1 million.
+            <strong>3. Make big jobs resumable, or split them.</strong> A job that handles 1 million rows should work
+            in <strong>chunks</strong> (for example 1,000 rows each) and save its progress. Or it can fan out into many
+            small jobs. Then a crash means redoing 1,000 rows, not 1 million.
           </p>
           <p>
-            <strong>4. Set timeouts.</strong> A job stuck forever holds a worker forever. Give each job type a sensible
-            maximum run time.
+            <strong>4. Set timeouts.</strong> A timeout is a maximum time you allow. A job that is stuck forever holds a
+            worker forever. Give each job type a sensible maximum run time.
           </p>
           <p>
             <strong>5. Separate queues by priority and duration.</strong>
@@ -222,70 +230,78 @@ export default function SdLessonThreeEightPage() {
             ]}
           />
           <p>
-            This way, a flood of slow report jobs never delays OTP emails. Give each queue its own workers, or weighted
-            priority.
+            This way, a flood of slow report jobs never delays OTP emails (OTP means one-time password, a short code
+            sent to a user). Give each queue its own workers, or give them weighted priority (a bigger share of worker
+            time for important queues).
           </p>
           <h3 id="workers-in-practice">Workers in practice</h3>
           <ul>
             <li>
-              <strong>Concurrency:</strong> each worker process can run several jobs at once (threads, async or
-              processes, post 4). Tune this to your workload: CPU-bound jobs get fewer, I/O-bound jobs get more.
+              <strong>Concurrency</strong> is how many jobs one worker runs at the same time (with threads, async code
+              or processes, post 4). Tune it to your work. CPU-bound jobs (they spend time calculating) get a low
+              number. I/O-bound jobs (they spend time waiting for networks or disks) get a higher number.
             </li>
             <li>
-              <strong>Prefetch:</strong> how many jobs a worker grabs in advance. Too high, and one worker hoards jobs
-              while others sit idle.
+              <strong>Prefetch</strong> is how many jobs a worker takes from the queue in advance. If it is too high,
+              one worker keeps many jobs while other workers sit idle.
             </li>
             <li>
-              <strong>Visibility timeouts and heartbeats:</strong> long jobs must <strong>extend</strong> their lease
-              (post 18). Otherwise the queue assumes the worker died and hands the job to someone else,{" "}
-              <strong>while the first worker is still running it</strong>.
+              <strong>Visibility timeout and heartbeat.</strong> When a worker takes a job, the queue hides it for a
+              set time. This is the visibility timeout, or lease. A heartbeat is a regular "I am still alive" signal.
+              Long jobs must <strong>extend</strong> their lease (post 18). Otherwise the queue thinks the worker died
+              and gives the job to someone else, <strong>while the first worker is still running it</strong>.
             </li>
             <li>
-              <strong>Graceful shutdown:</strong> on deploy, workers should <strong>stop taking new jobs</strong>,
-              finish (or safely release) current ones, then exit. Configure a shutdown grace period long enough for
-              typical jobs.
+              <strong>Graceful shutdown</strong> means stopping in a clean way. On deploy, workers should{" "}
+              <strong>stop taking new jobs</strong>, finish (or safely give back) their current jobs, then exit. Set a
+              grace period (the time allowed to finish) that is long enough for typical jobs.
             </li>
             <li>
-              <strong>Auto-scaling on queue depth and job age,</strong> not only CPU.
+              <strong>Auto-scaling</strong> means adding or removing workers by itself. Base it on queue depth (how
+              many jobs wait) and job age, not only on CPU.
             </li>
           </ul>
           <h3 id="scheduled-and-recurring-jobs">Scheduled and recurring jobs</h3>
           <ul>
             <li>
-              <strong>Delayed jobs:</strong> "send a reminder in 24 hours", "retry in 5 minutes". Most frameworks
-              support scheduling a job for later.
+              <strong>Delayed jobs</strong> run later: "send a reminder in 24 hours", "retry in 5 minutes". Most
+              frameworks can schedule a job for later.
             </li>
             <li>
-              <strong>Recurring jobs (cron):</strong> "every night at 2 AM, clean up expired sessions".
+              <strong>Recurring jobs (cron)</strong> run again and again on a time rule. Cron is the classic Unix
+              scheduler. Example: "every night at 2 AM, clean up expired sessions".
             </li>
           </ul>
           <p>
             <strong>The distributed cron problem:</strong> if you run the cron schedule on <strong>every</strong>{" "}
-            server, the job runs <strong>N times</strong>. Solutions:
+            server, the job runs <strong>N times</strong> (once per server). Fixes:
           </p>
           <ul>
             <li>
-              a <strong>single scheduler</strong> process (with a standby) that enqueues the job once,
+              a <strong>single scheduler</strong> process (with a standby one ready) that adds the job to the queue
+              once,
             </li>
             <li>
-              <strong>leader election</strong> or a <strong>distributed lock</strong> (for example, a Redis lock with a
-              TTL, or a database advisory lock) so only one instance runs it,
+              <strong>leader election</strong> (the servers vote so that only one is in charge) or a{" "}
+              <strong>distributed lock</strong> (a lock that all servers share, so only one can hold it). Examples are a
+              Redis lock with a TTL (time to live: the lock frees itself after a set time) or a database advisory lock,
             </li>
             <li>
               platform features like <strong>Kubernetes CronJobs</strong> or cloud schedulers,
             </li>
             <li>
-              and, as always, making the job <strong>idempotent</strong>, so an accidental double run is harmless.
+              and, as always, making the job <strong>idempotent</strong>, so an accidental double run does no harm.
             </li>
           </ul>
           <h3 id="workflow-engines-for-multi-step-jobs">Workflow engines for multi-step jobs</h3>
           <p>
-            Some "jobs" are really <strong>long, multi-step processes</strong>: "charge card → reserve stock → book
-            courier → send confirmation", and if booking fails, refund the card. Coding this as a chain of queued jobs
-            with manual state tracking gets messy.
+            Some "jobs" are really <strong>long processes with many steps</strong>: "charge card → reserve stock → book
+            courier → send confirmation". If booking fails, you must refund the card. Building this as a chain of queued
+            jobs, with your own state tracking, gets messy.
           </p>
           <p>
-            <strong>Workflow engines</strong> handle the state, retries, timeouts and compensation for you:
+            A <strong>workflow engine</strong> is a tool that runs multi-step processes for you. It keeps the state,
+            and handles retries, timeouts and compensation (undo steps, like the refund):
           </p>
           <ul>
             <li>
@@ -302,13 +318,16 @@ export default function SdLessonThreeEightPage() {
             </li>
           </ul>
           <p>
-            These connect directly to <strong>sagas</strong> (post 39).
+            These tools are closely linked to <strong>sagas</strong> (a saga is a long process made of steps, where each
+            step has an undo step, post 39).
           </p>
           <hr />
           <h3 id="retries">Retries</h3>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Transient vs permanent failures</h4>
           <p>
-            Before retrying, ask: <strong>will trying again help?</strong>
+            A <strong>retry</strong> means running a failed job again. Before you retry, ask:{" "}
+            <strong>will trying again help?</strong> A <strong>transient</strong> failure is short and goes away by
+            itself. A <strong>permanent</strong> failure stays until someone fixes it.
           </p>
           <div className="table-wrap">
             <table>
@@ -328,7 +347,7 @@ export default function SdLessonThreeEightPage() {
                   <td>✅ Yes, with backoff</td>
                 </tr>
                 <tr>
-                  <td>Database deadlock / serialization failure</td>
+                  <td>Database deadlock (two transactions wait for each other) / serialization failure</td>
                   <td>
                     <strong>Transient</strong>
                   </td>
@@ -360,44 +379,54 @@ export default function SdLessonThreeEightPage() {
           </div>
           <p>Retrying permanent failures wastes resources and delays everything else.</p>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Retry with exponential backoff and jitter</h4>
-          <p>Don't retry immediately and don't retry forever:</p>
+          <p>
+            <strong>Backoff</strong> means waiting before a retry. <strong>Exponential</strong> backoff makes the wait
+            longer each time, for example 1s, 2s, 4s, 8s. Do not retry at once, and do not retry forever:
+          </p>
           <Backoff caption="Forty jobs fail at the same moment and retry five times. Compare fixed retries, exponential backoff, and backoff with jitter by the spikes they send at a recovering service." />
           <p>
-            Add <strong>random jitter</strong> (for example, wait between 0 and 8 seconds instead of exactly 8), so
-            thousands of failed jobs <strong>don't all retry at the same instant</strong> and overload the recovering
-            service. (Post 41 covers this in depth.)
+            Add <strong>random jitter</strong>. Jitter is a small random change to the wait time. For example, wait
+            between 0 and 8 seconds instead of exactly 8. Then thousands of failed jobs{" "}
+            <strong>do not all retry at the same instant</strong> and overload the service that is trying to recover.
+            (Post 41 covers this in depth.)
           </p>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Retry storms</h4>
-          <p>When a downstream service (like a partner API) goes down:</p>
+          <p>
+            A <strong>retry storm</strong> is when many retries together overload a service that is already weak. It
+            happens when a downstream service (a service you call, like a partner API) goes down:
+          </p>
           <ul>
             <li>every job fails and retries,</li>
             <li>the retries add load exactly when the service is weakest,</li>
             <li>its recovery is delayed, which causes more failures and more retries.</li>
           </ul>
-          <p>Protections:</p>
+          <p>How to protect yourself:</p>
           <ul>
             <li>
-              <strong>cap attempts</strong> per job,
+              <strong>cap attempts</strong> per job (set a maximum number),
             </li>
             <li>
               use <strong>backoff with jitter</strong>,
             </li>
             <li>
-              keep <strong>retry budgets</strong> (for example, "retries may add at most 10% extra load"),
+              keep <strong>retry budgets</strong> (a limit on total retries, for example "retries may add at most 10%
+              extra load"),
             </li>
             <li>
-              use <strong>circuit breakers</strong>: after many failures, pause calls to that service for a while (post
-              42),
+              use <strong>circuit breakers</strong>. A circuit breaker is like an electric fuse: after many failures it
+              stops calls to that service for a while (post 42),
             </li>
             <li>
-              <strong>rate-limit</strong> workers that call fragile third parties.
+              <strong>rate-limit</strong> workers that call weak third-party services (a rate limit caps how many calls
+              per second are allowed).
             </li>
           </ul>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Retries and ordering</h4>
           <p>
-            Queues with strict ordering (Kafka partitions, FIFO queues) have a special problem: if message #5 fails and
-            you retry it in place, <strong>every message behind it waits</strong>. That's head-of-line blocking again.
-            The common solution is <strong>retry topics</strong>:
+            Queues with strict order (Kafka partitions, FIFO queues) have a special problem. Say message #5 fails and
+            you retry it in place. Then <strong>every message behind it must wait</strong>. This is called head-of-line
+            blocking: one stuck item at the front of the line blocks all the others. The common fix is{" "}
+            <strong>retry topics</strong> (a topic is a named message stream in Kafka):
           </p>
           <Flow
             caption="Retry topics keep the main stream moving while failures wait."
@@ -414,15 +443,15 @@ export default function SdLessonThreeEightPage() {
             ]}
           />
           <p>
-            The main topic keeps flowing while failed messages wait in separate topics with increasing delays. (Accept
-            that this breaks strict ordering for the failed messages, or hold back later messages for the same key if
-            order really matters.)
+            The main topic keeps flowing while failed messages wait in separate topics with longer and longer delays.
+            This breaks strict order for the failed messages. If order really matters, hold back the later messages
+            that have the same key.
           </p>
           <hr />
           <h3 id="dead-letter-queues-dlqs">Dead-letter queues (DLQs)</h3>
           <p>
-            A <strong>dead-letter queue</strong> is where messages go after they've{" "}
-            <strong>failed too many times</strong> (or are clearly invalid). It's the "problem shelf".
+            A <strong>dead-letter queue</strong> (DLQ) is a separate queue that holds messages after they have{" "}
+            <strong>failed too many times</strong> (or are clearly invalid). It is the "problem shelf".
           </p>
           <Flow
             caption="The life of a job that keeps failing."
@@ -448,13 +477,13 @@ export default function SdLessonThreeEightPage() {
           </p>
           <ul>
             <li>
-              <strong>Poison messages</strong> (ones that always fail) stop blocking or wasting workers.
+              <strong>Poison messages</strong> (messages that always fail) stop blocking workers or wasting their time.
             </li>
             <li>
-              <strong>Nothing is silently lost.</strong> Failed work is kept for investigation.
+              <strong>Nothing is lost without a sign.</strong> Failed work is kept so you can look at it.
             </li>
             <li>
-              After fixing the bug or data, you can <strong>replay</strong> them.
+              After you fix the bug or the data, you can <strong>replay</strong> (send again) the messages.
             </li>
           </ul>
           <p>
@@ -463,15 +492,15 @@ export default function SdLessonThreeEightPage() {
           <ul>
             <li>
               <strong>Amazon SQS:</strong> a "redrive policy" moves a message to a DLQ after{" "}
-              <code>maxReceiveCount</code> failed receives. There's also a "redrive" feature to move messages back.
+              <code>maxReceiveCount</code> failed receives. There is also a "redrive" feature to move messages back.
             </li>
             <li>
-              <strong>RabbitMQ:</strong> dead-letter exchanges, where rejected or expired messages are routed to another
+              <strong>RabbitMQ:</strong> dead-letter exchanges. Rejected or expired messages are sent to another
               exchange.
             </li>
             <li>
-              <strong>Kafka:</strong> no built-in DLQ; you build it with retry and DLQ topics (Kafka Connect and many
-              frameworks provide this).
+              <strong>Kafka:</strong> there is no built-in DLQ for normal consumers. You build one with retry and DLQ
+              topics (Kafka Connect sink connectors and many frameworks give you this).
             </li>
             <li>
               <strong>Task frameworks:</strong> Sidekiq's "Dead" set, Celery and BullMQ failed-job lists.
@@ -482,23 +511,23 @@ export default function SdLessonThreeEightPage() {
           </p>
           <ol>
             <li>
-              <strong>Alert on DLQ size and growth.</strong> A DLQ nobody watches is a black hole.
+              <strong>Alert on DLQ size and growth.</strong> A DLQ that nobody watches is a black hole.
             </li>
             <li>
-              <strong>Store context</strong> with each dead message: the error, stack trace, attempt count and
-              timestamps.
+              <strong>Store context</strong> with each dead message: the error, the stack trace (the list of function
+              calls at the error), the attempt count and the times.
             </li>
             <li>
-              <strong>Build tooling</strong> to inspect, fix and <strong>safely replay</strong> messages, individually
-              or in bulk.
+              <strong>Build tools</strong> to look at, fix and <strong>safely replay</strong> messages, one by one or
+              in bulk.
             </li>
             <li>
-              <strong>Replay carefully:</strong> make sure the bug is fixed and consumers are idempotent. Replaying
+              <strong>Replay with care.</strong> Make sure the bug is fixed and consumers are idempotent. Replaying
               50,000 messages at once can overload systems, so rate-limit it.
             </li>
             <li>
-              <strong>Set retention.</strong> DLQ messages expire too (SQS keeps them for up to 14 days), so act within
-              that window.
+              <strong>Set retention</strong> (how long messages are kept). DLQ messages expire too. SQS keeps them for
+              up to 14 days, so act within that time.
             </li>
           </ol>
           <h3 id="what-to-monitor">What to monitor</h3>
@@ -514,7 +543,8 @@ export default function SdLessonThreeEightPage() {
               <strong>Retry counts</strong> and <strong>DLQ size</strong>.
             </li>
             <li>
-              <strong>Job duration</strong> (p50/p99), to catch slow jobs before they time out.
+              <strong>Job duration</strong>, as p50 and p99. p50 is the typical time (half the jobs are faster). p99 is
+              the slow end (99 of 100 jobs are faster). Watch it to catch slow jobs before they time out.
             </li>
           </ul>
         </Section>
@@ -544,30 +574,31 @@ export default function SdLessonThreeEightPage() {
 
         <Section id="in-the-real-world" title="In the Real World" kind="real">
           <p>
-            <strong>GitHub and Resque.</strong> GitHub created <strong>Resque</strong>, a Redis-backed Ruby job queue,
-            to run its background work, and open-sourced it in 2009. It inspired many later tools (including Sidekiq),
-            and shows how central background jobs are to web applications.
+            <strong>GitHub and Resque.</strong> GitHub created <strong>Resque</strong>, a Ruby job queue that stores
+            jobs in Redis. It used it for its background work and open-sourced it in 2009. It inspired many later tools
+            (including Sidekiq). It shows how central background jobs are to web applications.
           </p>
           <p>
-            <strong>Uber's retries and DLQs on Kafka.</strong> Uber wrote about building reliable reprocessing on Kafka
-            using <strong>retry topics with increasing delays</strong> and <strong>dead-letter topics</strong>, so
-            failed messages don't block real-time pipelines and can be replayed after fixes.
+            <strong>Uber's retries and DLQs on Kafka.</strong> Uber wrote about building reliable reprocessing on Kafka.
+            They used <strong>retry topics with longer and longer delays</strong> and{" "}
+            <strong>dead-letter topics</strong>. So failed messages do not block real-time pipelines, and can be
+            replayed after a fix.
           </p>
           <p>
-            <strong>Slack's job queue.</strong> Slack has written about scaling its job queue (which runs work like
-            message indexing, notifications and link previews) after an incident in which its Redis-based queue became
-            overloaded. It added Kafka in front as a durable buffer, a good example of treating the job system itself as
-            critical infrastructure.
+            <strong>Slack's job queue.</strong> Slack has written about scaling its job queue. The queue runs work like
+            message indexing, notifications and link previews. An incident overloaded its Redis-based queue. Slack then
+            added Kafka in front as a durable buffer (a safe place to hold jobs). It is a good example of treating the
+            job system itself as critical infrastructure.
           </p>
           <p>
             <strong>Temporal at many companies.</strong> Temporal grew out of Cadence, which was built at Uber to run
-            long-running workflows reliably. Companies now use it for order fulfilment, payments, onboarding flows and
-            infrastructure automation, where retries, timeouts and compensation must be handled carefully.
+            long workflows reliably. Companies now use it for order fulfilment, payments, onboarding flows and
+            infrastructure automation. In these cases retries, timeouts and compensation must be handled with care.
           </p>
           <p>
-            <strong>Email and OTP delivery.</strong> Transactional email and SMS systems typically use separate
-            high-priority queues for OTPs and password resets, with aggressive monitoring of <strong>job age</strong>,
-            because an OTP arriving after it has expired is as bad as never sending it.
+            <strong>Email and OTP delivery.</strong> Transactional email and SMS systems (those that send messages
+            caused by a user action) usually use separate high-priority queues for OTPs and password resets. They watch{" "}
+            <strong>job age</strong> closely, because an OTP that arrives after it has expired is as bad as no OTP.
           </p>
         </Section>
 

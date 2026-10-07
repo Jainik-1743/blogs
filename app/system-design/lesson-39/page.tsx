@@ -48,7 +48,10 @@ export default function SdLessonThreeNinePage() {
 
       <div className="lesson">
         <Section id="the-problem" title="The Problem" kind="problem">
-          <p>Your order service has become a monster. When an order is placed, its code directly calls:</p>
+          <p>
+            Your order service has become too big and too busy. When an order is placed, its code calls these services
+            directly, one after another:
+          </p>
           <Flow
             caption="The command-driven monster. Checkout is as slow and as fragile as the slowest of seven calls."
             nodes={[
@@ -64,12 +67,15 @@ export default function SdLessonThreeNinePage() {
           <p>
             Every new feature means changing the order service. If the loyalty service is slow,{" "}
             <strong>checkout is slow</strong>. If analytics is down, <strong>checkout fails</strong>. Seven teams have
-            to coordinate every change to one file.
+            to agree on every change to one file. This tight link between services is called{" "}
+            <strong>coupling</strong>: when one part changes or fails, the other parts are hurt too.
           </p>
           <p>
-            <strong>Event-driven architecture (EDA)</strong> flips this around. Instead of the order service{" "}
-            <strong>telling</strong> everyone what to do, it simply <strong>announces what happened</strong>: "An order
-            was placed". Whoever cares <strong>reacts</strong>.
+            <strong>Event-driven architecture (EDA)</strong> is a way to build software where services talk by sending
+            events. An <strong>event</strong> is a short message that says something has happened. EDA turns the design
+            around. The order service no longer <strong>tells</strong> everyone what to do. It only{" "}
+            <strong>announces what happened</strong>: "An order was placed". Any service that cares{" "}
+            <strong>reacts</strong>.
           </p>
         </Section>
 
@@ -80,22 +86,22 @@ export default function SdLessonThreeNinePage() {
           <p>
             <strong>The command style:</strong> the family personally phones the caterer ("prepare food for 300"), the
             decorator ("set up flowers"), the photographer ("be there at 6") and 200 relatives. If the photographer
-            doesn't pick up, they're stuck on the phone. Adding a new vendor means another call to make.
+            does not pick up, the family is stuck on the phone. Adding a new vendor means one more call to make.
           </p>
           <p>
             <strong>The event style:</strong> the family <strong>posts one announcement</strong>: "The wedding is on 14
             Feb at 6 PM, at this venue." The caterer, decorator, photographer and guests each{" "}
-            <strong>see it and do their own part</strong>. A new vendor who hears about it can join in{" "}
+            <strong>see it and do their own part</strong>. A new vendor who hears about it can join{" "}
             <strong>without the family doing anything</strong>.
           </p>
           <ul>
             <li>
-              A <strong>command</strong> says "<strong>do this</strong>" to a specific receiver, and expects it to be
-              done.
+              A <strong>command</strong> is a message that says "<strong>do this</strong>" to one specific receiver. It
+              expects the work to be done.
             </li>
             <li>
-              An <strong>event</strong> says "<strong>this happened</strong>" to anyone interested, and doesn't care who
-              reacts.
+              An <strong>event</strong> is a message that says "<strong>this happened</strong>" to anyone who is
+              interested. The sender does not care who reacts.
             </li>
           </ul>
         </Section>
@@ -134,30 +140,31 @@ export default function SdLessonThreeNinePage() {
                 <tr>
                   <td>Can be refused?</td>
                   <td>Yes ("card declined")</td>
-                  <td>No, it's a fact about the past</td>
+                  <td>No, it is a fact about the past</td>
                 </tr>
                 <tr>
                   <td>Coupling</td>
                   <td>Sender knows the receiver</td>
-                  <td>Sender doesn't know who listens</td>
+                  <td>Sender does not know who listens</td>
                 </tr>
               </tbody>
             </table>
           </div>
           <p>
-            Both travel as <strong>messages</strong> over queues or streams (posts 35–36).
+            Both travel as <strong>messages</strong> over queues or streams (posts 35–36). A <strong>publisher</strong> is
+            the service that sends an event. A <strong>subscriber</strong> is a service that asks to receive it.
           </p>
           <p>
             <strong>Name events as past-tense business facts:</strong> <code>OrderPlaced</code>,{" "}
             <code>PaymentCaptured</code>, <code>ShipmentDispatched</code>, <code>UserEmailChanged</code>. Avoid
-            technical names like <code>OrderTableRowUpdated</code>.
+            names that describe technical details, like <code>OrderTableRowUpdated</code>.
           </p>
           <h3 id="the-basic-event-driven-flow">The basic event-driven flow</h3>
           <Flow
             caption="The event-driven version. The order service announces one fact; each consumer reacts at its own pace."
             nodes={[
               { title: <>Order service</>, desc: <>saves the order + writes OrderPlaced to its outbox</> },
-              { title: <>Event bus / Kafka</>, desc: <>durable, replayable</> },
+              { title: <>Event bus / Kafka</>, desc: <>durable (it keeps events safely), replayable</> },
               { title: <>Inventory</>, desc: <>reserves stock</>, label: <>subscribers, independent of each other</> },
               { title: <>Email</>, desc: <>sends the confirmation</> },
               { title: <>Loyalty</>, desc: <>adds points — if it's down, events simply wait</> },
@@ -175,7 +182,7 @@ export default function SdLessonThreeNinePage() {
               <strong>outbox pattern</strong>, post 37).
             </li>
             <li>
-              <strong>New features</strong> simply subscribe. Adding a fraud check means{" "}
+              <strong>New features</strong> just subscribe. Adding a fraud check means{" "}
               <strong>no change to the order service</strong>.
             </li>
             <li>
@@ -184,34 +191,43 @@ export default function SdLessonThreeNinePage() {
             </li>
           </ul>
           <h3 id="four-patterns-that-are-all-called-event-driven">Four patterns that are all called "event-driven"</h3>
-          <p>Martin Fowler pointed out that "event-driven" means several different things.</p>
           <p>
-            <strong>1. Event notification.</strong> A small event says something happened, and consumers{" "}
-            <strong>call back</strong> for details if they need them.
+            Martin Fowler pointed out that "event-driven" can mean four different things. Here they are one by one.
+          </p>
+          <p>
+            <strong>1. Event notification.</strong> The event is small. It only says that something happened. Consumers{" "}
+            <strong>call back</strong> to ask for the details if they need them.
           </p>
           <CodeBlock lang="json" code={code1} />
           <ul>
             <li>✅ Small events, loose coupling.</li>
-            <li>❌ Consumers call the order service's API, which adds load and a runtime dependency.</li>
+            <li>
+              ❌ Consumers call the order service's API. This adds load, and the consumers now depend on the order
+              service while they run.
+            </li>
           </ul>
           <p>
-            <strong>2. Event-carried state transfer.</strong> The event includes <strong>all the data</strong> consumers
-            need.
+            <strong>2. Event-carried state transfer.</strong> The event carries <strong>all the data</strong> that
+            consumers need.
           </p>
           <CodeBlock lang="json" code={code2} />
           <ul>
             <li>
-              ✅ Consumers don't need to call back; they can even keep their <strong>own local copy</strong> of the
+              ✅ Consumers do not need to call back. They can even keep their <strong>own local copy</strong> of the
               data.
             </li>
-            <li>❌ Bigger events, duplicated data (post 23), and schema evolution becomes important.</li>
+            <li>
+              ❌ Bigger events and duplicated data (post 23). Schema evolution (changing the event format over time
+              without breaking readers) becomes important.
+            </li>
           </ul>
           <p>
-            <strong>3. Event sourcing.</strong> Instead of storing only the <strong>current state</strong>, store{" "}
-            <strong>every event</strong> that ever happened, and compute the state by replaying them.
+            <strong>3. Event sourcing.</strong> Normally you store only the <strong>current state</strong> (for example,
+            the balance). With event sourcing you store <strong>every event</strong> that ever happened. You work out
+            the current state by replaying (re-reading) them in order. A bank statement works like this.
           </p>
           <Timeline
-            caption="Event sourcing — the balance is derived by replaying every event."
+            caption="Event sourcing — the balance is worked out by replaying every event."
             events={[
               { time: <>AccountOpened</>, text: <>balance 0</> },
               { time: <>MoneyDeposited</>, text: <>+10,000</> },
@@ -222,23 +238,26 @@ export default function SdLessonThreeNinePage() {
           />
           <ul>
             <li>
-              ✅ A full <strong>audit history</strong>, "time travel" (what was the state last Tuesday?), and new views
-              can be built by replaying events.
+              ✅ A full <strong>audit history</strong> (a record of who did what and when), and "time travel" (what was
+              the state last Tuesday?). You can also build new views by replaying events.
             </li>
             <li>
-              ❌ More complex, and schema changes to old events are tricky. It needs <strong>snapshots</strong> for long
-              histories. Querying "current state" requires projections.
+              ❌ More complex, and changing the format of old events is tricky. Long histories need{" "}
+              <strong>snapshots</strong> (a saved copy of the state at one moment, so you do not replay everything).
+              To ask "what is the current state?" you need <strong>projections</strong> (tables built by replaying the
+              events).
             </li>
             <li>
-              <strong>Good for:</strong> ledgers, banking, auditing-heavy domains. <strong>Overkill for</strong> most
-              CRUD apps.
+              <strong>Good for:</strong> ledgers, banking, and areas with many audit rules.{" "}
+              <strong>Too much for</strong> most CRUD apps (apps that only create, read, update and delete records).
             </li>
           </ul>
           <p>
-            <strong>4. CQRS (Command Query Responsibility Segregation).</strong> Use <strong>separate models</strong>{" "}
-            for <strong>writing</strong> (commands) and <strong>reading</strong> (queries). Writes go to a model
-            optimised for correctness, and events update one or more <strong>read models</strong> optimised for fast
-            queries: a search index, a denormalised feed, a reporting table (post 23).
+            <strong>4. CQRS (Command Query Responsibility Segregation).</strong> This is a design that uses{" "}
+            <strong>separate models</strong> for <strong>writing</strong> (commands) and <strong>reading</strong>{" "}
+            (queries). Writes go to a model built for correctness. Events then update one or more{" "}
+            <strong>read models</strong> built for fast queries: a search index, a denormalised feed (data copied into
+            one ready-to-read shape), or a reporting table (post 23).
           </p>
           <Flow
             caption="CQRS — one model for writes, any number of read models built from its events."
@@ -250,11 +269,12 @@ export default function SdLessonThreeNinePage() {
               { title: <>Queries</> },
             ]}
           />
-          <p>Event sourcing and CQRS are often used together, but you can use either one alone.</p>
+          <p>Event sourcing and CQRS are often used together. You can also use either one alone.</p>
           <h3 id="choreography-vs-orchestration">Choreography vs orchestration</h3>
-          <p>When a business process spans several services (like checkout), who coordinates it?</p>
+          <p>When a business process spans several services (like checkout), who is in charge of the steps?</p>
           <p>
-            <strong>Choreography: services react to each other's events.</strong> Nobody is in charge.
+            <strong>Choreography</strong> means services react to each other's events, like dancers who each know
+            their own moves. Nobody is in charge.
           </p>
           <SequenceDiagram
             caption="Choreography — services react to each other's events. Nobody is in charge."
@@ -275,14 +295,14 @@ export default function SdLessonThreeNinePage() {
           <ul>
             <li>✅ Very decoupled, with no central bottleneck.</li>
             <li>
-              ❌ <strong>The overall flow is invisible.</strong> It's spread across many services, and it's hard to
-              answer "where is order 5521 stuck?". Circular dependencies can sneak in.
+              ❌ <strong>You cannot see the whole flow.</strong> It is spread across many services, so it is hard to
+              answer "where is order 5521 stuck?". Circular dependencies (A waits for B, and B waits for A) can appear
+              by accident.
             </li>
           </ul>
           <p>
-            <strong>
-              Orchestration: a central coordinator tells each service what to do (commands) and tracks progress.
-            </strong>
+            <strong>Orchestration</strong> means a central coordinator (the orchestrator) tells each service what to do
+            with commands, and tracks the progress. It is like a conductor of an orchestra.
           </p>
           <SequenceDiagram
             caption="Orchestration — one coordinator sends commands and tracks progress."
@@ -299,24 +319,26 @@ export default function SdLessonThreeNinePage() {
           />
           <ul>
             <li>
-              ✅ The flow is <strong>explicit</strong> in one place, and easy to monitor, change and debug.
+              ✅ The flow is <strong>clear</strong> and in one place. It is easy to monitor, change and debug.
             </li>
-            <li>❌ The orchestrator is an extra component, and some coupling to it remains.</li>
+            <li>❌ The orchestrator is an extra part to run, and the services stay somewhat tied to it.</li>
           </ul>
           <p>
-            <strong>Rule of thumb:</strong> choreography for <strong>simple, loosely related reactions</strong> (send an
-            email, update analytics). Orchestration for <strong>important multi-step business processes</strong>{" "}
-            (checkout, loan approval, onboarding). Workflow engines like Temporal or AWS Step Functions are often used
-            as orchestrators (post 38).
+            <strong>Rule of thumb:</strong> use choreography for <strong>simple reactions that are only loosely
+            related</strong> (send an email, update analytics). Use orchestration for{" "}
+            <strong>important business processes with many steps</strong> (checkout, loan approval, onboarding).
+            Workflow engines like Temporal or AWS Step Functions are often used as orchestrators (post 38).
           </p>
           <h3 id="sagas-transactions-across-services">Sagas: transactions across services</h3>
           <p>
-            In a monolith, checkout could be one database transaction (post 21). Across services, each with its own
-            database, you can't do that. A <strong>saga</strong> is a sequence of <strong>local transactions</strong>,
-            where each step has a <strong>compensating action</strong> that undoes it if a later step fails.
+            A monolith is one big application with one database. There, checkout can be one database transaction (a
+            group of steps that all succeed or all fail, post 21). With many services, each with its own database, you
+            cannot do that. A <strong>saga</strong> is a sequence of <strong>local transactions</strong> (one per
+            service). Each step has a <strong>compensating action</strong>, which is a step that undoes it if a later
+            step fails.
           </p>
           <p>
-            <strong>Checkout saga, when payment fails:</strong>
+            <strong>Example: the checkout saga when payment fails.</strong>
           </p>
           <Timeline
             caption="A checkout saga when payment fails. Compensations run in reverse order."
@@ -331,14 +353,15 @@ export default function SdLessonThreeNinePage() {
           <p>Important points:</p>
           <ul>
             <li>
-              Compensations are <strong>business actions</strong>, not automatic rollbacks: "refund", "release", "cancel",
-              "send apology email".
+              Compensations are <strong>business actions</strong>, not automatic rollbacks (a rollback is a database undo).
+              Examples: "refund", "release", "cancel", "send apology email".
             </li>
             <li>
-              Every step and compensation must be <strong>idempotent</strong> (post 37), because they may be retried.
+              Every step and compensation must be <strong>idempotent</strong> (safe to run twice, post 37), because they
+              may be retried.
             </li>
             <li>
-              Users may see <strong>intermediate states</strong> ("Order pending…"), so design the UX for that.
+              Users may see <strong>in-between states</strong> ("Order pending…"), so design the screens for that.
             </li>
             <li>
               Sagas can be <strong>choreographed</strong> (via events) or <strong>orchestrated</strong> (via a
@@ -347,57 +370,63 @@ export default function SdLessonThreeNinePage() {
           </ul>
           <h3 id="change-data-capture-cdc-as-an-event-source">Change Data Capture (CDC) as an event source</h3>
           <p>
-            Sometimes you can't, or don't want to, change old applications to publish events. <strong>CDC tools</strong>{" "}
-            (like <strong>Debezium</strong>) read the database's change log (post 21) and turn every insert, update and
-            delete into an event stream in Kafka. This is also a reliable way to implement the outbox pattern (post 37).
+            Sometimes you cannot, or do not want to, change old applications so that they publish events.{" "}
+            <strong>Change Data Capture (CDC)</strong> is a technique that reads the database's change log (post 21) and
+            turns every insert, update and delete into an event. <strong>CDC tools</strong> like{" "}
+            <strong>Debezium</strong> send these events to Kafka. CDC is also a reliable way to build the outbox pattern
+            (post 37).
           </p>
           <h3 id="event-schemas-and-evolution">Event schemas and evolution</h3>
           <p>
-            Events are a <strong>contract</strong> between teams, just like APIs (post 34):
+            Events are a <strong>contract</strong> between teams, just like APIs (post 34). A contract is a promise about
+            the shape of the data:
           </p>
           <ul>
             <li>
-              use a <strong>schema</strong> (Avro, Protobuf or JSON Schema) and a <strong>schema registry</strong> that
-              rejects incompatible changes,
+              use a <strong>schema</strong> (a written description of the fields in an event, for example in Avro,
+              Protobuf or JSON Schema) and a <strong>schema registry</strong> (a service that stores schemas and
+              rejects changes that would break readers),
             </li>
             <li>
-              make changes <strong>backward compatible</strong>: add optional fields, and never remove or repurpose
-              fields consumers rely on,
+              make changes <strong>backward compatible</strong>, so old readers still work. Add optional fields. Never
+              remove a field that consumers use, and never give it a new meaning,
             </li>
             <li>
               include standard metadata: <strong>event ID</strong> (for dedup), <strong>type</strong>,{" "}
               <strong>version</strong>, <strong>timestamp</strong>, <strong>source</strong>, and a{" "}
-              <strong>correlation ID</strong> for tracing. The <strong>CloudEvents</strong> standard defines a common
-              format for this.
+              <strong>correlation ID</strong> (one ID shared by all events from the same user action, used for tracing).
+              The <strong>CloudEvents</strong> standard defines a common format for this.
             </li>
           </ul>
           <CodeBlock lang="json" code={code3} />
           <h3 id="the-challenges">The challenges</h3>
           <ul>
             <li>
-              <strong>Eventual consistency.</strong> After placing an order, the loyalty points appear a second later.
-              The UI must handle "processing" states.
+              <strong>Eventual consistency.</strong> This means data in different places is not updated at the same
+              moment, but it becomes the same after a short time. After you place an order, the loyalty points appear a
+              second later. The UI must show "processing" states.
             </li>
             <li>
-              <strong>Debugging and visibility.</strong> A single user action triggers a chain of events across
-              services. You need <strong>correlation IDs</strong> and <strong>distributed tracing</strong> (Part 8) to
-              follow it.
+              <strong>Debugging and visibility.</strong> One user action starts a chain of events across services. To
+              follow it you need <strong>correlation IDs</strong> and <strong>distributed tracing</strong> (tools that
+              show one request as it moves through many services, Part 8).
             </li>
             <li>
-              <strong>Ordering.</strong> Use <strong>per-key ordering</strong> (partition by order ID) and{" "}
+              <strong>Ordering.</strong> Use <strong>per-key ordering</strong> (events with the same key, such as the
+              order ID, go to the same partition) and{" "}
               <strong>version numbers</strong> in events (posts 35–37).
             </li>
             <li>
-              <strong>Duplicates.</strong> At-least-once delivery means <strong>idempotent consumers</strong> are
-              mandatory.
+              <strong>Duplicates.</strong> At-least-once delivery means a message may arrive twice. So{" "}
+              <strong>idempotent consumers</strong> are a must.
             </li>
             <li>
-              <strong>Replay side effects.</strong> Replaying events to rebuild a read model is great, but make sure
-              replays <strong>don't resend emails or re-charge cards</strong>.
+              <strong>Replay side effects.</strong> Replaying events to rebuild a read model is useful. But make sure
+              a replay <strong>does not resend emails or charge cards again</strong>.
             </li>
             <li>
-              <strong>"Event soup".</strong> Too many poorly named, overlapping events with no ownership. Keep an{" "}
-              <strong>event catalogue</strong> with clear owners.
+              <strong>"Event soup".</strong> This means too many badly named events that overlap and have no owner. Keep
+              an <strong>event catalogue</strong> (a list of all events) with a clear owner for each.
             </li>
           </ul>
         </Section>
@@ -408,10 +437,11 @@ export default function SdLessonThreeNinePage() {
               ✅ <strong>Loose coupling:</strong> add features without touching the publisher.
             </li>
             <li>
-              ✅ <strong>Resilience:</strong> slow or broken consumers don't break the core flow.
+              ✅ <strong>Resilience</strong> (the ability to keep working when parts fail)<strong>:</strong> slow or broken
+              consumers do not break the core flow.
             </li>
             <li>
-              ✅ <strong>Scalability:</strong> each consumer scales independently.
+              ✅ <strong>Scalability:</strong> each consumer can grow on its own.
             </li>
             <li>
               ✅ <strong>History and replay</strong>, especially with Kafka and event sourcing.
@@ -421,14 +451,14 @@ export default function SdLessonThreeNinePage() {
               now?".
             </li>
             <li>
-              ❌ <strong>Harder debugging</strong>; it needs tracing, good logging and tooling.
+              ❌ <strong>Harder debugging.</strong> You need tracing, good logs and tools.
             </li>
             <li>
               ❌ <strong>More infrastructure:</strong> brokers, schema registry, outbox relays, DLQs.
             </li>
             <li>
               ❌ <strong>Event sourcing and CQRS add big complexity.</strong> Use them only where the benefits (audit,
-              history, varied read models) are clear.
+              history, many kinds of read models) are clear.
             </li>
           </ul>
           <p>
@@ -439,7 +469,7 @@ export default function SdLessonThreeNinePage() {
             <li>
               flows where the user needs an <strong>immediate, consistent answer</strong>,
             </li>
-            <li>or when a simple synchronous API call is clearer and good enough.</li>
+            <li>or when a simple synchronous API call (the caller waits for the answer) is clearer and good enough.</li>
           </ul>
         </Section>
 
@@ -447,28 +477,30 @@ export default function SdLessonThreeNinePage() {
           <p>
             <strong>E-commerce order pipelines.</strong> Large retailers commonly publish events like "order placed",
             "payment captured" and "shipment dispatched". Warehouses, delivery partners, notifications, customer support
-            tools and analytics each subscribe independently. It's why your order confirmation, tracking updates and
-            loyalty points arrive at slightly different moments.
+            tools and analytics each subscribe independently. This is why your order confirmation, tracking updates and
+            loyalty points arrive at slightly different times.
           </p>
           <p>
             <strong>Uber and ride events.</strong> Trip lifecycle events (requested, accepted, started, completed) flow
             through Kafka to many systems: pricing, payments, driver earnings, fraud detection, maps and analytics.
-            They're processed independently and at huge scale.
+            Each system handles them on its own, at a very large scale.
           </p>
           <p>
             <strong>Banking and ledgers.</strong> Financial systems naturally fit <strong>event sourcing</strong>: an
             account's balance is the result of every deposit and withdrawal, and the full history must be kept for
-            audits. Many modern banking and payment platforms are built on immutable, append-only ledgers.
+            audits. Many modern banking and payment platforms use ledgers that are immutable (never changed) and
+            append-only (you only add new records at the end).
           </p>
           <p>
-            <strong>Git as an event-sourcing analogy.</strong> Git stores every commit (every change) rather than just
-            the latest files. You can go back to any point in history, create branches, and rebuild the current state
-            from the log. That's the core idea of event sourcing, in a tool most developers use daily.
+            <strong>Git as an event-sourcing analogy.</strong> Git keeps every commit, not just
+            the latest files. You can go back to any point in history, create branches, and get the current state from
+            the log of commits. This is the core idea of event sourcing, in a tool most developers use every day.
+            (The match is not exact: Git commits are saved snapshots, not small events.)
           </p>
           <p>
             <strong>Workflow orchestration.</strong> Companies running complex flows (loan applications, insurance
             claims, e-commerce fulfilment) often use <strong>orchestrated sagas</strong> with tools like Temporal or AWS
-            Step Functions, so every step, retry and compensation is visible and auditable.
+            Step Functions, so every step, retry and compensation is visible and can be checked later.
           </p>
         </Section>
 
@@ -480,9 +512,9 @@ export default function SdLessonThreeNinePage() {
                 a: (
                   <>
                     <p>
-                      A command is an instruction to one specific receiver (“ChargeCard”) that can be refused. An event
-                      is a past-tense fact (“OrderPlaced”) broadcast to anyone interested; the publisher doesn't know or
-                      care who reacts.
+                      A command is an instruction to one specific receiver (“ChargeCard”), and it can be refused. An
+                      event is a fact in the past tense (“OrderPlaced”) that goes to anyone who is interested. The
+                      publisher does not know or care who reacts.
                     </p>
                   </>
                 ),
@@ -516,9 +548,9 @@ export default function SdLessonThreeNinePage() {
                 a: (
                   <>
                     <p>
-                      Storing every change as an immutable event and deriving current state by replaying them. It pays
-                      off for ledgers and audit-heavy domains that need full history and time travel. For ordinary CRUD
-                      it adds complexity — projections, snapshots, event versioning — for little gain.
+                      You store every change as an event that is never edited. You work out the current state by replaying
+                      the events. It pays off for ledgers and other areas that need full history and time travel. For
+                      ordinary CRUD it adds extra work (projections, snapshots, event versions) for little gain.
                     </p>
                   </>
                 ),

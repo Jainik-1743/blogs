@@ -32,8 +32,8 @@ export default function SdLessonFourFivePage() {
       <div className="lesson">
         <Section id="the-problem" title="The Problem" kind="problem">
           <p>
-            You've done everything in this series: replicas in three zones, automatic failover, circuit breakers, load
-            shedding. Then:
+            You have done everything in this part: replicas (live copies of the database) in three zones, automatic
+            failover, circuit breakers, load shedding. Then something like this happens:
           </p>
           <ul>
             <li>
@@ -41,26 +41,31 @@ export default function SdLessonFourFivePage() {
               <strong>
                 without a <code>WHERE</code> clause
               </strong>{" "}
-              on production,
+              on production. (Without <code>WHERE</code>, the command deletes every row. "Production" is the live
+              system that real users use.)
             </li>
             <li>
-              or ransomware <strong>encrypts</strong> your database servers,
+              or ransomware (a program that locks your files and asks for money) <strong>encrypts</strong> your database
+              servers,
             </li>
             <li>
-              or a software bug <strong>silently corrupts</strong> customer records for two weeks,
+              or a software bug <strong>silently corrupts</strong> (damages) customer records for two weeks,
             </li>
             <li>
-              or a <strong>fire</strong> destroys the data centre.
+              or a <strong>fire</strong> destroys the data centre (the building that holds your servers).
             </li>
           </ul>
           <p>
-            Replication doesn't help with <strong>any</strong> of these. It faithfully copies the deletion, the
+            Replication does not help with <strong>any</strong> of these (except the fire, if the copies are in another
+            place). Replication means keeping live copies of data on several servers. It copies the deletion, the
             encryption or the corruption to every replica within milliseconds. Your "highly available" system now has{" "}
             <strong>three perfect copies of the wrong data</strong>.
           </p>
           <p>
-            <strong>Backups</strong> and <strong>disaster recovery (DR)</strong> exist for exactly these cases. The two
-            numbers that drive every decision are <strong>RPO</strong> and <strong>RTO</strong>.
+            A <strong>backup</strong> is a separate copy of data from an earlier moment, kept so you can restore it.{" "}
+            <strong>Disaster recovery (DR)</strong> is the plan and the setup for getting your system working again
+            after a big failure. Both exist for exactly these cases. Two numbers drive every decision:{" "}
+            <strong>RPO</strong> and <strong>RTO</strong>.
           </p>
         </Section>
 
@@ -70,8 +75,8 @@ export default function SdLessonFourFivePage() {
           </p>
           <ul>
             <li>
-              <strong>Replication</strong> is like having your photos synced across your phone and tablet. If your phone
-              breaks, the tablet still has them. But if you <strong>delete</strong> an album on your phone, it's{" "}
+              <strong>Replication</strong> is like having your photos synced between your phone and tablet. If your
+              phone breaks, the tablet still has them. But if you <strong>delete</strong> an album on your phone, it is{" "}
               <strong>deleted on the tablet too</strong>.
             </li>
             <li>
@@ -80,19 +85,20 @@ export default function SdLessonFourFivePage() {
               Sunday's copy.
             </li>
             <li>
-              <strong>Disaster recovery</strong> is your <strong>plan</strong> for getting back to normal: where the
-              backups are, how to restore them, how long it takes, and who does it.
+              <strong>Disaster recovery</strong> is your <strong>plan</strong> for getting back to normal. It says where
+              the backups are, how to restore them, how long it takes, and who does it.
             </li>
           </ul>
-          <p>Two questions define the plan:</p>
+          <p>Two questions shape the plan:</p>
           <ul>
             <li>
               <strong>RPO (Recovery Point Objective):</strong> "How much data can we afford to <strong>lose</strong>?"
-              If you back up every Sunday and lose your phone on Saturday, you lose almost a week of photos.
+              It is measured in time. If you back up every Sunday and lose your phone on Saturday, you lose almost a
+              week of photos.
             </li>
             <li>
-              <strong>RTO (Recovery Time Objective):</strong> "How long can we afford to be <strong>down</strong>?" How
-              long does it take to get a new phone and restore everything?
+              <strong>RTO (Recovery Time Objective):</strong> "How long can we afford to be <strong>down</strong>?" It is
+              also measured in time. How long does it take to get a new phone and restore everything?
             </li>
           </ul>
         </Section>
@@ -115,27 +121,33 @@ export default function SdLessonFourFivePage() {
           />
           <ul>
             <li>
-              <strong>RPO</strong> is measured <strong>backwards</strong> from the disaster: the maximum acceptable{" "}
-              <strong>data loss</strong>, as time.
+              <strong>RPO</strong> is measured <strong>backwards</strong> from the disaster. It is the most{" "}
+              <strong>data loss</strong> you accept, shown as a length of time.
               <ul>
                 <li>RPO = 24 hours: daily backups are enough.</li>
-                <li>RPO = 5 minutes: you need continuous log shipping or replication.</li>
-                <li>RPO ≈ 0: you need synchronous replication (and backups for logical errors).</li>
+                <li>
+                  RPO = 5 minutes: you need continuous log shipping (sending the database's change log to another
+                  place all the time) or replication.
+                </li>
+                <li>
+                  RPO ≈ 0: you need synchronous replication, where a write counts as done only after the copy has it
+                  (and you still need backups for logical errors, which means human or software mistakes).
+                </li>
               </ul>
             </li>
             <li>
-              <strong>RTO</strong> is measured <strong>forwards</strong>: the maximum acceptable{" "}
-              <strong>downtime</strong>.
+              <strong>RTO</strong> is measured <strong>forwards</strong> from the disaster. It is the longest{" "}
+              <strong>downtime</strong> you accept.
               <ul>
                 <li>RTO = 1 day: restoring from backups onto new servers is fine.</li>
-                <li>RTO = 15 minutes: you need a warm standby ready to take over.</li>
-                <li>RTO ≈ 0: you need active-active across regions.</li>
+                <li>RTO = 15 minutes: you need a warm standby (a smaller copy that is already running) ready to take over.</li>
+                <li>RTO ≈ 0: you need active-active across regions (all copies serve traffic all the time).</li>
               </ul>
             </li>
           </ul>
           <p>
-            <strong>Lower RPO and RTO cost more money and complexity.</strong> Set them <strong>per system</strong>,
-            based on business impact:
+            <strong>A lower RPO and RTO cost more money and add more complexity.</strong> Set them{" "}
+            <strong>for each system</strong>, based on the harm to the business:
           </p>
           <div className="table-wrap">
             <table>
@@ -188,7 +200,7 @@ export default function SdLessonFourFivePage() {
               <tbody>
                 <tr>
                   <td>Purpose</td>
-                  <td>Availability: survive machine/zone failure</td>
+                  <td>Availability: survive the failure of a machine or zone</td>
                   <td>
                     Recovery: go <strong>back in time</strong>
                   </td>
@@ -206,7 +218,7 @@ export default function SdLessonFourFivePage() {
                 <tr>
                   <td>Protects against corruption / ransomware</td>
                   <td>❌</td>
-                  <td>✅ (if isolated and immutable)</td>
+                  <td>✅ (if isolated and immutable, which means kept apart and never changeable)</td>
                 </tr>
                 <tr>
                   <td>Time to recover</td>
@@ -217,50 +229,57 @@ export default function SdLessonFourFivePage() {
             </table>
           </div>
           <p>
-            <strong>You need both.</strong>
+            <strong>You need both.</strong> Replication keeps the system running. Backups let you go back to an earlier
+            time.
           </p>
           <h3 id="types-of-backups">Types of backups</h3>
           <ul>
             <li>
-              <strong>Full backup:</strong> a complete copy of everything. Simple to restore, but slow and large.
+              <strong>Full backup:</strong> a complete copy of everything. It is simple to restore, but slow to make and
+              large.
             </li>
             <li>
               <strong>Incremental backup:</strong> only what changed <strong>since the last backup</strong> (of any
-              kind). Small and fast to take, but restoring needs the full backup <strong>plus every incremental</strong>{" "}
-              in the chain.
+              kind). It is small and fast to make. But to restore you need the full backup{" "}
+              <strong>plus every incremental</strong> in the chain.
             </li>
             <li>
-              <strong>Differential backup:</strong> everything changed <strong>since the last full backup</strong>.
-              Restoring needs the full backup plus the latest differential.
+              <strong>Differential backup:</strong> everything that changed <strong>since the last full backup</strong>.
+              To restore you need the full backup plus the latest differential. (Difference in one line: incremental
+              looks back to the last backup of any kind, differential looks back to the last full one.)
             </li>
             <li>
-              <strong>Snapshots:</strong> point-in-time copies of disks or volumes (cloud disk snapshots, file-system
-              snapshots). Fast, but check that they're <strong>consistent</strong> for databases (use the database's own
-              backup tools or freeze writes briefly).
+              <strong>Snapshots:</strong> copies of a disk or volume at one moment (cloud disk snapshots, file-system
+              snapshots). They are fast. For databases, check that they are <strong>consistent</strong>, which means
+              the data is not caught half-written. Use the database's own backup tools, or pause writes for a moment.
             </li>
             <li>
-              <strong>Logical backups:</strong> exports of data as SQL or other formats (like <code>pg_dump</code>).
-              Portable and good for small databases or single tables, but slow for large ones.
+              <strong>Logical backups:</strong> exports of the data as SQL or another format (like <code>pg_dump</code>).
+              They are portable and good for small databases or single tables, but slow for large ones.
             </li>
             <li>
-              <strong>Physical backups:</strong> copies of the database's files (like <code>pg_basebackup</code>). Fast
-              for large databases.
+              <strong>Physical backups:</strong> copies of the database's own files (like <code>pg_basebackup</code>).
+              They are fast for large databases.
             </li>
           </ul>
           <h3 id="point-in-time-recovery-pitr">Point-in-time recovery (PITR)</h3>
           <p>
-            Databases write every change to their <strong>write-ahead log</strong> (post 21). If you keep:
+            <strong>Point-in-time recovery (PITR)</strong> means restoring a database to an exact moment. Databases
+            write every change to their <strong>write-ahead log</strong> first (WAL, post 21). The WAL is a
+            record of all changes, in order. If you keep:
           </p>
           <ol>
             <li>
               a <strong>base backup</strong> (say, nightly), <strong>plus</strong>
             </li>
             <li>
-              <strong>every WAL file since then</strong> (continuous archiving, often to object storage),
+              <strong>every WAL file since then</strong> (continuous archiving, often to object storage, a service for
+              storing files),
             </li>
           </ol>
           <p>
-            then you can restore to <strong>any moment</strong>, for example{" "}
+            then you restore the base backup and replay the WAL (apply the changes again, in order). You can stop at{" "}
+            <strong>any moment</strong>, for example{" "}
             <strong>
               10:41:59, one second before the bad <code>DELETE</code> ran
             </strong>
@@ -277,10 +296,11 @@ export default function SdLessonFourFivePage() {
           />
           <p>
             PITR gives a very low RPO for logical mistakes. Managed databases (Amazon RDS, Cloud SQL, Azure Database)
-            offer it with a few clicks, usually for a retention window like 7–35 days.
+            offer it with a few clicks. You can only go back as far as the retention window (how long data is kept).
+            The window is set by you, often between 1 and 35 days, and the limits differ between services.
           </p>
           <h3 id="the-3-2-1-rule-and-beyond">The 3-2-1 rule (and beyond)</h3>
-          <p>A classic rule for safe backups:</p>
+          <p>A classic rule for safe backups is called 3-2-1:</p>
           <ul>
             <li>
               <strong>3</strong> copies of your data (the original plus 2 backups),
@@ -289,29 +309,31 @@ export default function SdLessonFourFivePage() {
               on <strong>2</strong> different types of storage or media,
             </li>
             <li>
-              with <strong>1</strong> copy <strong>off-site</strong> (another region, or another provider).
+              with <strong>1</strong> copy <strong>off-site</strong> (in another place, such as another region or another
+              provider).
             </li>
           </ul>
           <p>Modern additions, especially because of ransomware:</p>
           <ul>
             <li>
-              <strong>Immutable backups:</strong> backups that <strong>can't be changed or deleted</strong> for a set
-              period, even by administrators (for example, object-lock features in S3-compatible storage).
+              <strong>Immutable backups:</strong> backups that <strong>cannot be changed or deleted</strong> for a set
+              time, even by administrators. Example: the object lock feature in S3-compatible storage.
             </li>
             <li>
-              <strong>Isolated or "air-gapped" backups:</strong> stored in a separate account with different
-              credentials, so an attacker who breaks into production <strong>can't delete the backups too</strong>.
+              <strong>Isolated or "air-gapped" backups:</strong> kept in a separate account with different logins (air
+              gapped originally meant not connected to any network). An attacker who breaks into production{" "}
+              <strong>then cannot delete the backups too</strong>.
             </li>
             <li>
-              <strong>Encrypted backups</strong>, with keys managed carefully (Part 9). A backup you can't decrypt is
-              useless.
+              <strong>Encrypted backups</strong> (scrambled so only key holders can read them), with the keys managed
+              carefully (Part 9). A backup that you cannot decrypt is useless.
             </li>
           </ul>
           <Stats
             caption="The 3-2-1 rule, plus the modern additions ransomware made necessary."
             stats={[
               { value: <>3</>, label: <>copies</>, sub: <>the original + 2 backups</> },
-              { value: <>2</>, label: <>kinds of storage</>, sub: <>so one failure mode can't take both</> },
+              { value: <>2</>, label: <>kinds of storage</>, sub: <>so one kind of failure cannot take both</> },
               { value: <>1</>, label: <>off-site</>, sub: <>another region or provider</> },
               {
                 value: <>+</>,
@@ -323,24 +345,27 @@ export default function SdLessonFourFivePage() {
           <h3 id="other-protective-habits">Other protective habits</h3>
           <ul>
             <li>
-              <strong>Soft deletes:</strong> mark rows as deleted (<code>deleted_at</code>) instead of removing them
-              immediately, so they're easy to undo.
+              <strong>Soft deletes:</strong> mark rows as deleted (with a <code>deleted_at</code> column) instead of
+              removing them at once, so they are easy to undo.
             </li>
             <li>
-              <strong>Delayed replicas:</strong> a replica that deliberately stays, say, <strong>1 hour behind</strong>.
-              If a bad change happens, you can stop it before it catches up and recover quickly.
+              <strong>Delayed replicas:</strong> a replica that stays, on purpose, about <strong>1 hour behind</strong>.
+              If a bad change happens, you can stop the replica before the change reaches it, and recover quickly.
             </li>
             <li>
-              <strong>Audit logs:</strong> record who changed what and when, so you know <strong>what</strong> to
+              <strong>Audit logs:</strong> a record of who changed what and when, so you know <strong>what</strong> to
               restore.
             </li>
             <li>
-              <strong>Safe migrations:</strong> reviewed, tested scripts; backups taken right before risky changes; and
-              restricted direct production access.
+              <strong>Safe migrations</strong> (changes to the database structure): scripts that are reviewed and tested,
+              a backup taken right before a risky change, and limited direct access to production.
             </li>
           </ul>
           <h3 id="disaster-recovery-strategies">Disaster recovery strategies</h3>
-          <p>AWS describes four common DR strategies, from cheapest and slowest to most expensive and fastest:</p>
+          <p>
+            AWS describes four common DR strategies. They go from cheapest and slowest to most expensive and fastest.
+            A region is a cloud area, and a standby is a spare copy:
+          </p>
           <Compare
             caption="The four disaster-recovery strategies, cheapest and slowest first."
             columns={[
@@ -379,13 +404,14 @@ export default function SdLessonFourFivePage() {
             ]}
           />
           <p>
-            <strong>Infrastructure as code</strong> (Terraform, CloudFormation, Pulumi) makes the cheaper strategies
-            much faster, because you can rebuild whole environments from code instead of from memory.
+            <strong>Infrastructure as code</strong> means describing your servers and networks in code files. Tools are
+            Terraform, CloudFormation and Pulumi. It makes the cheaper strategies much faster, because you can rebuild
+            whole environments from code and not from memory.
           </p>
           <h3 id="test-your-restores">Test your restores</h3>
           <p>
-            <strong>A backup you've never restored is not a backup. It's a hope.</strong> Common failures found only
-            during a real emergency:
+            <strong>A backup that you have never restored is not a backup. It is only a hope.</strong> These are common
+            failures that people find only during a real emergency:
           </p>
           <ul>
             <li>backups were silently failing for months,</li>
@@ -393,28 +419,28 @@ export default function SdLessonFourFivePage() {
             <li>
               the restore takes <strong>12 hours</strong>, far beyond the RTO,
             </li>
-            <li>nobody knows the steps, or the only person who does is unavailable,</li>
-            <li>the encryption keys or credentials needed to restore are missing,</li>
+            <li>nobody knows the steps, or the only person who does is not available,</li>
+            <li>the encryption keys or logins needed to restore are missing,</li>
             <li>
-              the backup is fine, but the app can't start because of other missing pieces (secrets, DNS, configuration).
+              the backup is fine, but the app cannot start because other pieces are missing (secrets, DNS, settings).
             </li>
           </ul>
-          <p>Good practice:</p>
+          <p>Good habits:</p>
           <ul>
             <li>
-              <strong>automated restore tests</strong>, for example restoring last night's backup to a test environment
-              every day and running checks on it,
+              <strong>automatic restore tests</strong>. For example, restore last night's backup to a test environment
+              every day and run checks on it,
             </li>
             <li>
-              <strong>regular DR drills</strong>: actually fail over to the DR region, or rebuild from backups, and time
-              it,
+              <strong>regular DR drills</strong>: really switch to the DR region, or rebuild from backups, and measure
+              how long it takes,
             </li>
             <li>
-              <strong>monitor backups</strong>: alert on failed or missing backups, and on backups that are unexpectedly
-              small,
+              <strong>monitor backups</strong>: send an alert for failed or missing backups, and for backups that are
+              smaller than expected,
             </li>
             <li>
-              <strong>written runbooks</strong>, updated after every drill.
+              <strong>written runbooks</strong> (step-by-step guides), updated after every drill.
             </li>
           </ul>
         </Section>
@@ -422,24 +448,24 @@ export default function SdLessonFourFivePage() {
         <Section id="trade-offs" title="Trade-offs" kind="tradeoffs">
           <ul>
             <li>
-              <strong>Lower RPO:</strong> less data lost, but more frequent backups or continuous replication, and more
-              cost.
+              <strong>Lower RPO:</strong> less data is lost, but you need more frequent backups or continuous
+              replication, and it costs more.
             </li>
             <li>
-              <strong>Lower RTO:</strong> faster recovery, but standby infrastructure running all the time, and more
-              complexity.
+              <strong>Lower RTO:</strong> faster recovery, but standby systems must run all the time, and it is more
+              complex.
             </li>
             <li>
-              <strong>Multi-site active-active:</strong> near-zero downtime, but the highest cost, plus hard data
-              consistency problems (posts 24, 27–28).
+              <strong>Multi-site active-active:</strong> almost no downtime, but the highest cost, and hard problems with
+              keeping data consistent (posts 24, 27–28).
             </li>
             <li>
-              <strong>Long retention:</strong> you can recover from old corruption, but it costs more storage, and there
-              are privacy and compliance issues with keeping personal data for a long time.
+              <strong>Long retention:</strong> you can recover from old corruption, but it costs more storage. There are
+              also privacy and legal rules (compliance) about keeping personal data for a long time.
             </li>
             <li>
-              <strong>Immutable, isolated backups:</strong> strong protection from ransomware and mistakes, but more
-              careful management of accounts, keys and lifecycle rules.
+              <strong>Immutable, isolated backups:</strong> strong protection from ransomware and mistakes, but you must
+              manage accounts, keys and lifecycle rules (rules for how long to keep data) with more care.
             </li>
           </ul>
         </Section>
@@ -447,37 +473,37 @@ export default function SdLessonFourFivePage() {
         <Section id="in-the-real-world" title="In the Real World" kind="real">
           <p>
             <strong>GitLab (2017).</strong> During a stressful incident, an engineer accidentally deleted data from
-            GitLab's primary production database. The team then discovered that{" "}
-            <strong>several of their backup methods weren't working</strong> as expected. They eventually restored from
-            a copy that was about <strong>six hours old</strong>, losing some data. GitLab live-streamed the recovery
-            and published a very open postmortem. It's now a classic lesson:{" "}
-            <strong>test your backups and restores</strong>.
+            GitLab's primary production database. The team then found that{" "}
+            <strong>several of their backup methods were not working</strong> as expected. They finally restored from
+            a copy that was about <strong>six hours old</strong>, so some data was lost. GitLab live-streamed the
+            recovery and published a very open postmortem (a report written after an incident). It is now a classic
+            lesson: <strong>test your backups and restores</strong>.
           </p>
           <p>
             <strong>The OVHcloud data-centre fire (2021).</strong> A fire destroyed one of OVHcloud's data centres in
-            Strasbourg, France, and damaged another. Customers whose backups were stored{" "}
-            <strong>in the same location</strong> as their servers lost data permanently. Those with{" "}
-            <strong>off-site</strong> backups could recover. It's the 3-2-1 rule proven the hard way.
+            Strasbourg, France, and damaged another. Customers whose backups were kept{" "}
+            <strong>in the same place</strong> as their servers lost data for good. Customers with{" "}
+            <strong>off-site</strong> backups could recover. It shows the 3-2-1 rule in the hardest way.
           </p>
           <p>
-            <strong>Code Spaces (2014).</strong> An attacker gained access to the company's cloud account and{" "}
+            <strong>Code Spaces (2014).</strong> An attacker got into the company's cloud account and{" "}
             <strong>deleted its servers, data and backups</strong>, which were all in the same account. The company shut
-            down. It's the reason modern advice insists on <strong>isolated, immutable backups</strong> with separate
-            credentials.
+            down. This is why modern advice insists on <strong>isolated, immutable backups</strong> with separate
+            logins.
           </p>
           <p>
             <strong>
               Pixar and <em>Toy Story 2</em>.
             </strong>{" "}
-            In a famous story, a mistaken command started deleting the files for <em>Toy Story 2</em> during production,
-            and the backups turned out to be faulty. The film was saved because a technical director had a{" "}
-            <strong>copy on her home computer</strong>. It's a lucky off-site backup, and a reminder not to rely on
+            In a famous story, a wrong command started deleting the files for <em>Toy Story 2</em> while the film was
+            being made, and the backups turned out to be faulty. The film was saved because a technical director had a{" "}
+            <strong>copy on her home computer</strong>. It was a lucky off-site backup, and a reminder not to count on
             luck.
           </p>
           <p>
-            <strong>Managed database PITR.</strong> Cloud database services make point-in-time recovery standard. Many
-            teams have recovered from accidental deletes by restoring a copy of the database to "five minutes before the
-            mistake" and then copying back only the affected rows.
+            <strong>Managed database PITR.</strong> Cloud database services make point-in-time recovery a standard feature. Many
+            teams have recovered from accidental deletes. They restored a copy of the database to "five minutes before
+            the mistake" and then copied back only the affected rows.
           </p>
         </Section>
 
@@ -489,9 +515,9 @@ export default function SdLessonFourFivePage() {
                 a: (
                   <>
                     <p>
-                      Replication copies every change — including accidental deletes, bad migrations, corruption and
-                      ransomware encryption — to every replica within milliseconds. It protects against hardware and
-                      zone failure, not against logical mistakes. Only a backup lets you go back in time.
+                      Replication copies every change to every replica within milliseconds. This includes accidental
+                      deletes, bad migrations, corruption and ransomware encryption. It protects against hardware and
+                      zone failure, but not against logical mistakes. Only a backup lets you go back in time.
                     </p>
                   </>
                 ),
@@ -501,9 +527,9 @@ export default function SdLessonFourFivePage() {
                 a: (
                   <>
                     <p>
-                      RPO (recovery point objective) is the maximum acceptable data loss, measured backwards from the
-                      disaster. RTO (recovery time objective) is the maximum acceptable downtime until service is
-                      restored. Lower values need more frequent backups or replication, and standby capacity.
+                      RPO (recovery point objective) is the most data loss you accept, measured backwards from the
+                      disaster. RTO (recovery time objective) is the longest downtime you accept, until the service is
+                      back. Lower values need more frequent backups or replication, and standby capacity.
                     </p>
                   </>
                 ),
@@ -513,9 +539,9 @@ export default function SdLessonFourFivePage() {
                 a: (
                   <>
                     <p>
-                      Take periodic base backups and continuously archive the write-ahead log. To recover, restore the
-                      base backup and replay the WAL up to a chosen moment — for example one second before the bad
-                      statement ran.
+                      Take base backups on a schedule and keep archiving the write-ahead log all the time. To recover,
+                      restore the base backup and replay the WAL up to a chosen moment, for example one second before the
+                      bad statement ran.
                     </p>
                   </>
                 ),
@@ -525,9 +551,9 @@ export default function SdLessonFourFivePage() {
                 a: (
                   <>
                     <p>
-                      Store them immutably (object lock or WORM retention) in a separate, isolated account with
-                      different credentials, encrypted with carefully managed keys, and off-site — so an attacker who
-                      owns production can't delete or encrypt them too.
+                      Store them as immutable (object lock or WORM, which means write once, read many) in a separate,
+                      isolated account with different logins. Encrypt them with carefully managed keys and keep a copy
+                      off-site. Then an attacker who controls production cannot delete or encrypt them too.
                     </p>
                   </>
                 ),
@@ -537,9 +563,9 @@ export default function SdLessonFourFivePage() {
                 a: (
                   <>
                     <p>
-                      Restore them, automatically and regularly — for example, restore last night's backup into a test
-                      environment every day and run checks — and alert on missing, failed or suspiciously small backups.
-                      Time full DR drills against your RTO.
+                      Restore them, automatically and regularly. For example, restore last night's backup into a test
+                      environment every day and run checks. Send alerts for missing, failed or suspiciously small
+                      backups. Time full DR drills and compare with your RTO.
                     </p>
                   </>
                 ),
@@ -549,9 +575,9 @@ export default function SdLessonFourFivePage() {
                 a: (
                   <>
                     <p>
-                      Close to zero RPO and minutes of RTO: synchronous or near-synchronous cross-zone replication, a
-                      warm standby or active-active in another region, plus point-in-time backups for logical errors —
-                      with regular failover drills.
+                      Aim for an RPO close to zero and an RTO of minutes. Use synchronous or near-synchronous
+                      replication across zones, and a warm standby or active-active in another region. Add
+                      point-in-time backups for logical errors, and run failover drills regularly.
                     </p>
                   </>
                 ),
