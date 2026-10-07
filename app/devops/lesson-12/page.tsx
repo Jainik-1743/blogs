@@ -37,31 +37,31 @@ const outline = [
 ];
 
 const stateless: [string, string, string][] = [
-  ["User sessions in server memory", "Server B does not know the user logged in on server A", "Signed cookie/JWT, or Redis (Lesson 16)"],
+  ["User sessions in server memory", "Server B does not know that the user logged in on server A", "Signed cookie or JWT (a JSON Web Token: a small signed piece of text that holds the login proof, kept in the browser), or Redis (Lesson 16)"],
   ["Uploaded files on local disk", "Only one server has the file", "S3 (Lesson 11)"],
   ["Data in a local database or SQLite file", "Each server has different data", "RDS (Lesson 8)"],
-  ["In-memory cache or counters", "Each server has its own copy; results differ", "Redis, or accept per-server caches for non-critical data"],
-  ["Cron jobs / setInterval in the app", "With N servers the job runs N times", "One scheduler (EventBridge, a single worker) — never in the web tier"],
-  ["Config or secrets in a file edited by hand", "New servers start without it", "SSM Parameter Store / Secrets Manager, read at boot"],
-  ["Sticky assumptions like “the same server next time”", "The load balancer is free to pick any server", "Design every request to work anywhere"],
+  ["In-memory cache or counters", "Each server has its own copy, so answers differ", "Redis (a fast data store that many servers can share), or accept a separate cache on each server for data that is not critical"],
+  ["Cron jobs / setInterval in the app (a cron job is a task that runs on a timer, for example every night)", "With N servers, the job runs N times", "Use one scheduler (EventBridge is an AWS service that starts tasks on a schedule), or a single worker. Never run it in the web servers"],
+  ["Settings or secrets in a file that you edit by hand", "New servers start without that file", "SSM Parameter Store or Secrets Manager (AWS services that keep settings and secrets safe), read when the server boots"],
+  ["Sticky assumptions like “the same server next time”", "The load balancer may pick any server", "Make every request work on any server"],
 ];
 
 const lbTypes: [string, string, string][] = [
-  ["ALB (Application)", "Layer 7: understands HTTP. Routes by host, path, header; TLS; WebSockets; redirects", "Web apps and APIs — our choice"],
-  ["NLB (Network)", "Layer 4: raw TCP/UDP, millions of connections, fixed IPs, ultra-low latency", "Databases, gaming, non-HTTP protocols, static IP needs"],
-  ["Gateway LB", "Layer 3: sends traffic through firewall/inspection appliances", "Security appliances (rare)"],
-  ["Classic LB", "The legacy predecessor of ALB and NLB", "Do not use for new work"],
+  ["ALB (Application)", "Layer 7 (the application layer): understands HTTP. Routes by host name, path or header. Also handles TLS, WebSockets and redirects", "Web apps and APIs — our choice"],
+  ["NLB (Network)", "Layer 4 (the transport layer): passes raw TCP/UDP traffic (TCP and UDP are the two basic ways to send data over a network). Handles millions of connections, gives fixed IPs, and adds very little delay", "Databases, games, protocols that are not HTTP, or when you need a fixed IP"],
+  ["Gateway LB", "Layer 3 (the network layer): sends traffic through firewall or inspection appliances", "Security appliances (rare)"],
+  ["Classic LB", "The old load balancer that came before ALB and NLB", "Do not use for new work"],
 ];
 
 const trouble: [string, string, string][] = [
-  ["Targets show “unhealthy” in the target group", "Health-check path returns non-200, wrong port, web-sg does not allow ALB, or the app is still booting", "Read the reason in the target's Health status details. curl the path from the instance itself. Check web-sg allows 80 from alb-sg"],
-  ["502 Bad Gateway from the ALB", "Target closed the connection early (keep-alive timeout shorter than the ALB idle timeout) or crashed mid-request", "Set Node keepAliveTimeout above 60 s (see common pitfalls). Check app logs at that time"],
-  ["503 Service Unavailable", "The target group has no healthy targets", "Fix health checks; check the ASG actually launched instances (Activity history)"],
-  ["504 Gateway Timeout", "The app took longer than the ALB idle timeout (60 s default)", "Find the slow endpoint; move long work to a background job"],
-  ["Instances are launched and terminated in a loop", "They fail the health check before the app is ready, so the ASG kills them", "Increase --health-check-grace-period beyond boot time; read /var/log/cloud-init-output.log"],
-  ["Scaling never triggers", "Metric not moving, policy attached to the wrong metric, max-size already reached, or the group is in warmup", "Check the alarm state in CloudWatch and the group’s Max"],
-  ["Users get logged out randomly", "Sessions stored in server memory; the ALB switches servers", "Move sessions to a cookie/JWT or Redis. Sticky sessions only as a stopgap"],
-  ["Some users see old code, some new", "A rolling deploy is in progress, or one server missed the update", "Deploy through instance refresh so all servers converge; tag images by SHA"],
+  ["Targets show “unhealthy” in the target group", "The health-check path does not return 200, the port is wrong, web-sg does not allow the ALB, or the app is still starting", "Read the reason in the target's Health status details. Run curl on the path from the instance itself. Check that web-sg allows port 80 from alb-sg. If every target is unhealthy, the ALB still sends traffic to all of them (this is called fail-open)"],
+  ["502 Bad Gateway from the ALB", "The server closed the connection early (its keep-alive timeout is shorter than the ALB idle timeout), or it crashed during a request", "Set the Node keepAliveTimeout above 60 s (see the common pitfalls). Check the app logs for that time"],
+  ["503 Service Unavailable", "The target group has no registered targets, for example because the Auto Scaling group has 0 servers", "Check that the ASG launched instances (see Activity history) and that it is attached to the target group"],
+  ["504 Gateway Timeout", "The app took longer than the ALB idle timeout (60 s by default)", "Find the slow endpoint. Move long work to a background job"],
+  ["Instances are launched and terminated in a loop", "They fail the health check before the app is ready, so the ASG removes them", "Raise --health-check-grace-period above the boot time. Read /var/log/cloud-init-output.log"],
+  ["Scaling never triggers", "The metric is not moving, the policy uses the wrong metric, max-size is already reached, or the group is still in warm-up", "Check the alarm state in CloudWatch and the group’s Max"],
+  ["Users get logged out randomly", "Sessions are stored in server memory, and the ALB sends the user to another server", "Move sessions to a cookie/JWT or to Redis. Use sticky sessions only as a short-term fix"],
+  ["Some users see old code, some new", "A rolling deploy is still running, or one server missed the update", "Deploy with an instance refresh so all servers end up on the same version. Tag images with the commit SHA"],
 ];
 
 export default function LessonTwelvePage() {
@@ -76,22 +76,23 @@ export default function LessonTwelvePage() {
         </p>
         <ul>
           <li>
-            An <strong>Application Load Balancer (ALB)</strong> gives users one stable address and
-            spreads their requests across many identical servers, sending traffic only to servers
-            that are healthy.
+            An <strong>Application Load Balancer (ALB)</strong> is an AWS service that gives users one
+            stable address. It shares their requests across many identical servers. It sends
+            traffic only to servers that are healthy.
           </li>
           <li>
-            <strong>Auto Scaling</strong> decides <em>how many</em> servers exist: it launches more
-            when traffic rises, replaces any that fail, and removes extras when the rush is over.
+            <strong>Auto Scaling</strong> is an AWS service that decides <em>how many</em> servers
+            exist. It starts more servers when traffic rises. It replaces servers that fail. It
+            removes extra servers when the busy time is over.
           </li>
         </ul>
         <Callout kind="note" label="The analogy — a restaurant on a busy night">
           <p className="mb-0">
-            The <strong>ALB is the host at the door</strong>: greets everyone, sends each party to a
-            table that is free, and never seats anyone at a table that has a broken leg (health
-            check). <strong>Auto Scaling is the manager</strong> who calls in more waiters when the
-            queue grows and sends them home when it is quiet. The customers only ever see one
-            restaurant.
+            The <strong>ALB is the host at the door</strong>. The host greets everyone and sends each
+            group to a free table. The host never seats anyone at a table with a broken leg (that is
+            the health check). <strong>Auto Scaling is the manager</strong>. The manager calls in
+            more waiters when the queue grows and sends them home when it is quiet. The customers
+            only ever see one restaurant.
           </p>
         </Callout>
         <ScalingFlow />
@@ -99,34 +100,37 @@ export default function LessonTwelvePage() {
         <h2 id="why-this-matters">Why one server is not enough</h2>
         <ul>
           <li>
-            <strong>Capacity ceiling.</strong> A t3.small has 2 CPU cores. Past a point, more
-            requests just queue and slow down, and then time out.
+            <strong>A limit on capacity.</strong> A t3.small has 2 vCPUs (virtual CPU cores). After a
+            certain point, extra requests only wait in line, slow down, and then time out.
           </li>
           <li>
-            <strong>Single point of failure.</strong> One server means one crash, one bad deploy, one
-            reboot for patching — and the whole site is down.
+            <strong>A single point of failure.</strong> This means one part that stops everything when
+            it breaks. With one server, one crash, one bad deploy or one reboot for updates takes the
+            whole site down.
           </li>
           <li>
-            <strong>Deploys cause downtime.</strong> With one server there is nowhere to send users
-            while you restart it.
+            <strong>Deploys cause downtime.</strong> With one server, users have nowhere to go while
+            you restart it.
           </li>
           <li>
-            <strong>You pay for the peak, all month.</strong> A server large enough for the busiest
-            hour sits idle the other 23. Elastic capacity charges for what you use.
+            <strong>You pay for the peak all month.</strong> A server big enough for the busiest hour
+            sits idle for the other 23 hours. Elastic capacity (capacity that grows and shrinks)
+            charges you only for what you use.
           </li>
         </ul>
         <p>
-          This is the moment the AWS-vs-Vercel comparison from Lesson 0 pays off: Vercel scaled your
-          app invisibly. You are now building the same behaviour on purpose, with every part
-          visible and every part tunable.
+          Now the comparison between AWS and Vercel from Lesson 0 becomes real. Vercel scaled your app
+          for you, out of sight. You are now building the same behaviour yourself. You can see
+          every part and change every part.
         </p>
 
         <h2 id="stateless">The prerequisite: stateless servers</h2>
         <p>
-          Load balancing has one iron requirement: <strong>any request may go to any server</strong>.
-          If a server remembers something the others do not, users will hit intermittent, maddening
-          bugs. Lessons 8 and 11 removed the two biggest sources (database and files). Audit the
-          rest before you scale:
+          Load balancing has one strict rule: <strong>any request may go to any server</strong>. A{" "}
+          <strong>stateless</strong> server keeps no data of its own between requests. If a server
+          remembers something that the other servers do not, users get random bugs that are hard to
+          find. Lessons 8 and 11 removed the two biggest causes (the database and the files). Check
+          the rest before you scale:
         </p>
         <StatelessDiagram />
         <div className="table-wrap">
@@ -151,27 +155,30 @@ export default function LessonTwelvePage() {
         </div>
         <Callout kind="warn" label="Scaling a stateful app multiplies bugs, not capacity">
           <p className="mb-0">
-            The most common failure of &ldquo;we added a second server&rdquo; is users being logged
-            out on every other click. Do this audit <em>first</em>. It is far cheaper than debugging
-            it in production.
+            The most common failure after &ldquo;we added a second server&rdquo; is that users are
+            logged out on every other click. Do this check <em>first</em>. It is much cheaper than
+            debugging in production.
           </p>
         </Callout>
 
         <h2 id="numbers">What does &ldquo;1000 concurrent users&rdquo; actually mean</h2>
         <p>
-          The lesson title promises 1000+ concurrent users. Before buying anything, understand what
-          that number does and does not tell you. <strong>Concurrent users are not requests per
-          second.</strong> A person spends most of their time reading, not clicking.
+          The lesson title promises 1000+ concurrent users. Before you buy anything, learn what that
+          number means. &ldquo;Concurrent users&rdquo; are people who use the site at the same time.
+          A <strong>request</strong> is one call from a browser to your server.{" "}
+          <strong>Concurrent users are not requests per second.</strong> A person spends most of the
+          time reading, not clicking.
         </p>
         <Callout kind="note" label="The back-of-envelope formula">
           <p className="mb-0">
-            <strong>requests per second ≈ concurrent users ÷ seconds between actions.</strong> 1,000
-            users who each do something every 10 seconds ≈ <strong>100 requests/second</strong>. If
-            each does something every 3 seconds, ≈ 330 requests/second. A page load is several
-            requests (HTML, API calls, assets) — but with a CDN, assets never reach your servers.
+            <strong>requests per second ≈ concurrent users ÷ seconds between actions.</strong> If 1,000
+            users each do something every 10 seconds, that is about{" "}
+            <strong>100 requests per second</strong>. If each does something every 3 seconds, it is
+            about 330 requests per second. One page load is several requests (HTML, API calls,
+            files). But with a CDN, the files never reach your servers.
           </p>
         </Callout>
-        <p>Then ask how many requests one server can handle:</p>
+        <p>Next, ask how many requests one server can handle:</p>
         <div className="table-wrap">
           <table>
             <thead>
@@ -188,17 +195,27 @@ export default function LessonTwelvePage() {
           </table>
         </div>
         <p>
-          These are wide ranges on purpose: <strong>you must measure your own app</strong> (see the
-          load-test section). With a mid-range app doing ~60 req/s per vCPU, a t3.small (2 vCPU) is
-          about 120 req/s, so 1,000 casual users need <strong>2–3 servers</strong> and you want
-          headroom for spikes and for losing one. That is why the group has a minimum of{" "}
-          <strong>2</strong> (one per Availability Zone) and a maximum of 6.
+          These ranges are wide on purpose. <strong>You must measure your own app</strong> (see the
+          load-test section). Say your app does about 60 requests per second per vCPU. Then a
+          t3.small (2 vCPUs) handles about 120 requests per second. 1,000 casual users send about
+          100 requests per second. That is close to the limit of one server. You also need extra room
+          for spikes and for the loss of one server, so you need <strong>2–3 servers</strong>. That
+          is why the group has a minimum of <strong>2</strong> (one in each Availability Zone, or AZ:
+          a separate group of data centres inside a region) and a maximum of 6.
+        </p>
+        <p>
+          One more warning about t3 servers. They are <em>burstable</em>. They can use more than
+          their normal CPU share only while they have CPU credits. Under steady heavy load the
+          credits run out. Then the server slows down, or (in the default &ldquo;unlimited&rdquo;
+          mode) AWS charges extra. For steady heavy load, test a non-burstable type such as m7i.
         </p>
         <Callout kind="warn" label="The database usually breaks first">
           <p className="mb-0">
-            Six servers with a pool of 10 each is 60 database connections; RDS on a small instance
-            allows about 100 (Lesson 8). When you scale the web tier, do the connection arithmetic
-            for the database tier <em>at the maximum</em> server count, or consider RDS Proxy.
+            A connection pool is a set of ready database connections that a server reuses. Six
+            servers with a pool of 10 each use 60 database connections. A small RDS instance allows
+            about 100 (Lesson 8). When you scale the web servers, work out the connection count{" "}
+            <em>at the maximum</em> number of servers. You can also use RDS Proxy, an AWS service
+            that shares database connections for you.
           </p>
         </Callout>
 
@@ -215,7 +232,7 @@ export default function LessonTwelvePage() {
             <tbody>
               <tr>
                 <td><strong>Load balancer</strong></td>
-                <td>The public entry point. Lives in at least two public subnets in two AZs. Gets a DNS name, not a fixed IP.</td>
+                <td>The public entry point. It lives in at least two public subnets (parts of your network that the internet can reach) in two AZs. It gets a DNS name, not a fixed IP.</td>
                 <td><code>myapp-alb</code></td>
               </tr>
               <tr>
@@ -230,24 +247,29 @@ export default function LessonTwelvePage() {
               </tr>
               <tr>
                 <td><strong>Target group</strong></td>
-                <td>The pool of servers that share the work, plus how to health-check them.</td>
+                <td>The group of servers that share the work, plus the rules for checking their health.</td>
                 <td><code>myapp-tg</code>, port 80</td>
               </tr>
               <tr>
                 <td><strong>Health check</strong></td>
-                <td>The ALB requests a path every few seconds; only servers that answer 200 receive traffic.</td>
+                <td>The ALB asks for a path every few seconds. Only servers that answer 200 (&ldquo;OK&rdquo;) receive traffic.</td>
                 <td><code>GET /api/health</code></td>
               </tr>
             </tbody>
           </table>
         </div>
         <p>
-          <strong>Rules make one ALB serve many apps.</strong> Host-based:{" "}
-          <code>api.yourapp.com</code> → API target group, <code>yourapp.com</code> → web target
-          group. Path-based: <code>/api/*</code> → one group, everything else → another. This is how
-          a single $20 load balancer replaces several.
+          <strong>Rules let one ALB serve many apps.</strong> A host-based rule looks at the domain
+          name: <code>api.yourapp.com</code> goes to the API target group, and{" "}
+          <code>yourapp.com</code> goes to the web target group. A path-based rule looks at the URL
+          path: <code>/api/*</code> goes to one group and everything else goes to another. This way,
+          one load balancer (about $20 a month) does the work of several.
         </p>
-        <h3>Which load balancer?</h3>
+                <h3>Which load balancer?</h3>
+        <p>
+          AWS has four types. The &ldquo;layer&rdquo; is a level in the network model. A layer 7
+          balancer can read web requests. A layer 4 balancer only sees connections (TCP or UDP).
+        </p>
         <div className="table-wrap">
           <table>
             <thead>
@@ -270,126 +292,134 @@ export default function LessonTwelvePage() {
         </div>
         <Callout kind="ok" label="TLS moves to the ALB">
           <p className="mb-0">
-            The ALB terminates HTTPS using a <strong>free ACM certificate</strong> that AWS renews
-            for you. So the servers behind it no longer need Certbot or port 443; they speak plain
-            HTTP on port 80 inside the VPC. This is the payoff of Lesson 4&apos;s &ldquo;ACM&rdquo;
-            mention.
+            The ALB ends the HTTPS connection (TLS is the protocol that encrypts HTTPS traffic). It uses a{" "}
+            <strong>free ACM certificate</strong> that AWS renews for you. So the servers behind it
+            no longer need Certbot or port 443. They speak plain HTTP on port 80 inside the VPC.
+            This is the reward for learning about ACM in Lesson 4.
           </p>
         </Callout>
 
         <h2 id="auto-scaling">How Auto Scaling works: template, group, policy</h2>
-        <p>Three objects, in this order of dependence:</p>
+        <p>There are three parts. Each one builds on the one before:</p>
         <ol>
           <li>
-            <strong>Launch template</strong> — the recipe for one server: AMI, instance type, key,
-            Security Group, IAM profile, and a <strong>user-data</strong> script that runs on first
-            boot. Versioned, so you can change it and roll back.
+            <strong>Launch template</strong> is a saved recipe for one server. It holds the AMI (a saved
+            copy of a server disk with the operating system), the instance type (the size), the key,
+            the Security Group, the IAM profile (the permissions the server gets), and a <strong>user-data</strong> script that runs
+            on the first boot. It has versions, so you can change it and go back to an older
+            one.
           </li>
           <li>
-            <strong>Auto Scaling Group (ASG)</strong> — &ldquo;keep between <em>min</em> and{" "}
-            <em>max</em> servers from this template, spread across these subnets, registered in this
-            target group.&rdquo; It replaces failed instances automatically.
+            <strong>Auto Scaling Group (ASG)</strong> is a group that follows this rule: &ldquo;keep
+            between <em>min</em> and <em>max</em> servers from this template, spread across these
+            subnets, and registered in this target group.&rdquo; It replaces failed servers
+            automatically.
           </li>
           <li>
-            <strong>Scaling policy</strong> — the rule that moves the desired count between min and
-            max, e.g. &ldquo;keep average CPU near 50%&rdquo;.
+            <strong>Scaling policy</strong> is the rule that moves the wanted number of servers between
+            min and max. For example: &ldquo;keep the average CPU near 50%&rdquo;.
           </li>
         </ol>
         <Callout kind="note" label="Pets vs cattle">
           <p className="mb-0">
-            The lesson-7 server was a <em>pet</em>: named, hand-tended, irreplaceable. ASG instances
-            are <em>cattle</em>: identical, numbered, and replaced (never repaired) when sick. The
-            user-data script is what makes replacement instant — a new server must become fully
-            ready with <strong>zero human steps</strong>. That is the whole reason Lessons 9 and 11
-            came first.
+            The server in Lesson 7 was a <em>pet</em>. It had a name, you cared for it by hand, and you
+            could not replace it. ASG servers are <em>cattle</em>. They are all the same, they have
+            numbers, and when one is sick you replace it instead of repairing it. The user-data
+            script makes the replacement fast. A new server must get fully ready with{" "}
+            <strong>zero human steps</strong>. This is the reason Lessons 9 and 11 came first.
           </p>
         </Callout>
 
         <h2 id="build">Build it, step by step</h2>
         <p>
-          You need the network from Lesson 6, an image in ECR (Lesson 9) and a domain (Lesson 3).
-          Each step is one console screen; the table under each step lists the only fields that
-          matter.
+          You need the network from Lesson 6, an image in ECR (the AWS store for Docker images, Lesson 9)
+          and a domain (Lesson 3). Each step is one console screen. We only mention the fields
+          that matter.
         </p>
         <ol className="steps">
           <li>
             <h3>Request the HTTPS certificate</h3>
             <p>
-              ACM (in <code>ap-south-1</code>, the ALB&apos;s region) → Request a public
-              certificate for <code>yourapp.com</code> <strong>and</strong>{" "}
-              <code>*.yourapp.com</code>, validated by DNS. Click &ldquo;Create records in Route
-              53&rdquo; and it is issued in a few minutes. The wildcard covers every tenant
-              subdomain; the apex is listed separately because <code>*.yourapp.com</code> does not
-              match <code>yourapp.com</code> itself.
+              Open ACM (AWS Certificate Manager) in <code>ap-south-1</code>, the ALB&apos;s region. Request
+              a public certificate for <code>yourapp.com</code> <strong>and</strong>{" "}
+              <code>*.yourapp.com</code>. Choose DNS validation. This means you prove that you own the
+              domain by adding a DNS record. Click &ldquo;Create records in Route 53&rdquo;, and the
+              certificate is ready in a few minutes. The wildcard covers every tenant subdomain. The
+              bare domain is listed on its own, because <code>*.yourapp.com</code> does not match{" "}
+              <code>yourapp.com</code> itself.
             </p>
           </li>
           <li>
             <h3>Create the target group (the pool)</h3>
             <p>
-              EC2 → Target groups → Create: type <em>Instances</em>, HTTP port 80, the{" "}
-              <code>myapp</code> VPC. Health check path <code>/api/health</code>, interval 15 s,
-              healthy after 2 passes, unhealthy after 3. Register no targets — Auto Scaling will do
-              it. Afterwards, under Attributes, lower the <strong>deregistration delay</strong> from
-              300 to 30 seconds so a server being removed only waits for in-flight requests.
+              Go to EC2 → Target groups → Create. Choose type <em>Instances</em>, HTTP port 80, and the{" "}
+              <code>myapp</code> VPC. Set the health check path to <code>/api/health</code>, the
+              interval to 15 s, healthy after 2 passes, and unhealthy after 3 failures. Do not
+              register any targets. Auto Scaling will do that. Then, under Attributes, lower the{" "}
+              <strong>deregistration delay</strong> from 300 to 30 seconds. This is how long the ALB
+              waits for requests that are still running on a server before it removes the server.
             </p>
           </li>
           <li>
             <h3>Create the load balancer and its listeners</h3>
             <p>
-              EC2 → Load balancers → Application Load Balancer: internet-facing, the two{" "}
-              <strong>public</strong> subnets, security group <code>alb-sg</code>. Two listeners:
+              Go to EC2 → Load balancers → Application Load Balancer. Choose internet-facing, the two{" "}
+              <strong>public</strong> subnets, and the security group <code>alb-sg</code>. Add two
+              listeners:
             </p>
             <ul>
               <li>
-                <strong>HTTPS 443</strong> → forward to <code>myapp-tg</code>, with the ACM
-                certificate. TLS ends here.
+                <strong>HTTPS 443</strong>: forward to <code>myapp-tg</code>, with the ACM
+                certificate. The encryption ends here.
               </li>
               <li>
-                <strong>HTTP 80</strong> → redirect to HTTPS 443 (301).
+                <strong>HTTP 80</strong>: redirect to HTTPS 443 (a 301 &ldquo;moved permanently&rdquo; answer).
               </li>
             </ul>
             <p>
-              <code>alb-sg</code> (Lesson 6) already accepts 80 and 443 from the world, and{" "}
-              <code>web-sg</code> accepts 80 <em>only from alb-sg</em>. The public can no longer
-              reach a server directly. Remove the temporary <code>0.0.0.0/0</code> port 80 and 443
-              rules on <code>web-sg</code> that Lesson 10 added.
+              <code>alb-sg</code> (Lesson 6) already accepts ports 80 and 443 from everyone. <code>web-sg</code>{" "}
+              accepts port 80 <em>only from alb-sg</em>. So the public can no longer reach a server
+              directly. Remove the temporary <code>0.0.0.0/0</code> rules for ports 80 and 443 on{" "}
+              <code>web-sg</code> that Lesson 10 added.
             </p>
           </li>
           <li>
             <h3>Store the deploy settings where new servers can read them</h3>
             <p>
-              A server launched at 3 a.m. by Auto Scaling has no human to tell it which image to
-              run. It reads that from <strong>SSM Parameter Store</strong> (free for standard
-              parameters). Create two:
+              A server that Auto Scaling starts at 3 a.m. has no human to tell it which image to run. It
+              reads this from <strong>SSM Parameter Store</strong>. This is an AWS service that stores
+              settings and secrets as named values. It is free for standard parameters. Create two:
             </p>
             <ul>
-              <li><code>/myapp/image-tag</code> — a plain String: the commit SHA to run, e.g. <code>a1b2c3d</code>.</li>
+              <li><code>/myapp/image-tag</code> is a plain String. It holds the commit SHA (the short ID of a Git commit) to run, for example <code>a1b2c3d</code>.</li>
               <li>
-                <code>/myapp/env</code> — a <strong>SecureString</strong> (encrypted): the whole
-                production env file, <code>DATABASE_URL</code> and all, plus{" "}
+                <code>/myapp/env</code> is a <strong>SecureString</strong> (it is stored encrypted). It
+                holds the whole production env file, including <code>DATABASE_URL</code>, plus{" "}
                 <code>KEEP_ALIVE_TIMEOUT=65000</code> (see the common pitfalls below).
               </li>
             </ul>
             <p>
-              Then give <code>myapp-ec2-role</code> permission to read <code>/myapp/*</code>{" "}
-              parameters and pull from the <code>myapp</code> ECR repository — the AWS-managed{" "}
-              <code>AmazonEC2ContainerRegistryReadOnly</code> policy plus a small inline policy
-              allowing <code>ssm:GetParameter</code> on that path.
+              Then give <code>myapp-ec2-role</code> permission to read the <code>/myapp/*</code>{" "}
+              parameters and to pull from the <code>myapp</code> ECR repository. Use the AWS-managed{" "}
+              <code>AmazonEC2ContainerRegistryReadOnly</code> policy, plus a small inline policy that
+              allows <code>ssm:GetParameter</code> on that path. Because the parameter is encrypted,
+              the role also needs permission to decrypt it with its KMS key (KMS is the AWS Key Management Service, which holds encryption keys; the default AWS-managed
+              key needs no extra rule).
             </p>
           </li>
           <li>
             <h3>Write the user-data script — the boot recipe</h3>
             <p>
-              <strong>User data</strong> is a script that runs once, as root, the first time a
-              server boots. It is how a brand-new machine turns itself into one of your app
-              servers with nobody logged in:
+              <strong>User data</strong> is a script that runs once, as the root user, the first time a
+              server boots. With it, a brand-new machine turns itself into one of your app servers
+              while nobody is logged in:
             </p>
             <Script
               title="user-data.sh — the shape of it"
               code={`#!/bin/bash
 set -euxo pipefail
 # 1. install Docker and the AWS CLI
-# 2. read which version to run and its config — never hard-code them
+# 2. read which version to run, and its settings (never hard-code them)
 TAG=$(aws ssm get-parameter --name /myapp/image-tag --query Parameter.Value --output text)
 aws ssm get-parameter --name /myapp/env --with-decryption \\
   --query Parameter.Value --output text > /etc/myapp.env
@@ -398,79 +428,80 @@ docker run -d --name myapp --restart unless-stopped \\
   --env-file /etc/myapp.env -p 80:3000 $REGISTRY/myapp:$TAG`}
             />
             <p>
-              The container is published on port 80 because that is what the target group targets
-              and what <code>web-sg</code> allows from the ALB. If boot fails, the log is{" "}
-              <code>/var/log/cloud-init-output.log</code>.
+              The container is published on port 80, because the target group sends traffic to port 80
+              and <code>web-sg</code> allows port 80 from the ALB. If the boot fails, read the log
+              at <code>/var/log/cloud-init-output.log</code>.
             </p>
           </li>
           <li>
             <h3>Create the launch template</h3>
             <p>
-              EC2 → Launch templates → Create. Fill it exactly like Lesson 7&apos;s server — Ubuntu
+              Go to EC2 → Launch templates → Create. Fill it in like the server in Lesson 7 (IMDSv2 is the safer version of the metadata service explained below; gp3 is a type of SSD disk): Ubuntu
               24.04, <code>t3.small</code>, <code>web-sg</code>, the <code>myapp-ec2-role</code>{" "}
-              profile, 20 GB encrypted gp3, IMDSv2 required — and paste the script above into{" "}
-              <strong>User data</strong>. Two differences from Lesson 7:
+              profile, a 20 GB encrypted gp3 disk, and IMDSv2 required. Paste the script above into{" "}
+              <strong>User data</strong>. There are two differences from Lesson 7:
             </p>
             <ul>
               <li>
-                <strong>Metadata hop limit: 2.</strong> A container sits one network hop further
-                from the metadata service than the host, so with the default of 1 your app inside
-                Docker cannot fetch the role&apos;s credentials and every AWS call fails with
+                <strong>Metadata hop limit: 2.</strong> The instance metadata service (IMDS) is a local
+                address where a server gets its role credentials. A container is one network hop
+                further away from it than the host. With the default limit of 1, your app inside
+                Docker cannot get the role&apos;s credentials, and every AWS call fails with
                 &ldquo;could not load credentials&rdquo;.
               </li>
               <li>
-                <strong>No key pair</strong>, on purpose: production servers should not be
-                SSH-able. You get a shell through SSM Session Manager in Lesson 18.
+                <strong>No key pair</strong>, on purpose. Production servers should not accept SSH
+                logins (SSH is the tool for logging in to a server from far away). In Lesson 18 you will get a shell through SSM Session Manager instead.
               </li>
             </ul>
           </li>
           <li>
             <h3>Create the Auto Scaling group</h3>
             <p>
-              EC2 → Auto Scaling groups → Create, using the launch template. The settings that
-              matter:
+              Go to EC2 → Auto Scaling groups → Create, and use the launch template. These settings
+              matter most:
             </p>
             <ul>
               <li>
-                <strong>Two subnets in two AZs, min 2, desired 2, max 6</strong>: losing a whole
-                data centre leaves one server up.
+                <strong>Two subnets in two AZs, min 2, desired 2, max 6.</strong> If one whole data centre
+                is lost, one server is still running.
               </li>
               <li>
-                <strong>Attach to <code>myapp-tg</code></strong>, and turn on{" "}
-                <strong>ELB health checks</strong>: the group replaces servers that the{" "}
-                <em>load balancer</em> reports unhealthy, not merely ones whose EC2 status is fine
-                but whose app is dead. The default (EC2 only) misses exactly the failures you care
-                about.
+                <strong>Attach it to <code>myapp-tg</code></strong>, and turn on{" "}
+                <strong>ELB health checks</strong>. Then the group replaces servers that the{" "}
+                <em>load balancer</em> reports as unhealthy. Without this, the group only checks the
+                EC2 machine. It would miss a server whose machine is fine but whose app is dead.
               </li>
               <li>
-                <strong>Health check grace period 180 s</strong>: don&apos;t judge a new server for
-                3 minutes while it boots and pulls the image. Make it longer than your real boot
-                time.
+                <strong>Health check grace period 180 s.</strong> Do not judge a new server for 3 minutes
+                while it boots and pulls the image. Make this longer than your real boot time.
               </li>
             </ul>
           </li>
           <li>
             <h3>Add the scaling policy</h3>
             <p>
-              On the same screen: <strong>Target tracking</strong>, metric{" "}
-              <em>Average CPU utilisation</em>, target <strong>50</strong>. &ldquo;Keep the average
-              CPU across the group near 50%.&rdquo; Above it the group adds servers; well below it,
-              it removes them — with AWS creating and managing the CloudWatch alarms for you.
+              On the same screen, choose <strong>Target tracking</strong>, the metric{" "}
+              <em>Average CPU utilisation</em>, and the target <strong>50</strong>. This means:
+              &ldquo;keep the average CPU across the group near 50%.&rdquo; When the CPU is above
+              50%, the group adds servers. When it is well below, the group removes servers. AWS
+              creates and manages the CloudWatch alarms for you (CloudWatch is the AWS monitoring
+              service).
             </p>
           </li>
           <li>
             <h3>Watch it come alive</h3>
             <p>
               The group&apos;s <strong>Activity</strong> tab shows &ldquo;Launching a new EC2
-              instance…&rdquo; (and, if something fails, why). The target group&apos;s{" "}
-              <strong>Targets</strong> tab turns both servers <em>healthy</em> within 2–4 minutes.
-              Then open the ALB&apos;s DNS name in a browser and you reach the app.
+              instance…&rdquo;. If something fails, it also shows why. After 2–4 minutes, the
+              target group&apos;s <strong>Targets</strong> tab shows both servers as{" "}
+              <em>healthy</em>. Then open the ALB&apos;s DNS name in a browser to reach the app.
             </p>
           </li>
         </ol>
 
         <h2 id="health">Health checks done properly</h2>
-        <p>The health endpoint decides who lives and who is replaced. Keep it honest and cheap:</p>
+        <p>The health endpoint decides which servers stay and which are replaced. Keep it honest and cheap:</p>
         <Script
           title="app/api/health/route.ts"
           code={`export const dynamic = "force-dynamic";   // never cache a health check
@@ -491,26 +522,27 @@ export function GET() {
             <tbody>
               <tr>
                 <td><strong>Detects</strong></td>
-                <td>App process hung or crashed</td>
+                <td>The app process is stuck or has crashed</td>
                 <td>App alive <em>and</em> database reachable</td>
               </tr>
               <tr>
                 <td><strong>Risk</strong></td>
-                <td>Server serves errors if DB is down, but stays &ldquo;healthy&rdquo;</td>
-                <td className="text-red-300">A brief database blip marks every server unhealthy at once — the ASG then kills them all: you turn a small incident into a total outage</td>
+                <td>If the database is down, the server returns errors but still counts as &ldquo;healthy&rdquo;</td>
+                <td className="text-red-300">A short database problem marks every server unhealthy at once. The ASG then replaces them all. A small incident becomes a total outage</td>
               </tr>
               <tr>
                 <td><strong>Use it for</strong></td>
                 <td>The ALB target-group check</td>
-                <td>A separate <code>/api/ready</code> for dashboards and alerts, not for killing servers</td>
+                <td>A separate <code>/api/ready</code> for dashboards and alerts, not for removing servers</td>
               </tr>
             </tbody>
           </table>
         </div>
         <p>
-          The classic rule: <strong>a health check that can fail because of a dependency can cause
-          a cascading outage.</strong> Health checks answer &ldquo;is <em>this</em> server
-          broken?&rdquo;, and alarms answer &ldquo;is the system broken?&rdquo;.
+          Remember this rule: <strong>a health check that can fail because of another service (a
+          dependency) can cause a chain of failures.</strong> A health check answers &ldquo;is{" "}
+          <em>this</em> server broken?&rdquo;. An alarm answers &ldquo;is the whole system
+          broken?&rdquo;.
         </p>
 
         <h2 id="policies">Choosing a scaling policy</h2>
@@ -527,172 +559,187 @@ export function GET() {
               <tr>
                 <td><strong>Target tracking — CPU</strong></td>
                 <td>Keep average CPU at a target</td>
-                <td>Default for CPU-bound apps. Simplest, our choice</td>
+                <td>The default for apps that are limited by CPU. It is the simplest, and it is our choice</td>
               </tr>
               <tr>
                 <td><strong>Target tracking — ALBRequestCountPerTarget</strong></td>
                 <td>Keep requests per server at a target (e.g. 500/min)</td>
-                <td>Better when load is I/O-bound (waiting on the database) and CPU stays low</td>
+                <td>Better when the app mostly waits (for example on the database) and the CPU stays low</td>
               </tr>
               <tr>
                 <td><strong>Step scaling</strong></td>
                 <td>&ldquo;CPU &gt; 70% add 1; &gt; 90% add 3&rdquo;</td>
-                <td>You want manual control of how aggressive to be</td>
+                <td>You want to decide yourself how strongly to react</td>
               </tr>
               <tr>
                 <td><strong>Scheduled</strong></td>
                 <td>&ldquo;9 a.m. weekdays: min 4&rdquo;</td>
-                <td>Known traffic (a daily peak, a sale, a marketing email)</td>
+                <td>You know when traffic comes (a daily peak, a sale, a marketing email)</td>
               </tr>
               <tr>
                 <td><strong>Predictive</strong></td>
-                <td>Learns your daily/weekly pattern and scales ahead</td>
-                <td>Stable, repeating traffic, after two weeks of data</td>
+                <td>Learns your daily and weekly pattern from past data, and adds servers before the load comes</td>
+                <td>Steady, repeating traffic. It needs at least 24 hours of history, and it uses up to 14 days</td>
               </tr>
             </tbody>
           </table>
         </div>
         <h3>Why scaling is never instant</h3>
         <p>
-          A new server takes a few minutes: launch, boot, pull the image, pass two health checks. So
-          scaling <em>reacts</em> a few minutes after load rises. Three ways to be ready for sudden
-          spikes: a higher minimum, a scheduled action before a known event, and a lower CPU target
-          (40% leaves more headroom than 70%). Scale <strong>out fast, in slowly</strong>: killing a
-          server during a brief lull only to rebuy it five minutes later is the flapping you want to
-          avoid, which target tracking already handles with longer scale-in windows.
+          A new server needs a few minutes. It must launch, boot, pull the image, and pass two health
+          checks. So scaling <em>reacts</em> a few minutes after the load rises. There are three ways
+          to be ready for sudden spikes: a higher minimum, a scheduled action before an event that
+          you know about, and a lower CPU target (40% leaves more room than 70%).
+        </p>
+        <p>
+          A good rule is to scale <strong>out fast and in slowly</strong>. Imagine you remove a
+          server during a short quiet moment, and five minutes later you need it again. You waste
+          time and money. This up-and-down switching is called flapping. Target tracking already
+          avoids it by waiting longer before it scales in.
         </p>
         <Callout kind="note" label="Speed up boot with a pre-baked AMI">
           <p className="mb-0">
-            Installing Docker on every boot costs about a minute. Once things are stable, configure
-            one server, run <code>aws ec2 create-image</code> to snapshot it as an AMI (&ldquo;golden
-            image&rdquo;), and put that AMI in the launch template. New servers boot ready in seconds.
-            Tools such as Packer automate it; Lesson 15&apos;s Terraform can wire it in.
+            Installing Docker on every boot costs about a minute. When things are stable, set up one
+            server and run <code>aws ec2 create-image</code>. This saves the server as a new AMI (a
+            &ldquo;golden image&rdquo;). Put that AMI in the launch template. New servers then start
+            ready in seconds. Packer is a tool that builds such images automatically. Terraform
+            (Lesson 15) is a tool that creates cloud resources from code, and it can connect it all.
           </p>
         </Callout>
 
         <h2 id="deploys">Deploying without downtime</h2>
         <p>
-          With many servers a deploy stops being &ldquo;SSH in and restart&rdquo;. The clean
-          pattern is <strong>replace, don&apos;t modify</strong>:
+          With many servers, a deploy is no longer &ldquo;log in with SSH and restart&rdquo;. The clean
+          pattern is <strong>replace the servers, do not change them</strong>:
         </p>
         <ol>
-          <li>CI pushes the new image to ECR, tagged with the commit SHA.</li>
+          <li>CI (a robot that builds and tests your code on every change) pushes the new image to ECR, tagged with the commit SHA.</li>
           <li>Update <code>/myapp/image-tag</code> to that SHA.</li>
           <li>
-            Start an <strong>instance refresh</strong> on the Auto Scaling group (min healthy
-            100%, max healthy 110%). AWS replaces every server a few at a time, waiting for each
-            new one to pass its health check.
+            Start an <strong>instance refresh</strong> on the Auto Scaling group (min healthy 100%,
+            max healthy 110%). An instance refresh is an ASG feature that replaces every server with
+            a new one, a few at a time. AWS waits for each new server to pass its health check.
           </li>
         </ol>
         <p>
-          Rolling back is the same move: put the previous SHA back in the parameter and refresh
-          again.
+          A rollback is the same move. Put the previous SHA back in the parameter and refresh again.
         </p>
         <p>
-          Min healthy 100% with max healthy 110% means AWS
-          starts a new server <em>before</em> retiring an old one, so capacity never dips. Because
-          the ALB only routes to healthy targets, users never reach a server that is still booting;
-          because deregistration waits 30 seconds, requests already in flight on a retiring server
-          finish. Lesson 14 triggers the refresh from GitHub Actions.
+          Min healthy 100% with max healthy 110% means AWS starts a new server <em>before</em> it
+          retires an old one, so capacity never drops. With a very small group, a larger maximum
+          such as 150% or 200% makes sure there is room for an extra server. The ALB only sends
+          traffic to healthy targets, so users never reach a server that is still starting. The
+          deregistration delay of 30 seconds lets requests that are still running on a retiring
+          server finish. Lesson 14 starts the refresh from GitHub Actions.
         </p>
         <Callout kind="warn" label="Make your app exit cleanly on SIGTERM">
           <p className="mb-0">
-            When a server is retired, Docker sends <code>SIGTERM</code> and waits, then{" "}
-            <code>SIGKILL</code>. The app should stop accepting new connections and finish current
-            ones. Next.js&apos;s own server handles this; a custom Node server needs a{" "}
-            <code>process.on(&quot;SIGTERM&quot;, …)</code> handler that calls{" "}
+            When a server is retired, Docker first sends <code>SIGTERM</code> (a polite &ldquo;please
+            stop&rdquo; signal). It waits a short time (10 seconds by default). Then it sends{" "}
+            <code>SIGKILL</code> (a forced stop). The app should stop taking new connections and
+            finish the current ones. The Next.js server handles this by itself. A custom Node server
+            needs a <code>process.on(&quot;SIGTERM&quot;, …)</code> handler that calls{" "}
             <code>server.close()</code>.
           </p>
         </Callout>
 
         <h2 id="load-test">Prove it: load test and kill a server</h2>
         <p>
-          Never trust an architecture you have not tried to break. Two experiments turn diagrams into
-          confidence.
+          Do not trust a design until you have tried to break it. Two experiments turn diagrams into
+          real confidence.
         </p>
         <h3>Experiment 1 — does it scale?</h3>
         <CommandList
           title="On your laptop (a staging copy, or a quiet window — this is real traffic)"
           commands={[
-            { cmd: "hey -z 3m -c 200 https://yourapp.com/", note: "200 concurrent connections for 3 minutes (install hey with brew; k6 is a fine alternative). Watch the Auto Scaling group's instance count grow in the console meanwhile" },
+            { cmd: "hey -z 3m -c 200 https://yourapp.com/", note: "hey is a small tool that sends many requests and reports the speed. This command uses 200 connections at the same time for 3 minutes (install hey with brew; k6 is a good alternative). Meanwhile, watch the instance count of the Auto Scaling group grow in the console" },
           ]}
         />
-        <p>Look at three numbers from the <code>hey</code> summary, and one graph:</p>
+        <p>Look at three numbers in the <code>hey</code> summary, and at one graph:</p>
         <ul>
           <li>
-            <strong>Requests/sec</strong> — your measured throughput (feed it back into the capacity
-            estimate above).
+            <strong>Requests per second.</strong> This is your measured speed. Use it to improve the
+            capacity estimate above.
           </li>
           <li>
-            <strong>Latency percentiles (p50, p95, p99)</strong> — averages hide pain; the slowest 1%
-            of users are the ones who complain.
+            <strong>Latency percentiles (p50, p95, p99).</strong> p95 means that 95% of requests were
+            faster than this number. Averages hide problems. The slowest 1% of users are the ones
+            who complain.
           </li>
           <li>
-            <strong>Status code distribution</strong> — any 5xx means something broke under load.
+            <strong>Status code counts.</strong> Any 5xx (server error) means something broke under
+            load.
           </li>
           <li>
-            In CloudWatch, the ALB&apos;s <code>TargetResponseTime</code> and the database&apos;s
-            <code> DatabaseConnections</code> — the database usually gives out first.
+            In CloudWatch, look at the ALB&apos;s <code>TargetResponseTime</code> and the
+            database&apos;s <code>DatabaseConnections</code>. The database usually fails first.
           </li>
         </ul>
         <h3>Experiment 2 — does it heal?</h3>
         <p>
-          While the load test runs, terminate one of the group&apos;s instances in the console, as
-          if a data centre lost a machine. Within seconds the ALB marks it unhealthy and users keep
-          being served by the survivor; the group notices it is below desired capacity and launches
-          a replacement by itself.
+          While the load test runs, terminate one of the group&apos;s instances in the console, as if
+          a data centre lost a machine. The ALB needs a few failed health checks, so it takes about
+          a minute to mark the server unhealthy. A few requests may fail during that time. After
+          that, the other server keeps serving the users. The group sees that it has fewer servers
+          than wanted, and it starts a replacement by itself.
         </p>
         <p>
-          If the site blips or errors for more than a moment, you have found a real weakness (usually
-          a keep-alive timeout, a health check that is too slow, or a min-size of 1) to fix while it
-          is cheap.
+          If the site shows errors for much longer than that, you have found a real weakness. It is
+          usually a keep-alive timeout, a health check that is too slow, or a min-size of 1. It is
+          cheap to fix it now.
         </p>
 
         <h2 id="gotchas">The common pitfalls that cause real 502s</h2>
         <h3>Keep-alive timeout: the intermittent 502</h3>
         <p>
-          The ALB reuses connections to your servers and closes them after 60 seconds of idleness.
-          Node closes idle connections after just <strong>5 seconds</strong> by default. So
-          occasionally the ALB sends a request down a connection that Node has just closed — an
-          instant <code>502</code>, roughly one in thousands of requests, impossible to reproduce on
-          your laptop. The rule: <strong>the server&apos;s keep-alive timeout must be longer than the
-          load balancer&apos;s idle timeout.</strong>
+          A keep-alive connection is a connection that stays open so that many requests can reuse it.
+          The ALB reuses connections to your servers. It closes a connection after 60 seconds
+          without traffic. Node closes idle connections after only <strong>5 seconds</strong> by
+          default. So sometimes the ALB sends a request on a connection that Node has just closed.
+          The result is an instant <code>502</code>. It happens for about one request in thousands,
+          and you cannot reproduce it on your laptop. The rule is:{" "}
+          <strong>the server&apos;s keep-alive timeout must be longer than the load balancer&apos;s
+          idle timeout.</strong>
         </p>
         <p>
-          With the Next.js standalone server, that is the <code>KEEP_ALIVE_TIMEOUT=65000</code>{" "}
-          line already in <code>/myapp/env</code>. A custom Node server sets{" "}
-          <code>server.keepAliveTimeout = 65_000</code> (and <code>headersTimeout</code> slightly
-          higher) — anything above the ALB&apos;s 60 seconds.
+          With the Next.js standalone server, you set this with the <code>KEEP_ALIVE_TIMEOUT=65000</code>{" "}
+          line that is already in <code>/myapp/env</code> (the value is in milliseconds). A custom
+          Node server sets <code>server.keepAliveTimeout = 65_000</code> and a slightly higher{" "}
+          <code>headersTimeout</code>. Any value above the ALB&apos;s 60 seconds works.
         </p>
         <h3>Sticky sessions</h3>
         <p>
-          The ALB can pin a user to one server with a cookie (&ldquo;stickiness&rdquo;). It is tempting
-          when sessions live in memory, but it defeats even load distribution, and the user loses
-          their session when that server is replaced. Treat it as a temporary bridge while you move
-          sessions to Redis (Lesson 16), not as a solution.
+          The ALB can keep one user on the same server with a cookie. This is called
+          &ldquo;stickiness&rdquo;. It is tempting when sessions live in server memory. But it spoils
+          the even sharing of load, and the user loses the session when that server is replaced. Use
+          it only as a short-term bridge while you move sessions to Redis (Lesson 16). It is not a
+          real solution.
         </p>
         <h3>WebSockets</h3>
         <p>
-          ALBs support WebSockets with no extra setup, but a long-lived connection ties a user to one
-          server for its lifetime, and idle connections are closed at 60 seconds unless the app
-          sends pings. Scale on connection count for such apps, not CPU.
+          A WebSocket is a long-lived two-way connection (used for chat and live updates). ALBs
+          support WebSockets with no extra setup. But such a connection ties a user to one server
+          for as long as it lasts. Idle connections are closed after 60 seconds unless the app sends
+          small &ldquo;ping&rdquo; messages. For such apps, scale on the number of connections, not
+          on CPU.
         </p>
         <h3>Real client IP</h3>
         <p>
-          Behind an ALB, the connection comes from the ALB. The user&apos;s address is in{" "}
-          <code>X-Forwarded-For</code> — set your framework to trust that header from the VPC only
-          (Lesson 10&apos;s real-IP note), or every rate limit and log shows the ALB&apos;s IP.
+          Behind an ALB, every connection comes from the ALB. The user&apos;s address is in the{" "}
+          <code>X-Forwarded-For</code> header. Set your framework to trust that header only from
+          inside the VPC (see the real-IP note in Lesson 10). If you do not, every rate limit and
+          log shows the ALB&apos;s IP.
         </p>
 
         <h2 id="cost">What this costs</h2>
         <div className="table-wrap">
           <table>
             <thead>
-              <tr><th>Item</th><th>Approx. per month (Mumbai)</th></tr>
+              <tr><th>Item</th><th>Approx. per month (prices differ a little by region)</th></tr>
             </thead>
             <tbody>
               <tr><td>Application Load Balancer, base</td><td>~$0.0225/hour ≈ $16.50</td></tr>
-              <tr><td>ALB usage (LCUs: connections, bytes, rules)</td><td>~$0.008 per LCU-hour; a small app ≈ $2–8</td></tr>
+              <tr><td>ALB usage (LCUs: connections, bytes, rules)</td><td>~$0.008 per LCU-hour (an LCU is the unit AWS uses to measure ALB use); a small app ≈ $2–8</td></tr>
               <tr><td>2 × t3.small, 24/7</td><td>~$32</td></tr>
               <tr><td>Public IPv4 per server + per ALB zone</td><td>~$3.60 each (4 ≈ $14)</td></tr>
               <tr><td>Auto Scaling, launch templates, target groups</td><td className="font-semibold text-emerald-300">Free</td></tr>
@@ -702,17 +749,17 @@ export function GET() {
           </table>
         </div>
         <p>
-          A realistic total for this tier is <strong>about $60–75 a month</strong> — meaningfully more
-          than one server. The trade you are buying: no single point of failure, deploys without
-          downtime, and headroom for growth. If you do not need that yet, one server with Nginx is a
-          perfectly good place to be; do not adopt an ALB just because the course has a lesson on it.
+          A realistic total for this tier is <strong>about $60–75 a month</strong>. That is much more
+          than one server. What you buy is: no single point of failure, deploys without downtime,
+          and room to grow. If you do not need this yet, one server with Nginx is a good choice. Do
+          not add an ALB only because the course has a lesson about it.
         </p>
         <Callout kind="ok" label="Stopping the meter while learning">
           <p className="mb-0">
-            Set the ASG to <code>--min-size 0 --desired-capacity 0</code> when you are not studying
-            (<code>aws autoscaling update-auto-scaling-group …</code>) and it terminates every
-            server. The ALB itself keeps billing, so delete it too when finished, or run this whole
-            tier only for a weekend and rebuild it from Terraform in Lesson 15.
+            When you are not studying, set the ASG to <code>--min-size 0 --desired-capacity 0</code>{" "}
+            (with <code>aws autoscaling update-auto-scaling-group …</code>). It then removes every
+            server. The ALB keeps charging you, so delete it too when you finish. Or run this whole
+            tier for one weekend only and build it again with Terraform in Lesson 15.
           </p>
         </Callout>
 
@@ -745,9 +792,9 @@ export function GET() {
               q: "What must be true of an application before you put it behind a load balancer?",
               a: (
                 <p className="mb-0">
-                  It must be stateless: sessions, uploads and data live outside the instance
-                  (cookies/JWT or Redis, S3, RDS), config comes from a shared source, and scheduled
-                  jobs do not run in every instance.
+                  It must be stateless. Sessions, uploads and data must live outside the server (cookies or
+                  JWT or Redis, S3, RDS). Settings must come from a shared place. Scheduled jobs must
+                  not run on every server.
                 </p>
               ),
             },
@@ -755,10 +802,11 @@ export function GET() {
               q: "ALB vs NLB?",
               a: (
                 <p className="mb-0">
-                  ALB works at layer 7: HTTP-aware routing by host/path/headers, TLS, redirects,
-                  WebSockets. NLB works at layer 4: TCP/UDP, extreme throughput and low latency,
-                  static IPs. Use ALB for web apps and APIs, NLB for non-HTTP protocols or fixed-IP
-                  requirements.
+                  An ALB works at layer 7. It understands HTTP, so it can route by host, path or header, and
+                  it handles TLS, redirects and WebSockets. An NLB works at layer 4. It handles TCP
+                  and UDP with very high speed and low delay, and it gives fixed IPs. I use an ALB for
+                  web apps and APIs. I use an NLB for protocols that are not HTTP, or when I need
+                  fixed IPs.
                 </p>
               ),
             },
@@ -766,10 +814,10 @@ export function GET() {
               q: "Explain how Auto Scaling replaces an unhealthy instance.",
               a: (
                 <p className="mb-0">
-                  With ELB health checks enabled, the group treats a target the load balancer marks
-                  unhealthy as unhealthy itself, terminates it, and launches a replacement from the
-                  launch template to restore the desired capacity, respecting the grace period for
-                  new instances.
+                  With ELB health checks turned on, the group treats a server that the load balancer
+                  marks unhealthy as unhealthy too. It terminates that server and starts a
+                  replacement from the launch template, so the wanted number of servers is restored.
+                  It waits for the grace period before it judges new servers.
                 </p>
               ),
             },
@@ -777,9 +825,10 @@ export function GET() {
               q: "Why can a database-dependent health check be dangerous?",
               a: (
                 <p className="mb-0">
-                  If the shared dependency blips, every server fails the check simultaneously and the
-                  group terminates all of them — a total outage caused by a partial one. Health checks
-                  should test the instance; dependency health belongs in alarms.
+                  If the shared dependency has a short problem, every server fails the check at the same
+                  time, and the group replaces all of them. A small problem becomes a total outage. A
+                  health check should test the server itself. The health of dependencies belongs in
+                  alarms.
                 </p>
               ),
             },
@@ -787,9 +836,10 @@ export function GET() {
               q: "You get random 502s, about 1 in 2,000 requests. Nothing in the app logs. Why?",
               a: (
                 <p className="mb-0">
-                  Classic keep-alive mismatch: the backend closes idle connections (Node default 5 s)
-                  before the ALB&apos;s 60 s idle timeout, so the ALB occasionally reuses a closed
-                  connection. Set the backend keep-alive timeout above the ALB idle timeout.
+                  This is the classic keep-alive mismatch. The backend closes idle connections early (Node
+                  waits 5 s by default), before the ALB&apos;s 60 s idle timeout. So the ALB sometimes
+                  reuses a connection that is already closed. I set the backend keep-alive timeout
+                  above the ALB idle timeout.
                 </p>
               ),
             },
@@ -797,10 +847,11 @@ export function GET() {
               q: "How do you deploy a new version with zero downtime behind an ASG?",
               a: (
                 <p className="mb-0">
-                  Build an immutable image, update the launch template or the parameter it reads, and
-                  run an instance refresh that starts new instances before retiring old ones, gated on
-                  health checks and with connection draining. Rollback is the same operation with the
-                  previous version.
+                  I build an image that never changes after it is built. I update the launch template, or
+                  the parameter it reads. Then I run an instance refresh. It starts new servers
+                  before it retires old ones, waits for health checks, and lets running requests
+                  finish (connection draining). A rollback is the same steps with the previous
+                  version.
                 </p>
               ),
             },
@@ -808,10 +859,11 @@ export function GET() {
               q: "1,000 concurrent users — how many servers?",
               a: (
                 <p className="mb-0">
-                  Convert to requests per second (users ÷ seconds between actions), measure one
-                  server&apos;s throughput with a load test, divide, and add headroom for spikes and
-                  for losing an AZ. Then check the database connection budget at the maximum instance
-                  count, because that is usually the real limit.
+                  First I turn users into requests per second (users divided by seconds between actions).
+                  Then I measure one server&apos;s speed with a load test and divide. I add extra room
+                  for spikes and for the loss of one AZ. Finally I check the number of database
+                  connections at the maximum number of servers, because that is often the real
+                  limit.
                 </p>
               ),
             },
@@ -823,8 +875,8 @@ export function GET() {
         <h2 id="practice">Practice task before Lesson 13</h2>
         <ol>
           <li>
-            Audit your app with the statelessness table. List anything that would break with two
-            servers, and fix or note each.
+            Check your app with the statelessness table. Write down anything that would break with two
+            servers, and fix it or make a note of it.
           </li>
           <li>
             Build the tier: certificate, target group, ALB, parameters, launch template, ASG, policy.
@@ -832,7 +884,10 @@ export function GET() {
           </li>
           <li>
             Break the health check on purpose (change the path in the target group to{" "}
-            <code>/nope</code>). Watch targets go unhealthy and the ALB return 503, then restore it.
+            <code>/nope</code>). Watch the targets turn unhealthy. Notice that the ALB still sends
+            traffic to them. When all targets are unhealthy, the ALB tries all of them (this is called
+            fail-open). Restore the path quickly. With ELB health checks on, the ASG will soon start
+            to replace the &ldquo;unhealthy&rdquo; servers.
           </li>
           <li>
             Run the load test and the terminate-a-server experiment. Record requests/sec, p95
@@ -843,8 +898,8 @@ export function GET() {
             refresh. Confirm the site stayed up the whole time.
           </li>
           <li>
-            Calculate the monthly cost of your setup at min-size 2 and at max-size 6 for one hour a
-            day. Which line dominates?
+            Work out the monthly cost of your setup at min-size 2, and at max-size 6 for one hour a
+            day. Which line is the biggest?
           </li>
         </ol>
         <Callout kind="ok" label="Optional stretch">
@@ -857,33 +912,33 @@ export function GET() {
 
         <h2 id="conclusion">Conclusion</h2>
         <p>
-          You now run the same architecture that large sites do, just smaller: one address, many
-          disposable servers, automatic healing and automatic growth.
+          You now run the same kind of setup that large sites use, only smaller: one address, many
+          servers that are easy to replace, automatic repair, and automatic growth.
         </p>
         <ul>
           <li>
-            <strong>ALB</strong> = listener + rules + target group + health checks; it terminates
-            TLS with a free ACM certificate.
+            <strong>ALB</strong> = listener + rules + target group + health checks. It ends HTTPS with
+            a free ACM certificate.
           </li>
           <li>
-            <strong>Auto Scaling</strong> = launch template + group + policy; servers are cattle,
-            created from a recipe with zero manual steps.
+            <strong>Auto Scaling</strong> = launch template + group + policy. Servers are cattle, made
+            from a recipe with zero manual steps.
           </li>
           <li>
-            <strong>Stateless first.</strong> Sessions, files, data and cron jobs must live outside
-            the web tier.
+            <strong>Stateless first.</strong> Sessions, files, data and cron jobs must live outside the
+            web servers.
           </li>
           <li>
-            <strong>Health checks test the server</strong>, not its dependencies, or a blip becomes an
-            outage.
+            <strong>Health checks test the server</strong>, not its dependencies. Otherwise a short
+            problem becomes an outage.
           </li>
           <li>
-            <strong>Do the arithmetic</strong> — requests per second, per-server capacity, and the
-            database connection budget at max scale — and <strong>test by breaking things</strong>.
+            <strong>Do the maths</strong> (requests per second, capacity per server, and the number of
+            database connections at maximum size), and <strong>test by breaking things</strong>.
           </li>
         </ul>
         <p>
-          The ALB gives you a long, ugly DNS name. Next we attach your real domain to it, and to
+          The ALB gives you a long, ugly DNS name. Next, we connect your real domain to it, and to
           CloudFront, with Route 53.
         </p>
 

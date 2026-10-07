@@ -38,20 +38,20 @@ const outline = [
 
 const classes: [string, string, string, string][] = [
   ["Standard", "Anything you read often: images, uploads, app assets", "~$0.025/GB-month", "Instant"],
-  ["Intelligent-Tiering", "Unknown or changing access pattern; moves objects for you", "$0.025 down to ~$0.004 + tiny monitoring fee", "Instant"],
-  ["Standard-IA", "Read rarely but need it fast (monthly reports, old invoices)", "~$0.0138/GB + retrieval fee", "Instant"],
-  ["Glacier Instant Retrieval", "Archives you almost never touch but must open in ms", "~$0.005/GB + retrieval fee", "Instant"],
-  ["Glacier Deep Archive", "Compliance archives kept for years", "~$0.002/GB", "Up to 12 hours"],
+  ["Intelligent-Tiering", "You do not know how often files are read. S3 moves objects to cheaper tiers for you", "From $0.025 down to ~$0.004 per GB-month, plus a small monitoring fee", "Instant"],
+  ["Standard-IA", "Read rarely, but needed fast when you do (monthly reports, old invoices)", "~$0.0138/GB + retrieval fee", "Instant"],
+  ["Glacier Instant Retrieval", "Archives you almost never touch, but that must open in milliseconds", "~$0.005/GB + retrieval fee", "Instant"],
+  ["Glacier Deep Archive", "Archives kept for years, for example for legal rules", "~$0.002/GB + retrieval fee", "Hours (standard retrieval: up to 12 hours; bulk: up to 48)"],
 ];
 
 const trouble: [string, string, string][] = [
-  ["AccessDenied on GetObject from the app", "The instance role has no s3:GetObject on that bucket/prefix, or the ARN is missing the /* suffix", "Check the Resource: bucket ARN for ListBucket, arn:…:bucket/* for object actions"],
-  ["403 from CloudFront for a file that exists", "Bucket policy does not allow the CloudFront distribution (OAC), or the file key is wrong", "Re-apply the OAC bucket policy; check exact key and case"],
-  ["Browser: “blocked by CORS policy” on upload", "Bucket CORS does not list your site's origin, method or headers", "Add your origin, PUT/GET and the headers to the bucket's CORS config"],
-  ["Presigned URL: SignatureDoesNotMatch", "The upload sends a different Content-Type (or header) than was signed, or the URL has expired", "Send exactly the signed Content-Type; check the expiry and server clock"],
-  ["Old file still served after re-uploading", "CloudFront is serving the cached copy until its TTL ends", "Use versioned filenames, or create an invalidation for that path"],
-  ["Distribution works, but custom domain shows a certificate error", "The ACM certificate is not in us-east-1, is not validated, or does not cover the domain", "Request/import it in N. Virginia (us-east-1) and attach it"],
-  ["Cannot delete the bucket", "It is not empty (including old versions and delete markers)", "Empty it with a lifecycle rule or aws s3 rm --recursive plus version cleanup"],
+  ["AccessDenied on GetObject from the app", "The instance role has no s3:GetObject permission for that bucket or prefix, or the ARN is missing the /* at the end", "Check the Resource line. Use the bucket ARN for ListBucket and arn:…:bucket/* for object actions."],
+  ["403 from CloudFront for a file that exists", "The bucket policy does not allow the CloudFront distribution (OAC), or the file key is wrong", "Apply the OAC bucket policy again. Check the exact key and the upper and lower case letters."],
+  ["Browser: “blocked by CORS policy” on upload", "The bucket CORS rules do not list your site's origin, method or headers", "Add your origin, the PUT and GET methods, and the headers to the bucket's CORS rules"],
+  ["Presigned URL: SignatureDoesNotMatch", "The upload sends a different Content-Type (or header) than the one that was signed, or the URL has expired", "Send exactly the signed Content-Type. Check the expiry time and the server clock."],
+  ["Old file still served after re-uploading", "CloudFront keeps serving its saved copy until the TTL (the time the copy may be kept) ends", "Use versioned file names, or create an invalidation for that path"],
+  ["Distribution works, but custom domain shows a certificate error", "The ACM certificate is not in us-east-1, is not validated yet, or does not cover the domain", "Request (or import) it in N. Virginia (us-east-1) and attach it"],
+  ["Cannot delete the bucket", "It is not empty. Old versions and delete markers count too", "Empty it with a lifecycle rule, or with aws s3 rm --recursive plus a clean-up of old versions"],
 ];
 
 export default function LessonElevenPage() {
@@ -62,7 +62,7 @@ export default function LessonElevenPage() {
       <div className="lesson">
         <h2 id="concept">Concept</h2>
         <p>
-          This lesson is two tools that work as a pair, solving two different problems:
+          This lesson covers two tools that work as a pair. Each one solves a different problem:
         </p>
         <div className="table-wrap">
           <table>
@@ -86,8 +86,8 @@ export default function LessonElevenPage() {
               </tr>
               <tr>
                 <td><strong>Location</strong></td>
-                <td>One region (Mumbai)</td>
-                <td>400+ edge locations worldwide</td>
+                <td>One region (Mumbai). A region is a group of AWS data centres in one area.</td>
+                <td>Hundreds of edge locations worldwide. An edge location is a small data centre close to users.</td>
               </tr>
               <tr>
                 <td><strong>Holds</strong></td>
@@ -99,51 +99,56 @@ export default function LessonElevenPage() {
         </div>
         <Callout kind="note" label="Files, not rows">
           <p className="mb-0">
-            The rule that decides between S3 and RDS: <strong>if it is a file (an image, a PDF, a
-            video, a backup), it goes in S3. If it is a record you query (a user, an order), it goes
-            in the database.</strong> The database stores the <em>address</em> of the file (the S3
-            key), not the file.
+            Here is the rule for choosing between S3 and RDS (RDS is the AWS managed database
+            service: AWS runs the database server for you): <strong>if it is a file (an image, a PDF, a video, a backup), it goes in S3.
+            If it is a record you search (a user, an order), it goes in the database.</strong> The
+            database stores the <em>address</em> of the file (the S3 key), not the file itself.
           </p>
         </Callout>
 
         <h2 id="why-this-matters">Why files do not belong on the server</h2>
         <p>
-          On Vercel you may have used its blob storage or committed images into <code>/public</code>.
-          On your own server the easy path is a folder such as <code>/uploads</code>. It works until:
+          On Vercel you may have used its blob storage, or you may have put images in{" "}
+          <code>/public</code> (the Next.js folder for plain files that are served as they are). On your own server the easy way is a folder such as{" "}
+          <code>/uploads</code>. This works until one of these things happens:
         </p>
         <ul>
           <li>
-            <strong>You run two servers.</strong> A customer uploads a PDF to server A; the next
-            request lands on server B, which has never seen it. The file &ldquo;vanished&rdquo;.
-            This is the exact stateless rule from Lesson 8, applied to files.
+            <strong>You run two servers.</strong> A customer uploads a PDF to server A. The next
+            request goes to server B, which has never seen the file. The file
+            &ldquo;vanished&rdquo;. This is the stateless rule from Lesson 8, applied to files.
+            (A stateless server keeps no data of its own between requests.)
           </li>
           <li>
-            <strong>A server is replaced.</strong> Auto Scaling terminates instances; every upload
-            on them disappears with the disk.
+            <strong>A server is replaced.</strong> Auto Scaling (Lesson 12) is an AWS service that adds and removes servers as traffic changes. It removes servers when
+            traffic drops. Every upload on a removed server disappears with its disk.
           </li>
           <li>
-            <strong>The disk fills.</strong> 20 GB of EBS is gone after a few thousand high-quality
-            photos, and growing the disk means downtime and resizing.
+            <strong>The disk fills.</strong> EBS is the virtual hard disk of an EC2 server. A 20 GB
+            disk is full after a few thousand good photos, and making it bigger is extra work.
           </li>
           <li>
-            <strong>Your CPU serves bytes.</strong> Every image request occupies a Node/Nginx worker
-            that should be running business logic.
+            <strong>Your CPU serves files.</strong> Every image request keeps a Node or Nginx worker
+            busy. That worker should be running your app logic.
           </li>
           <li>
             <strong>Distance.</strong> A user in Delhi loading images from a server in Mumbai is
-            fine; the same user in London is not, and physics cannot be tuned.
+            fine. A user in London is much slower, and you cannot make light travel faster.
           </li>
         </ul>
         <p>
-          S3 gives you effectively unlimited storage, 99.999999999% (eleven nines) durability,
-          copies across at least three data centres, and no disk to manage — for about{" "}
-          <strong>$0.025 per GB per month</strong>.
+          S3 gives you storage with no practical limit and no disk to manage. It keeps copies of
+          your data in at least three Availability Zones (separate groups of data centres). It has
+          99.999999999% (eleven nines) <strong>durability</strong>, which means a very small chance
+          of ever losing an object. The price is about{" "}
+          <strong>$0.025 per GB per month</strong> in Mumbai.
         </p>
 
         <h2 id="s3-model">How S3 thinks: buckets, keys, objects</h2>
         <p>
           S3 looks like a folder tree in the console, but it is not a file system. It is a giant
-          key-value store:
+          key-value store. That means you give it a name (the key), and it gives you back the file
+          (the value), like a huge dictionary:
         </p>
         <div className="table-wrap">
           <table>
@@ -167,85 +172,94 @@ export default function LessonElevenPage() {
               </tr>
               <tr>
                 <td><strong>Key</strong></td>
-                <td>The object&apos;s full name, slashes included. The &ldquo;folders&rdquo; are just a display convention.</td>
+                <td>The object&apos;s full name, slashes included. The &ldquo;folders&rdquo; are only a way to show the names.</td>
                 <td><code>tenants/acme/invoices/2026-01.pdf</code></td>
               </tr>
               <tr>
                 <td><strong>Prefix</strong></td>
-                <td>The start of a key. Used to list and to write permissions for a &ldquo;folder&rdquo;.</td>
+                <td>The start of a key. You use it to list files and to give permissions for a &ldquo;folder&rdquo;.</td>
                 <td><code>tenants/acme/</code></td>
               </tr>
             </tbody>
           </table>
         </div>
         <p>
-          Two facts that avoid real bugs: objects are <strong>immutable</strong> (you replace, you do
-          not edit part of one), and S3 has <strong>strong read-after-write consistency</strong> (a
-          new upload can be read immediately).
+          Two facts help you avoid real bugs. First, objects are <strong>immutable</strong>. You
+          replace a whole object. You cannot edit part of it. Second, S3 has{" "}
+          <strong>strong read-after-write consistency</strong>. Right after an upload, any read
+          shows the new file.
         </p>
         <Callout kind="note" label="Key design for multi-tenant SaaS">
           <p className="mb-0">
-            Put the tenant in the key: <code>tenants/&lt;tenantId&gt;/…</code>. Then a single IAM
-            policy or presigned URL can be scoped to one customer&apos;s prefix, listing one
-            customer&apos;s files is cheap, and deleting a customer is deleting one prefix. Never
-            derive a key from raw user input — sanitise and generate IDs (<code>crypto.randomUUID()</code>)
-            to prevent path tricks and overwrites.
+            A multi-tenant app is one app that serves many customers (tenants). Put the tenant in the
+            key: <code>tenants/&lt;tenantId&gt;/…</code>. IAM is AWS&apos;s system for who may do what, and an
+            IAM policy is a written permission rule in that system. Then one IAM policy or
+            one presigned URL can be limited to one customer&apos;s prefix. Listing one
+            customer&apos;s files is cheap, and deleting a customer means deleting one prefix.
+            Never build a key from raw user input. Generate IDs with{" "}
+            <code>crypto.randomUUID()</code> (a function that makes a random unique ID, called a UUID)
+            and clean any names. This stops path tricks and
+            accidental overwrites.
           </p>
         </Callout>
 
         <h2 id="private">Private by default — and keeping it that way</h2>
         <p>
-          The most famous cloud data leaks in history are public S3 buckets. AWS has since made the
-          safe path the default, and you should keep it that way.
+          Many famous cloud data leaks came from public S3 buckets. AWS has since made the safe
+          choice the default. You should keep it that way.
         </p>
         <Callout kind="warn" label="Turn on Block Public Access — at the account level">
           <p className="mb-0">
-            New buckets block all public access and have ACLs disabled. Set{" "}
-            <strong>S3 Block Public Access on the whole account</strong> (S3 → Block Public Access
-            settings for this account) so that no one, on your team or in a future script, can ever
-            make a bucket public by accident. Almost no modern architecture needs a public bucket:
-            the users see files through CloudFront, and CloudFront reads from a private bucket.
+            New buckets block all public access, and ACLs (old per-object permission lists) are
+            switched off. Also turn on <strong>S3 Block Public Access for the whole account</strong>{" "}
+            (S3 → Block Public Access settings for this account). Then nobody on your team, and no
+            future script, can make a bucket public by accident. Almost no modern setup needs a
+            public bucket. Users see files through CloudFront, and CloudFront reads from a private
+            bucket.
           </p>
         </Callout>
         <p>Who <em>can</em> read a private bucket, then?</p>
         <ul>
           <li>
-            <strong>Your app</strong>, through its IAM role (next section).
+            <strong>Your app</strong>, through its IAM role. A role is a set of permissions that a
+            server can use without any stored password (next section).
           </li>
           <li>
-            <strong>CloudFront</strong>, through a bucket policy that names the distribution
-            (Origin Access Control).
+            <strong>CloudFront</strong>, through a bucket policy (a permission rule attached to the
+            bucket) that names the distribution. This is called Origin Access Control.
           </li>
           <li>
-            <strong>A specific user for a short time</strong>, through a presigned URL.
+            <strong>One user for a short time</strong>, through a presigned URL (a temporary link,
+            explained below).
           </li>
         </ul>
-        <p>Nobody else. Not the internet. That is what &ldquo;private&rdquo; means.</p>
+        <p>Nobody else can read it, and the open internet cannot. That is what &ldquo;private&rdquo; means.</p>
 
         <h2 id="create">Create a bucket and use it</h2>
         <p>
-          S3 → <strong>Create bucket</strong>. Bucket names are global across every AWS account,
-          so add something random: <code>myapp-uploads-7f3a</code>. Region{" "}
-          <code>ap-south-1</code>. Leave <strong>Block all public access</strong> switched on and
-          default encryption as it is — both are already the safe choice. That&apos;s it.
+          Go to S3 → <strong>Create bucket</strong>. Bucket names are shared by every AWS account in
+          the world, so add something random, such as <code>myapp-uploads-7f3a</code>. Choose the
+          region <code>ap-south-1</code>. Leave <strong>Block all public access</strong> switched on.
+          Leave default encryption as it is. Both are already the safe choice. That is all.
         </p>
         <p>
-          From your laptop the CLI can copy files in and out, list a prefix, sync a whole folder
-          and delete. One command is worth trying straight away, because it shows the
-          &ldquo;private by default&rdquo; idea in action:
+          From your laptop, the AWS CLI (the command-line tool for AWS) can copy files in and out,
+          list a prefix, sync a whole folder, and delete. Try one command now. It shows the
+          &ldquo;private by default&rdquo; idea at work:
         </p>
         <CommandList
           title="Try it"
           commands={[
-            { cmd: "aws s3 presign s3://myapp-uploads-7f3a/assets/logo.png --expires-in 300", note: "Upload any file in the console first. This link works for 5 minutes; the plain object URL is denied" },
+            { cmd: "aws s3 presign s3://myapp-uploads-7f3a/assets/logo.png --expires-in 300", note: "Upload any file in the console first. This link works for 5 minutes. The plain object URL is denied" },
           ]}
         />
 
         <h2 id="app-access">Letting the app read and write it (no keys)</h2>
         <p>
-          Lesson 5 created <code>myapp-pdfs-rw</code>, a policy allowing exactly get and put on one
-          bucket. Point it at your new bucket and attach it to the EC2 role. Notice the two
-          different <em>resources</em> — the bucket itself, and the objects inside it:
+          Lesson 5 created <code>myapp-pdfs-rw</code>, a policy that allows exactly get and put on one
+          bucket. Now make a policy for your new bucket and attach it to the EC2 role. Notice the
+          two different <em>resources</em>: the bucket itself, and the objects inside it. An ARN
+          (Amazon Resource Name) is the unique ID of an AWS thing.
         </p>
         <Script
           title="s3-app-policy.json"
@@ -256,50 +270,53 @@ export default function LessonElevenPage() {
       "Sid": "ListOnlyThisBucket",
       "Effect": "Allow",
       "Action": "s3:ListBucket",
-      "Resource": "arn:aws:s3:::myapp-uploads-abcd1234"
+      "Resource": "arn:aws:s3:::myapp-uploads-7f3a"
     },
     {
       "Sid": "ReadWriteObjects",
       "Effect": "Allow",
       "Action": ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"],
-      "Resource": "arn:aws:s3:::myapp-uploads-abcd1234/*"
+      "Resource": "arn:aws:s3:::myapp-uploads-7f3a/*"
     }
   ]
 }`}
         />
         <Callout kind="warn" label="The #1 S3 policy bug: the missing /*">
           <p className="mb-0">
-            <code>s3:ListBucket</code> applies to the <em>bucket</em> ARN (no slash);{" "}
-            <code>s3:GetObject</code> and <code>PutObject</code> apply to the <em>objects</em> ARN
-            (<code>…/*</code>). Put the wrong ARN on an action and you get{" "}
-            <code>AccessDenied</code> even though the policy &ldquo;looks right&rdquo;.
+            <code>s3:ListBucket</code> works on the <em>bucket</em> ARN (no slash at the end).{" "}
+            <code>s3:GetObject</code> and <code>PutObject</code> work on the <em>objects</em> ARN
+            (<code>…/*</code>). If you use the wrong ARN for an action, you get{" "}
+            <code>AccessDenied</code>, even though the policy &ldquo;looks right&rdquo;.
           </p>
         </Callout>
         <p>
           Create this as a policy (<code>myapp-uploads-rw</code>) and attach it to{" "}
-          <code>myapp-ec2-role</code>. No restart needed — the server&apos;s credentials refresh
-          within minutes. On the server, with no keys configured, listing your bucket now works
-          and listing any other bucket is denied.
+          <code>myapp-ec2-role</code>. You do not need to restart anything. The server gets its
+          temporary credentials from AWS by itself, and a policy change takes effect quickly,
+          usually within seconds. On the server, with no keys set up, listing your bucket now works.
+          Listing any other bucket is denied.
         </p>
 
         <h2 id="presigned">Presigned URLs — uploads that skip your server</h2>
         <p>
-          A typical beginner upload flow: the browser sends a 40 MB video to your Next.js API, which
-          receives it and forwards it to S3. That ties up your server for the whole upload, doubles
-          the bandwidth, and hits body-size limits (Nginx <code>413</code>, and 4.5 MB on Vercel
-          functions).
+          Here is a common beginner upload flow. The browser sends a 40 MB video to your Next.js API,
+          and the API forwards it to S3. This keeps your server busy for the whole upload and uses
+          double the bandwidth. It also hits body-size limits (Nginx <code>413</code>, and 4.5 MB on
+          Vercel functions).
         </p>
         <p>
-          The professional pattern: your server only <strong>signs a permission slip</strong>, and
-          the browser uploads directly to S3.
+          The better pattern uses a <strong>presigned URL</strong>. This is a web link with a
+          built-in signature (a proof of permission). It allows one action on one object for a short
+          time. Your server only <strong>signs a permission slip</strong>, and the browser uploads
+          straight to S3.
         </p>
         <ol>
           <li>Browser asks your API: &ldquo;I want to upload <code>photo.jpg</code> (image/jpeg).&rdquo;</li>
           <li>
-            Your API checks the user is logged in and allowed, generates a key, and returns a{" "}
-            <strong>presigned PUT URL</strong> valid for a few minutes.
+            Your API checks that the user is logged in and allowed. It makes a key and returns a{" "}
+            <strong>presigned PUT URL</strong> that works for a few minutes.
           </li>
-          <li>The browser <code>PUT</code>s the file straight to S3 using that URL.</li>
+          <li>The browser sends the file straight to S3 with a <code>PUT</code> request (the HTTP method for &ldquo;store this&rdquo;), using that URL.</li>
           <li>Your API stores the key in the database.</li>
         </ol>
         <Script
@@ -309,7 +326,7 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 
-// No credentials: the SDK finds the EC2 role by itself (Lesson 5)
+// No credentials: the SDK (the AWS code library) finds the EC2 role by itself (Lesson 5)
 const s3 = new S3Client({ region: "ap-south-1" });
 
 const ALLOWED = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
@@ -358,20 +375,25 @@ export async function POST(req: Request) {
         />
         <Callout kind="note" label="What a presigned URL really is">
           <p className="mb-0">
-            The URL contains a cryptographic signature computed from your role&apos;s credentials
-            plus the exact bucket, key, method and expiry. S3 recomputes it on arrival. Change
-            anything (the key, the method, the header) and the signature no longer matches, so it
-            fails. It is a time-limited, single-purpose key card — Lesson 5&apos;s plumber, for one
-            file.
+            The URL contains a signature. This is a code worked out from your role&apos;s credentials
+            plus the exact bucket, key, method and expiry time. S3 works out the code again when
+            the request arrives. If anything is different (the key, the method, a header), the code
+            does not match and the request fails. The link also stops working when the role&apos;s
+            temporary credentials expire. It is like a key card that works for one job and for a
+            short time. It is Lesson 5&apos;s plumber, for one file.
           </p>
         </Callout>
 
         <h2 id="cors">CORS, the error every browser upload hits</h2>
         <p>
-          The moment the <em>browser</em> calls S3 directly, you trigger the browser&apos;s
-          same-origin rule: a page on <code>yourapp.com</code> is not allowed to call{" "}
-          <code>*.s3.amazonaws.com</code> unless S3 explicitly agrees. Your first attempt will show
-          &ldquo;blocked by CORS policy&rdquo;. The fix is a CORS configuration <em>on the bucket</em>:
+          When the <em>browser</em> calls S3 directly, the browser&apos;s same-origin rule applies.
+          An <strong>origin</strong> is the protocol, domain and port together, such as{" "}
+          <code>https://yourapp.com</code>. A page from one origin may not use another origin (such
+          as <code>*.s3.amazonaws.com</code>) unless that server agrees. <strong>CORS</strong>{" "}
+          (Cross-Origin Resource Sharing) is the set of rules a server uses to say yes. Before the{" "}
+          <code>PUT</code>, the browser sends a small check request (a preflight) to ask S3 whether
+          it is allowed. Your first try will show &ldquo;blocked by CORS policy&rdquo;. The fix is a
+          CORS configuration <em>on the bucket</em>:
         </p>
         <Script
           title="cors.json"
@@ -388,27 +410,30 @@ export async function POST(req: Request) {
 }`}
         />
         <p>
-          Paste it in the bucket&apos;s Permissions → <strong>CORS</strong>. List only origins you
-          own; never use <code>*</code> for a bucket that accepts uploads.
+          Paste it in the bucket&apos;s Permissions → <strong>CORS</strong>. List only origins that
+          you own. Never use <code>*</code> for a bucket that accepts uploads. Remove the{" "}
+          <code>localhost</code> origin from the production bucket when you no longer need it.
         </p>
 
         <h2 id="lifecycle">Versioning, lifecycle and storage classes</h2>
         <h3>Versioning — the undo button</h3>
         <p>
-          Turn on <strong>versioning</strong> and S3 keeps every previous version of an object; a
-          delete just adds a &ldquo;delete marker&rdquo;. An overwritten or deleted file can be
-          restored. It is the cheapest insurance you can buy for user data (and Lesson 18&apos;s
-          backup story).
+          <strong>Versioning</strong> is a bucket setting that keeps every old version of an object.
+          When you delete a file, S3 only adds a &ldquo;delete marker&rdquo; (a hidden note that
+          makes the file look deleted). You can restore an overwritten or deleted file. This is the
+          cheapest insurance for user data. It is also part of Lesson 18&apos;s backup story.
         </p>
         <p>
-          Both are switches in the console: <strong>Properties → Bucket versioning</strong>, and{" "}
-          <strong>Management → Create lifecycle rule</strong> with the three actions below.
+          Both are in the console. Versioning is under <strong>Properties → Bucket versioning</strong>.
+          A <strong>lifecycle rule</strong> is an automatic rule that acts on objects as they get
+          older. Make one under <strong>Management → Create lifecycle rule</strong> with the three
+          actions below.
         </p>
-        <p>What that lifecycle rule does, in plain English:</p>
+        <p>This is what the lifecycle rule does:</p>
         <ul>
-          <li>Old versions of files are deleted after 30 days (otherwise versioning grows forever).</li>
-          <li>Half-finished uploads are cleaned up after 7 days — a common hidden cost.</li>
-          <li>Files untouched for 90 days move to a cheaper class automatically.</li>
+          <li>Old versions of files are deleted after 30 days. Without this, versioning grows forever.</li>
+          <li>Half-finished uploads are cleaned up after 7 days. They are a common hidden cost.</li>
+          <li>Files that nobody touches for 90 days move to a cheaper storage class automatically.</li>
         </ul>
         <h3>Storage classes</h3>
         <div className="table-wrap">
@@ -434,48 +459,55 @@ export async function POST(req: Request) {
           </table>
         </div>
         <p>
-          Start with Standard. Add Intelligent-Tiering once you have real volume and do not know the
-          pattern. Do not over-engineer this until the storage line is a meaningful part of the
-          bill.
+          Start with Standard. Add Intelligent-Tiering when you have a lot of data and do not know how
+          often it is read. Do not make this complicated until storage is a big part of your bill.
+          The prices in the table are rough and differ by region. Some classes also have a minimum
+          storage time (for example 30 days for Standard-IA), so check the current pricing page.
         </p>
 
         <h2 id="cdn">What a CDN is and why it is fast</h2>
         <p>
-          Latency is the speed of light plus the number of hops. A file stored in Mumbai takes about
-          20 ms to reach Mumbai but 150–250 ms to reach London or São Paulo, and a web page needs
-          dozens of files. A <strong>Content Delivery Network</strong> keeps copies of files in
-          hundreds of small data centres (<em>edge locations</em>) near users.
+          <strong>Latency</strong> is the delay before data arrives. It depends on distance (data
+          cannot travel faster than light) and on the number of hops (steps between machines). A
+          file stored in Mumbai takes about 20 ms to reach a user in Mumbai. It can take 100–300 ms
+          to reach London or São Paulo. A web page needs dozens of files, so the delays add up. A{" "}
+          <strong>Content Delivery Network</strong> (CDN) fixes this. It keeps copies of your files
+          in hundreds of small data centres (<em>edge locations</em>) near users.
         </p>
         <CdnFlow />
         <p>
-          The first visitor in a city causes a <strong>cache miss</strong> (the edge fetches from
-          your origin). Everyone after gets a <strong>cache hit</strong>. Your origin sees a tiny
-          fraction of the traffic — which is also why a CDN protects your server from spikes.
+          A <strong>cache</strong> is a saved copy that is kept for quick reuse. The{" "}
+          <strong>origin</strong> is the original server (here, S3). The first visitor in a city
+          causes a <strong>cache miss</strong>: the edge location has no copy, so it fetches the file
+          from your origin. Everyone after that gets a <strong>cache hit</strong>: the edge answers
+          from its copy. Your origin sees only a small part of the traffic. This is also why a CDN
+          protects your server from traffic spikes.
         </p>
 
         <h2 id="cloudfront">CloudFront in front of S3, step by step</h2>
         <p>
-          The architecture: users → CloudFront → (only on a miss) → private S3 bucket. The bucket
-          allows <em>only</em> that one CloudFront distribution to read it, via{" "}
-          <strong>Origin Access Control (OAC)</strong>. The console is the friendliest way to create
-          a distribution the first time:
+          The flow is: users → CloudFront → (only on a miss) → private S3 bucket. A{" "}
+          <strong>distribution</strong> is one CloudFront setup. The bucket allows <em>only</em> that
+          one distribution to read it. This works through{" "}
+          <strong>Origin Access Control (OAC)</strong>, a CloudFront setting that signs CloudFront&apos;s
+          requests to S3. The console is the easiest way to create a distribution the first time:
         </p>
         <ol className="steps">
           <li>
             <h3>Create the distribution</h3>
             <p>
-              CloudFront → Create distribution → Origin domain: pick your S3 bucket. For{" "}
+              Go to CloudFront → Create distribution. For Origin domain, pick your S3 bucket. For{" "}
               <strong>Origin access</strong>, choose <em>Origin access control settings (recommended)</em>{" "}
-              and create a new OAC (signing: sign requests). Under Viewer protocol policy choose{" "}
-              <em>Redirect HTTP to HTTPS</em>. Enable compression. Pick the cache policy{" "}
-              <em>CachingOptimized</em>. Create.
+              and create a new OAC (signing: sign requests). Under Viewer protocol policy, choose{" "}
+              <em>Redirect HTTP to HTTPS</em>. Turn on compression. Pick the cache policy{" "}
+              <em>CachingOptimized</em>. Then click Create.
             </p>
           </li>
           <li>
             <h3>Apply the bucket policy CloudFront shows you</h3>
             <p>
-              After creation the console offers a ready-made policy. It looks like this — study it;
-              it says &ldquo;only this distribution may read objects&rdquo;:
+              After you create the distribution, the console shows a ready-made policy. It looks like
+              this. Read it carefully. It says &ldquo;only this distribution may read objects&rdquo;:
             </p>
             <Script
               title="bucket policy for OAC"
@@ -486,7 +518,7 @@ export async function POST(req: Request) {
     "Effect": "Allow",
     "Principal": { "Service": "cloudfront.amazonaws.com" },
     "Action": "s3:GetObject",
-    "Resource": "arn:aws:s3:::myapp-uploads-abcd1234/*",
+    "Resource": "arn:aws:s3:::myapp-uploads-7f3a/*",
     "Condition": {
       "StringEquals": {
         "AWS:SourceArn": "arn:aws:cloudfront::123456789012:distribution/E1ABCDEF2GHIJK"
@@ -496,41 +528,41 @@ export async function POST(req: Request) {
 }`}
             />
             <p>
-              The <code>Condition</code> is the important part: without it, <em>any</em> CloudFront
-              distribution in the world could point at your bucket. Paste it in the bucket&apos;s
-              Permissions → Bucket policy.
+              The <code>Condition</code> is the important part. Without it, <em>any</em> CloudFront
+              distribution in the world could read your bucket. Paste the policy in the
+              bucket&apos;s Permissions → Bucket policy.
             </p>
           </li>
           <li>
             <h3>Test the two paths</h3>
             <p>
-              Upload a test file. Then compare the direct S3 URL with the CloudFront one:
+              Upload a test file. Then compare the direct S3 URL with the CloudFront URL:
             </p>
             <CommandList
               title="Direct S3 is denied, CloudFront works"
               commands={[
-                { cmd: "curl -I https://myapp-uploads-7f3a.s3.ap-south-1.amazonaws.com/assets/logo.png", note: "Direct to S3: 403 Forbidden — correct, the bucket is private" },
-                { cmd: "curl -I https://d1234abcd.cloudfront.net/assets/logo.png", note: "Through CloudFront: 200 OK. Run it twice — the second says x-cache: Hit from cloudfront, served from the edge" },
+                { cmd: "curl -I https://myapp-uploads-7f3a.s3.ap-south-1.amazonaws.com/assets/logo.png", note: "Direct to S3 you get 403 Forbidden. This is correct, because the bucket is private" },
+                { cmd: "curl -I https://d1234abcd.cloudfront.net/assets/logo.png", note: "Through CloudFront you get 200 OK. Run it twice. The second answer says x-cache: Hit from cloudfront, which means it came from the edge" },
               ]}
             />
           </li>
           <li>
             <h3>Use your own domain: assets.yourapp.com</h3>
             <p>
-              The random <code>d1234abcd.cloudfront.net</code> name is ugly and ties you to it. To use{" "}
-              <code>assets.yourapp.com</code>:
+              The random name <code>d1234abcd.cloudfront.net</code> is ugly, and it ties you to CloudFront.
+              To use <code>assets.yourapp.com</code> instead:
             </p>
             <ul>
               <li>
                 Request an <strong>ACM certificate for <code>assets.yourapp.com</code> in{" "}
-                <code>us-east-1</code> (N. Virginia)</strong>. CloudFront is a global service and only
-                reads certificates from that one region — a common mistake, since everything else
-                lives in Mumbai.
+                <code>us-east-1</code> (N. Virginia)</strong>. ACM is AWS Certificate Manager. CloudFront
+                is a global service, and it reads certificates only from that one region. This is a
+                common mistake, because everything else in this course is in Mumbai.
               </li>
-              <li>Add it as an Alternate domain name on the distribution and select the certificate.</li>
+              <li>Add the name as an Alternate domain name on the distribution, and select the certificate.</li>
               <li>
-                In Route 53 (Lesson 13) create an <em>alias</em> A record{" "}
-                <code>assets.yourapp.com</code> → the distribution.
+                In Route 53 (the AWS DNS service, Lesson 13), create an <em>alias</em> A record from{" "}
+                <code>assets.yourapp.com</code> to the distribution.
               </li>
             </ul>
           </li>
@@ -538,8 +570,11 @@ export async function POST(req: Request) {
 
         <h2 id="caching">Cache control, cache busting and invalidation</h2>
         <p>
-          A cache has a hard problem: <strong>when the original changes, how do the copies find
-          out?</strong> There are three strategies, and the best one is to avoid the problem.
+          A cache has one hard problem: <strong>when the original file changes, how do the copies find
+          out?</strong> There are three ways to handle this. The best way is to avoid the problem.
+          Two terms first. The <strong>TTL</strong> (time to live) is how long a copy may be kept.
+          The <code>max-age</code> setting in the <code>Cache-Control</code> header sets the TTL in
+          seconds.
         </p>
         <div className="table-wrap">
           <table>
@@ -553,43 +588,48 @@ export async function POST(req: Request) {
             <tbody>
               <tr>
                 <td><strong>Wait</strong></td>
-                <td>Let the TTL (<code>max-age</code>) expire</td>
-                <td>Simple, but users see stale files until it does</td>
+                <td>Let the TTL (<code>max-age</code>) run out</td>
+                <td>Simple, but users see old (stale) files until it does</td>
               </tr>
               <tr>
                 <td><strong>Invalidate</strong></td>
-                <td>Create an <strong>invalidation</strong> for <code>/assets/logo.png</code> on the distribution</td>
-                <td>Works. First 1,000 paths/month free, then $0.005 each. Takes a minute or two. A fix, not a habit</td>
+                <td>Create an <strong>invalidation</strong> for <code>/assets/logo.png</code> on the distribution. An invalidation is a request that tells CloudFront to throw away its copies of that path</td>
+                <td>Works. The first 1,000 paths each month are free, then $0.005 each. It takes a minute or two. Use it as a quick fix, not as a habit</td>
               </tr>
               <tr>
                 <td><strong>Versioned file names</strong></td>
-                <td><code>app.a1b2c3.js</code>, <code>logo-v7.png</code> — a new name whenever the content changes</td>
-                <td><strong>Best.</strong> No invalidation ever; cache forever</td>
+                <td><code>app.a1b2c3.js</code>, <code>logo-v7.png</code>: a new name whenever the content changes</td>
+                <td><strong>Best.</strong> You never need an invalidation, and files can be cached forever</td>
               </tr>
             </tbody>
           </table>
         </div>
         <p>
-          Next.js already does the third one for you: <code>/_next/static/chunks/main-8f3a2c.js</code>{" "}
-          has a content hash in its name, so it can carry <code>Cache-Control: public,
-          max-age=31536000, immutable</code>. For your own uploads, use the same trick: never
-          overwrite a key — upload to a new UUID key and store the new key in the database.
+          Next.js already does the third way for you. The file{" "}
+          <code>/_next/static/chunks/main-8f3a2c.js</code> has a content hash in its name (a hash is a
+          short code made from the file&apos;s content, so it changes when the content changes), so it can
+          use <code>Cache-Control: public, max-age=31536000, immutable</code>. (<code>immutable</code>{" "}
+          tells the cache that the file will never change.) For your own uploads, use the same
+          trick. Never overwrite a key. Upload to a new UUID key and save the new key in the
+          database.
         </p>
         <Callout kind="warn" label="Do not cache what is personal">
           <p className="mb-0">
-            A CDN is a shared cache. HTML pages that differ per user, API responses with private
-            data, anything behind a login — must not be cached at the edge, or one user can receive
-            another&apos;s page. Cache only static, public, versioned files; send{" "}
-            <code>Cache-Control: private, no-store</code> for the rest. Private user files (invoices)
-            belong behind presigned URLs, not a public CDN path.
+            A CDN is a shared cache. Some content must never be cached at the edge: HTML pages that are
+            different for each user, API answers with private data, and anything behind a login.
+            Otherwise one user can receive another user&apos;s page. Cache only static, public,
+            versioned files. For everything else, send{" "}
+            <code>Cache-Control: private, no-store</code>. Private user files (such as invoices)
+            should use presigned URLs, not a public CDN path.
           </p>
         </Callout>
 
         <h2 id="nextjs">Using it from Next.js</h2>
         <p>
-          Two common ways to put the CDN to work. First, serve your built <code>/_next/static</code>{" "}
-          files from it by setting an asset prefix. Next.js then writes those URLs into the HTML, and
-          they load from the edge instead of your server:
+          There are two common ways to use the CDN. First, serve your built <code>/_next/static</code>{" "}
+          files from it. You do this with <code>assetPrefix</code>, a setting that puts your CDN
+          address in front of those file URLs. Next.js writes the new URLs into the HTML, so the
+          files load from the edge instead of your server:
         </p>
         <Script
           title="next.config.ts"
@@ -597,7 +637,7 @@ export async function POST(req: Request) {
 
 const nextConfig: NextConfig = {
   output: "standalone",
-  // Production only, so local development keeps working with no CDN
+  // Production only, so local development works without a CDN
   assetPrefix: process.env.NODE_ENV === "production" ? "https://assets.yourapp.com" : undefined,
   images: {
     remotePatterns: [{ protocol: "https", hostname: "assets.yourapp.com" }],
@@ -607,20 +647,28 @@ const nextConfig: NextConfig = {
 export default nextConfig;`}
         />
         <p>
-          Then upload the static build output as part of your deploy (this belongs in the CI pipeline
-          of Lesson 14):
+          Then upload the static build output as part of your deploy. This step belongs in the CI
+          pipeline of Lesson 14. (CI/CD is a robot that checks, builds and ships your code.) Only
+          the <code>.next/static</code> folder goes to the CDN:
         </p>
         <Script
           title="deploy step"
           code={`aws s3 sync .next/static s3://myapp-uploads-7f3a/_next/static \\
   --cache-control "public, max-age=31536000, immutable"`}
         />
+                <p>
+          Do not upload the rest of the <code>.next</code> folder, because it holds your server
+          code. Also note that <code>assetPrefix</code> does not cover files in the{" "}
+          <code>public</code> folder. If you want those on the CDN, you must add the prefix
+          yourself.
+        </p>
         <Callout kind="note" label="Order matters when deploying">
           <p className="mb-0">
-            Upload the new static files <strong>before</strong> switching the servers to the new
-            build. Otherwise a user can receive new HTML that references a hashed file that is not in
-            S3 yet, and get a broken page for a minute. Old files should stay for a while for the
-            same reason, in the other direction (pages still open in browsers).
+            Upload the new static files <strong>before</strong> you switch the servers to the new
+            build. If you do it the other way round, a user can get new HTML that points to a file
+            that is not in S3 yet, and the page breaks for a minute. Keep the old files for a while
+            too. The reason is the same, in the other direction: pages that are still open in
+            browsers need the old files.
           </p>
         </Callout>
 
@@ -642,9 +690,10 @@ export default nextConfig;`}
           </table>
         </div>
         <p>
-          For a startup&apos;s image and asset traffic this is usually a few dollars a month, and
-          often <em>cheaper</em> than serving the same bytes from EC2, because data leaving EC2 is
-          billed but S3-to-CloudFront is free. Check the current pricing pages.
+          For a small company&apos;s image and file traffic, this is usually a few dollars a month. It
+          is often <em>cheaper</em> than serving the same files from EC2, because data that leaves
+          EC2 is billed, but data from S3 to CloudFront is free. Prices change, so check the current
+          pricing pages.
         </p>
 
         <h2 id="troubleshooting">Troubleshooting table</h2>
@@ -676,9 +725,10 @@ export default nextConfig;`}
               q: "How do you let users upload large files securely without going through your server?",
               a: (
                 <p className="mb-0">
-                  Server authenticates the user and returns a short-lived presigned PUT URL scoped
-                  to one key and content type; the browser uploads directly to S3 (bucket CORS
-                  configured). Server stores the key. It removes size limits and server load.
+                  The server checks who the user is. It returns a short-lived presigned PUT URL for
+                  one key and one content type. The browser uploads straight to S3 (the bucket CORS
+                  rules must allow it). The server saves the key. This removes size limits and
+                  server load.
                 </p>
               ),
             },
@@ -686,10 +736,11 @@ export default nextConfig;`}
               q: "How do you serve private S3 content through CloudFront?",
               a: (
                 <p className="mb-0">
-                  Keep the bucket private with Block Public Access, create a CloudFront distribution
-                  with Origin Access Control, and add a bucket policy that allows only that
-                  distribution (condition on <code>AWS:SourceArn</code>). For per-user private
-                  files, use signed URLs or cookies.
+                  I keep the bucket private with Block Public Access. I create a CloudFront distribution
+                  with Origin Access Control. Then I add a bucket policy that allows only that
+                  distribution (using a condition on <code>AWS:SourceArn</code>). For private files
+                  of one user, I use CloudFront signed URLs or signed cookies (a signed URL or cookie is
+                  a temporary proof of permission that CloudFront checks).
                 </p>
               ),
             },
@@ -697,9 +748,9 @@ export default nextConfig;`}
               q: "You replaced an image but users still see the old one. Why, and what is the right fix?",
               a: (
                 <p className="mb-0">
-                  CloudFront (and browsers) are serving the cached copy until the TTL expires. A
-                  one-off fix is an invalidation. The correct design is content-hashed or versioned
-                  file names with long <code>max-age</code>, so a change is a new URL.
+                  CloudFront (and browsers) keep serving the saved copy until the TTL runs out. A quick fix
+                  is an invalidation. The right design is file names with a content hash or a version,
+                  and a long <code>max-age</code>. Then a change gets a new URL.
                 </p>
               ),
             },
@@ -707,8 +758,9 @@ export default nextConfig;`}
               q: "Why must a CloudFront ACM certificate be in us-east-1?",
               a: (
                 <p className="mb-0">
-                  CloudFront is a global service whose control plane reads certificates from N.
-                  Virginia. Regional services such as an ALB use certificates from their own region.
+                  CloudFront is a global service, and it reads its certificates from N. Virginia
+                  (us-east-1). Regional services such as an ALB use certificates from their own
+                  region.
                 </p>
               ),
             },
@@ -716,10 +768,10 @@ export default nextConfig;`}
               q: "S3 durability vs availability?",
               a: (
                 <p className="mb-0">
-                  Durability (11 nines) is the chance an object is not lost over a year — data is
-                  stored redundantly across multiple facilities. Availability (99.99% for Standard)
-                  is the chance a request succeeds at a given moment. Different numbers, different
-                  guarantees.
+                  Durability (11 nines) is the chance that an object is not lost over a year. S3 stores the
+                  data in several places to achieve this. Availability (99.99% for Standard) is the
+                  chance that a request works at a given moment. They are different numbers with
+                  different meanings.
                 </p>
               ),
             },
@@ -727,10 +779,11 @@ export default nextConfig;`}
               q: "A cross-tenant data leak: customer A saw customer B's file. Where could S3 be the cause?",
               a: (
                 <p className="mb-0">
-                  Guessable keys (sequential or user-supplied), a presigned URL issued without
-                  checking tenant ownership, a shared CDN path caching a private response, or an IAM
-                  policy broader than the tenant prefix. Fix with tenant-prefixed random keys,
-                  authorisation before signing, and no CDN caching of private content.
+                  Possible causes are: keys that are easy to guess (in order, or chosen by the user), a
+                  presigned URL given out without checking that the tenant owns the file, a CDN path
+                  that cached a private answer, or an IAM policy wider than the tenant prefix. The fix
+                  is random keys with a tenant prefix, a permission check before signing, and no CDN
+                  caching of private content.
                 </p>
               ),
             },
@@ -738,9 +791,9 @@ export default nextConfig;`}
               q: "Why turn on versioning, and what is the catch?",
               a: (
                 <p className="mb-0">
-                  Recover from accidental overwrite/delete and ransomware-style changes. The catch
-                  is cost: old versions accumulate, so pair it with a lifecycle rule that expires
-                  noncurrent versions.
+                  It lets you recover from an accidental overwrite or delete, and from malicious changes.
+                  The catch is cost. Old versions pile up, so pair it with a lifecycle rule that
+                  expires old (noncurrent) versions.
                 </p>
               ),
             },
@@ -756,8 +809,8 @@ export default nextConfig;`}
             the plain object URL returns 403 while a <code>presign</code> URL works.
           </li>
           <li>
-            Attach the bucket policy to <code>myapp-ec2-role</code> and confirm, from the server with
-            no keys, that you can list this bucket but not another.
+            Attach the permission policy to <code>myapp-ec2-role</code>. Then confirm, from the server
+            with no keys, that you can list this bucket but not another one.
           </li>
           <li>
             Create a CloudFront distribution with OAC. Confirm direct-to-S3 is 403 and the CloudFront
@@ -786,9 +839,9 @@ export default nextConfig;`}
 
         <h2 id="conclusion">Conclusion</h2>
         <p>
-          S3 stores files safely and cheaply; CloudFront delivers them quickly. Together they take
-          the heaviest, most repetitive work away from your servers and make those servers
-          disposable.
+          S3 stores files safely and cheaply. CloudFront delivers them quickly. Together they take the
+          heaviest and most repeated work away from your servers. This makes the servers easy to
+          replace.
         </p>
         <ul>
           <li>
@@ -804,16 +857,18 @@ export default nextConfig;`}
             limits and server load. Remember CORS.
           </li>
           <li>
-            <strong>Version your file names</strong> so a CDN can cache forever and you never
-            invalidate; lifecycle rules keep the bill tidy.
+            <strong>Version your file names</strong>, so a CDN can cache them forever and you never
+            need to invalidate. Lifecycle rules keep the bill small.
           </li>
           <li>
-            <strong>ACM for CloudFront lives in us-east-1</strong> — the surprise to remember.
+            <strong>The ACM certificate for CloudFront must be in us-east-1.</strong> Remember this one,
+            because it surprises many people.
           </li>
         </ul>
         <p>
-          With state pushed out to RDS and S3, your app servers are finally stateless. That is the
-          precondition for the next lesson: running many of them behind a load balancer.
+          Your data is now in RDS and your files are in S3, so your app servers are finally
+          stateless. This must be true before the next lesson: running many servers behind a load
+          balancer.
         </p>
 
         <hr />
