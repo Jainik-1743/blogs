@@ -35,7 +35,7 @@ spec:
     matchLabels: { app: orders-api }
   strategy:
     type: RollingUpdate
-    rollingUpdate: { maxUnavailable: 0, maxSurge: 1 }   # zero-downtime rollout
+    rollingUpdate: { maxUnavailable: 0, maxSurge: 1 }   # no downtime during the update
   template:
     metadata:
       labels: { app: orders-api }
@@ -86,21 +86,21 @@ export default function SdLessonFiveSixPage() {
       <div className="lesson">
         <Section id="the-problem" title="The Problem" kind="problem">
           <p>
-            You've containerised your services (post 55). Now you have <strong>30 services</strong>, each running{" "}
-            <strong>3–20 containers</strong>, across <strong>15 servers</strong>. Someone has to:
+            You have put your services in containers (post 55). Now you have <strong>30 services</strong>, each running{" "}
+            <strong>3–20 containers</strong>, across <strong>15 servers</strong>. Someone has to do all of this work:
           </p>
           <ul>
             <li>
-              decide <strong>which server</strong> each container runs on, based on free CPU and memory,
+              decide <strong>which server</strong> each container runs on, based on the free CPU and memory,
             </li>
             <li>
               <strong>restart</strong> containers that crash, and <strong>move</strong> them when a server dies,
             </li>
             <li>
-              <strong>scale</strong> up at 7 PM and down at 3 AM,
+              <strong>scale</strong> up at 7 PM (add more copies) and down at 3 AM (remove copies),
             </li>
             <li>
-              <strong>roll out</strong> new versions without downtime, and <strong>roll back</strong> bad ones,
+              <strong>roll out</strong> new versions without downtime, and <strong>roll back</strong> (go back to the old version) when a new one is bad,
             </li>
             <li>
               let services <strong>find each other</strong> as containers move around (post 54),
@@ -113,15 +113,17 @@ export default function SdLessonFiveSixPage() {
             </li>
           </ul>
           <p>
-            Doing this with scripts and SSH doesn't scale. <strong>Kubernetes</strong> (often shortened to{" "}
-            <strong>K8s</strong>) is a platform that does all of this <strong>automatically</strong>, based on a
-            description of what you want.
+            Doing this by hand with scripts and SSH does not scale. <strong>Kubernetes</strong> (often written as{" "}
+            <strong>K8s</strong>) is an open-source platform that does all of this <strong>automatically</strong>. You
+            describe what you want, and it makes it happen. This kind of work is called{" "}
+            <strong>container orchestration</strong>: starting, stopping, placing and connecting many containers like a
+            conductor leads an orchestra.
           </p>
         </Section>
 
         <Section id="the-core-idea" title="The Core Idea" kind="idea">
           <p>
-            Think about a <strong>very organised shipping port</strong>.
+            Think about a <strong>very well organised shipping port</strong>.
           </p>
           <ul>
             <li>
@@ -129,7 +131,7 @@ export default function SdLessonFiveSixPage() {
               product B available at all times, each with this much space."
             </li>
             <li>
-              The <strong>port crane operators</strong> (the scheduler) decide which <strong>dock</strong> (server) has
+              The <strong>crane operators</strong> (the scheduler) decide which <strong>dock</strong> (a server) has
               room for each container.
             </li>
             <li>
@@ -141,18 +143,56 @@ export default function SdLessonFiveSixPage() {
               other docks.
             </li>
             <li>
-              Customers don't need to know which dock holds what. They go to the <strong>"Product A" counter</strong>,
-              which always knows where the current containers are (a Service).
+              Customers do not need to know which dock holds what. They go to the <strong>"Product A" counter</strong>,
+              which always knows where the current containers are. In Kubernetes, this counter is called a Service.
             </li>
           </ul>
           <p>
-            Kubernetes is <strong>declarative</strong>: you describe the <strong>desired state</strong> ("I want 5
-            replicas of this image, with this much CPU, reachable at this name"), and Kubernetes{" "}
-            <strong>continuously works to make reality match it</strong>.
+            Kubernetes is <strong>declarative</strong>. This means you describe the <strong>desired state</strong> (the result you want),
+            for example "I want 5 replicas (copies) of this image, with this much CPU, reachable at this name". You do
+            not write the steps. Kubernetes then <strong>keeps working to make reality match your description</strong>.
+            The opposite style is <em>imperative</em>, where you give step-by-step commands.
           </p>
         </Section>
 
         <Section id="how-it-works" title="How It Works" kind="how">
+          <h3 id="key-terms">Key terms in plain words</h3>
+          <ul>
+            <li>
+              <strong>Cluster:</strong> a group of machines that work together as one system.
+            </li>
+            <li>
+              <strong>Node:</strong> one machine (real or virtual) in the cluster. It runs your containers.
+            </li>
+            <li>
+              <strong>Pod:</strong> the smallest thing Kubernetes runs. It holds one or more containers that run together.
+            </li>
+            <li>
+              <strong>Replica:</strong> one copy of a pod. "5 replicas" means 5 identical copies.
+            </li>
+            <li>
+              <strong>Control plane:</strong> the part of Kubernetes that makes decisions. The nodes do the actual work.
+            </li>
+            <li>
+              <strong>YAML:</strong> a simple text format for settings, written as indented keys and values. You write
+              your Kubernetes objects in YAML.
+            </li>
+            <li>
+              <strong>kubectl:</strong> the command-line tool you use to talk to a cluster.
+            </li>
+            <li>
+              <strong>Label and selector:</strong> a label is a key=value tag on an object (like <code>app: orders-api</code>).
+              A selector is a rule that finds all objects with a given label.
+            </li>
+            <li>
+              <strong>Endpoints:</strong> the list of pod addresses that a Service currently sends traffic to. Only
+              ready pods are on the list.
+            </li>
+            <li>
+              <strong>Stateless and stateful:</strong> a stateless app keeps no important data inside itself, so any copy
+              can be replaced. A stateful app (like a database) keeps data that must not be lost.
+            </li>
+          </ul>
           <h3 id="architecture-control-plane-and-nodes">Architecture: control plane and nodes</h3>
           <Layers
             caption="A Kubernetes cluster: one control plane deciding, many nodes doing."
@@ -185,19 +225,20 @@ export default function SdLessonFiveSixPage() {
           </p>
           <ul>
             <li>
-              <strong>kube-apiserver:</strong> the front door. Every change goes through its API.
+              <strong>kube-apiserver:</strong> the front door. Every change goes through its API (a set of web requests that tools can call).
             </li>
             <li>
-              <strong>etcd:</strong> a consistent, replicated key-value store (using Raft, post 24) that holds all
-              cluster state. <strong>Back it up!</strong>
+              <strong>etcd:</strong> a small database that stores data as key-value pairs. It keeps copies on several
+              machines and uses the Raft algorithm (post 24), a method that lets several machines vote and agree on one value, so the copies always agree. It holds all cluster state.{" "}
+              <strong>Back it up.</strong>
             </li>
             <li>
-              <strong>kube-scheduler:</strong> chooses a node for each new pod, based on requested resources,
-              constraints and spreading rules.
+              <strong>kube-scheduler:</strong> chooses a node for each new pod. It looks at the resources the pod asks
+              for, any placement rules, and how to spread pods out.
             </li>
             <li>
-              <strong>controller-manager:</strong> runs many <strong>controllers</strong>, loops that watch the state
-              and fix differences.
+              <strong>controller-manager:</strong> runs many <strong>controllers</strong>. A controller is a loop that
+              watches the state and fixes any difference from what you asked for.
             </li>
           </ul>
           <p>
@@ -205,22 +246,24 @@ export default function SdLessonFiveSixPage() {
           </p>
           <ul>
             <li>
-              <strong>kubelet:</strong> the agent on each node that starts and stops containers and reports their
-              status.
+              <strong>kubelet:</strong> a small program (an agent) on each node. It starts and stops containers and
+              reports their status to the control plane.
             </li>
             <li>
-              <strong>Container runtime:</strong> containerd or CRI-O runs the OCI images (post 55).
+              <strong>Container runtime:</strong> the program that actually runs the containers, such as containerd or
+              CRI-O. It runs OCI images (post 55).
             </li>
             <li>
-              <strong>kube-proxy / CNI network plugin:</strong> handles pod networking and Service routing.
+              <strong>kube-proxy / CNI network plugin:</strong> these set up the network between pods and send Service
+              traffic to the right pod. (CNI means Container Network Interface.)
             </li>
           </ul>
           <p>
             Managed services (<strong>Amazon EKS, Google GKE, Azure AKS</strong> and others) run the control plane for
-            you. Most teams use one of these rather than operating it themselves.
+            you. Most teams use one of these instead of running the control plane themselves.
           </p>
           <h3 id="the-reconciliation-loop">The reconciliation loop</h3>
-          <p>This is the heart of Kubernetes:</p>
+          <p>This loop is the main idea of Kubernetes. A "loop" here is a job that repeats forever:</p>
           <Flow
             caption="The reconciliation loop — the one idea behind everything Kubernetes does."
             nodes={[
@@ -235,69 +278,71 @@ export default function SdLessonFiveSixPage() {
             ]}
           />
           <p>
-            Every controller does this, over and over. If a node dies and 2 pods disappear, the Deployment's controller
-            notices <strong>"desired 5, current 3"</strong> and creates 2 new pods elsewhere.{" "}
-            <strong>You don't write the recovery steps. You declare the goal.</strong>
+            Every controller does this, over and over. Say a node dies and 2 pods disappear. The Deployment's controller
+            sees <strong>"desired 5, current 3"</strong> and creates 2 new pods on other nodes.{" "}
+            <strong>You do not write the recovery steps. You only state the goal.</strong>
           </p>
           <h3 id="core-objects">Core objects</h3>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Pod</h4>
           <p>
-            The <strong>smallest deployable unit</strong>: one or more containers that <strong>share</strong> a network
-            address (IP) and can share storage volumes.
+            A pod is the <strong>smallest unit you can deploy</strong>. It is one or more containers that{" "}
+            <strong>share</strong> one network address (IP) and can share storage volumes.
           </p>
           <ul>
             <li>
-              Usually <strong>one main container</strong> per pod, sometimes with <strong>sidecars</strong> (a logging
-              agent, or a service-mesh proxy, post 54).
+              Usually there is <strong>one main container</strong> per pod. Sometimes there are also{" "}
+              <strong>sidecars</strong>: helper containers that run next to the main one, such as a logging agent or a
+              service-mesh proxy (post 54).
             </li>
             <li>
-              Pods are <strong>disposable</strong>. They get replaced, not repaired, and each new pod gets a new IP.
-              Never rely on a specific pod.
+              Pods are <strong>disposable</strong>. They are replaced, not repaired, and each new pod gets a new IP.
+              Never depend on one specific pod.
             </li>
           </ul>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Deployment (and ReplicaSet)</h4>
           <p>
-            The most common way to run <strong>stateless</strong> apps. A <strong>Deployment</strong> says "run N copies
-            of this pod template, and update them safely":
+            A <strong>Deployment</strong> is the most common way to run <strong>stateless</strong> apps. It says "run N
+            copies of this pod template, and update them safely". (A pod template is the blueprint for the pods.)
           </p>
           <CodeBlock lang="yaml" code={code1} />
           <p>
-            The Deployment manages <strong>ReplicaSets</strong>, which keep the right number of pods running. When you
-            change the image to <code>1.4.3</code>, it performs a <strong>rolling update</strong>: new pods are started,
-            old ones stopped gradually, and{" "}
+            The Deployment manages <strong>ReplicaSets</strong>. A ReplicaSet keeps the right number of pods running.
+            Say you change the image to <code>1.4.3</code>. The Deployment then does a <strong>rolling update</strong>:
+            it starts new pods and stops old ones a little at a time, so the app stays up. In the example above,{" "}
+            <code>maxUnavailable: 0</code> and <code>maxSurge: 1</code> mean that no pod may be missing, and at most one extra pod may exist during the update. The command{" "}
             <strong>
               <code>kubectl rollout undo</code>
             </strong>{" "}
-            rolls back.
+            goes back to the previous version.
           </p>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Other workload types</h4>
           <ul>
             <li>
-              <strong>StatefulSet:</strong> for <strong>stateful</strong> apps (databases, Kafka, ZooKeeper). Pods get{" "}
-              <strong>stable names</strong> (<code>db-0</code>, <code>db-1</code>), <strong>stable storage</strong>, and
-              ordered startup and shutdown.
+              <strong>StatefulSet:</strong> for <strong>stateful</strong> apps (databases, Kafka, which passes streams of messages between programs, or ZooKeeper, a coordination service). Its pods get{" "}
+              <strong>fixed names</strong> (<code>db-0</code>, <code>db-1</code>), <strong>their own storage that stays with them</strong>, and
+              they start and stop in a set order.
             </li>
             <li>
-              <strong>DaemonSet:</strong> runs <strong>one pod on every node</strong>, for log collectors, monitoring
+              <strong>DaemonSet:</strong> runs <strong>one pod on every node</strong>. It is used for log collectors, monitoring
               agents and network plugins.
             </li>
             <li>
-              <strong>Job:</strong> runs pods <strong>to completion</strong> (like a database migration or a batch
-              import).
+              <strong>Job:</strong> runs pods <strong>until the work is finished</strong>, then stops. Examples are a database migration or a batch
+              import.
             </li>
             <li>
-              <strong>CronJob:</strong> runs Jobs <strong>on a schedule</strong> (post 38).
+              <strong>CronJob:</strong> runs Jobs <strong>on a schedule</strong>, like "every night at 2 AM" (post 38).
             </li>
           </ul>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Service: a stable address for changing pods</h4>
           <p>
-            Pods come and go, so a <strong>Service</strong> gives a set of pods (selected by <strong>labels</strong>) a{" "}
-            <strong>stable name and virtual IP</strong>, and load-balances traffic to the <strong>ready</strong> ones
-            (post 54):
+            Pods come and go, so their IPs keep changing. A <strong>Service</strong> fixes this. It gives a set of pods (chosen by{" "}
+            <strong>labels</strong>) one <strong>stable name and virtual IP</strong>. It also load-balances (shares) the
+            traffic between the pods that are <strong>ready</strong> (post 54):
           </p>
           <CodeBlock lang="yaml" code={code2} />
           <p>
-            Other pods can now call <code>http://orders-api</code>, and cluster DNS resolves it.
+            Other pods can now call <code>http://orders-api</code>. The cluster DNS (the name lookup service) turns that name into the Service IP.
           </p>
           <p>
             <strong>Service types:</strong>
@@ -307,23 +352,27 @@ export default function SdLessonFiveSixPage() {
               <strong>ClusterIP</strong> (the default): reachable <strong>inside</strong> the cluster only.
             </li>
             <li>
-              <strong>NodePort:</strong> opens a port on every node. It's rarely used directly.
+              <strong>NodePort:</strong> opens the same port on every node. It is rarely used directly.
             </li>
             <li>
-              <strong>LoadBalancer:</strong> asks the cloud to create an <strong>external load balancer</strong> (post
-              12).
+              <strong>LoadBalancer:</strong> asks the cloud provider to create an <strong>external load balancer</strong> (a machine that
+              spreads incoming traffic, post 12).
             </li>
             <li>
-              <strong>Headless</strong> (<code>clusterIP: None</code>): returns individual pod IPs, often used with
+              <strong>Headless</strong> (<code>clusterIP: None</code>): has no single virtual IP. DNS returns the IPs of the individual pods. It is often used with
               StatefulSets.
             </li>
           </ul>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Ingress and Gateway API: HTTP traffic from outside</h4>
           <p>
-            An <strong>Ingress</strong> (or the newer, more powerful <strong>Gateway API</strong>) routes external
-            HTTP(S) traffic to Services by <strong>host and path</strong>, with TLS. An{" "}
-            <strong>Ingress controller</strong> (NGINX, Traefik, Envoy-based gateways or cloud load balancers) does the
-            actual work. It's an L7 load balancer / reverse proxy (posts 12–13) managed by Kubernetes.
+            An <strong>Ingress</strong> routes web traffic (HTTP and HTTPS) from outside the cluster to Services. It
+            chooses the Service by <strong>host name and path</strong>, and it can handle TLS (the encryption for HTTPS).
+            The <strong>Gateway API</strong> is the newer and more powerful design for the same job. The Kubernetes
+            project now adds new features only to the Gateway API, and the Ingress API is frozen. An{" "}
+            <strong>Ingress controller</strong> (NGINX, Traefik, Envoy-based gateways or cloud load balancers) is the
+            program that does the actual work. It is an L7 load balancer and reverse proxy (posts 12–13) that Kubernetes
+            manages. "L7" means it understands HTTP. A reverse proxy is a server that receives requests for your
+            servers and passes them on.
           </p>
           <Flow
             caption="How outside traffic reaches pods."
@@ -341,23 +390,29 @@ export default function SdLessonFiveSixPage() {
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">ConfigMap and Secret</h4>
           <ul>
             <li>
-              <strong>ConfigMap:</strong> non-secret configuration (feature settings, URLs), injected as environment
-              variables or files.
+              <strong>ConfigMap:</strong> settings that are not secret (feature settings, URLs). They are given to the
+              container as environment variables or files.
             </li>
             <li>
-              <strong>Secret:</strong> sensitive values. ⚠️ They're only <strong>base64-encoded</strong> by default, so
-              enable <strong>encryption at rest</strong> for etcd, restrict access with RBAC, and consider syncing from
-              an external secrets manager (post 51).
+              <strong>Secret:</strong> sensitive values such as passwords. ⚠️ By default they are only{" "}
+              <strong>base64-encoded</strong>. Base64 is a way to write data as text. It is not encryption, and anyone can
+              decode it. So turn on <strong>encryption at rest</strong> for etcd (data is encrypted on disk), limit access
+              with RBAC (rules about who may do what), and think about syncing secrets from an external secrets manager
+              (post 51).
             </li>
           </ul>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Namespaces</h4>
           <p>
-            <strong>Namespaces</strong> divide one cluster into <strong>virtual sections</strong> (<code>payments</code>
-            , <code>search</code>, <code>staging</code>), with their own resources, access rules (RBAC) and quotas.
-            They're useful for separating teams and environments, but{" "}
-            <strong>they're not strong security boundaries</strong> on their own. Add NetworkPolicies and RBAC.
+            <strong>Namespaces</strong> divide one cluster into <strong>virtual sections</strong> (for example <code>payments</code>
+            , <code>search</code> and <code>staging</code>). Each section has its own resources, access rules (RBAC) and quotas
+            (limits). They are useful for separating teams and environments. But{" "}
+            <strong>on their own they are not a strong security wall</strong>. Add NetworkPolicies and RBAC.
           </p>
           <h3 id="health-checks-liveness-readiness-startup">Health checks: liveness, readiness, startup</h3>
+          <p>
+            A <strong>probe</strong> is a check that Kubernetes runs on a container again and again, for example by calling a URL such as{" "}
+            <code>/healthz</code>. The answer decides what Kubernetes does next. There are three kinds.
+          </p>
           <Compare
             caption="Three probes, three different questions."
             columns={[
@@ -383,7 +438,7 @@ export default function SdLessonFiveSixPage() {
                   { sign: "·", text: <>“Has a slow-starting app finished booting?”</> },
                   { sign: "+", text: <>Holds the other probes off until it passes</> },
                 ],
-                verdict: <>JVMs and apps with long start-up</>,
+                verdict: <>Java (JVM) apps and others with a long start-up</>,
               },
             ]}
           />
@@ -433,9 +488,9 @@ export default function SdLessonFiveSixPage() {
           </div>
           <p>
             <strong>Common mistake:</strong> making the <strong>liveness</strong> probe check the{" "}
-            <strong>database</strong>. When the database has a hiccup, <strong>every pod restarts at once</strong>,
-            making the outage much worse. Liveness should check only "is this process healthy?". Use readiness,
-            carefully, for temporary "not ready" states (post 12).
+            <strong>database</strong>. If the database has a short problem, <strong>every pod restarts at once</strong>.
+            This makes the outage much worse. Liveness should only check "is this process healthy?". Use readiness, with
+            care, for temporary "not ready" states (post 12).
           </p>
           <h3 id="resources-scheduling-and-scaling">Resources, scheduling and scaling</h3>
           <p>
@@ -443,16 +498,15 @@ export default function SdLessonFiveSixPage() {
           </p>
           <ul>
             <li>
-              <strong>Requests:</strong> what the pod is <strong>guaranteed</strong>. The scheduler uses this to place
-              pods.
+              <strong>Requests:</strong> the amount of CPU and memory the pod is <strong>guaranteed</strong>. The scheduler uses it to choose a node for the pod.
             </li>
             <li>
-              <strong>Limits:</strong> the <strong>maximum</strong> it may use. Going over the <strong>memory</strong>{" "}
-              limit kills the container ("OOMKilled"). Hitting the <strong>CPU</strong> limit slows it down
-              (throttling).
+              <strong>Limits:</strong> the <strong>most</strong> the pod may use. If it goes over the <strong>memory</strong>{" "}
+              limit, the container is killed ("OOMKilled", where OOM means out of memory). If it reaches the <strong>CPU</strong> limit, it is slowed down
+              (this is called throttling). In the example, <code>250m</code> means 250 millicores, which is a quarter of one CPU core.
             </li>
             <li>
-              Setting requests correctly is key to both <strong>reliability</strong> and <strong>cost</strong>.
+              Setting requests correctly matters for both <strong>reliability</strong> and <strong>cost</strong>.
             </li>
           </ul>
           <p>
@@ -460,38 +514,40 @@ export default function SdLessonFiveSixPage() {
           </p>
           <ul>
             <li>
-              <strong>Horizontal Pod Autoscaler (HPA):</strong> adds or removes <strong>pods</strong> based on CPU,
-              memory or custom metrics (like requests per second or queue length):
+              <strong>Horizontal Pod Autoscaler (HPA):</strong> adds or removes <strong>pods</strong> automatically. It
+              looks at CPU, memory or custom metrics (like requests per second or queue length). "Horizontal" means more
+              copies, not bigger ones:
             </li>
           </ul>
           <CodeBlock lang="yaml" code={code3} />
           <ul>
             <li>
-              <strong>Vertical Pod Autoscaler (VPA):</strong> adjusts a pod's <strong>requests and limits</strong> based
-              on actual usage.
+              <strong>Vertical Pod Autoscaler (VPA):</strong> changes a pod's <strong>requests and limits</strong> based
+              on what it really uses. "Vertical" means a bigger pod, not more pods.
             </li>
             <li>
-              <strong>Cluster Autoscaler / Karpenter:</strong> add or remove <strong>nodes</strong> when pods can't be
-              scheduled, or nodes are underused.
+              <strong>Cluster Autoscaler / Karpenter:</strong> tools that add or remove <strong>nodes</strong>. They add nodes when
+              pods cannot be placed, and remove nodes that are barely used.
             </li>
             <li>
-              <strong>Event-driven autoscaling (KEDA):</strong> scales on queue depth, Kafka lag and so on, even down to
-              zero.
+              <strong>Event-driven autoscaling (KEDA):</strong> a tool that scales based on events, such as queue length or Kafka lag
+              (how far a consumer is behind). It can even scale down to zero pods.
             </li>
           </ul>
           <p>
             <strong>Spreading for availability:</strong> use <strong>topology spread constraints</strong> or{" "}
-            <strong>pod anti-affinity</strong> to spread replicas across <strong>nodes and availability zones</strong>,
-            so one failure doesn't take out every replica (post 40). A <strong>PodDisruptionBudget</strong> stops
-            maintenance from evicting too many replicas at once.
+            <strong>pod anti-affinity</strong> (rules that keep pods apart) to spread replicas across{" "}
+            <strong>nodes and availability zones</strong>. An availability zone is one or more separate data centres inside one region, with their own power and network.
+            This way, one failure does not take out every replica (post 40). A <strong>PodDisruptionBudget</strong>{" "}
+            limits how many replicas planned maintenance may remove (evict) at the same time. Bin-packing means fitting many pods tightly onto few nodes to save money.
           </p>
           <h3 id="storage">Storage</h3>
           <ul>
             <li>
-              <strong>Volumes</strong> attach storage to pods.
+              <strong>Volumes</strong> attach storage to pods. A plain volume may disappear with the pod.
             </li>
             <li>
-              <strong>PersistentVolume (PV):</strong> a piece of storage (like a cloud disk).
+              <strong>PersistentVolume (PV):</strong> a piece of storage that lives on after the pod is gone (like a cloud disk).
             </li>
             <li>
               <strong>PersistentVolumeClaim (PVC):</strong> a pod's <strong>request</strong> for storage ("I need 50 GB
@@ -502,24 +558,23 @@ export default function SdLessonFiveSixPage() {
             </li>
           </ul>
           <p>
-            Running databases on Kubernetes is possible (often with <strong>operators</strong>, below), but many teams
-            prefer <strong>managed databases</strong> outside the cluster for simplicity.
+            You can run databases on Kubernetes, often with <strong>operators</strong> (explained below). But many teams
+            choose <strong>managed databases</strong> outside the cluster because they are simpler.
           </p>
           <h3 id="security-basics">Security basics</h3>
           <ul>
             <li>
-              <strong>RBAC</strong> controls who (people and service accounts) can do what via the API.
+              <strong>RBAC</strong> (role-based access control) decides who can do what through the API. "Who" can be people or service accounts (identities for programs).
             </li>
             <li>
-              <strong>NetworkPolicies</strong> control which pods can talk to which. The default is "everything can talk
-              to everything".
+              <strong>NetworkPolicies</strong> control which pods may talk to which. By default, every pod can talk to every other pod.
             </li>
             <li>
-              <strong>Pod security:</strong> run as non-root, with a read-only root file system and minimal capabilities
+              <strong>Pod security:</strong> run as non-root, with a read-only root file system and only the Linux capabilities you need
               (post 55).
             </li>
             <li>
-              <strong>Admission policies</strong> (tools like Kyverno or OPA Gatekeeper) reject unsafe configurations.
+              <strong>Admission policies</strong> (tools like Kyverno or OPA Gatekeeper) check every new object and reject unsafe ones.
             </li>
             <li>
               <strong>Keep the cluster and nodes patched</strong>, and scan images.
@@ -528,44 +583,46 @@ export default function SdLessonFiveSixPage() {
           <h3 id="the-ecosystem">The ecosystem</h3>
           <ul>
             <li>
-              <strong>Helm:</strong> a package manager for Kubernetes. It bundles YAML into reusable, configurable
-              "charts".
+              <strong>Helm:</strong> a package manager for Kubernetes (like npm for your cluster). It bundles YAML files into reusable,
+              configurable packages called "charts".
             </li>
             <li>
-              <strong>Kustomize:</strong> layers environment-specific changes over base YAML (built into{" "}
+              <strong>Kustomize:</strong> keeps one base set of YAML and adds small changes on top for each environment (it is built into{" "}
               <code>kubectl</code>).
             </li>
             <li>
-              <strong>Operators:</strong> controllers that encode operational knowledge for complex software ("how to
-              run PostgreSQL or Kafka"), extending Kubernetes with <strong>Custom Resource Definitions (CRDs)</strong>.
+              <strong>Operators:</strong> controllers that contain expert knowledge about running complex software ("how to
+              run PostgreSQL or Kafka"). They add new object types to Kubernetes with{" "}
+              <strong>Custom Resource Definitions (CRDs)</strong>.
             </li>
             <li>
-              <strong>GitOps (Argo CD, Flux):</strong> the desired state lives in <strong>Git</strong>, and a controller
-              keeps the cluster in sync with the repository (post 58).
+              <strong>GitOps (Argo CD, Flux):</strong> you keep the desired state in <strong>Git</strong>, and a controller
+              keeps the cluster the same as the repository (post 58).
             </li>
             <li>
-              <strong>Service meshes (Istio, Linkerd):</strong> mTLS, traffic control and observability between services
+              <strong>Service meshes (Istio, Linkerd):</strong> a layer of helper proxies that gives services mTLS
+              (both sides prove who they are and encrypt the traffic), traffic control and observability (the ability to see what is happening) between services
               (posts 51 and 54).
             </li>
           </ul>
           <h3 id="do-you-need-kubernetes">Do you need Kubernetes?</h3>
           <p>
-            Kubernetes is powerful, but it's <strong>complex</strong>. <strong>Good fits:</strong>
+            Kubernetes is powerful, but it is <strong>complex</strong>. <strong>It is a good fit when you have:</strong>
           </p>
           <ul>
             <li>many services and teams,</li>
             <li>a need for portability across clouds or on-premises,</li>
             <li>a platform team to run it,</li>
-            <li>workloads that benefit from bin-packing, auto-scaling and self-healing.</li>
+            <li>workloads that benefit from bin-packing, auto-scaling and self-healing (automatic restart and replacement of failed parts).</li>
           </ul>
           <p>
-            <strong>Maybe not (yet):</strong>
+            <strong>It may not be a good fit (yet) when you have:</strong>
           </p>
           <ul>
             <li>a small app or small team,</li>
             <li>
-              or when a simpler managed platform (a PaaS, serverless, or managed container services like AWS ECS/Fargate
-              or Google Cloud Run) would do the job with far less operational work (post 57).
+              or a simpler managed platform (a PaaS, serverless, or a managed container service like AWS ECS/Fargate
+              or Google Cloud Run) that would do the job with far less work to run it (post 57).
             </li>
           </ul>
         </Section>
@@ -584,16 +641,16 @@ export default function SdLessonFiveSixPage() {
               huge ecosystem.
             </li>
             <li>
-              ❌ <strong>Complexity:</strong> many concepts, a lot of YAML, networking, security and upgrades. It has a
-              real <strong>learning curve</strong>.
+              ❌ <strong>Complexity:</strong> there are many concepts, a lot of YAML, and hard topics like networking, security and
+              upgrades. It takes real time to learn (a steep <strong>learning curve</strong>).
             </li>
             <li>
               ❌ <strong>Operational cost:</strong> even with managed control planes, someone must manage nodes,
               add-ons, upgrades, security and cost.
             </li>
             <li>
-              ❌ <strong>Easy to misconfigure:</strong> wrong probes, missing resource requests, no
-              PodDisruptionBudgets, open network policies.
+              ❌ <strong>Easy to set up wrongly:</strong> wrong probes, missing resource requests, no
+              PodDisruptionBudgets, network policies that are too open.
             </li>
             <li>
               ❌ <strong>Stateful workloads</strong> need extra care (StatefulSets, operators, backups).
@@ -604,30 +661,29 @@ export default function SdLessonFiveSixPage() {
         <Section id="in-the-real-world" title="In the Real World" kind="real">
           <p>
             <strong>From Borg to Kubernetes.</strong> Google ran its services for years on <strong>Borg</strong>, an
-            internal cluster manager, and later <strong>Omega</strong>. Engineers who worked on them created{" "}
-            <strong>Kubernetes</strong>, open-sourced it in <strong>2014</strong>, and released version 1.0 in 2015,
-            when it was donated to the newly formed Cloud Native Computing Foundation. The paper "Borg, Omega, and
-            Kubernetes" explains the lessons carried over.
+            internal cluster manager, and later on <strong>Omega</strong>. Engineers who worked on them created{" "}
+            <strong>Kubernetes</strong>. Google made it open source in <strong>2014</strong> and released version 1.0 in 2015.
+            At that time it was given to the newly formed Cloud Native Computing Foundation. The paper "Borg, Omega, and
+            Kubernetes" explains the lessons that were carried over.
           </p>
           <p>
-            <strong>Pokémon GO (2016).</strong> Pokémon GO ran on Google Kubernetes Engine at launch. Google described
-            traffic reaching <strong>many times</strong> the original worst-case estimate within days, and the game
-            scaling up rapidly on the platform. It's a famous example of Kubernetes-based scaling under an unexpected
-            spike.
+            <strong>Pokémon GO (2016).</strong> Pokémon GO ran on Google Kubernetes Engine at launch. Google said
+            that traffic reached <strong>many times</strong> the worst case they had planned for, within days. The game
+            scaled up quickly on the platform. It is a famous example of Kubernetes scaling during a sudden,
+            unexpected spike.
           </p>
           <p>
-            <strong>Spotify's migration.</strong> Spotify had built its own container orchestration tool (Helios), and
-            later migrated to Kubernetes to benefit from the wider community and ecosystem, rather than maintaining its
-            own system.
+            <strong>Spotify's migration.</strong> Spotify had built its own container orchestration tool (Helios). Later it moved to Kubernetes to
+            use the larger community and tools around it, instead of keeping its own system.
           </p>
           <p>
-            <strong>Stripe and Kubernetes.</strong> Stripe has written about learning to operate Kubernetes reliably,
-            including testing, gradual adoption and building confidence before moving critical workloads. It's a useful
-            reminder that adopting Kubernetes is a <strong>journey</strong>, not a switch.
+            <strong>Stripe and Kubernetes.</strong> Stripe has written about how it learned to run Kubernetes reliably.
+            It tested a lot, adopted it step by step, and built trust before moving critical workloads. This shows that
+            adopting Kubernetes is a <strong>long process</strong>, not a single switch.
           </p>
           <p>
             <strong>Kubernetes everywhere.</strong> Today, Kubernetes runs in every major cloud (EKS, GKE, AKS), in
-            company data centres, and even on edge devices and in retail stores, making it the common "operating system"
+            company data centres, and even on edge devices (small machines near the user) and in retail stores. It has become the common "operating system"
             for containerised workloads.
           </p>
         </Section>
@@ -640,9 +696,10 @@ export default function SdLessonFiveSixPage() {
                 a: (
                   <>
                     <p>
-                      Running many containers across many machines reliably: scheduling them onto nodes, restarting
-                      failures, replacing lost nodes, rolling out new versions with no downtime, service discovery and
-                      load balancing, config and secrets, and autoscaling — all driven by declarative desired state.
+                      It runs many containers across many machines in a reliable way. It places containers on nodes, restarts
+                      failed ones, replaces lost nodes, rolls out new versions with no downtime, finds and balances
+                      services, handles config and secrets, and scales automatically. All of this is driven by a
+                      declared desired state.
                     </p>
                   </>
                 ),
@@ -652,9 +709,9 @@ export default function SdLessonFiveSixPage() {
                 a: (
                   <>
                     <p>
-                      Controllers continuously compare the desired state stored in the API server (etcd) with actual
-                      state and act to close the gap — creating, deleting or updating pods. That's why Kubernetes
-                      self-heals: a dead node's pods are simply re-created elsewhere.
+                      Controllers keep comparing the desired state (stored through the API server in etcd) with the actual
+                      state. When they differ, they act to close the gap by creating, deleting or updating pods. This is
+                      why Kubernetes heals itself: the pods of a dead node are simply created again on another node.
                     </p>
                   </>
                 ),
@@ -664,9 +721,10 @@ export default function SdLessonFiveSixPage() {
                 a: (
                   <>
                     <p>
-                      A pod is the smallest unit: one or more tightly coupled containers sharing a network namespace. A
-                      Deployment manages a replicated set of pods and rolls out new versions. A Service gives a stable
-                      name and virtual IP that load-balances across the ready pods matching a label selector.
+                      A pod is the smallest unit. It is one or more closely linked containers that share one network
+                      namespace (the same IP). A Deployment manages a set of identical pods and rolls out new versions.
+                      A Service gives a stable name and virtual IP, and it shares traffic between the ready pods that
+                      match a label selector.
                     </p>
                   </>
                 ),
@@ -676,10 +734,10 @@ export default function SdLessonFiveSixPage() {
                 a: (
                   <>
                     <p>
-                      Readiness decides whether a pod receives traffic; failing it removes the pod from Service
-                      endpoints without restarting it. Liveness decides whether the container is stuck; failing it
-                      restarts the container. Don't make liveness depend on external dependencies, or one database blip
-                      restarts everything.
+                      Readiness decides whether a pod gets traffic. If it fails, the pod is taken out of the Service
+                      endpoints, but it is not restarted. Liveness decides whether the container is stuck. If it fails,
+                      the container is restarted. Do not make liveness depend on outside services. If it does, one short
+                      database problem can restart everything.
                     </p>
                   </>
                 ),
@@ -689,9 +747,9 @@ export default function SdLessonFiveSixPage() {
                 a: (
                   <>
                     <p>
-                      Requests are what the scheduler reserves when placing a pod; limits cap what it may use. CPU over
-                      the limit is throttled; memory over the limit gets the container OOM-killed. Set requests from
-                      real usage and always set memory limits.
+                      Requests are what the scheduler reserves when it places a pod. Limits cap what the pod may use. A
+                      container that reaches its CPU limit is slowed down (throttled). A container that goes over its
+                      memory limit is killed (OOM-killed). Set requests from real usage, and always set memory limits.
                     </p>
                   </>
                 ),
@@ -701,9 +759,9 @@ export default function SdLessonFiveSixPage() {
                 a: (
                   <>
                     <p>
-                      No. It adds real operational complexity. Small teams are often better served by a PaaS, serverless
-                      or a managed container service. Kubernetes pays off with many services, several teams and a
-                      platform team — or via a managed offering like EKS, GKE or AKS.
+                      No. It adds a lot of work to run and understand. Small teams are often better served by a PaaS,
+                      serverless or a managed container service. Kubernetes pays off when you have many services,
+                      several teams and a platform team. A managed offering like EKS, GKE or AKS also helps.
                     </p>
                   </>
                 ),

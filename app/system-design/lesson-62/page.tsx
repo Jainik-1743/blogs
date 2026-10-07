@@ -27,17 +27,17 @@ const outline = [
 ];
 
 const code1 = `POST /v1/notifications
-Idempotency-Key: order-5521-shipped            ← retries never double-send
+Idempotency-Key: order-5521-shipped            ← a retry will not send the message twice
 {
   "userId": "42",
-  "type": "order_shipped",                     ← maps to template, category, priority
+  "type": "order_shipped",                     ← points to the template, category and priority
   "channels": ["push", "email"],
   "data": { "orderId": "5521", "eta": "Thu" },
   "priority": "high",
   "sendAt": null
 }
 
-202 Accepted  { "notificationId": "ntf_8f2a" }   ← accepted for asynchronous delivery`;
+202 Accepted  { "notificationId": "ntf_8f2a" }   ← accepted, and will be delivered later (asynchronously)`;
 
 const code2 = `users_contact:      user_id, email, phone, locale, timezone
 device_tokens:      user_id, platform (ios/android/web), token, app_version, last_seen
@@ -63,21 +63,21 @@ export default function SdLessonSixTwoPage() {
             <li>"Flash sale starts in 1 hour!" (push to 20 million users).</li>
           </ul>
           <p>
-            At first, each team calls the SMS provider or email API <strong>directly from its own code</strong>. Soon:
+            At first, each team calls the SMS provider or the email API <strong>directly from its own code</strong>. (A provider is a company that sends the messages for you, like an SMS or email service.) Soon you see problems:
           </p>
           <ul>
             <li>
               users get the <strong>same notification twice</strong>,
             </li>
             <li>
-              OTPs arrive <strong>after they've expired</strong>,
+              OTPs (one-time passwords, like a login code) arrive <strong>after they have expired</strong>,
             </li>
             <li>
-              a marketing blast <strong>blocks</strong> transactional messages,
+              a big marketing send <strong>blocks</strong> transactional messages (messages caused by a user action, like an order update),
             </li>
             <li>
-              a user who turned off promotional emails <strong>still gets them</strong> (and complains, or reports you
-              as spam),
+              a user who turned off promotional emails <strong>still gets them</strong>, and complains or reports you
+              as spam,
             </li>
             <li>
               an SMS provider outage means <strong>nobody can log in</strong>,
@@ -85,7 +85,7 @@ export default function SdLessonSixTwoPage() {
             <li>and nobody can answer "did this user actually receive the message?".</li>
           </ul>
           <p>
-            A <strong>central notification system</strong> solves these problems once, for every team.
+            A <strong>central notification system</strong> solves these problems once, for every team. It is one shared service that all other services use to send messages to users.
           </p>
         </Section>
 
@@ -94,21 +94,21 @@ export default function SdLessonSixTwoPage() {
             Think about a <strong>big post office sorting centre</strong>.
           </p>
           <ul>
-            <li>Anyone in the city can drop off mail (other services send notification requests).</li>
+            <li>Anyone in the city can drop off mail (in our system, other services send notification requests).</li>
             <li>
               The sorting centre checks each item:{" "}
-              <strong>Is the address valid? Has this person asked not to receive junk mail? Is it urgent?</strong>
+              <strong>Is the address valid? Has this person asked not to get junk mail? Is it urgent?</strong>
             </li>
             <li>
               <strong>Express mail</strong> (OTPs) goes in a fast lane, and <strong>bulk flyers</strong> (marketing) go
-              in a slow lane, so flyers never delay urgent letters.
+              in a slow lane. This way flyers never delay urgent letters.
             </li>
             <li>
-              Mail goes out through <strong>different carriers</strong> (post, courier, email, SMS), and if one carrier
+              Mail goes out through <strong>different carriers</strong> (post, courier, email, SMS). If one carrier
               is on strike, the centre <strong>switches to another</strong>.
             </li>
             <li>
-              It keeps <strong>tracking records</strong>: sent, delivered, opened, bounced.
+              It keeps <strong>tracking records</strong>: sent, delivered, opened, bounced (returned because it could not be delivered).
             </li>
           </ul>
         </Section>
@@ -120,32 +120,32 @@ export default function SdLessonSixTwoPage() {
           </p>
           <ol>
             <li>
-              Send notifications through <strong>multiple channels</strong>: <strong>mobile push</strong> (iOS/Android),{" "}
-              <strong>SMS</strong>, <strong>email</strong> and <strong>in-app</strong> (a notification inbox, or
-              real-time via WebSocket).
+              Send notifications through <strong>several channels</strong>: <strong>mobile push</strong> (a message shown on the phone screen, for iOS and Android),{" "}
+              <strong>SMS</strong>, <strong>email</strong> and <strong>in-app</strong> (a notification inbox inside the app, or
+              live messages through a WebSocket, which is a connection that stays open).
             </li>
             <li>
               Support <strong>transactional</strong> (OTP, order updates, security alerts) and{" "}
               <strong>marketing / bulk</strong> notifications (campaigns).
             </li>
             <li>
-              <strong>User preferences:</strong> opt in/out per channel and category, quiet hours and language.
+              <strong>User preferences:</strong> the user can opt in or out (say yes or no) for each channel and category, and set quiet hours (times with no messages) and a language.
             </li>
             <li>
-              <strong>Templates</strong> with personalisation (
+              <strong>Templates</strong> (message text with blanks that are filled in for each user) with personalisation (
               <code>Hi &#123;&#123;name&#125;&#125;, your order &#123;&#123;orderId&#125;&#125; has shipped</code>) and
               localisation.
             </li>
             <li>
-              <strong>Scheduling:</strong> send at a specific time, or in the user's local time zone.
+              <strong>Scheduling:</strong> send at a set time, or at a set time in the user's own time zone.
             </li>
             <li>
-              <strong>Tracking:</strong> sent, delivered, opened, clicked, failed or bounced.
+              <strong>Tracking:</strong> know if a message was sent, delivered, opened, clicked, failed or bounced.
             </li>
           </ol>
           <p>
-            <strong>Out of scope:</strong> building our own SMS or email delivery infrastructure (we use providers), and
-            the campaign-design UI.
+            <strong>Out of scope:</strong> building our own SMS or email delivery systems (we use providers), and
+            the screen for designing campaigns.
           </p>
           <p>
             <strong>Non-functional:</strong>
@@ -153,21 +153,21 @@ export default function SdLessonSixTwoPage() {
           <ul>
             <li>
               <strong>Reliability:</strong> notifications must not be <strong>lost</strong>. Aim for{" "}
-              <strong>at-least-once delivery with deduplication</strong>, so users don't get duplicates (post 37).
+              <strong>at-least-once delivery with deduplication</strong>. At-least-once means every message arrives, but it may arrive twice. Deduplication removes the second copy, so users do not get duplicates (post 37).
             </li>
             <li>
-              <strong>Low latency for critical messages:</strong> OTPs and security alerts delivered in{" "}
+              <strong>Low latency for critical messages:</strong> OTPs and security alerts must arrive within{" "}
               <strong>seconds</strong>.
             </li>
             <li>
               <strong>High throughput for bulk:</strong> millions of messages in minutes, <strong>without</strong>{" "}
-              hurting transactional traffic.
+              slowing down transactional traffic. (Throughput is how much work is done per second.)
             </li>
             <li>
-              <strong>Scalable and extensible:</strong> easy to add a new channel (say, WhatsApp) or a new provider.
+              <strong>Scalable and extensible:</strong> it can grow, and it is easy to add a new channel (say, WhatsApp) or a new provider.
             </li>
             <li>
-              <strong>Respect user choices and laws:</strong> opt-outs, consent and anti-spam rules.
+              <strong>Respect user choices and the law:</strong> opt-outs, consent (permission from the user) and anti-spam rules.
             </li>
           </ul>
           <h3 id="step-2-estimation">Step 2: Estimation</h3>
@@ -175,7 +175,7 @@ export default function SdLessonSixTwoPage() {
           <ul>
             <li>
               <strong>50M users</strong>, about <strong>10M push</strong>, <strong>1M SMS</strong> and{" "}
-              <strong>5M email</strong> notifications on a normal day.
+              <strong>5M email</strong> notifications on a normal day. (M means million.)
             </li>
             <li>
               Occasionally, a <strong>marketing campaign</strong> to <strong>20M users</strong> within{" "}
@@ -190,7 +190,7 @@ export default function SdLessonSixTwoPage() {
               {
                 value: <>~33,000 / s</>,
                 label: <>a campaign</>,
-                sub: <>20 M users in 10 minutes — the real design driver</>,
+                sub: <>20 M users in 10 minutes; this is what drives the design</>,
               },
               { value: <>~3 TB / year</>, label: <>delivery logs</>, sub: <>keep detail for ~90 days</> },
             ]}
@@ -200,25 +200,23 @@ export default function SdLessonSixTwoPage() {
           </p>
           <ul>
             <li>
-              Normal load is modest. <strong>Campaign bursts</strong> are about 30× higher, so we need{" "}
-              <strong>queues</strong> to absorb bursts and <strong>separate lanes</strong> so bursts don't delay OTPs.
+              Normal load is modest. <strong>Campaign bursts</strong> are about 30 times higher. So we need{" "}
+              <strong>queues</strong> (waiting lines for jobs) to soak up bursts, and <strong>separate lanes</strong> so bursts do not delay OTPs.
             </li>
             <li>
-              <strong>Third-party providers have rate limits.</strong> We must <strong>throttle</strong> what we send
-              them (post 43).
+              <strong>Third-party providers have rate limits.</strong> We must <strong>throttle</strong> (slow down on purpose) what we send them. A rate limiter is a part that limits how many requests a caller can make in a period of time (post 43).
             </li>
             <li>
-              Status logs grow quickly, so use <strong>time-partitioned storage</strong> with retention.
+              Status logs grow quickly. So use <strong>storage split by time</strong> (one partition per day or month), and delete old data after a retention period.
             </li>
           </ul>
           <h3 id="step-3-api-and-data-model">Step 3: API and data model</h3>
           <p>
-            <strong>Send API</strong> (used by internal services):
+            <strong>Send API</strong> (the request that other internal services call):
           </p>
           <CodeBlock lang="http" code={code1} />
           <p>
-            Bulk sends use a <strong>campaign</strong> API that references an <strong>audience segment</strong>, not
-            millions of individual calls.
+            Bulk sends use a <strong>campaign</strong> API. It points to an <strong>audience segment</strong> (a saved group of users) and does not need millions of single calls.
           </p>
           <p>
             <strong>Core data:</strong>
@@ -231,19 +229,19 @@ export default function SdLessonSixTwoPage() {
               { title: <>Order · Auth · Social · Campaign services</>, desc: <>call one Notification API</> },
               {
                 title: <>Notification API</>,
-                desc: <>validate → idempotency check → enrich with contacts, preferences, template</>,
+                desc: <>validate → idempotency check (is this a repeat?) → add contacts, preferences and template</>,
               },
               {
                 title: <>Priority queues</>,
-                desc: <>critical (OTP, security) · transactional · bulk — never share workers</>,
+                desc: <>critical (OTP, security) · transactional · bulk; they never share workers</>,
               },
               {
                 title: <>Channel workers</>,
-                desc: <>push → APNs/FCM · SMS → provider A (fallback B) · email → SES · in-app → inbox + WebSocket</>,
+                desc: <>push → APNs/FCM · SMS → provider A (fallback B) · email → SES (Amazon Simple Email Service, a service that sends email for you) · in-app → inbox + WebSocket</>,
               },
               {
                 title: <>Retry queues + DLQ</>,
-                desc: <>transient failures back off; poison messages park</>,
+                desc: <>short-term failures are retried after a wait; messages that always fail are set aside (DLQ = dead-letter queue)</>,
                 tone: "warn",
               },
               {
@@ -258,27 +256,27 @@ export default function SdLessonSixTwoPage() {
           </p>
           <ol>
             <li>
-              The order service calls the Notification API with an <strong>idempotency key</strong>.
+              The order service calls the Notification API with an <strong>idempotency key</strong>. This is a unique ID for the request. If the same key arrives again, the system knows it is a repeat.
             </li>
             <li>
-              The API <strong>dedups</strong>, loads the user's <strong>preferences</strong> (email allowed? push
-              enabled?), picks the <strong>channels</strong>, renders <strong>templates</strong> in the user's language,
-              and applies <strong>quiet hours</strong> (non-urgent messages wait until morning).
+              The API <strong>removes duplicates</strong>, loads the user's <strong>preferences</strong> (email allowed? push
+              enabled?), picks the <strong>channels</strong>, fills in the <strong>templates</strong> in the user's language,
+              and applies <strong>quiet hours</strong> (messages that are not urgent wait until morning).
             </li>
             <li>
               Messages go into the <strong>transactional</strong> queue for each channel.
             </li>
             <li>
-              <strong>Push workers</strong> send to <strong>APNs</strong> (Apple) and <strong>FCM</strong> (Google)
-              using the user's <strong>device tokens</strong>. <strong>Email workers</strong> call the email provider.
+              <strong>Push workers</strong> (programs that take jobs from the queue) send to <strong>APNs</strong> (Apple Push Notification service) and <strong>FCM</strong> (Firebase Cloud Messaging, from Google)
+              using the user's <strong>device tokens</strong> (an address for one app on one phone). <strong>Email workers</strong> call the email provider.
             </li>
             <li>
-              Providers report <strong>delivery status</strong> (via responses and webhooks), and the tracking service
+              Providers report the <strong>delivery status</strong> (in their replies and through webhooks, which are calls that the provider sends to you), and the tracking service
               updates the log.
             </li>
             <li>
-              Failures are <strong>retried with backoff</strong>, and permanent failures go to a <strong>DLQ</strong>{" "}
-              (post 38).
+              Failures are <strong>retried with backoff</strong> (waiting longer each time), and permanent failures go to a <strong>DLQ</strong>{" "}
+              (dead-letter queue, a place for messages that cannot be processed, post 38).
             </li>
           </ol>
           <h3 id="step-5-deep-dives">Step 5: Deep dives</h3>
@@ -298,7 +296,7 @@ export default function SdLessonSixTwoPage() {
                 to: 0,
                 label: (
                   <>
-                    Delivery receipt later updates notifications_log; OTP jobs older than ~2 min are dropped, not sent
+                    A delivery receipt later updates notifications_log. OTP jobs older than about 2 minutes are dropped, not sent
                     late
                   </>
                 ),
@@ -312,48 +310,48 @@ export default function SdLessonSixTwoPage() {
           <ul>
             <li>
               <strong>Separate queues or topics per priority</strong> (and per channel), each with{" "}
-              <strong>dedicated workers</strong>. This is a <strong>bulkhead</strong> (post 42).
+              <strong>their own workers</strong>. This is a <strong>bulkhead</strong>: like the walls in a ship, a problem in one part does not flood the others (post 42).
             </li>
             <li>
               <strong>Critical:</strong> OTPs, password resets, security alerts, payment confirmations. Low latency,
-              highest priority, monitored by <strong>message age</strong> ("oldest OTP must be &lt; 10 seconds").
+              highest priority, and watched by <strong>message age</strong>, which is how long the oldest message has waited ("the oldest OTP must be less than 10 seconds old").
             </li>
             <li>
               <strong>Transactional:</strong> order and delivery updates.
             </li>
             <li>
-              <strong>Bulk / marketing:</strong> campaigns. Throttled, and can be delayed or <strong>shed</strong> under
-              load (post 44).
+              <strong>Bulk / marketing:</strong> campaigns. Throttled, and it can be delayed or <strong>shed</strong> (dropped on purpose) when the system is
+              busy (post 44).
             </li>
             <li>
-              <strong>Provider capacity is shared</strong>, so reserve part of each provider's rate limit for critical
-              traffic.
+              <strong>Provider capacity is shared</strong>, so keep part of each provider's rate limit for critical
+              traffic only.
             </li>
           </ul>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Deep dive 2: Reliability and no duplicates</h4>
           <ul>
             <li>
-              <strong>At-least-once delivery</strong> through queues (post 37). A worker only acknowledges{" "}
-              <strong>after</strong> the provider accepts the message.
+              <strong>At-least-once delivery</strong> through queues (post 37). A worker only sends an acknowledgement (a "done" signal to the queue){" "}
+              <strong>after</strong> the provider accepts the message. If the worker crashes before that, the queue sends the job again.
             </li>
             <li>
-              <strong>Deduplication at two levels:</strong>
+              <strong>Remove duplicates at two levels:</strong>
               <ul>
                 <li>
                   <strong>Request level:</strong> the <code>Idempotency-Key</code> from the calling service (post 34).
                 </li>
                 <li>
                   <strong>Send level:</strong> a <code>(notification_id, channel)</code> record, marked as sent. Workers
-                  check it before sending, so a redelivered queue message doesn't send twice.
+                  check it before sending, so a queue message that arrives again does not send twice.
                 </li>
               </ul>
             </li>
             <li>
-              <strong>Pass idempotency to providers</strong> where they support it.
+              <strong>Pass an idempotency key to providers</strong> if they support it.
             </li>
             <li>
-              <strong>Transactional outbox</strong> in calling services (post 37): "save order as shipped" and "request
-              a notification" can't get out of sync.
+              <strong>Transactional outbox</strong> in calling services (post 37). An outbox is a database table where a service writes the messages it still has to send. The service saves the notification request in its own database in the same transaction as the order change. So "save order as shipped" and "request
+              a notification" cannot get out of sync.
             </li>
           </ul>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">
@@ -361,26 +359,26 @@ export default function SdLessonSixTwoPage() {
           </h4>
           <ul>
             <li>
-              <strong>Respect provider rate limits.</strong> Use a <strong>token bucket per provider</strong> (post 43)
-              to avoid being throttled or blocked.
+              <strong>Respect provider rate limits.</strong> Use a <strong>token bucket per provider</strong> (a token bucket is a counter that refills at a steady rate, and each request spends one token; post 43)
+              so the provider does not slow you down or block you.
             </li>
             <li>
-              <strong>Retry transient errors</strong> (timeouts, 5xx, 429) with <strong>backoff + jitter</strong>.{" "}
-              <strong>Don't retry permanent errors</strong> (invalid number, unsubscribed, bad token).
+              <strong>Retry transient errors</strong> (errors that may go away: timeouts; 5xx errors, which are replies with a status code from 500 to 599 that mean the server had a problem; and 429 too many requests) with <strong>backoff + jitter</strong>. Backoff means waiting longer each time. Jitter means adding a random bit to the wait, so retries do not all happen together.{" "}
+              <strong>Do not retry permanent errors</strong> (invalid number, unsubscribed, bad token).
             </li>
             <li>
-              <strong>Fail over</strong> to a <strong>backup provider</strong> (for SMS and email) when the primary's
-              error rate spikes. A <strong>circuit breaker</strong> per provider (post 42) makes this automatic.
+              <strong>Fail over</strong> (switch) to a <strong>backup provider</strong> for SMS and email when the main provider's
+              error rate jumps. A <strong>circuit breaker</strong> for each provider (post 42) makes this automatic. A circuit breaker stops calls to a service that keeps failing.
             </li>
             <li>
               <strong>Handle provider feedback:</strong>
               <ul>
                 <li>
-                  <strong>Email bounces and spam complaints:</strong> stop emailing addresses that hard-bounce or
-                  complain, or your sender reputation (and delivery for <strong>everyone</strong>) suffers.
+                  <strong>Email bounces and spam complaints:</strong> a hard bounce means the address does not exist. Stop emailing addresses that hard-bounce or
+                  complain. If you do not, your sender reputation gets worse, and delivery gets worse for <strong>everyone</strong>.
                 </li>
                 <li>
-                  <strong>Invalid push tokens:</strong> APNs and FCM tell you when a device token is no longer valid
+                  <strong>Invalid push tokens:</strong> APNs and FCM tell you when a device token is not valid any more
                   (for example, the app was uninstalled). <strong>Delete those tokens.</strong>
                 </li>
               </ul>
@@ -389,59 +387,59 @@ export default function SdLessonSixTwoPage() {
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Deep dive 4: Push notifications specifics</h4>
           <ul>
             <li>
-              Each device registers with APNs or FCM and gets a <strong>device token</strong>. The app sends it to your
-              backend, which stores it in <code>device_tokens</code>.
+              Each device registers with APNs or FCM and gets a <strong>device token</strong>. The app sends the token to your
+              backend, which saves it in <code>device_tokens</code>.
             </li>
             <li>
-              Users have <strong>multiple devices</strong> (phone, tablet, web), so send to each active token, or to the
+              Users have <strong>several devices</strong> (phone, tablet, web). So send to each active token, or only to the
               most recently used one, depending on the notification.
             </li>
             <li>
-              Keep payloads <strong>small</strong>, and don't put sensitive data in push text (it may appear on a locked
-              screen). For example: "You have a new message", not the message content.
+              Keep payloads (the data in the message) <strong>small</strong>, and do not put sensitive data in push text, because it may show on a locked
+              screen. For example, write "You have a new message", not the message itself.
             </li>
             <li>
-              <strong>Collapse keys / thread IDs</strong> stop floods ("5 new messages" instead of 5 separate alerts).
+              <strong>Collapse keys / thread IDs</strong> stop floods. A collapse key is a label that tells the push service to replace an older waiting message that has the same label with the newer one. They group messages, so the user sees "5 new messages" instead of 5 separate alerts.
             </li>
           </ul>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Deep dive 5: User experience and respect</h4>
           <ul>
             <li>
               <strong>Preferences and consent:</strong> users choose categories and channels, and{" "}
-              <strong>marketing requires opt-in</strong> in many regions. Include <strong>unsubscribe links</strong> in
+              <strong>marketing requires opt-in</strong> (the user must say yes first) in many regions. Include an <strong>unsubscribe link</strong> in
               marketing emails.
             </li>
             <li>
-              <strong>Per-user rate limits and digests:</strong> don't send 40 "someone liked your post" pushes in an
-              hour. <strong>Batch</strong> them into a digest ("Ravi and 39 others liked your post").
+              <strong>Per-user rate limits and digests:</strong> do not send 40 "someone liked your post" pushes in an
+              hour. <strong>Group</strong> them into one digest (a summary message), for example "Ravi and 39 others liked your post".
             </li>
             <li>
-              <strong>Quiet hours and time zones:</strong> schedule non-urgent messages for sensible local times.
+              <strong>Quiet hours and time zones:</strong> send messages that are not urgent at sensible local times.
             </li>
             <li>
               <strong>Smart channel selection:</strong> if the user is <strong>active in the app right now</strong>,
-              show an in-app notification instead of a push. If a push isn't opened, maybe send an email later.
+              show an in-app notification instead of a push. If a push is not opened, you may send an email later.
             </li>
             <li>
-              <strong>Localisation:</strong> templates per language, with safe fallbacks.
+              <strong>Localisation:</strong> one template per language, with a default language to use if one is missing.
             </li>
           </ul>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Deep dive 6: Big campaigns</h4>
           <p>For 20M messages:</p>
           <ol>
             <li>
-              The campaign service <strong>resolves the audience</strong> in batches (for example, 10,000 users per
-              job), filtering out users who've opted out.
+              The campaign service <strong>works out the audience</strong> in batches (for example, 10,000 users per
+              job), and leaves out users who have opted out.
             </li>
             <li>
               It <strong>enqueues batches</strong> into the bulk lane.
             </li>
             <li>
-              Workers <strong>throttle</strong> to provider limits, and <strong>spread sends</strong> over the planned
+              Workers <strong>slow down</strong> to stay within provider limits, and <strong>spread the sends</strong> over the planned
               time window.
             </li>
             <li>
-              <strong>Monitor and pause</strong> the campaign if error rates or complaints spike (a kill switch, post
+              <strong>Monitor and pause</strong> the campaign if error rates or complaints jump. A kill switch is a control that turns something off at once (post
               44).
             </li>
           </ol>
@@ -456,43 +454,43 @@ export default function SdLessonSixTwoPage() {
               <strong>end-to-end</strong> time), queue ages, DLQ size, bounce and complaint rates (posts 46–48).
             </li>
             <li>
-              <strong>SLOs</strong>, for example "99% of OTPs delivered to the provider within 5 seconds" (post 47).
+              <strong>SLOs</strong> (service level objectives, which are reliability targets), for example "99% of OTPs delivered to the provider within 5 seconds" (post 47).
             </li>
           </ul>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Deep dive 8: Security and abuse</h4>
           <ul>
             <li>
-              <strong>Only trusted internal services</strong> can call the send API (service authentication, post 49).
+              <strong>Only trusted internal services</strong> can call the send API. Each service proves who it is (service authentication, post 49).
             </li>
             <li>
               <strong>Protect OTP endpoints</strong> from abuse: rate limits per phone number, IP and device. Watch for{" "}
-              <strong>SMS pumping</strong> fraud, where bots trigger large numbers of SMS messages to premium numbers to
-              earn money from the charges (post 43).
+              <strong>SMS pumping</strong> fraud. Here bots trigger a large number of SMS messages to premium-rate numbers, so that the
+              attackers earn money from the charges (post 43).
             </li>
             <li>
-              <strong>Don't log full OTPs</strong> or sensitive message content (post 51).
+              <strong>Do not log full OTPs</strong> or sensitive message content (post 51).
             </li>
             <li>
-              <strong>Sign provider webhooks</strong>, and verify signatures on status callbacks (post 34).
+              <strong>Check provider webhooks.</strong> The provider signs each status callback, and you verify the signature to be sure it is real (post 34).
             </li>
           </ul>
           <h3 id="wrap-up">Wrap-up</h3>
           <ul>
             <li>
-              <strong>Key decisions:</strong> one central, <strong>asynchronous</strong> system (202 Accepted) with{" "}
+              <strong>Key decisions:</strong> one central, <strong>asynchronous</strong> system (it answers "202 Accepted" and sends later) with{" "}
               <strong>priority lanes per channel</strong>; <strong>preferences, templates and dedup</strong> applied
               centrally; <strong>channel workers</strong> with{" "}
               <strong>provider rate limits, retries, circuit breakers and failover</strong>; <strong>tracking</strong>{" "}
               via provider callbacks.
             </li>
             <li>
-              <strong>Trade-offs:</strong> at-least-once plus dedup (reliable) vs the complexity of dedup storage;
-              batching and quiet hours (a better experience) vs slower delivery for non-urgent messages; multiple
-              providers (resilient) vs integration and cost.
+              <strong>Trade-offs:</strong> at-least-once plus dedup is reliable, but the dedup storage is complex.
+              Batching and quiet hours give a better experience, but messages that are not urgent arrive later. Several
+              providers make the system resilient, but cost more to connect and pay for.
             </li>
             <li>
-              <strong>Next steps:</strong> ML-based send-time optimisation, channel ranking, WhatsApp and other
-              messaging channels, and a self-service campaign UI.
+              <strong>Next steps:</strong> choosing the best send time with machine learning, ranking channels, WhatsApp and other
+              messaging channels, and a self-service campaign screen.
             </li>
           </ul>
         </Section>
@@ -542,32 +540,31 @@ export default function SdLessonSixTwoPage() {
           <p>
             <strong>Netflix's RENO.</strong> Netflix described its{" "}
             <strong>Rapid Event Notification System (RENO)</strong>, which sends events to its apps on many devices (for
-            example, to refresh a viewing list after activity elsewhere). It uses priority-based queues and a hybrid of
-            push and pull delivery, and supports many devices per user.
+            example, to refresh a viewing list after activity on another device). It uses queues with priorities and a mix of
+            push and pull delivery. It supports many devices per user.
           </p>
           <p>
             <strong>LinkedIn's notification systems.</strong> LinkedIn has written about <strong>Concourse</strong>, a
-            system for generating personalised notifications in near real time, and about a service it called{" "}
-            <strong>Air Traffic Controller</strong>, which decides{" "}
-            <strong>whether, when and through which channel</strong> to notify a member, to avoid overwhelming people
-            with too many messages.
+            system that creates personal notifications almost in real time. It has also written about a service called{" "}
+            <strong>Air Traffic Controller</strong>. It decides{" "}
+            <strong>whether, when and through which channel</strong> to notify a member, so that people are not flooded
+            with messages.
           </p>
           <p>
-            <strong>Slack's "should we send a notification?" flowchart.</strong> Slack once shared a now-famous, very
-            complex flowchart showing the many checks (is the user active? channel muted? do-not-disturb? mentioned?
-            preferences?) that decide whether a notification is sent. It's a great illustration of how much{" "}
-            <strong>logic around preferences and context</strong> a good notification system needs.
+            <strong>Slack's "should we send a notification?" flowchart.</strong> Slack once shared a famous, very
+            complex flowchart. It shows the many checks that decide whether a notification is sent: is the user active? Is the channel muted? Is do-not-disturb on? Was the user mentioned? What are the preferences? It shows how much{" "}
+            <strong>logic about preferences and context</strong> a good notification system needs.
           </p>
           <p>
             <strong>OTP delivery in banking and payments.</strong> Banks and payment apps depend on OTP SMS for logins
-            and transactions, and typically use <strong>multiple SMS providers</strong> with automatic failover, plus
-            strict monitoring of <strong>delivery time</strong>, because an OTP that arrives late blocks the customer
+            and payments. They usually use <strong>several SMS providers</strong> with automatic failover, and
+            watch the <strong>delivery time</strong> closely, because an OTP that arrives late stops the customer
             from paying.
           </p>
           <p>
-            <strong>Email sender reputation.</strong> Email providers such as Gmail and Outlook filter mail based on
-            sender reputation. Companies that keep emailing addresses that bounce, or ignore spam complaints, see their
-            messages land in spam for <strong>all</strong> users. That's why suppression lists and bounce handling are
+            <strong>Email sender reputation.</strong> Email providers such as Gmail and Outlook filter mail by
+            sender reputation (a score of how trustworthy the sender is). Companies that keep emailing addresses that bounce, or ignore spam complaints, see their
+            messages go to the spam folder for <strong>all</strong> users. That is why suppression lists (lists of addresses you must not email) and bounce handling are
             essential.
           </p>
         </Section>
@@ -576,13 +573,13 @@ export default function SdLessonSixTwoPage() {
           <QA
             items={[
               {
-                q: <>How do you make sure a critical OTP isn't stuck behind a marketing campaign?</>,
+                q: <>How do you make sure a critical OTP is not stuck behind a marketing campaign?</>,
                 a: (
                   <>
                     <p>
-                      Separate priority queues with dedicated workers per class (critical, transactional, bulk),
-                      per-class rate limits, and alerts on the age of the oldest critical message. Campaigns go through
-                      their own throttled lane.
+                      Use separate priority queues, with their own workers for each class (critical, transactional, bulk).
+                      Give each class its own rate limits, and set alerts on the age of the oldest critical message.
+                      Campaigns go through their own throttled lane.
                     </p>
                   </>
                 ),
@@ -592,9 +589,9 @@ export default function SdLessonSixTwoPage() {
                 a: (
                   <>
                     <p>
-                      Callers send an idempotency key (like order-5521-shipped); the API records it under a unique
-                      constraint. Workers are idempotent per notification and channel, and provider calls reuse the
-                      notification ID where providers support it.
+                      Callers send an idempotency key (like order-5521-shipped). The API saves it under a unique
+                      constraint, a database rule that rejects the same value twice. Workers are idempotent for each notification and channel. Idempotent means that doing an action twice has the same result as doing it once. Calls to providers reuse the
+                      notification ID if the provider supports it.
                     </p>
                   </>
                 ),
@@ -604,9 +601,9 @@ export default function SdLessonSixTwoPage() {
                 a: (
                   <>
                     <p>
-                      Retries with backoff and jitter for transient errors, a circuit breaker per provider, automatic
-                      fallback to a secondary provider, a DLQ for permanent failures, and dashboards of delivery rates
-                      per provider.
+                      Retry with backoff and jitter for transient errors. Use a circuit breaker for each provider, switch
+                      automatically to a second provider, keep a DLQ for permanent failures, and show delivery rates
+                      for each provider on dashboards.
                     </p>
                   </>
                 ),
@@ -616,9 +613,9 @@ export default function SdLessonSixTwoPage() {
                 a: (
                   <>
                     <p>
-                      Check them during enrichment, before enqueueing: per category and channel opt-ins, unsubscribes
-                      (legally required for marketing), locale for templates, and time-zone-aware quiet hours that delay
-                      non-critical messages. Security notifications bypass marketing opt-outs.
+                      Check them when the request is enriched, before it goes into a queue. Check the opt-ins for each category and channel,
+                      unsubscribes (required by law for marketing), the locale (language and region) for templates, and quiet hours that follow the user's time zone and delay
+                      messages that are not critical. Security notifications ignore marketing opt-outs.
                     </p>
                   </>
                 ),
@@ -628,9 +625,9 @@ export default function SdLessonSixTwoPage() {
                 a: (
                   <>
                     <p>
-                      Fan out in batches: a campaign job splits the audience into chunks, enqueues them on the bulk
-                      lane, and workers scale horizontally while per-provider rate limits and quotas are respected, with
-                      progress tracked per chunk so a crash resumes instead of restarting.
+                      Fan out in batches. A campaign job splits the audience into chunks and puts them on the bulk
+                      lane. Workers scale horizontally (more machines are added) while the rate limits and quotas of each provider are respected.
+                      Progress is tracked for each chunk, so after a crash the job continues instead of starting again.
                     </p>
                   </>
                 ),
@@ -640,9 +637,9 @@ export default function SdLessonSixTwoPage() {
                 a: (
                   <>
                     <p>
-                      Store a log row per notification and channel with its provider message ID, then update status from
-                      provider webhooks (delivered, bounced, opened) and in-app read events — for support, retries,
-                      analytics and pruning dead device tokens.
+                      Store a log row for each notification and channel, with its provider message ID. Then update the status from
+                      provider webhooks (delivered, bounced, opened) and in-app read events. This helps support, retries,
+                      analytics and removing dead device tokens.
                     </p>
                   </>
                 ),
@@ -662,7 +659,7 @@ export default function SdLessonSixTwoPage() {
               <strong>OTPs never wait behind campaigns</strong>, and monitor <strong>message age</strong>.
             </li>
             <li>
-              Guarantee <strong>at-least-once delivery with deduplication</strong> (idempotency keys + a sent record),
+              Guarantee <strong>at-least-once delivery with deduplication</strong> (idempotency keys + a record of what was sent),
               and use the <strong>outbox</strong> pattern in calling services.
             </li>
             <li>

@@ -35,8 +35,8 @@ const code2 = `rules:
     match: { plan: free }
     key: api_key
     algorithm: token_bucket
-    capacity: 100          # burst
-    refill_per_second: 1.67  # ≈100/min
+    capacity: 100          # the biggest burst allowed
+    refill_per_second: 1.67  # about 100 per minute
   - id: plan-pro
     match: { plan: pro }
     key: api_key
@@ -49,13 +49,13 @@ const code2 = `rules:
     algorithm: sliding_window_counter
     limit: 10
     window_seconds: 60
-    fail_mode: closed      # security-sensitive: block if limiter is down
+    fail_mode: closed      # security-sensitive: block requests if the limiter is down
   - id: sms-global
     match: { route: "POST /otp/send" }
     key: global
     algorithm: token_bucket
     capacity: 500
-    refill_per_second: 200  # protect the SMS provider`;
+    refill_per_second: 200  # protects the SMS provider`;
 
 const code3 = `HTTP/1.1 429 Too Many Requests
 Retry-After: 18
@@ -64,7 +64,7 @@ RateLimit-Remaining: 0
 RateLimit-Reset: 18`;
 
 const code4 = `rl:{<key>}:<rule_id>          e.g.  rl:{ak_9f2c}:plan-pro
-TTL ≈ time for the bucket to refill fully (or window × 2) → idle keys expire on their own`;
+TTL ≈ time for the bucket to refill fully (or window × 2) → keys that nobody uses expire on their own`;
 
 export default function SdLessonSixOnePage() {
   return (
@@ -74,22 +74,22 @@ export default function SdLessonSixOnePage() {
       <div className="lesson">
         <Section id="the-problem" title="The Problem" kind="problem">
           <p>
-            Your company runs a public API used by <strong>50,000 developer accounts</strong>. You need to:
+            Your company runs a public API (a web service that other developers' programs call) used by <strong>50,000 developer accounts</strong>. You need to:
           </p>
           <ul>
-            <li>stop one buggy script from overwhelming everything,</li>
-            <li>block bots from brute-forcing the login and OTP endpoints,</li>
+            <li>stop one buggy script from overloading everything,</li>
+            <li>stop bots from trying thousands of passwords or codes (brute force) on the login and OTP endpoints. An OTP is a one-time password, like an SMS code.</li>
             <li>enforce plan limits ("Free: 100 requests per minute; Pro: 2,000"),</li>
-            <li>protect fragile downstream systems (like the SMS provider),</li>
+            <li>protect weak systems that your API calls (called downstream systems), like the SMS provider,</li>
             <li>
               and do all of it for <strong>100,000 requests per second</strong> across{" "}
-              <strong>dozens of servers in several regions</strong>, adding <strong>almost no latency</strong>.
+              <strong>dozens of servers in several regions</strong>, while adding <strong>almost no delay (latency)</strong>.
             </li>
           </ul>
           <p>
-            In post 43 we learned the <strong>algorithms</strong> (token bucket, sliding windows and so on). This post
-            designs the <strong>whole distributed system</strong>: where it runs, how rules are managed, how counters
-            are shared, how it fails, and how it's monitored.
+            A <strong>rate limiter</strong> is a part that limits how many requests one caller can make in a period of time. In post 43 we learned the <strong>algorithms</strong> (token bucket, sliding windows and so on). This post
+            designs the <strong>whole distributed system</strong> (a system that runs on many machines). We look at where it runs, how rules are managed, how counters
+            are shared, how it fails, and how it is monitored.
           </p>
         </Section>
 
@@ -99,24 +99,24 @@ export default function SdLessonSixOnePage() {
           </p>
           <ul>
             <li>
-              Each ticket holder may enter <strong>once</strong>, and each group booking may bring{" "}
+              Each ticket holder may enter <strong>once</strong>, and each group booking may bring in{" "}
               <strong>up to 10 people per 15 minutes</strong>.
             </li>
             <li>
               There are <strong>20 gates</strong>. If each gate kept its <strong>own</strong> count, a group could send
-              10 people through <strong>each</strong> gate, 200 in total.
+              10 people through <strong>each</strong> gate. That makes 200 in total.
             </li>
             <li>
-              So all gates check a <strong>shared, live counter</strong> ("how many from booking #42 have entered?"),
-              quickly, without making the queue slow.
+              So all gates check one <strong>shared, live counter</strong> ("how many from booking #42 have entered?").
+              The check is quick, so the queue does not get slow.
             </li>
             <li>
-              If the central system fails, security must decide: <strong>let people in</strong> (fail open) or{" "}
-              <strong>stop everyone</strong> (fail closed)?
+              If the central system fails, security must decide: <strong>let people in</strong> (this is called "fail open") or{" "}
+              <strong>stop everyone</strong> ("fail closed")?
             </li>
           </ul>
           <p>
-            A distributed rate limiter is exactly this: <strong>fast, shared counting</strong>, with{" "}
+            A distributed rate limiter is exactly this. It has <strong>fast, shared counting</strong>,{" "}
             <strong>clear rules</strong> and a <strong>plan for failure</strong>.
           </p>
         </Section>
@@ -128,25 +128,25 @@ export default function SdLessonSixOnePage() {
           </p>
           <ol>
             <li>
-              Limit requests per <strong>key</strong>: API key, user ID, IP address, or combinations (such as user +
-              endpoint).
+              Limit requests per <strong>key</strong>. A key is whatever identifies the caller: an API key, a user ID, an IP address, or a combination (such as user +
+              endpoint, where an endpoint is one URL path of the API).
             </li>
             <li>
-              Support <strong>multiple rules</strong> with different limits and windows: per plan, per endpoint, per
+              Support <strong>many rules</strong> with different limits and time windows: per plan, per endpoint, per
               region, and global.
             </li>
             <li>
-              When a request is over the limit, return <strong>HTTP 429</strong> with{" "}
+              When a request is over the limit, return <strong>HTTP 429</strong> (the status code for "Too Many Requests") with{" "}
               <strong>
                 <code>Retry-After</code>
               </strong>{" "}
               and rate-limit headers.
             </li>
             <li>
-              Allow <strong>rule changes without redeploying</strong> services.
+              Allow <strong>rule changes without redeploying</strong> (releasing new code for) the services.
             </li>
             <li>
-              Optional: <strong>soft limits</strong> (warn or log only) and <strong>per-customer overrides</strong>.
+              Optional: <strong>soft limits</strong> (only warn or write a log, do not block) and <strong>per-customer overrides</strong> (special limits for one customer).
             </li>
           </ol>
           <p>
@@ -154,38 +154,38 @@ export default function SdLessonSixOnePage() {
           </p>
           <ul>
             <li>
-              <strong>Low latency:</strong> add <strong>&lt; 1–2 ms</strong> per request (p99).
+              <strong>Low latency:</strong> add <strong>less than 1–2 ms</strong> per request (p99, which means 99 out of 100 requests).
             </li>
             <li>
-              <strong>High throughput:</strong> 100k+ checks per second, growing.
+              <strong>High throughput:</strong> more than 100,000 checks per second, and growing.
             </li>
             <li>
               <strong>Highly available:</strong> the limiter must{" "}
               <strong>never become the reason the API is down</strong>.
             </li>
             <li>
-              <strong>Accurate enough:</strong> small over-allowance (a few percent) is acceptable. Big errors aren't.
+              <strong>Accurate enough:</strong> a small over-allowance (letting a few percent too many through) is acceptable. Big errors are not.
             </li>
             <li>
-              <strong>Distributed:</strong> consistent limits across many API servers (and reasonable behaviour across
+              <strong>Distributed:</strong> the same limit must apply across many API servers (and work reasonably across
               regions).
             </li>
             <li>
-              <strong>Observable:</strong> see who is being limited, and why.
+              <strong>Observable:</strong> you can see who is being limited, and why.
             </li>
           </ul>
           <h3 id="step-2-estimation">Step 2: Estimation</h3>
           <p>Assumptions:</p>
           <ul>
             <li>
-              <strong>Peak 100,000 API requests per second</strong>, across all servers.
+              <strong>Peak of 100,000 API requests per second</strong> (the busiest time), across all servers.
             </li>
             <li>
-              <strong>About 10 million distinct keys</strong> active per day (API keys, users and IPs).
+              <strong>About 10 million different keys</strong> active per day (API keys, users and IPs).
             </li>
             <li>
-              On average, each request is checked against <strong>2 rules</strong> (for example, per-key plan limit +
-              per-endpoint limit).
+              On average, each request is checked against <strong>2 rules</strong> (for example, the plan limit for the key + a
+              limit for the endpoint).
             </li>
           </ul>
           <Stats
@@ -196,12 +196,12 @@ export default function SdLessonSixOnePage() {
               {
                 value: <>~2 GB</>,
                 label: <>of counters</>,
-                sub: <>10 M keys × 2 rules — a few GB with Redis overhead</>,
+                sub: <>10 M keys × 2 rules; a few GB with Redis overhead</>,
               },
               {
                 value: <>&lt; 1 ms</>,
                 label: <>budget per check</>,
-                sub: <>it sits on every request's critical path</>,
+                sub: <>it is on the path of every request</>,
               },
             ]}
           />
@@ -210,25 +210,25 @@ export default function SdLessonSixOnePage() {
           </p>
           <ul>
             <li>
-              <strong>Memory is small.</strong> Everything fits in an in-memory store like Redis.
+              <strong>Memory is small.</strong> Everything fits in an in-memory store (a database that keeps data in RAM, so it is very fast), such as Redis. Redis is an open-source in-memory data store that keeps keys and values in memory and answers in well under a millisecond.
             </li>
             <li>
-              <strong>Throughput is significant.</strong> 200k operations per second needs a{" "}
-              <strong>Redis cluster</strong> with several shards, since a single Redis node handles very roughly 100k
+              <strong>Throughput is high.</strong> 200,000 operations per second needs a{" "}
+              <strong>Redis cluster</strong> with several shards. A shard is one part of the data, kept on its own node (machine), so the work is shared. One Redis node handles only very roughly 100,000
               simple operations per second.
             </li>
             <li>
-              <strong>The latency budget is tight</strong>, so we should <strong>minimise network round trips</strong>{" "}
-              (one atomic call per check, or batched checks).
+              <strong>The latency budget is tight</strong>, so we should <strong>use as few network round trips as possible</strong>{" "}
+              (one atomic call per check, or checks sent together in a batch). An atomic call is one that cannot be split or interrupted.
             </li>
           </ul>
           <h3 id="step-3-api-and-rule-model">Step 3: API and rule model</h3>
           <p>
-            <strong>The limiter's internal interface:</strong>
+            <strong>The limiter's internal interface</strong> (how other parts of the system call it):
           </p>
           <CodeBlock lang="http" code={code1} />
           <p>
-            <strong>Rules as configuration</strong> (stored centrally, cached locally):
+            <strong>Rules as configuration</strong> (stored in one central place, and cached, which means copied, on each gateway):
           </p>
           <CodeBlock lang="yaml" code={code2} />
           <p>
@@ -237,7 +237,9 @@ export default function SdLessonSixOnePage() {
           <CodeBlock lang="http" code={code3} />
           <p>
             Successful responses should include the <code>RateLimit-*</code> headers too, so clients can slow down{" "}
-            <strong>before</strong> being blocked.
+            <strong>before</strong> they are blocked. A header is an extra named line of information sent with an HTTP message. <code>Retry-After</code> is a standard HTTP header that tells the client how many seconds to wait. The{" "}
+            <code>RateLimit-*</code> names come from an IETF draft (a proposed internet standard that is not final yet) that is still changing, and many APIs use the older{" "}
+            <code>X-RateLimit-*</code> names instead.
           </p>
           <h3 id="step-4-high-level-design">Step 4: High-level design</h3>
           <p>
@@ -258,21 +260,21 @@ export default function SdLessonSixOnePage() {
                     <strong>Client-side</strong>
                   </td>
                   <td>Reduces useless traffic</td>
-                  <td>Can't be trusted (clients can ignore it)</td>
+                  <td>Cannot be trusted (clients can ignore it)</td>
                 </tr>
                 <tr>
                   <td>
                     <strong>In each service (library/middleware)</strong>
                   </td>
-                  <td>Business-aware (knows plans, endpoints)</td>
+                  <td>Knows the business rules (plans, endpoints)</td>
                   <td>Duplicated across services and languages</td>
                 </tr>
                 <tr>
                   <td>
                     <strong>API gateway / edge (recommended primary)</strong>
                   </td>
-                  <td>One place, stops traffic early, language-independent</td>
-                  <td>Less business context (unless passed in)</td>
+                  <td>One place, stops traffic early, works for any language</td>
+                  <td>Knows less about the business (unless you pass it in)</td>
                 </tr>
                 <tr>
                   <td>
@@ -285,8 +287,8 @@ export default function SdLessonSixOnePage() {
             </table>
           </div>
           <p>
-            A common design: <strong>the API gateway enforces most limits</strong>, calling a{" "}
-            <strong>shared counter store</strong>, while services add <strong>business-specific limits</strong> ("max 5
+            A common design: <strong>the API gateway enforces most limits</strong>. (An API gateway is the single front door that all API requests pass through.) It calls a{" "}
+            <strong>shared counter store</strong>. Services add <strong>business-specific limits</strong> ("max 5
             OTPs per phone number per hour") where needed.
           </p>
           <SequenceDiagram
@@ -299,7 +301,7 @@ export default function SdLessonSixOnePage() {
                 from: 1,
                 to: 2,
                 label: <>EVALSHA token_bucket rl:&#123;ak_9f2c&#125;:plan-pro</>,
-                note: <>one atomic, pipelined call</>,
+                note: <>EVALSHA runs a saved Lua script inside Redis. One atomic call (pipelined: sent together with others)</>,
               },
               { from: 2, to: 1, label: <>allowed · remaining 1,412</>, reply: true },
               { from: 1, to: 3, label: <>forward request</> },
@@ -318,80 +320,80 @@ export default function SdLessonSixOnePage() {
           <p>(See post 43 for how each algorithm works.)</p>
           <ul>
             <li>
-              <strong>Token bucket</strong> for <strong>plan limits</strong>: it allows natural bursts, and the burst
-              and rate are easy to explain to customers.
+              <strong>Token bucket</strong> for <strong>plan limits</strong>. A bucket fills with tokens at a steady rate, and each request takes one. It allows short bursts, and the burst size
+              and the rate are easy to explain to customers.
             </li>
             <li>
-              <strong>Sliding window counter</strong> for <strong>abuse limits</strong> like login attempts: smooth and
-              cheap, with no boundary double-bursts.
+              <strong>Sliding window counter</strong> for <strong>abuse limits</strong> like login attempts. It counts requests in the last N seconds. It is smooth and
+              cheap, and it avoids the problem where a caller sends a full burst at the end of one window and another at the start of the next.
             </li>
             <li>
-              <strong>Leaky bucket / global token bucket</strong> for <strong>protecting downstream systems</strong>{" "}
-              (SMS, payment providers) at a steady rate.
+              <strong>Leaky bucket / global token bucket</strong> (a leaky bucket is a queue that lets requests out at one fixed speed, like water dripping from a small hole) for <strong>protecting downstream systems</strong>{" "}
+              (SMS and payment providers). They send requests on at a steady rate.
             </li>
             <li>
-              <strong>Concurrency limits</strong> (in-flight requests per key) for <strong>expensive endpoints</strong>{" "}
-              like exports and reports. These limit <strong>how many at once</strong>, not per minute.
+              <strong>Concurrency limits</strong> (how many requests per key are running at the same moment) for <strong>expensive endpoints</strong>{" "}
+              like exports and reports. These limit <strong>how many at once</strong>, not how many per minute.
             </li>
           </ul>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Deep dive 2: Atomic counting in Redis</h4>
           <p>
-            The classic race: two gateway nodes read "99 of 100", and both allow the request, making{" "}
+            Here is the classic race condition (two things happen at the same time and clash). Two gateway nodes read "99 of 100", and both allow the request. That makes{" "}
             <strong>101</strong>. Fix it with <strong>atomic operations</strong>:
           </p>
           <ul>
             <li>
-              <strong>Fixed window:</strong> <code>INCR</code> + <code>EXPIRE</code> (INCR is atomic).
+              <strong>Fixed window:</strong> <code>INCR</code> + <code>EXPIRE</code>. <code>INCR</code> is a Redis command that adds 1 to a counter in one atomic step. <code>EXPIRE</code> tells Redis to delete the key after some time.
             </li>
             <li>
-              <strong>Token bucket or sliding window:</strong> a small <strong>Lua script</strong> that reads, updates
+              <strong>Token bucket or sliding window:</strong> a small <strong>Lua script</strong> (a short program that runs inside Redis) that reads, updates
               and returns the decision <strong>in one atomic step</strong> (post 43 has an example). Redis runs scripts
               one at a time, so there are no races.
             </li>
           </ul>
           <p>
-            <strong>Minimise round trips:</strong>
+            <strong>Use fewer round trips:</strong>
           </p>
           <ul>
             <li>
-              <strong>Check multiple rules in one script call</strong>, or pipeline them.
+              <strong>Check several rules in one script call</strong>, or pipeline them (send many commands in one go and read all the answers together).
             </li>
             <li>
-              <strong>Keep keys for the same user on the same Redis shard</strong> using <strong>hash tags</strong> (for
-              example <code>rl:&#123;api_key_123&#125;:plan</code> and <code>rl:&#123;api_key_123&#125;:route</code>),
+              <strong>Keep keys for the same user on the same Redis shard</strong> using <strong>hash tags</strong>. Redis only hashes the part inside the curly braces to choose the shard. For
+              example, <code>rl:&#123;api_key_123&#125;:plan</code> and <code>rl:&#123;api_key_123&#125;:route</code> land on the same shard,
               so a single script can update them together in Redis Cluster.
             </li>
           </ul>
           <p>
-            <strong>Key design and expiry:</strong>
+            <strong>Key names and expiry:</strong> (TTL means time to live, the time after which Redis deletes a key.)
           </p>
           <CodeBlock lang="http" code={code4} />
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">
             Deep dive 3: Performance, local caching and batching
           </h4>
           <p>
-            A Redis call per request adds a network round trip (typically well under 1 ms in the same zone).
-            Optimisations:
+            A Redis call for every request adds a network round trip. This is typically well under 1 ms inside the same zone.
+            Ways to make it faster:
           </p>
           <ul>
             <li>
-              <strong>Local rule cache:</strong> rules rarely change, so each gateway keeps them in memory and refreshes
-              every few seconds (or on a push notification).
+              <strong>Local rule cache:</strong> rules rarely change, so each gateway keeps them in its own memory and reloads
+              them every few seconds (or when it receives a push message).
             </li>
             <li>
               <strong>Local "definitely blocked" cache:</strong> once a key is over its limit, remember "blocked until
-              time T" <strong>locally</strong>, and reject further requests <strong>without calling Redis</strong>. This
-              helps enormously during attacks.
+              time T" <strong>locally</strong>, and reject more requests from it <strong>without calling Redis</strong>. This
+              helps a lot during attacks.
             </li>
             <li>
-              <strong>Local pre-allocation (token leasing):</strong> for very high-volume keys, a gateway can{" "}
-              <strong>reserve a batch of tokens</strong> (say 50) from Redis and spend them locally, syncing again when
-              they run out. There are fewer Redis calls, at the cost of slight inaccuracy.
+              <strong>Local pre-allocation (token leasing):</strong> for keys with very many requests, a gateway can{" "}
+              <strong>reserve a batch of tokens</strong> (say 50) from Redis and spend them locally. It talks to Redis again when
+              they run out. There are fewer Redis calls, but the count is a little less accurate.
             </li>
             <li>
-              <strong>Approximate local limiting</strong> for extreme scale: each of N gateways enforces roughly{" "}
-              <code>limit / N</code> locally, with periodic sync. It's very fast, but less accurate when traffic is
-              uneven across gateways.
+              <strong>Approximate local limiting</strong> for extreme scale: each of N gateways enforces about{" "}
+              <code>limit / N</code> locally and syncs from time to time. It is very fast, but less accurate when traffic is
+              not spread evenly across the gateways.
             </li>
           </ul>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Deep dive 4: Failure handling</h4>
@@ -400,34 +402,34 @@ export default function SdLessonSixOnePage() {
           </p>
           <ul>
             <li>
-              <strong>Timeout fast</strong> (for example, 5–20 ms) so the limiter never adds big latency (post 41).
+              <strong>Use a short timeout</strong> (for example, 5–20 ms; a timeout is the longest you wait for an answer) so the limiter never adds a big delay (post 41).
             </li>
             <li>
-              <strong>Circuit breaker</strong> around Redis (post 42): if it's failing, <strong>skip the calls</strong>{" "}
+              <strong>Circuit breaker</strong> around Redis (post 42). This is a switch that stops calls to a service that keeps failing. If Redis is failing, <strong>skip the calls</strong>{" "}
               for a while.
             </li>
             <li>
               <strong>Fail open or fail closed, per rule:</strong>
               <ul>
                 <li>
-                  <strong>Fail open</strong> (allow traffic) for general API plan limits. Availability matters more, and
-                  it's usually the right default.
+                  <strong>Fail open</strong> (allow the traffic) for general API plan limits. Availability matters more, and
+                  this is usually the right default.
                 </li>
                 <li>
-                  <strong>Fail closed</strong> (block) for <strong>security-critical</strong> rules like login, OTP and
+                  <strong>Fail closed</strong> (block the traffic) for <strong>security-critical</strong> rules like login, OTP and
                   password reset, where letting attackers through is worse. Or{" "}
-                  <strong>fall back to local, per-node limits</strong>, which still give rough protection.
+                  <strong>fall back to local limits on each node</strong>, which still give rough protection.
                 </li>
               </ul>
             </li>
             <li>
-              <strong>Redis high availability:</strong> replicas plus automatic failover (Redis Cluster, Sentinel or a
-              managed service). Losing some counter state during failover is acceptable, because limits just reset
-              briefly.
+              <strong>Redis high availability:</strong> replicas (copies) plus automatic failover (a spare takes over when the main node dies). Use Redis Cluster (Redis split into shards that fail over by themselves), Sentinel (a helper program that watches Redis and promotes a replica when the main node dies) or a
+              managed service (a cloud company runs Redis for you). Losing some counters during a failover is acceptable, because the limits just start again
+              for a short time.
             </li>
           </ul>
           <p>
-            <strong>The limiter must never take the API down.</strong> Load-test it, and practise its failure modes
+            <strong>The limiter must never take the API down.</strong> Load-test it (send it a lot of test traffic), and practise what happens when it fails
             (post 40).
           </p>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Deep dive 5: Multiple regions</h4>
@@ -437,42 +439,42 @@ export default function SdLessonSixOnePage() {
           <ul>
             <li>
               <strong>Per-region counters (the common choice):</strong> each region enforces limits with its own Redis.
-              It's fast and simple. A client using several regions at once could get up to about N × the limit. Mitigate
-              by giving each region a <strong>share</strong> of the limit, or by routing each customer to a{" "}
+              It is fast and simple. A client that uses several regions at once could get up to about N times the limit (N is the number of regions). Reduce this
+              by giving each region a <strong>share</strong> of the limit, or by sending each customer to one{" "}
               <strong>home region</strong>.
             </li>
             <li>
-              <strong>Global counters</strong> in one region: accurate, but adds cross-region latency (100+ ms) to every
-              request, which is usually unacceptable.
+              <strong>Global counters</strong> in one region: accurate, but they add delay between regions (100 ms or more) to every
+              request. This is usually not acceptable.
             </li>
             <li>
-              <strong>Async sync between regions</strong> (like CRDT-style counters, post 28): regions share usage every
-              few seconds. It's eventually accurate, and a good middle ground for strict enterprise quotas.
+              <strong>Async sync between regions</strong> (for example CRDT-style counters, special counters that can be merged without conflicts, post 28). The regions share their usage every
+              few seconds. The result becomes accurate after a short time (eventually accurate). It is a good middle choice for strict enterprise quotas.
             </li>
           </ul>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Deep dive 6: Rules management</h4>
           <ul>
             <li>
-              <strong>Store rules</strong> in a database or a Git repository (reviewed like code), with a small admin UI
+              <strong>Store rules</strong> in a database or a Git repository (reviewed like code), with a small admin page
               for support teams.
             </li>
             <li>
-              <strong>Distribute</strong> by gateways <strong>polling</strong> every few seconds, or by{" "}
-              <strong>pushing</strong> updates (for example, via a pub/sub channel).
+              <strong>Send the rules out</strong> by letting gateways <strong>poll</strong> (ask for updates) every few seconds, or by{" "}
+              <strong>pushing</strong> updates to them (for example, through a pub/sub channel, where subscribers get messages that a publisher sends).
             </li>
             <li>
-              <strong>Validate</strong> rules before applying them, and support <strong>dry-run / shadow mode</strong>:
-              log "would have blocked" without blocking, to test a new rule safely.
+              <strong>Validate</strong> (check) rules before you apply them. Also support <strong>dry-run / shadow mode</strong>:
+              write "would have blocked" to the log without blocking, so you can test a new rule safely.
             </li>
             <li>
-              Support <strong>per-customer overrides</strong> ("customer X gets 10× for their launch day"), with expiry.
+              Support <strong>per-customer overrides</strong> ("customer X gets 10 times the limit on their launch day"), with an end date.
             </li>
           </ul>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Deep dive 7: Monitoring</h4>
           <p>Track:</p>
           <ul>
             <li>
-              <strong>checks per second</strong> and limiter <strong>latency</strong> (p50/p99),
+              <strong>checks per second</strong> and limiter <strong>latency</strong> (p50 is the typical request, p99 is the slow end),
             </li>
             <li>
               <strong>blocked requests</strong> by rule, key, plan and endpoint (<strong>top offenders</strong>),
@@ -482,11 +484,11 @@ export default function SdLessonSixOnePage() {
               <strong>fail-open / fail-closed events</strong>,
             </li>
             <li>
-              <strong>customer impact:</strong> are paying customers being limited unexpectedly? That's a signal to
-              adjust plans or rules.
+              <strong>customer impact:</strong> are paying customers being limited when they should not be? That is a sign that you should
+              change the plans or rules.
             </li>
           </ul>
-          <p>Alert on sudden spikes in blocked requests (an attack, or a bad rule) and on limiter errors.</p>
+          <p>Send an alert when blocked requests suddenly jump (it may be an attack, or a bad rule) and when the limiter has errors.</p>
           <h3 id="wrap-up">Wrap-up</h3>
           <ul>
             <li>
@@ -497,12 +499,12 @@ export default function SdLessonSixOnePage() {
               <strong>429 + headers</strong>.
             </li>
             <li>
-              <strong>Trade-offs:</strong> per-region counters (fast, slightly generous) vs global accuracy; fail open
-              for availability vs fail closed for security; local optimisations for speed vs exactness.
+              <strong>Trade-offs:</strong> per-region counters (fast, slightly too generous) or global accuracy; fail open
+              for availability or fail closed for security; local shortcuts for speed or exact counts.
             </li>
             <li>
-              <strong>Next steps:</strong> adaptive limits based on backend health (link to load shedding, post 44),
-              per-customer usage dashboards, and billing integration.
+              <strong>Next steps:</strong> adaptive limits that change with the health of the backend (see load shedding, post 44),
+              usage dashboards for each customer, and a link to billing.
             </li>
           </ul>
         </Section>
@@ -551,30 +553,29 @@ export default function SdLessonSixOnePage() {
         <Section id="in-the-real-world" title="In the Real World" kind="real">
           <p>
             <strong>Stripe</strong> described running <strong>several kinds of limiters</strong>: a request-rate limiter
-            using token buckets in Redis, a concurrent-requests limiter, and two load shedders that protect critical
-            traffic when the fleet is under strain. It's a real-world example of rate limiting and load shedding working
+            that uses token buckets in Redis, a concurrent-requests limiter, and two load shedders (they drop less important requests) that protect critical
+            traffic when the servers are under strain. It is a real example of rate limiting and load shedding working
             together.
           </p>
           <p>
             <strong>Cloudflare</strong> rate-limits traffic for millions of websites across its global network. It has
-            described using a <strong>sliding-window approximation</strong> with minimal memory per key, and making
-            decisions at the edge close to users.
+            described using a <strong>sliding-window approximation</strong> that needs very little memory per key, and making
+            decisions at the edge, close to users.
           </p>
           <p>
             <strong>Envoy's global rate-limit service.</strong> Lyft open-sourced a <strong>rate-limit service</strong>{" "}
-            (written in Go, backed by Redis) that Envoy proxies call to decide whether to allow requests. It's a
-            ready-made version of the "dedicated rate-limit service" design above, used by many companies.
+            (written in Go, backed by Redis) that Envoy proxies (Envoy is a popular network proxy) call to decide whether to allow a request. It is a
+            ready-made version of the "dedicated rate-limit service" design above, and many companies use it.
           </p>
           <p>
             <strong>GitHub's API limits.</strong> GitHub publishes <strong>primary</strong> rate limits (a number of
             requests per hour per user or app) and <strong>secondary</strong> limits (for example, on concurrent
-            requests and rapid content creation) to protect against abuse, and returns rate-limit headers on every
+            requests and rapid content creation) to protect against abuse. It also returns rate-limit headers on every
             response.
           </p>
           <p>
-            <strong>Figma</strong> wrote about designing its own rate limiter, comparing the memory and accuracy
-            trade-offs of different algorithms, and settling on a Redis-backed sliding-window approach. It's a good
-            small-company example of choosing an algorithm based on real constraints.
+            <strong>Figma</strong> wrote about designing its own rate limiter. It compared how much memory and how much accuracy each algorithm gives, and chose a Redis-backed sliding-window approach. It is a good
+            example of choosing an algorithm based on real constraints.
           </p>
         </Section>
 
@@ -586,9 +587,9 @@ export default function SdLessonSixOnePage() {
                 a: (
                   <>
                     <p>
-                      As middleware in the API gateway or edge, so rejected traffic never reaches backends, with a
-                      shared counter store (Redis Cluster) behind it. Business-specific limits — OTPs per phone number —
-                      can live inside the owning service using the same library.
+                      As middleware (code that runs on every request) in the API gateway or at the edge, so rejected traffic never reaches the backends. A
+                      shared counter store (Redis Cluster) sits behind it. Business-specific limits, such as OTPs per phone number,
+                      can live inside the service that owns them, using the same library.
                     </p>
                   </>
                 ),
@@ -598,9 +599,9 @@ export default function SdLessonSixOnePage() {
                 a: (
                   <>
                     <p>
-                      Do the read-compute-write atomically in Redis with a Lua script (or INCR for simple windows),
-                      sharded by key with hash tags so all of one key's data sits on one shard, and pipeline multiple
-                      rule checks in one round trip.
+                      Do the read, calculate and write steps atomically in Redis with a Lua script (or INCR for simple windows).
+                      Shard by key and use hash tags, so all the data of one key sits on one shard. Pipeline several
+                      rule checks into one round trip.
                     </p>
                   </>
                 ),
@@ -610,9 +611,9 @@ export default function SdLessonSixOnePage() {
                 a: (
                   <>
                     <p>
-                      Decide per rule: fail open for general API limits (availability first, perhaps with a local
-                      in-memory fallback limiter), fail closed for security-sensitive rules like login and OTP. Alert
-                      either way.
+                      Decide for each rule. Fail open for general API limits (availability comes first, maybe with a local
+                      in-memory backup limiter). Fail closed for security-sensitive rules like login and OTP. Send an alert
+                      in both cases.
                     </p>
                   </>
                 ),
@@ -622,9 +623,9 @@ export default function SdLessonSixOnePage() {
                 a: (
                   <>
                     <p>
-                      Combine a small local token bucket on each gateway node with periodic sync to the global counter,
-                      so most checks never cross the network, or give that key a dedicated shard. Accept slight
-                      over-allowance in exchange.
+                      Use a small local token bucket on each gateway node and sync it with the global counter from time to time,
+                      so most checks never cross the network. Or give that key its own shard. In return, accept that a few
+                      extra requests may get through.
                     </p>
                   </>
                 ),
@@ -634,8 +635,8 @@ export default function SdLessonSixOnePage() {
                 a: (
                   <>
                     <p>
-                      Store them in a database or config repository, push or poll them to gateways and cache them
-                      locally, version them, and roll changes out gradually — a bad rule can block every customer at
+                      Store them in a database or a config repository. Push them to the gateways or let the gateways poll,
+                      and cache them locally. Keep versions of the rules, and roll changes out slowly, because one bad rule can block every customer at
                       once.
                     </p>
                   </>
@@ -646,10 +647,10 @@ export default function SdLessonSixOnePage() {
                 a: (
                   <>
                     <p>
-                      Usually per-region counters with a share of the global limit each, which is fast and tolerant of
-                      cross-region partitions, or asynchronous sync of counts between regions, accepting brief
-                      over-allowance. Strongly consistent global counters would add cross-region latency to every
-                      request.
+                      Usually each region has its own counters and a share of the global limit. This is fast and still works if the
+                      link between regions breaks (a network partition). Another way is to sync the counts between regions
+                      asynchronously and accept a short over-allowance. Strongly consistent global counters would add
+                      delay between regions to every request.
                     </p>
                   </>
                 ),
@@ -665,7 +666,7 @@ export default function SdLessonSixOnePage() {
               <strong>good client communication</strong> (429 + headers) and a <strong>safe failure plan</strong>.
             </li>
             <li>
-              <strong>Estimate:</strong> 100k req/s × 2 rules ≈ 200k checks/s, but only a few GB of memory, so a{" "}
+              <strong>Estimate:</strong> 100,000 requests/s × 2 rules ≈ 200,000 checks/s, but only a few GB of memory, so a{" "}
               <strong>Redis Cluster</strong> fits well.
             </li>
             <li>
