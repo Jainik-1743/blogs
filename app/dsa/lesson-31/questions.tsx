@@ -10,23 +10,23 @@ export default function Questions() {
         title="Longest substring without repeating characters"
         level="Medium"
         examples={[
-          { input: '"abcabcbb"', output: "3", why: 'The longest substring with all different characters is "abc".' },
+          { input: '"abcabcbb"', output: "3", why: 'The longest substring with all different letters is "abc".' },
           { input: '"bbbbb"', output: "1", why: 'Only "b".' },
           { input: '"pwwkew"', output: "3", why: 'Either "wke" or "kew". "pwke" is not contiguous.' },
         ]}
         hints={[
-          <>Brute force: try every start and extend until a repeat. That is O(n²) or worse.</>,
-          <>Keep a window with no repeats. When the new character is already inside, what must change?</>,
-          <>Instead of shrinking one step at a time, could you jump <code>left</code> straight past the earlier copy?</>,
+          <>Brute force: try every start position and keep going until a letter repeats. That takes O(n²) time or more.</>,
+          <>Keep a window with no repeats. When the new letter is already inside, what must change?</>,
+          <>Instead of shrinking one step at a time, could you move <code>left</code> straight past the earlier copy?</>,
         ]}
         approaches={[
           {
             name: "Window with a Set",
             idea: (
               <ol>
-                <li>Grow <code>right</code> one character at a time.</li>
-                <li>While <code>s[right]</code> is already in the Set, remove <code>s[left]</code> and move <code>left</code>.</li>
-                <li>Add <code>s[right]</code> and record the window length.</li>
+                <li>Move <code>right</code> forward one letter at a time.</li>
+                <li>While <code>s[right]</code> is already in the Set, remove <code>s[left]</code> and move <code>left</code> forward.</li>
+                <li>Add <code>s[right]</code> and save the window length.</li>
               </ol>
             ),
             code: `function lengthOfLongestSubstring(s) {
@@ -44,13 +44,13 @@ console.log(lengthOfLongestSubstring("abcabcbb")); // 3
 console.log(lengthOfLongestSubstring("bbbbb"));    // 1
 console.log(lengthOfLongestSubstring("pwwkew"));   // 3
 console.log(lengthOfLongestSubstring(""));         // 0`,
-            explain: <p>O(n) time (each index enters and leaves once), O(alphabet) space.</p>,
+            explain: <p>O(n) time, because each index enters the window once and leaves once. O(alphabet) space, which means the Set never holds more than the number of different letters.</p>,
           },
           {
             name: "Jump with a Map of last positions",
-            idea: <p>Store each character&apos;s last index. When a repeat appears inside the window, move <code>left</code> to one past that index in a single step.</p>,
+            idea: <p>Store the last index (position) of each letter. When a repeat appears inside the window, move <code>left</code> to the spot just after that old copy in one step.</p>,
             code: `function lengthOfLongestSubstring(s) {
-  const last = new Map();                    // character -> last index seen
+  const last = new Map();                    // letter -> last index where we saw it
   let left = 0, best = 0;
   for (let right = 0; right < s.length; right++) {
     const c = s[right];
@@ -63,12 +63,12 @@ console.log(lengthOfLongestSubstring(""));         // 0`,
 
 console.log(lengthOfLongestSubstring("abba"));     // 2
 console.log(lengthOfLongestSubstring("tmmzuxt"));  // 5`,
-            explain: <p>The check <code>last.get(c) &gt;= left</code> matters: an old copy that is already outside the window must be ignored (see &ldquo;abba&rdquo;). Still O(n), with fewer steps.</p>,
+            explain: <p>The check <code>last.get(c) &gt;= left</code> is important. An old copy that is already outside the window must be ignored (try &ldquo;abba&rdquo;). It is still O(n), with fewer steps.</p>,
           },
         ]}
-        compare={<p>Both are fine. The Set version is the easier one to get right under pressure. (LeetCode 3.)</p>}
+        compare={<p>Both are fine. The Set version is easier to get right when you are nervous in an interview. (LeetCode 3.)</p>}
       >
-        <p>Return the length of the longest substring of <code>s</code> that contains no repeated character.</p>
+        <p>Return the length of the longest substring of <code>s</code> that has no repeated letter.</p>
       </Problem>
 
       <Problem
@@ -80,17 +80,17 @@ console.log(lengthOfLongestSubstring("tmmzuxt"));  // 5`,
           { input: 's = "AABABBA", k = 1', output: "4", why: 'Change one "B": "AABA" → "AAAA".' },
         ]}
         hints={[
-          <>For a window, how many letters must change to make all letters equal?</>,
-          <>Answer: window size minus the count of its most frequent letter. That must be at most <code>k</code>.</>,
+          <>For one window, how many letters must you change to make all the letters the same?</>,
+          <>Answer: the window size minus the count of its most common letter. This number must be at most <code>k</code>.</>,
         ]}
         approaches={[
           {
             name: "Window with letter counts",
             idea: (
               <ol>
-                <li>Track the count of each letter in the window and the highest count seen (<code>maxFreq</code>).</li>
-                <li>If <code>size − maxFreq &gt; k</code>, the window needs too many changes: shrink from the left.</li>
-                <li>Record the window size.</li>
+                <li>Keep the count of each letter in the window, and the highest count you have seen (<code>maxFreq</code>).</li>
+                <li>If <code>size − maxFreq &gt; k</code>, the window needs too many changes, so shrink it from the left.</li>
+                <li>Save the window size.</li>
               </ol>
             ),
             code: `function characterReplacement(s, k) {
@@ -111,12 +111,12 @@ console.log(lengthOfLongestSubstring("tmmzuxt"));  // 5`,
 console.log(characterReplacement("ABAB", 2));    // 4
 console.log(characterReplacement("AABABBA", 1)); // 4
 console.log(characterReplacement("AAAA", 0));    // 4`,
-            explain: <p>O(n) time, O(26) space. <code>maxFreq</code> is allowed to be stale after shrinking, as explained in the lesson.</p>,
+            explain: <p>O(n) time, O(26) space. <code>maxFreq</code> is allowed to be out of date after shrinking, as the lesson explained.</p>,
           },
         ]}
         compare={<p>(LeetCode 424.)</p>}
       >
-        <p>Given an uppercase string and <code>k</code>, you may replace at most <code>k</code> characters. Return the length of the longest substring of a single repeated letter you can obtain.</p>
+        <p>You get an uppercase string and a number <code>k</code>. You may replace at most <code>k</code> letters. Return the length of the longest substring made of one repeated letter that you can get.</p>
       </Problem>
 
       <Problem
@@ -128,13 +128,13 @@ console.log(characterReplacement("AAAA", 0));    // 4`,
           { input: 's1 = "ab", s2 = "eidboaoo"', output: "false", why: "No window of length 2 has the letters a and b." },
         ]}
         hints={[
-          <>A permutation of <code>s1</code> has the same letter counts and the same length.</>,
-          <>Slide a window of length <code>s1.length</code> over <code>s2</code>, updating counts as letters enter and leave.</>,
+          <>A permutation of <code>s1</code> (the same letters in any order) has the same letter counts and the same length.</>,
+          <>Slide a window of length <code>s1.length</code> over <code>s2</code>. Update the counts as letters enter and leave.</>,
         ]}
         approaches={[
           {
             name: "Sort each window",
-            idea: <p>Sort <code>s1</code>; for each window of <code>s2</code>, sort it and compare.</p>,
+            idea: <p>Sort <code>s1</code>. Then for each window of <code>s2</code>, sort the window and compare.</p>,
             code: `function checkInclusion(s1, s2) {
   const target = [...s1].sort().join("");
   for (let i = 0; i + s1.length <= s2.length; i++) {
@@ -145,11 +145,11 @@ console.log(characterReplacement("AAAA", 0));    // 4`,
 
 console.log(checkInclusion("ab", "eidbaooo")); // true
 console.log(checkInclusion("ab", "eidboaoo")); // false`,
-            explain: <p>O(n · m log m): too slow when both strings are long.</p>,
+            explain: <p>O(n · m log m) time. This is too slow when both strings are long.</p>,
           },
           {
-            name: "Fixed window with counts",
-            idea: <p>Keep two arrays of 26 counts. Add the entering letter, remove the leaving one, and compare the arrays.</p>,
+            name: "Fixed-size window with counts",
+            idea: <p>Keep two arrays of 26 counts. Add the letter that enters, remove the letter that leaves, and compare the arrays.</p>,
             code: `function checkInclusion(s1, s2) {
   if (s1.length > s2.length) return false;
   const idx = (c) => c.charCodeAt(0) - 97;
@@ -169,9 +169,9 @@ console.log(checkInclusion("abc", "ab"));      // false`,
             explain: <p>O(26 · n) = O(n) time, O(26) space.</p>,
           },
         ]}
-        compare={<p>The fixed-window version. (LeetCode 567.)</p>}
+        compare={<p>Use the fixed-size window version. (LeetCode 567.)</p>}
       >
-        <p>Return <code>true</code> if <code>s2</code> contains a permutation of <code>s1</code> as a substring. Both strings are lowercase letters.</p>
+        <p>Return <code>true</code> if <code>s2</code> contains a permutation of <code>s1</code> as a substring. Both strings use only lowercase letters.</p>
       </Problem>
 
       <Problem
@@ -183,12 +183,12 @@ console.log(checkInclusion("abc", "ab"));      // false`,
           { input: 's = "abab", p = "ab"', output: "[0, 1, 2]", why: '"ab", "ba", "ab".' },
         ]}
         hints={[
-          <>This is question 3, but you collect every start index instead of stopping at the first.</>,
+          <>This is question 3. The only change is that you collect every start index instead of stopping at the first one.</>,
         ]}
         approaches={[
           {
-            name: "Fixed window with counts",
-            idea: <p>Slide a window of length <code>p.length</code>, comparing its counts with the counts of <code>p</code>; push the start index on every match.</p>,
+            name: "Fixed-size window with counts",
+            idea: <p>Slide a window of length <code>p.length</code> and compare its counts with the counts of <code>p</code>. Every time they match, add the start index to the result.</p>,
             code: `function findAnagrams(s, p) {
   const idx = (c) => c.charCodeAt(0) - 97;
   const need = new Array(26).fill(0), win = new Array(26).fill(0);
@@ -209,7 +209,7 @@ console.log(findAnagrams("a", "ab"));           // []`,
           },
           {
             name: "Window with a single mismatch counter",
-            idea: <p>Instead of comparing 26 counts every step, track how many letters are still missing, like in minimum window.</p>,
+            idea: <p>Do not compare 26 counts at every step. Just track how many letters are still missing, like in minimum window.</p>,
             code: `function findAnagrams(s, p) {
   const need = new Map();
   for (const c of p) need.set(c, (need.get(c) || 0) + 1);
@@ -229,12 +229,12 @@ console.log(findAnagrams("a", "ab"));           // []`,
 
 console.log(findAnagrams("cbaebabacd", "abc")); // [0, 6]
 console.log(findAnagrams("abab", "ab"));        // [0, 1, 2]`,
-            explain: <p>The same O(n), but each step is O(1) with no 26-element comparison, and it works for any characters, not only lowercase letters.</p>,
+            explain: <p>It is still O(n), but each step costs O(1) because there is no 26-number comparison. It also works for any characters, not only lowercase letters.</p>,
           },
         ]}
-        compare={<p>Use the first for clarity; the second is the more general technique. (LeetCode 438.)</p>}
+        compare={<p>Use the first for clarity. The second is the more general technique. (LeetCode 438.)</p>}
       >
-        <p>Return the start indices of every substring of <code>s</code> that is an anagram of <code>p</code>.</p>
+        <p>Return the start index of every substring of <code>s</code> that is an anagram of <code>p</code>.</p>
       </Problem>
 
       <Problem
@@ -242,19 +242,19 @@ console.log(findAnagrams("abab", "ab"));        // [0, 1, 2]`,
         title="Minimum window substring"
         level="Hard"
         examples={[
-          { input: 's = "ADOBECODEBANC", t = "ABC"', output: '"BANC"', why: "The shortest substring containing A, B and C." },
+          { input: 's = "ADOBECODEBANC", t = "ABC"', output: '"BANC"', why: "The shortest substring that has A, B and C." },
           { input: 's = "a", t = "a"', output: '"a"', why: "The whole string." },
           { input: 's = "a", t = "aa"', output: '""', why: "There are not enough a's." },
         ]}
         hints={[
-          <>Grow the right edge until the window contains every letter of <code>t</code> (with the right counts).</>,
-          <>Then shrink from the left as long as it stays valid, recording the smallest window.</>,
-          <>Keep a <code>missing</code> number so that &ldquo;is the window valid?&rdquo; is O(1).</>,
+          <>Move the right edge forward until the window has every letter of <code>t</code> (with the right counts).</>,
+          <>Then shrink from the left for as long as the window stays valid. Save the smallest window you see.</>,
+          <>Keep a <code>missing</code> number, so that the question &ldquo;is the window valid?&rdquo; takes O(1).</>,
         ]}
         approaches={[
           {
             name: "Check every substring",
-            idea: <p>For every start and end, count the letters and test.</p>,
+            idea: <p>For every start and end, count the letters in that piece and test it.</p>,
             code: `function minWindow(s, t) {
   const covers = (sub) => {
     const c = {};
@@ -273,15 +273,15 @@ console.log(findAnagrams("abab", "ab"));        // [0, 1, 2]`,
 }
 
 console.log(minWindow("ADOBECODEBANC", "ABC")); // BANC`,
-            explain: <p>O(n³) or worse. Only a starting point.</p>,
+            explain: <p>O(n³) time or worse. Use it only as a starting point.</p>,
           },
           {
-            name: "Expand, then shrink (the template)",
+            name: "Grow, then shrink (the template)",
             idea: (
               <ol>
-                <li>Count the letters needed from <code>t</code>; <code>missing = t.length</code>.</li>
-                <li>Move <code>right</code>; a needed letter lowers <code>missing</code>.</li>
-                <li>While <code>missing === 0</code>, record the window and move <code>left</code>, giving letters back.</li>
+                <li>Count the letters you need from <code>t</code>. Set <code>missing = t.length</code>.</li>
+                <li>Move <code>right</code> forward. Each needed letter lowers <code>missing</code>.</li>
+                <li>While <code>missing === 0</code>, save the window and move <code>left</code> forward, which gives letters back.</li>
               </ol>
             ),
             code: `function minWindow(s, t) {
@@ -305,12 +305,12 @@ console.log(minWindow("ADOBECODEBANC", "ABC")); // BANC
 console.log(minWindow("a", "a"));               // a
 console.log(minWindow("a", "aa") === "");       // true
 console.log(minWindow("aa", "aa"));             // aa`,
-            explain: <p>O(n + m) time: each pointer moves forward at most n times. Space O(m) for the needed letters.</p>,
+            explain: <p>O(n + m) time, because each pointer moves forward at most n times. O(m) space for the needed letters.</p>,
           },
         ]}
-        compare={<p>The template. This is the longest-standing &ldquo;Hard&rdquo; that is really just the window template done carefully. (LeetCode 76.)</p>}
+        compare={<p>Use the template. This question is marked &ldquo;Hard&rdquo;, but it is just the window template done carefully. (LeetCode 76.)</p>}
       >
-        <p>Return the smallest substring of <code>s</code> that contains every character of <code>t</code> (with multiplicity), or <code>&quot;&quot;</code> if none exists.</p>
+        <p>Return the smallest substring of <code>s</code> that contains every letter of <code>t</code> (as many times as it appears in <code>t</code>). If there is none, return <code>&quot;&quot;</code>.</p>
       </Problem>
 
       <Problem
@@ -322,13 +322,13 @@ console.log(minWindow("aa", "aa"));             // aa`,
           { input: 's = "aa", k = 1', output: "2", why: "The whole string." },
         ]}
         hints={[
-          <>What does the window remember? How many times each letter appears — and how many different letters that is.</>,
-          <>It is invalid when the Map has more than <code>k</code> keys.</>,
+          <>What does the window remember? How many times each letter appears, and so how many different letters there are.</>,
+          <>The window is not valid when the Map has more than <code>k</code> keys.</>,
         ]}
         approaches={[
           {
             name: "Window with a count Map",
-            idea: <p>Add the entering letter. While the Map has more than <code>k</code> letters, remove from the left, deleting a key when its count reaches 0.</p>,
+            idea: <p>Add the letter that enters. While the Map has more than <code>k</code> letters, remove letters from the left. Delete a key when its count reaches 0.</p>,
             code: `function lengthOfLongestSubstringKDistinct(s, k) {
   const count = new Map();
   let left = 0, best = 0;
@@ -348,12 +348,12 @@ console.log(minWindow("aa", "aa"));             // aa`,
 console.log(lengthOfLongestSubstringKDistinct("eceba", 2)); // 3
 console.log(lengthOfLongestSubstringKDistinct("aa", 1));    // 2
 console.log(lengthOfLongestSubstringKDistinct("abc", 0));   // 0`,
-            explain: <p>O(n) time, O(k) space. Deleting a key at count 0 is what makes <code>count.size</code> equal the number of distinct letters.</p>,
+            explain: <p>O(n) time, O(k) space. Deleting a key when its count is 0 is what makes <code>count.size</code> equal the number of different letters.</p>,
           },
         ]}
-        compare={<p>(LeetCode 340, a premium problem. The pattern is the most reusable window variant.)</p>}
+        compare={<p>(LeetCode 340, a paid-only problem. This pattern is the one you will reuse most often.)</p>}
       >
-        <p>Return the length of the longest substring that contains at most <code>k</code> distinct characters.</p>
+        <p>Return the length of the longest substring that has at most <code>k</code> different letters.</p>
       </Problem>
 
       <Problem
@@ -366,13 +366,13 @@ console.log(lengthOfLongestSubstringKDistinct("abc", 0));   // 0`,
           { input: "fruits = [1, 2, 3, 2, 2]", output: "4", why: "Pick [2, 3, 2, 2]." },
         ]}
         hints={[
-          <>Two baskets, each holds one type: the longest subarray with at most 2 distinct values.</>,
-          <>It is the previous question with <code>k = 2</code> on an array.</>,
+          <>Two baskets, and each basket holds one type. So you want the longest subarray with at most 2 different values.</>,
+          <>This is the previous question with <code>k = 2</code>, but on an array.</>,
         ]}
         approaches={[
           {
             name: "At most two distinct values",
-            idea: <p>The same window, with an array instead of a string.</p>,
+            idea: <p>It is the same window, but on an array instead of a string.</p>,
             code: `function totalFruit(fruits) {
   const count = new Map();
   let left = 0, best = 0;
@@ -392,23 +392,23 @@ console.log(lengthOfLongestSubstringKDistinct("abc", 0));   // 0`,
 console.log(totalFruit([1, 2, 1]));       // 3
 console.log(totalFruit([0, 1, 2, 2]));    // 3
 console.log(totalFruit([1, 2, 3, 2, 2])); // 4`,
-            explain: <p>O(n) time, O(1) space (at most 3 keys). Recognising the disguised problem is the whole question.</p>,
+            explain: <p>O(n) time, O(1) space, because the Map has at most 3 keys. The hard part is to see that this is the same problem in a different story.</p>,
           },
         ]}
         compare={<p>(LeetCode 904.)</p>}
       >
-        <p>Each tree gives one fruit type. You have two baskets, each holding one type, and must pick from consecutive trees. Return the most fruit you can collect.</p>
+        <p>Each tree gives one type of fruit. You have two baskets, and each basket holds only one type. You must pick from trees that are next to each other. Return the most fruit you can collect.</p>
       </Problem>
 
       <DryRun
-        title="Which window shape for which wording?"
-        cols={["The question says…", "Window", "Memory", "Invalid when…"]}
+        title="Which window type for which wording?"
+        cols={["The question says…", "Window", "Memory", "Not valid when…"]}
         rows={[
           ["longest substring with no repeats", "variable", "Set of letters", "new letter already inside"],
           ["longest … with at most k changes", "variable", "letter counts + maxFreq", "size − maxFreq > k"],
           ["longest … with at most k distinct", "variable", "Map of counts", "map.size > k"],
-          ["is there an anagram / permutation", "fixed (length p)", "26 counts", "never — compare each step"],
-          ["shortest substring containing t", "variable", "need counts + missing", "valid when missing = 0; shrink"],
+          ["is there an anagram / permutation", "fixed (length p)", "26 counts", "never; compare at each step"],
+          ["shortest substring containing t", "variable", "need counts + missing", "valid when missing = 0, so shrink"],
         ]}
       />
     </>

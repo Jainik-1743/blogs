@@ -17,26 +17,26 @@ export const metadata: Metadata = {
 };
 
 const outline = [
-  { id: "concept", label: "Backtracking = depth-first search plus pruning" },
+  { id: "concept", label: "Backtracking = depth-first search plus pruning (cutting off bad branches)" },
   { id: "template", label: "The template" },
   { id: "combo", label: "Combination sum: reuse allowed" },
   { id: "trace", label: "Traced: combination sum for target 7" },
   { id: "palin", label: "Palindrome partitioning: where to cut" },
   { id: "word", label: "Word search: backtracking on a grid" },
-  { id: "queens", label: "N-Queens: pruning with three sets" },
+  { id: "queens", label: "N-Queens: pruning with three Sets" },
   { id: "cost", label: "Why pruning matters, and what it costs" },
   { id: "practice", label: "Practice questions (7)" },
   { id: "recall", label: "Make it stick" },
-  { id: "next", label: "Part 8 complete — what's next" },
+  { id: "next", label: "Part 8 complete: what's next" },
 ];
 
 const templateSrc = `function backtrack(state) {
-  if (isComplete(state)) { save(state); return; }      // 1. a full answer: record it
+  if (isComplete(state)) { save(state); return; }      // 1. a full answer: save it
   for (const choice of choicesFrom(state)) {
     if (!isValid(state, choice)) continue;             // 2. PRUNE: skip a choice that can never lead to an answer
     apply(state, choice);                              // 3. choose
     backtrack(state);                                  // 4. explore
-    undo(state, choice);                               // 5. un-choose
+    undo(state, choice);                               // 5. un-choose (undo)
   }
 }`;
 
@@ -44,11 +44,11 @@ const comboCode = `function combinationSum(candidates, target) {
   candidates = [...candidates].sort((a, b) => a - b);        // sorting lets us stop early
   const out = [], path = [];
   function go(start, remaining) {
-    if (remaining === 0) { out.push([...path]); return; }    // exactly reached the target
+    if (remaining === 0) { out.push([...path]); return; }    // we reached the target exactly
     for (let i = start; i < candidates.length; i++) {
-      if (candidates[i] > remaining) break;                  // prune: this and every larger value is too big
+      if (candidates[i] > remaining) break;                  // prune: this value and every larger value is too big
       path.push(candidates[i]);
-      go(i, remaining - candidates[i]);                      // i, not i + 1: the same number may be reused
+      go(i, remaining - candidates[i]);                      // i, not i + 1: the same number may be used again
       path.pop();
     }
   }
@@ -82,25 +82,25 @@ function comboTrace() {
   const go = (start: number, remaining: number) => {
     if (remaining === 0) {
       out.push([...path]);
-      t.step(4, "print", `remaining = 0 → save [${path.join(", ")}]`, "The path adds up to the target exactly: that is an answer.", { path, remaining, saved: out.length });
+      t.step(4, "print", `remaining = 0 → save [${path.join(", ")}]`, "The path adds up to exactly the target, so this is an answer.", { path, remaining, saved: out.length });
       return;
     }
     for (let i = start; i < nums.length; i++) {
       if (nums[i] > remaining) {
-        t.step(6, "stop", `${nums[i]} > ${remaining}: prune`, `${nums[i]} is too big, and the list is sorted, so every later number is too big as well. Stop this loop.`, { path, start, i, remaining }, "remaining");
+        t.step(6, "stop", `${nums[i]} > ${remaining}: prune`, `${nums[i]} is too big. The list is sorted, so every later number is too big too. Stop this loop.`, { path, start, i, remaining }, "remaining");
         break;
       }
       path.push(nums[i]);
-      t.step(7, "update", `choose ${nums[i]} → path [${path.join(", ")}], ${remaining - nums[i]} left`, `Add ${nums[i]} and recurse with ${remaining - nums[i]} still to reach. Starting from index ${i} again means ${nums[i]} may be used repeatedly.`, { path, remaining: remaining - nums[i], saved: out.length }, "path");
+      t.step(7, "update", `choose ${nums[i]} → path [${path.join(", ")}], ${remaining - nums[i]} left`, `Add ${nums[i]}, then make the recursive call with ${remaining - nums[i]} still to reach. We start from index ${i} again, so ${nums[i]} can be used more than once.`, { path, remaining: remaining - nums[i], saved: out.length }, "path");
       go(i, remaining - nums[i]);
       path.pop();
-      t.step(9, "update", `undo ${nums[i]} → path [${path.join(", ")}]`, "Back out of this choice and try the next candidate.", { path, remaining, saved: out.length }, "path");
+      t.step(9, "update", `undo ${nums[i]} → path [${path.join(", ")}]`, "Undo this choice and try the next number.", { path, remaining, saved: out.length }, "path");
     }
   };
   t.step(2, "start", "out = [], path = []", "path holds the numbers chosen so far. We want paths that add up to 7.", { nums, target, path, out: [] });
   go(0, target);
   t.print(out.map((p) => `[${p.join(",")}]`).join(" "));
-  t.step(12, "print", "console.log(out)", "Two combinations: [2, 2, 3] and [7]. Notice how many branches were cut by the “too big” check.", { saved: out.length });
+  t.step(12, "print", "console.log(out)", "We found two combinations: [2, 2, 3] and [7]. Notice how many branches the “too big” check cut off.", { saved: out.length });
   return t.steps;
 }
 
@@ -111,9 +111,9 @@ const palinCode = `function partition(s) {
     return true;
   };
   function go(start) {
-    if (start === s.length) { out.push([...path]); return; }   // cut the whole string: one answer
+    if (start === s.length) { out.push([...path]); return; }   // we cut the whole string: one answer
     for (let end = start; end < s.length; end++) {
-      if (!isPal(start, end)) continue;                        // prune: only cut after a palindrome
+      if (!isPal(start, end)) continue;                        // prune: only cut when the piece is a palindrome
       path.push(s.slice(start, end + 1));
       go(end + 1);
       path.pop();
@@ -128,7 +128,7 @@ console.log(JSON.stringify(partition("aab"))); // [["a","a","b"],["aa","b"]]`;
 const wordCode = `function exist(board, word) {
   const R = board.length, C = board[0].length;
   function dfs(r, c, k) {
-    if (k === word.length) return true;                       // matched every letter
+    if (k === word.length) return true;                       // every letter matched
     if (r < 0 || c < 0 || r >= R || c >= C || board[r][c] !== word[k]) return false;   // prune
     const saved = board[r][c];
     board[r][c] = "#";                                        // choose: mark this cell as used
@@ -148,7 +148,7 @@ console.log(exist(board, "SEE"));    // true
 console.log(exist(board, "ABCB"));   // false`;
 
 const queensCode = `function solveNQueens(n) {
-  const out = [], queens = [];                    // queens[row] = the column of that row's queen
+  const out = [], queens = [];                    // queens[row] = the column of the queen in that row
   const cols = new Set(), diag1 = new Set(), diag2 = new Set();
   function go(row) {
     if (row === n) {
@@ -173,37 +173,37 @@ console.log(solveNQueens(8).length);                         // 92`;
 export default function DsaLessonThirtyFourPage() {
   return (
     <DsaLessonPage lesson={lesson} outline={outline}>
-      <h2 id="concept">Backtracking = depth-first search plus pruning</h2>
+      <h2 id="concept">Backtracking = depth-first search plus pruning (cutting off bad branches)</h2>
       <p>
-        Lesson 33 generated <em>every</em> subset or permutation. Real problems usually want only the answers that satisfy a{" "}
-        <strong>constraint</strong>: numbers that add up to a target, cuts that are palindromes, queens that do not attack each
-        other. Walking the whole tree and filtering at the end would be wasteful. <strong>Backtracking</strong> checks the
-        constraint <em>while building</em>, and the moment a partial answer can no longer succeed it abandons that branch and
+        Lesson 33 made <em>every</em> subset or permutation. Real problems usually want only the answers that follow a{" "}
+        <strong>rule</strong> (a constraint). For example: numbers that add up to a target, cuts where every piece is a palindrome, or queens that do not attack each
+        other. It would be a waste to walk the whole tree and filter at the end. <strong>Backtracking</strong> checks the
+        rule <em>while building</em> the answer. As soon as a partial answer cannot work any more, it drops that branch and
         steps back (&ldquo;backtracks&rdquo;) to try the next choice. Cutting off a branch early is called{" "}
-        <strong>pruning</strong>.
+        <strong>pruning</strong>, like cutting a dead branch off a real tree.
       </p>
       <p>
-        There is nothing new in the mechanics: it is the choose–explore–un-choose loop from Lesson 33 with one extra line that
+        There is nothing new in how it works. It is the same choose, explore, un-choose loop from Lesson 33, with one extra line that
         says &ldquo;this choice is no good, skip it&rdquo;.
       </p>
 
       <h2 id="template">The template</h2>
       <CodeBlock lang="js" code={templateSrc} />
       <p>
-        For any new problem, answer five questions and the code writes itself: <strong>What is the state</strong> (the path)?{" "}
-        <strong>When is it complete</strong> (save it)? <strong>What are the choices</strong> at each step?{" "}
-        <strong>Which choices are invalid</strong> (prune)? <strong>How do I undo</strong> a choice?
+        For any new problem, answer five questions and the code is easy to write. <strong>What is the state</strong> (the path so far)?{" "}
+        <strong>When is it complete</strong> (then save it)? <strong>What are the choices</strong> at each step?{" "}
+        <strong>Which choices are not allowed</strong> (prune them)? <strong>How do I undo</strong> a choice?
       </p>
 
       <h2 id="combo">Combination sum: reuse allowed</h2>
       <p>
-        Given distinct positive numbers and a target, find every combination that adds up to the target; a number may be used
-        any number of times. State: the path and the <code>remaining</code> amount. Complete: <code>remaining === 0</code>.
-        Prune: a number larger than <code>remaining</code>. Two details make it correct and efficient:
+        You get different positive numbers and a target. Find every combination that adds up to the target. A number may be used
+        any number of times. The state is the path and the <code>remaining</code> amount. It is complete when <code>remaining === 0</code>.
+        Prune any number that is larger than <code>remaining</code>. Two details make the code correct and fast.
       </p>
       <ul>
-        <li><strong>Recurse with <code>i</code>, not <code>i + 1</code></strong>, so the same number can be chosen again; but never look backwards (<code>start</code> only moves forward), so <code>[2, 3]</code> and <code>[3, 2]</code> are not both produced.</li>
-        <li><strong>Sort first</strong>, so when one number is too big you can <code>break</code> instead of <code>continue</code>: all later ones are bigger.</li>
+        <li><strong>Make the recursive call with <code>i</code>, not <code>i + 1</code></strong>, so the same number can be chosen again. But never look backwards (<code>start</code> only moves forward). Then <code>[2, 3]</code> and <code>[3, 2]</code> are not both made.</li>
+        <li><strong>Sort first.</strong> Then, when one number is too big, you can use <code>break</code> (stop the whole loop) instead of <code>continue</code> (skip only this number), because all later numbers are bigger.</li>
       </ul>
       <CodeBlock lang="js" code={comboCode} />
 
@@ -211,7 +211,7 @@ export default function DsaLessonThirtyFourPage() {
       <CodeTrace
         code={traceSrc}
         steps={comboTrace()}
-        caption="Choose, recurse, undo. A “prune” step ends a loop early because no remaining candidate can fit."
+        caption="Choose, recurse, undo. A “prune” step ends a loop early because none of the remaining numbers can fit."
       />
       <DryRun
         title="candidates [2, 3, 6, 7], target 7"
@@ -227,76 +227,76 @@ export default function DsaLessonThirtyFourPage() {
           ["[7]", "0", "save → answer"],
         ]}
         highlight={4}
-        note="The whole search is just 10 calls, instead of the dozens an unpruned walk would make."
+        note="The whole search is just 10 calls. A walk without pruning would make dozens."
       />
 
       <h2 id="palin">Palindrome partitioning: where to cut</h2>
       <p>
-        Split a string into pieces so that <strong>every piece is a palindrome</strong>. At each position the choice is{" "}
-        <em>how long the next piece is</em>. The pruning rule: only choose a piece that is itself a palindrome. When the start
+        Split a string into pieces so that <strong>every piece is a palindrome</strong> (a word that reads the same forwards and backwards, like &ldquo;aba&rdquo;). At each position the choice is{" "}
+        <em>how long the next piece is</em>. The pruning rule is to choose only a piece that is a palindrome. When the start
         reaches the end of the string, every piece so far was valid, so the path is an answer.
       </p>
       <CodeBlock lang="js" code={palinCode} />
 
       <h2 id="word">Word search: backtracking on a grid</h2>
       <p>
-        Does a word appear in a grid, moving up, down, left or right, without reusing a cell? From each starting cell, try to
-        match the next letter in each of the four directions. The twist is <strong>marking cells as used</strong>: set the
-        cell to a placeholder (<code>&quot;#&quot;</code>) when you step on it, and <em>restore</em> it when you leave — the
-        un-choose step. Prune immediately when the cell is out of bounds, already used, or the wrong letter.
+        Is a word hidden in a grid of letters? You can move up, down, left or right, and you cannot use a cell twice. From each starting cell, try to
+        match the next letter in each of the four directions. The special part is <strong>marking cells as used</strong>. When you step on a cell, change it to a
+        placeholder (<code>&quot;#&quot;</code>). When you leave, <em>put the letter back</em>. That is the
+        un-choose step. Stop that path at once when the cell is outside the grid, already used, or the wrong letter.
       </p>
       <CodeBlock lang="js" code={wordCode} />
-      <Callout kind="warn" label="Always restore what you changed">
-        The most common backtracking bug is forgetting the undo. If the cell is not restored, a failed path leaves a hole in the
-        grid and later paths wrongly fail.
+      <Callout kind="warn" label="Always put back what you changed">
+        The most common backtracking bug is to forget the undo. If you do not put the cell back, a path that failed leaves a hole in the
+        grid, and later paths fail by mistake.
       </Callout>
 
-      <h2 id="queens">N-Queens: pruning with three sets</h2>
+      <h2 id="queens">N-Queens: pruning with three Sets</h2>
       <p>
-        Place n queens on an n × n board so none attacks another (same row, column or diagonal). Place one queen per{" "}
-        <strong>row</strong>; the choice in each row is the column. A queen at <code>(row, c)</code> attacks its column{" "}
-        <code>c</code>, and two diagonals: cells with the same <code>row − c</code> (one direction) and the same{" "}
-        <code>row + c</code> (the other). Keep three Sets, so the &ldquo;is this cell attacked?&rdquo; check is O(1).
+        Place n queens (chess pieces) on an n × n board so that no queen attacks another. Queens attack along the same row, column or diagonal. Place one queen in each{" "}
+        <strong>row</strong>. The choice in each row is the column. A queen at <code>(row, c)</code> attacks its column{" "}
+        <code>c</code> and two diagonals. One diagonal is the cells with the same <code>row − c</code>. The other diagonal is the cells with the same{" "}
+        <code>row + c</code>. Keep three Sets, so the question &ldquo;is this cell attacked?&rdquo; takes O(1) time (the same short time every time).
       </p>
       <CodeBlock lang="js" code={queensCode} />
 
       <h2 id="cost">Why pruning matters, and what it costs</h2>
       <DryRun
-        title="the effect of pruning"
+        title="The effect of pruning"
         cols={["Problem", "Without pruning", "With pruning"]}
         rows={[
           ["N-Queens, n = 8", "8⁸ = 16.7 million placements", "2,057 calls (92 answers)"],
-          ["combination sum", "every sequence of numbers", "stops when the sum exceeds the target"],
-          ["word search", "every path of any length", "stops at the first mismatching letter"],
-          ["palindrome partitioning", "all 2ⁿ⁻¹ ways of cutting", "only cuts that leave a palindrome"],
+          ["combination sum", "every sequence of numbers", "stops when the sum is bigger than the target"],
+          ["word search", "every path of any length", "stops at the first letter that does not match"],
+          ["palindrome partitioning", "all 2ⁿ⁻¹ ways to cut", "only cuts that make a palindrome"],
         ]}
-        note="Pruning does not change the worst-case Big-O, which is still exponential for these problems, but it often cuts the real running time by orders of magnitude."
+        note="Pruning does not change the worst-case Big-O (the time in the worst case). It is still exponential, which means it grows very fast. But pruning often makes the real running time many times smaller."
       />
       <p>
-        Backtracking problems are exponential in the worst case, so they appear with small inputs. Interviewers expect you to
-        say so, and to point at your pruning rule as the reason it is fast enough.
+        In the worst case, backtracking takes exponential time. That is why these problems have small inputs. Interviewers expect you to
+        say this. They also expect you to point at your pruning rule as the reason your code is fast enough.
       </p>
 
       <h2 id="practice">Practice questions</h2>
-      <p>For each, write the five questions (state, complete, choices, prune, undo) as comments before coding.</p>
+      <p>For each question, write the five answers (state, complete, choices, prune, undo) as comments before you write the code.</p>
 
       <Questions />
 
       <h2 id="recall">Make it stick</h2>
       <Recall
         items={[
-          <>Write the backtracking template from memory and name the pruning line.</>,
+          <>Write the backtracking template from memory and point at the pruning line.</>,
           <>Explain why combination sum recurses with <code>i</code> but combination sum II recurses with <code>i + 1</code>.</>,
-          <>Explain how the three Sets in N-Queens replace scanning the board.</>,
-          <>Explain what goes wrong if you forget to restore a cell in word search.</>,
+          <>Explain how the three Sets in N-Queens save you from scanning the board.</>,
+          <>Explain what goes wrong if you forget to put a cell back in word search.</>,
         ]}
       />
 
-      <h2 id="next">Part 8 complete — what&apos;s next</h2>
+      <h2 id="next">Part 8 complete: what&apos;s next</h2>
       <p>
-        You can now explore decision trees with and without constraints. <strong>Part 9</strong> changes the data structure:
-        linked lists, where every element points to the next, and where rearranging pointers (rather than shifting array
-        slots) is the whole game.
+        You can now explore decision trees, with rules and without rules. <strong>Part 9</strong> uses a new data structure:
+        linked lists. In a linked list, every element points to the next one. The main skill is to change the pointers
+        instead of moving items around in an array.
       </p>
     </DsaLessonPage>
   );
