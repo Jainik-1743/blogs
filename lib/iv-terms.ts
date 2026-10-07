@@ -141,6 +141,19 @@ export const IV_TERMS: Record<string, GlossaryEntry[]> = {
     { term: "keepAliveTimeout", full: "Keep-alive timeout", desc: "How long Node keeps an idle connection open. If it is shorter than the load balancer's idle timeout, you get random 502s.", lesson: 9, group: "Reliability and data" },
     { term: "CLS", full: "Cumulative Layout Shift", desc: "A score for how much visible content jumps unexpectedly while loading. Fixed by reserving space.", lesson: 8, group: "Frontend performance" },
     { term: "LoAF", full: "Long Animation Frames", desc: "A Chrome API and DevTools insight that attributes long frames to the scripts and callbacks responsible.", lesson: 8, group: "Frontend performance" },
+    // ── Incidents and judgement ────────────────────────────────────────────
+    { term: "postmortem", aliases: ["postmortems", "Postmortem"], full: "Blameless postmortem", desc: "A written review after an incident: impact, timeline, root causes and owned action items. Blameless means asking how the system allowed it, not who did it.", lesson: 10, group: "Incidents and judgement" },
+    { term: "incident commander", full: "Incident commander", desc: "The person who coordinates an incident and makes the calls, while others investigate and communicate.", lesson: 10, group: "Incidents and judgement" },
+    { term: "runbook", aliases: ["runbooks"], full: "Runbook", desc: "Step-by-step instructions for handling a known alert or failure, linked from the alert itself.", lesson: 10, group: "Incidents and judgement" },
+    { term: "canary", aliases: ["canary release", "Canary"], full: "Canary release", desc: "Rolling a change out to a small share of traffic first and watching metrics before going wider, with automatic rollback.", lesson: 10, group: "Incidents and judgement" },
+    { term: "cascading failure", full: "Cascading failure", desc: "One slow dependency exhausts threads or connections, which makes other parts fail, until the whole system is down.", lesson: 10, group: "Incidents and judgement" },
+    { term: "bulkhead", aliases: ["bulkheads"], full: "Bulkhead", desc: "Separate resource pools per dependency so one failing dependency cannot use up everything.", lesson: 10, group: "Incidents and judgement" },
+    { term: "SEV1", aliases: ["SEV2", "SEV3"], full: "Severity level", desc: "A label for how serious an incident is. SEV1 is the worst (everyone affected or data at risk) and sets how fast and how widely you respond.", lesson: 10, group: "Incidents and judgement" },
+    { term: "expand and contract", aliases: ["Expand and contract", "parallel change"], full: "Expand and contract", desc: "Change a schema safely in steps old and new code can both survive: add, dual-write, backfill, switch reads, then remove the old.", lesson: 14, group: "Incidents and judgement" },
+    { term: "strangler fig", aliases: ["Strangler fig", "strangler"], full: "Strangler fig pattern", desc: "Replace a legacy system gradually: route slices of traffic to new code behind a facade and retire old parts as they go unused.", lesson: 14, group: "Incidents and judgement" },
+    { term: "SBOM", full: "Software Bill of Materials", desc: "An inventory of every component and version in your software, used to find out fast whether a new vulnerability affects you.", lesson: 13, group: "Incidents and judgement" },
+    { term: "SSRF", full: "Server-Side Request Forgery", desc: "Tricking your server into fetching an internal address, such as a cloud metadata endpoint, by giving it a crafted URL.", lesson: 13, group: "Incidents and judgement" },
+    { term: "micro-frontend", aliases: ["micro-frontends"], full: "Micro-frontend", desc: "Splitting a UI into independently built and deployed pieces owned by different teams. Worth it only when team coordination is the bottleneck.", lesson: 12, group: "Incidents and judgement" },
   ],
   "design-problems": [
     // ── Method ─────────────────────────────────────────────────────────────

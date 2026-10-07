@@ -44,7 +44,7 @@ function inline(tokens: Token[] | undefined, key = "i"): ReactNode[] {
       case "del":
         return <del key={k}>{inline((t as Tokens.Del).tokens, k)}</del>;
       case "codespan":
-        return <code key={k}>{(t as Tokens.Codespan).text.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'")}</code>;
+        return <code key={k}>{decode((t as Tokens.Codespan).text)}</code>;
       case "br":
         return <br key={k} />;
       case "link": {

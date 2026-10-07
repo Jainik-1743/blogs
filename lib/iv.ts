@@ -25,7 +25,7 @@ export type IvSeries = {
  * How many lessons of each series (counted from the top) have a Markdown file. The rest are
  * listed as "coming soon" and are not routed. Raise a number as each lesson is written.
  */
-const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 10, "design-problems": 8, "frontend-depth": 7 };
+const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 15, "design-problems": 8, "frontend-depth": 7 };
 
 type Row = [title: string, summary: string, readTime: string, tags: string[]];
 
@@ -92,7 +92,7 @@ export const DEBUGGING_SERIES: IvSeries = {
   title: "Scenario Debugging: The “It's Slow, Fix It” Playbook",
   short: "Scenario Debugging",
   tagline:
-    "Logical and scenario questions answered with one repeatable method: measure, isolate, fix, verify. API fast but UI slow, UI fast but API slow, re-renders, memory leaks, duplicate requests, slow first loads, huge lists and layout shift.",
+    "Logical and scenario questions answered with one repeatable method: measure, isolate, fix, verify. API fast but UI slow, UI fast but API slow, re-renders, memory leaks, duplicate requests, slow first loads, huge lists and layout shift, plus banks of production-incident, backend, frontend, security and architecture scenarios.",
   started: "2026",
   accent: "amber",
   lessons: lessons([
@@ -106,6 +106,11 @@ export const DEBUGGING_SERIES: IvSeries = {
     ["Rendering 10,000 Rows: Virtualization, Pagination and Web Workers", "Windowing, content-visibility, rendering in chunks, and moving sort and filter work off the main thread.", "15 min", ["lists", "virtualization", "performance"]],
     ["Layout Shift and Janky Interactions", "Layout shift from images, ads and late-loading fonts, plus input lag from heavy event handlers, ending with a short checklist.", "12 min", ["cls", "inp", "css"]],
     ["Scenario Lightning Round: 15 Questions, 15 Structured Answers", "CORS failing only in production, random logouts, 429s triggered by your own frontend, a growing server memory and more, each answered as diagnose, fix, prevent.", "25 min", ["scenario", "interview", "cheat-sheet"]],
+    ["Production Incidents: The Senior Playbook", "Detect, mitigate, diagnose, communicate, resolve, learn: rollback-first triage, roles and severity, and eleven incident scenarios from latency that doubled overnight to a vulnerability found in production.", "20 min", ["incidents", "on-call", "postmortem", "scenario"]],
+    ["Backend and API Scenario Bank", "Sixteen server-side scenarios in diagnose, fix, prevent form: duplicate webhooks, pool exhaustion, double-run cron jobs, breaking API changes, stale caches, locking migrations and more.", "22 min", ["backend", "scenario", "api", "interview"]],
+    ["Frontend and React Scenario Bank", "Sixteen frontend scenarios: stale data after a save, real-time dashboards that freeze, SEO on a client-rendered app, token expiry, flaky E2E tests, micro-frontends, design systems and incremental migrations.", "22 min", ["frontend", "react", "scenario", "architecture"]],
+    ["Security and Auth Scenario Bank", "Fourteen “you found a flaw” scenarios: stored XSS, IDOR, password-reset abuse, open redirects, SSRF, credential stuffing, a leaked key and a compromised third-party script.", "20 min", ["security", "auth", "scenario", "owasp"]],
+    ["Architecture, Data and Team Judgement Scenarios", "Monolith or microservices, rewrite or refactor, zero-downtime migrations, safe backfills, multi-tenancy, tech debt, unrealistic deadlines, code-review disagreements and build versus buy.", "22 min", ["architecture", "migrations", "leadership", "scenario"]],
   ], WRITTEN["debugging"]),
 };
 
