@@ -480,7 +480,7 @@ const ROWS: Row[] = [
 ];
 
 /** Lessons with a page so far. Raise this as each part is written. */
-const PUBLISHED_UP_TO = 34;
+const PUBLISHED_UP_TO = 37;
 
 export const DSA_LESSONS: DsaLesson[] = ROWS.map((row, i) => {
   const number = i + 1;

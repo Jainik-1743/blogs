@@ -103,11 +103,19 @@ const ENTRIES: GlossaryEntry[] = [
   { term: "combination", aliases: ["combinations", "Combination"], full: "Combination", desc: "A choice of k items where order does not matter. There are C(n, k) of them.", lesson: 33, group: "Strings, recursion and backtracking" },
   { term: "backtracking", aliases: ["Backtracking", "backtrack"], full: "Backtracking", desc: "Building an answer one choice at a time, undoing the choice afterwards, and abandoning a partial answer as soon as it cannot succeed.", lesson: 34, group: "Strings, recursion and backtracking" },
   { term: "pruning", aliases: ["prune", "Pruning"], full: "Pruning", desc: "Cutting off a branch of the search early because it can never lead to a valid answer. It does not change the worst case, but it can shrink the real work enormously.", lesson: 34, group: "Strings, recursion and backtracking" },
+  // ── Linked lists ──────────────────────────────────────────────────────
+  { term: "linked list", aliases: ["linked lists", "Linked list"], full: "Linked list", desc: "A chain of nodes where each node holds a value and a reference to the next node. You reach items by following the references, so access by position is O(n).", lesson: 35, group: "Linked lists" },
+  { term: "node", aliases: ["nodes", "Node"], full: "Node", desc: "One link in a linked list (or one item in a tree): it holds a value and the references to its neighbours.", lesson: 35, group: "Linked lists" },
+  { term: "dummy node", aliases: ["dummy head", "Dummy head", "dummy"], full: "Dummy node", desc: "A throwaway node placed in front of the real head so every real node, including the head, has a previous node. It removes the special case for changing the head; the answer is dummy.next.", lesson: 35, group: "Linked lists" },
+  { term: "doubly linked list", aliases: ["doubly linked", "Doubly linked list"], full: "Doubly linked list", desc: "A linked list whose nodes also keep a prev reference, so you can walk both ways and remove a node you already hold in O(1).", lesson: 35, group: "Linked lists" },
+  { term: "slow and fast pointers", aliases: ["slow/fast", "fast and slow", "tortoise and hare", "Slow and fast pointers"], full: "Slow and fast pointers", desc: "Two pointers that move at different speeds, usually 1 and 2 steps. They find the middle of a list in one pass and detect cycles.", lesson: 36, group: "Linked lists" },
+  { term: "cycle", aliases: ["cycles"], full: "Cycle", desc: "A loop in a linked list: some node points back to an earlier node, so walking never reaches null.", lesson: 36, group: "Linked lists" },
+  { term: "Floyd's algorithm", aliases: ["Floyd", "Floyd's cycle detection"], full: "Floyd's cycle detection", desc: "Slow and fast pointers in a cycle: fast gains one step per round on slow, so they must meet. A second phase from the head finds where the cycle starts. O(1) memory.", lesson: 36, group: "Linked lists" },
 ];
 
 export const DSA_GLOSSARY: Glossary = {
   series: "dsa",
   seriesTitle: "DSA for Interviews, From Zero",
-  groups: ["Basics", "Loops", "Functions", "Collections", "Problem solving", "Maths", "Recursion and hashing", "Sorting", "Array patterns", "Hashing and binary search", "Strings, recursion and backtracking"],
+  groups: ["Basics", "Loops", "Functions", "Collections", "Problem solving", "Maths", "Recursion and hashing", "Sorting", "Array patterns", "Hashing and binary search", "Strings, recursion and backtracking", "Linked lists"],
   entries: ENTRIES,
 };
