@@ -37,20 +37,20 @@ const outline = [
 ];
 
 const jobs: [string, string, string][] = [
-  ["Encryption", "Nobody in between can read the data", "Passwords and session cookies stolen on public WiFi"],
-  ["Authentication", "You are really talking to yourapp.com, not an impostor", "Someone sets up a fake WiFi hotspot, serves a fake login page, collects credentials"],
-  ["Integrity", "Nobody modified the data in transit", "An ISP or network injects ads, or swaps a bank account number in a page"],
+  ["Encryption", "Nobody in between can read the data (the data is scrambled)", "Passwords and session cookies (small data the site uses to remember you are logged in) get stolen on public WiFi"],
+  ["Authentication", "You are really talking to yourapp.com, not to a fake", "Someone sets up a fake WiFi hotspot, shows a fake login page and collects logins"],
+  ["Integrity", "Nobody changed the data on the way", "A network adds ads to your page, or swaps a bank account number in it"],
 ];
 
 const terms: [string, string][] = [
-  ["SSL", "The old name (Secure Sockets Layer). Outdated technology, but people still say “SSL certificate” out of habit."],
-  ["TLS", "The current, actual technology (Transport Layer Security). This is what really runs today."],
-  ["Certificate", "A digital ID card for your domain, proving “this server really is yourapp.com”."],
-  ["CA (Certificate Authority)", "A trusted company that issues certificates. Browsers ship with a built-in list of CAs they trust."],
-  ["Public key", "Shared openly, used to encrypt data sent to your server."],
-  ["Private key", "Kept secret on your server only, used to decrypt that data. If this leaks, your HTTPS is broken."],
-  ["Let's Encrypt", "A free, automated CA that issues real, browser-trusted certificates at no cost."],
-  ["AWS ACM", "AWS Certificate Manager. Free, auto-renewing, built for use with ALB and CloudFront."],
+  ["SSL", "SSL (Secure Sockets Layer) is the old name and the old technology. It is no longer safe or used, but people still say “SSL certificate” out of habit."],
+  ["TLS", "TLS (Transport Layer Security) is the set of rules that encrypts (scrambles) data between a browser and a server. It is what really runs today. HTTPS means HTTP carried inside TLS."],
+  ["Certificate", "A certificate is a digital ID card for your domain. It proves “this server really is yourapp.com”."],
+  ["CA (Certificate Authority)", "A CA (Certificate Authority) is a trusted organisation that issues certificates. Browsers come with a built-in list of CAs they trust."],
+  ["Public key", "One half of a key pair. It is shared openly inside your certificate. Anyone can use it to check a proof that only the private key could make."],
+  ["Private key", "The other half of the key pair. It stays secret on your server. The server uses it to prove it owns the certificate. If it leaks, someone else can pretend to be your site."],
+  ["Let's Encrypt", "A free CA that issues browser-trusted certificates automatically, at no cost."],
+  ["AWS ACM", "AWS Certificate Manager. A service that gives you certificates. Public certificates are free and renew by themselves when used with AWS services like ALB and CloudFront."],
 ];
 
 const yes = "font-semibold text-emerald-300";
@@ -94,31 +94,32 @@ export default function LessonFourPage() {
       <div className="lesson">
         <h2 id="concept">Concept — postcard vs sealed box</h2>
         <p>
-          HTTP sends everything as <strong>plain readable text</strong>.
+          HTTP (HyperText Transfer Protocol) is the set of rules that browsers and servers use to
+          talk. It sends everything as <strong>plain readable text</strong>. HTTPS is HTTP made
+          safe.
         </p>
         <ul>
           <li>
-            Think of HTTP like writing a message on a <strong>postcard</strong>. Every postman,
-            every sorting office, every person who touches it along the way can read it without
-            opening anything.
+            HTTP is like a message written on a <strong>postcard</strong>. Every postman and every
+            sorting office that touches it can read it. Nothing needs to be opened.
           </li>
           <li>
-            HTTPS is the same message sealed inside a <strong>locked box</strong>, where only the
-            recipient has the key. Anyone can still see a box travelling, and see who it is
-            addressed to — but they cannot read what is inside.
+            HTTPS is the same message inside a <strong>locked box</strong>. Only the receiver has
+            the key. People can still see the box travelling and who it is addressed to. But they
+            cannot read what is inside.
           </li>
         </ul>
         <p>
-          The technology doing the locking is called <strong>TLS</strong> (Transport Layer
-          Security). You will hear people say &ldquo;SSL certificate&rdquo; constantly — SSL was
-          the older version of the same idea, now obsolete, but the name stuck out of habit. When
-          someone says SSL today, they almost always mean TLS.
+          The technology that does the locking is <strong>TLS</strong> (Transport Layer
+          Security). You will often hear &ldquo;SSL certificate&rdquo;. SSL was the older
+          version of the same idea. It is now obsolete, but the name stuck. When someone says SSL
+          today, they almost always mean TLS.
         </p>
 
         <h2 id="leak">What actually leaks without HTTPS</h2>
         <p>
-          Say your app is live on EC2 with no HTTPS, and a customer logs in from a café WiFi. Here
-          is exactly what travels across that network:
+          Say your app is live on EC2 with no HTTPS, and a customer logs in from a café WiFi.
+          This is what travels across that network:
         </p>
         <pre className="border-l-red-400">
           <code>{`POST /api/login HTTP/1.1
@@ -129,21 +130,21 @@ Content-Type: application/json
         </pre>
         <Callout kind="warn" label="Readable by anyone on the same WiFi">
           <p className="mb-0">
-            Every character of that is readable by anyone on the same WiFi using free, widely
-            available tools. And it is not just the password — the <strong>session cookie</strong>{" "}
-            sent afterwards leaks too, which means someone can copy it and become logged in{" "}
-            <em>as that user</em> without ever knowing the password.
+            Anyone on the same WiFi can read every character, using free tools. The password is
+            not the only leak. The <strong>session cookie</strong> sent afterwards leaks too. A
+            thief can copy it and be logged in <em>as that user</em> without knowing the
+            password.
           </p>
         </Callout>
         <p>With HTTPS enabled, the exact same login sends this instead:</p>
         <pre className="border-l-emerald-400">
-          <code>16 03 03 00 45 8f a3 d9 e2 b1 7c 4f 6a 2d 91 ...</code>
+          <code>17 03 03 00 45 8f a3 d9 e2 b1 7c 4f 6a 2d 91 ...</code>
         </pre>
-        <p>Meaningless bytes. Same request, same data, completely unreadable.</p>
+        <p>These are meaningless bytes. It is the same request and the same data, but nobody can read it.</p>
         <HttpVsHttps />
 
         <h2 id="three-jobs">HTTPS does three jobs, not one</h2>
-        <p>Most people only know about the first. All three matter.</p>
+        <p>Most people only know the first one. All three matter.</p>
         <div className="table-wrap">
           <table>
             <thead>
@@ -166,9 +167,9 @@ Content-Type: application/json
         </div>
         <Callout kind="note" label="Certificates are for the second job">
           <p className="mb-0">
-            The second job — <strong>authentication</strong> — is what certificates are actually
-            for. Encryption alone is useless if you are carefully encrypting your password and
-            sending it securely <em>to a criminal</em>.
+            The second job, <strong>authentication</strong> (proving who you are talking to), is
+            what certificates are for. Encryption alone is not enough. You could encrypt your
+            password perfectly and still send it <em>to a criminal</em>.
           </p>
         </Callout>
 
@@ -194,69 +195,71 @@ Content-Type: application/json
 
         <h2 id="trust">The chain of trust</h2>
         <p>
-          Your browser has never heard of <code>yourapp.com</code>. So how does it decide to trust
-          it?
+          Your browser has never heard of <code>yourapp.com</code>. So why does it trust it?
         </p>
         <Callout kind="note" label="Think of a passport">
           <p className="mb-0">
-            A border officer in another country does not know you personally. But they trust the
-            Indian government, and the Indian government has issued you a document saying who you
-            are. Trust flows from an authority both sides already accept.
+            A border officer in another country does not know you. But they trust the Indian
+            government, and the Indian government gave you a passport that says who you are.
+            Trust comes from an authority that both sides already accept.
           </p>
         </Callout>
         <p>
-          Certificates work identically. Every browser and operating system ships with a built-in
-          list of <strong>Root Certificate Authorities</strong> it trusts — roughly 150
-          organisations, baked in at install time.
+          Certificates work the same way. Every browser and operating system comes with a built-in
+          list of <strong>Root Certificate Authorities</strong> (the top-level CAs) that it
+          trusts. The list has more than 100 root certificates. A root CA signs an intermediate
+          certificate. The intermediate signs yours. This is the chain.
         </p>
         <ChainOfTrust />
         <p>
-          If any link in that chain is missing, expired, or signed by someone the browser does not
-          recognise, you get the red warning page.
+          If any link in the chain is missing, expired, or signed by someone the browser does not
+          know, you see the red warning page.
         </p>
 
         <h2 id="handshake">The handshake, step by step</h2>
         <p>
-          This all happens in milliseconds, once per connection, before your page starts loading.
+          The handshake is the short opening talk between browser and server. It takes
+          milliseconds. It happens once per connection, before your page starts to load.
         </p>
         <ol className="steps">
           <li>
             <h3>Browser says hello</h3>
             <p>
-              It connects and says &ldquo;I want to speak TLS, and here are the encryption methods
-              I support.&rdquo;
+              It connects and says &ldquo;I want to use TLS. Here are the encryption methods I
+              support.&rdquo;
             </p>
           </li>
           <li>
             <h3>Server sends its certificate</h3>
-            <p>Along with the intermediate chain, and picks one of the offered encryption methods.</p>
+            <p>It also sends the intermediate certificates (the chain), and picks one of the encryption methods the browser offered.</p>
           </li>
           <li>
             <h3>Browser verifies the certificate</h3>
             <p>
-              Three checks: Is it signed by a trusted CA? Is today&apos;s date within its validity
-              window? Does the domain name on it actually match the site I typed?
+              It makes three checks. Is it signed by a trusted CA? Is today&apos;s date inside its
+              valid dates? Does the domain name on it match the site I typed?
             </p>
           </li>
           <li>
             <h3>Both sides agree a shared key</h3>
             <p>
-              A key exchange produces a shared secret key that was never transmitted in readable
-              form.
+              A key exchange is a way for two sides to create the same secret key without sending
+              it over the network. Both sides now have a shared secret key. Nobody who watched the
+              talk can work it out.
             </p>
           </li>
           <li>
             <h3>Everything after this is encrypted</h3>
             <p>
-              All page content, form submissions and API calls now travel inside the encrypted
-              tunnel.
+              All page content, form data and API calls now travel inside the encrypted
+              connection (the &ldquo;tunnel&rdquo;).
             </p>
           </li>
         </ol>
         <Callout kind="warn" label="Step 3 is where all the security lives">
           <p className="mb-0">
-            If any of those three checks fails, the browser refuses to continue and shows a
-            warning instead of your site.
+            If any of the three checks fails, the browser stops and shows a warning instead of
+            your site.
           </p>
         </Callout>
         <TlsHandshakeStepper />
@@ -279,8 +282,8 @@ Content-Type: application/json
               </tr>
               <tr>
                 <td><strong>Renewal</strong></td>
-                <td>Automatic, forever, zero work</td>
-                <td>Automatic via timer, every 90 days</td>
+                <td>Automatic, no work from you (for certificates used with AWS services)</td>
+                <td>Certificates last 90 days. A timer renews them automatically</td>
               </tr>
               <tr>
                 <td><strong>Works on raw EC2 + Nginx</strong></td>
@@ -302,9 +305,11 @@ Content-Type: application/json
         </div>
         <Callout kind="note" label="The key limitation">
           <p className="mb-0">
-            ACM certificates cannot be installed on a plain EC2 server. AWS never gives you the
-            private key — the certificate only works when attached to an AWS service that
-            terminates TLS for you (ALB, CloudFront, API Gateway). So for your first single-server
+            The normal free ACM certificate cannot be installed on a plain EC2 server. AWS never
+            gives you its private key. It works only when attached to an AWS service that ends
+            (terminates) TLS for you, such as ALB, CloudFront or API Gateway. (Since 2025, ACM
+            also sells &ldquo;exportable&rdquo; certificates that you can put on any server, but
+            they are paid, so they are not part of this course.) For your first single-server
             deployment, Let&apos;s Encrypt is the answer.
           </p>
         </Callout>
@@ -318,18 +323,20 @@ Content-Type: application/json
               <code>dig yourapp.com +short</code>
             </li>
             <li>
-              Port 80 must be <strong>open</strong> in your Security Group — Let&apos;s Encrypt
-              proves you own the domain by fetching a file over port 80
+              Port 80 must be <strong>open</strong> in your Security Group. Let&apos;s Encrypt
+              checks that you own the domain by fetching a small file from your server over
+              port 80
             </li>
           </ol>
           <p className="mb-0">
-            If either is wrong, Certbot fails. Most &ldquo;certbot is not working&rdquo; problems
-            are actually DNS or Security Group problems.
+            If either one is wrong, Certbot fails. Most &ldquo;certbot does not work&rdquo;
+            problems are really DNS or Security Group problems.
           </p>
         </Callout>
         <p>
-          Install Certbot with its Nginx plugin, then ask for a certificate covering{" "}
-          <strong>both</strong> the bare and the www name:
+          Certbot is a free tool that gets Let&apos;s Encrypt certificates and sets them up for
+          you. Install it with its Nginx plugin. Then ask for a certificate that covers{" "}
+          <strong>both</strong> the bare name and the www name:
         </p>
         <CommandList
           title="On the EC2 server"
@@ -339,14 +346,15 @@ Content-Type: application/json
           ]}
         />
         <p>
-          Certbot also installs a timer that renews the certificate before its 90 days run out.
-          You never touch it again — but check once that renewal works, so you are not surprised
-          in three months.
+          Certbot also sets up a timer that renews the certificate before its 90 days end. You do
+          not need to touch it. But test it once with{" "}
+          <code>sudo certbot renew --dry-run</code>, so you are not surprised in three months.
+          (Let&apos;s Encrypt plans shorter lifetimes in the future. The timer handles that too.)
         </p>
         <Callout kind="ok" label="That is genuinely it">
           <p className="mb-0">
             Certbot writes the certificate paths into your Nginx config and adds the
-            HTTP-to-HTTPS redirect for you, automatically.
+            HTTP-to-HTTPS redirect for you.
           </p>
         </Callout>
 
@@ -366,15 +374,15 @@ server {
 }`}
         />
         <p>
-          Note <code>fullchain.pem</code> — that file contains your certificate{" "}
-          <strong>plus</strong> the intermediate, which is exactly the chain from the diagram
+          Look at <code>fullchain.pem</code>. This file holds your certificate{" "}
+          <strong>plus</strong> the intermediate certificate. That is the chain from the diagram
           above.
         </p>
         <Callout kind="warn" label="privkey.pem is your private key">
           <p className="mb-0">
-            If that file ever leaks, your HTTPS is compromised and the certificate must be revoked
-            and reissued. It should be readable only by root — straight back to the file
-            permissions from Lesson 1.
+            If that file leaks, someone else can pretend to be your site. You must revoke the
+            certificate (cancel it) and get a new one. Only root should be able to read it. This
+            goes back to the file permissions in Lesson 1.
           </p>
         </Callout>
 
@@ -391,73 +399,73 @@ server {
             <tbody>
               <tr>
                 <td><code>ERR_CERT_COMMON_NAME_INVALID</code></td>
-                <td>Certificate covers yourapp.com but you visited www.yourapp.com</td>
-                <td>Reissue including both: <code>-d yourapp.com -d www.yourapp.com</code></td>
+                <td>The certificate covers yourapp.com, but you visited www.yourapp.com</td>
+                <td>Get a new certificate with both names: <code>-d yourapp.com -d www.yourapp.com</code></td>
               </tr>
               <tr>
                 <td><code>ERR_CERT_DATE_INVALID</code></td>
-                <td>Certificate expired</td>
-                <td><code>sudo certbot renew</code>, then check why the timer did not run</td>
+                <td>The certificate has expired</td>
+                <td>Run <code>sudo certbot renew</code>, then find out why the timer did not run</td>
               </tr>
               <tr>
                 <td><strong>Mixed content</strong> warning</td>
-                <td>Page loads over HTTPS but pulls an image or script over <code>http://</code></td>
-                <td>Use relative paths (<code>/logo.png</code>) or <code>https://</code> everywhere</td>
+                <td>The page loads over HTTPS but asks for an image or script over <code>http://</code></td>
+                <td>Use relative paths (<code>/logo.png</code>) or <code>https://</code> for everything</td>
               </tr>
               <tr>
                 <td><code>ERR_TOO_MANY_REDIRECTS</code></td>
-                <td>Load balancer already handles TLS, but Nginx also redirects to HTTPS — infinite loop</td>
-                <td>Check the <code>X-Forwarded-Proto</code> header instead of <code>$scheme</code></td>
+                <td>The load balancer already handles TLS, but Nginx also redirects to HTTPS. This makes an endless loop</td>
+                <td>Check the <code>X-Forwarded-Proto</code> header (it tells Nginx if the user came in with http or https) instead of <code>$scheme</code></td>
               </tr>
               <tr>
                 <td>Certbot &ldquo;challenge failed&rdquo;</td>
-                <td>DNS not pointing at the server yet, or port 80 closed</td>
-                <td>Fix DNS first with <code>dig</code>, open port 80 in the Security Group</td>
+                <td>DNS does not point to the server yet, or port 80 is closed</td>
+                <td>Check DNS with <code>dig</code> and fix it. Open port 80 in the Security Group</td>
               </tr>
             </tbody>
           </table>
         </div>
         <p>
-          Mixed content is the most common problem in a first HTTPS migration — the page
-          loads fine, but images silently vanish and the padlock shows a warning instead of a
-          clean lock.
+          Mixed content is the most common problem when you first move to HTTPS. The page loads,
+          but some images quietly disappear, and the padlock shows a warning instead of a clean
+          lock.
         </p>
 
         <h2 id="verify">Verifying it yourself</h2>
         <CommandList
           title="From any machine"
           commands={[
-            { cmd: "curl -I http://yourapp.com", note: <>Should return <code>301 Moved Permanently</code> to the https:// address</> },
+            { cmd: "curl -I http://yourapp.com", note: <>Should return <code>301 Moved Permanently</code> and a <code>Location</code> header with the https:// address</> },
           ]}
         />
         <p>
-          From the browser, clicking the padlock icon next to the URL shows the issuer, the
-          validity dates, and the full certificate chain — the same information, in a friendlier
+          In the browser, click the padlock icon next to the address. It shows the issuer, the
+          valid dates and the full certificate chain. It is the same information in an easier
           form.
         </p>
 
         <h2 id="limits">What HTTPS does not do</h2>
         <Callout kind="warn" label="It protects data in transit, nothing else">
           <p className="mb-0">
-            HTTPS protects data <strong>while it travels</strong>. It does nothing for data
-            sitting in your database, and nothing against bad application code such as SQL
-            injection. A site can have a perfect certificate and still be completely insecure.
-            Those are separate problems, covered in Lesson 18.
+            HTTPS protects data <strong>while it travels</strong>. It does nothing for data stored
+            in your database. It does nothing against bad code, such as SQL injection (an attack
+            where a user types database commands into a form). A site can have a perfect
+            certificate and still be unsafe. These are separate problems. Lesson 18 covers them.
           </p>
         </Callout>
         <h3>Cost</h3>
         <p>
-          Both ACM and Let&apos;s Encrypt certificates are <strong>free, forever</strong>. The
-          only indirect cost is the Load Balancer that ACM requires, which is priced properly in
-          Lesson 12.
+          Let&apos;s Encrypt certificates are <strong>free</strong>. Public ACM certificates are
+          free too, when used with AWS services such as a load balancer. The only indirect cost
+          is the Load Balancer that ACM needs. Lesson 12 prices it properly.
         </p>
 
         <hr />
 
         <h2 id="practice">Practice task before Lesson 5</h2>
         <p>
-          You don&apos;t have a server yet, so today you inspect certificates that already exist.
-          Every command is read-only and works from your laptop.
+          You do not have a server yet, so today you look at certificates that already exist.
+          Every command only reads data and works from your laptop.
         </p>
         <Script
           title="practice.sh"
@@ -471,64 +479,65 @@ server {
         <p>Then answer these in your own words:</p>
         <ol>
           <li>
-            The three checks in handshake step 3 — which one did <code>wrong.host.badssl.com</code>{" "}
-            fail, and which one did <code>expired.badssl.com</code> fail?
+            Look at the three checks in handshake step 3. Which one did{" "}
+            <code>wrong.host.badssl.com</code> fail? Which one did <code>expired.badssl.com</code>{" "}
+            fail?
           </li>
           <li>
-            Why can&apos;t you use a free ACM certificate on your first EC2 server, and what will
-            you use instead?
+            Why can you not use a free ACM certificate on your first EC2 server? What will you use
+            instead?
           </li>
           <li>
-            Certbot&apos;s &ldquo;challenge failed&rdquo;. Name the two things from Lessons 2 and
-            3 you check before touching Certbot again.
+            Certbot says &ldquo;challenge failed&rdquo;. Name the two things from Lessons 2 and 3
+            that you check before you run Certbot again.
           </li>
           <li>
-            Your site has a perfect padlock but a customer&apos;s data was stolen from the
-            database. Did HTTPS fail? Why not?
+            Your site has a perfect padlock, but a customer&apos;s data was stolen from the
+            database. Did HTTPS fail? Why or why not?
           </li>
         </ol>
         <Callout kind="ok" label="Optional stretch">
           <p className="mb-0">
-            Open <code>chrome://settings/security</code> → Manage certificates, and find the root
-            store. Count how many Root CAs your machine trusts. Every HTTPS site you have ever
-            visited was vouched for by one of them.
+            Open <code>chrome://settings/security</code> → Manage certificates, and find the list
+            of trusted root certificates. Count how many your machine trusts. Every HTTPS site
+            you have visited was vouched for by one of them.
           </p>
         </Callout>
 
         <h2 id="conclusion">Conclusion</h2>
         <p>
-          HTTPS is HTTP inside a locked box. TLS does the locking, a certificate proves whose box
-          it is, and a chain of trust back to a Root CA is why your browser believes that proof
-          without ever having met your server.
+          HTTPS is HTTP inside a locked box. TLS does the locking. A certificate proves whose box
+          it is. A chain of trust back to a Root CA is why your browser believes that proof,
+          even though it has never met your server.
         </p>
         <ul>
           <li>
-            <strong>Three jobs</strong>: encryption (nobody reads it), authentication (it really
-            is yourapp.com), integrity (nobody changed it). Certificates exist for the second
-            one.
+            <strong>Three jobs</strong>: encryption (nobody can read it), authentication (it
+            really is yourapp.com) and integrity (nobody changed it). Certificates are for the
+            second job.
           </li>
           <li>
-            <strong>The handshake</strong> costs milliseconds; step 3 — trusted CA, valid dates,
-            matching name — is where every red warning page comes from.
+            <strong>The handshake</strong> takes milliseconds. Step 3 (trusted CA, valid dates,
+            matching name) is where every red warning page comes from.
           </li>
           <li>
-            <strong>Two free sources</strong>: Let&apos;s Encrypt (Certbot) for a raw EC2 +
-            Nginx box in Lesson 7; ACM once an ALB or CloudFront terminates TLS for you from
-            Lesson 12.
+            <strong>Two free sources</strong>: Let&apos;s Encrypt (Certbot) for a plain EC2 + Nginx
+            server in Lesson 7, and ACM from Lesson 12, once an ALB or CloudFront ends TLS for
+            you.
           </li>
           <li>
-            <strong>Before Certbot</strong>: DNS must resolve to the server and port 80 must be
-            open. After Certbot: guard <code>privkey.pem</code> like the <code>.env</code> from
-            Lesson 1.
+            <strong>Before Certbot</strong>: DNS must point to the server and port 80 must be
+            open. After Certbot: protect <code>privkey.pem</code> like the <code>.env</code> file
+            from Lesson 1.
           </li>
           <li>
-            <strong>Not a security blanket</strong>: HTTPS protects data in transit only. The
-            database and the code are Lesson 18&apos;s problem.
+            <strong>Not a full protection</strong>: HTTPS protects data in transit only. The
+            database and the code are the topic of Lesson 18.
           </li>
         </ul>
         <p>
-          Lessons 2, 3 and 4 together are the whole path from a typed domain name to an encrypted
-          conversation with your app. Next we go back inside the AWS account and set up identity
+          Lessons 2, 3 and 4 together show the whole path from a typed domain name to an encrypted
+          talk with your app. Next we go back into the AWS account and set up identity
           properly.
         </p>
 
@@ -539,8 +548,8 @@ server {
         <p>
           Before Lesson 5, read:{" "}
           <Link href={readingHref(piecesReading)}>{piecesReading.title} →</Link> — Nginx, PM2,
-          load balancers, RDS, VPC and every other name Lessons 0–4 mentioned but did not yet
-          explain, each with a flow diagram and the minimal &ldquo;how&rdquo;.
+          load balancers, RDS, VPC and every other name that Lessons 0–4 mention but do not yet
+          explain, each with a flow diagram and a short &ldquo;how&rdquo;.
         </p>
       </div>
 
