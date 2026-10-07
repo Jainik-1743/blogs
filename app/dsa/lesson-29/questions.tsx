@@ -31,12 +31,12 @@ export default function Questions() {
 console.log(mySqrt(4));          // 2
 console.log(mySqrt(8));          // 2
 console.log(mySqrt(2147395599)); // 46339`,
-            explain: <p>O(log x). This is the &ldquo;last true&rdquo; form, so mid rounds up.</p>,
+            explain: <p>O(log x) time. This is the &ldquo;last true&rdquo; form, so mid rounds up.</p>,
           },
         ]}
-        compare={<p>Do not use <code>Math.sqrt</code> — the question tests the search. (LeetCode 69.)</p>}
+        compare={<p>Do not use <code>Math.sqrt</code>. The question tests whether you can do the search. (LeetCode 69.)</p>}
       >
-        <p>Return the square root of a non-negative integer <code>x</code>, rounded down, without built-in power functions.</p>
+        <p>Return the square root of a whole number <code>x</code> (0 or more), rounded down, without built-in power functions.</p>
       </Problem>
 
       <Problem
@@ -45,13 +45,13 @@ console.log(mySqrt(2147395599)); // 46339`,
         level="Medium"
         examples={[
           { input: "piles = [3, 6, 7, 11], h = 8", output: "4", why: "Traced in the lesson." },
-          { input: "piles = [30, 11, 23, 4, 20], h = 5", output: "30", why: "Five piles in five hours: one pile per hour, so the speed must be at least the largest pile." },
+          { input: "piles = [30, 11, 23, 4, 20], h = 5", output: "30", why: "There are five piles and five hours, so Koko must finish one pile per hour. The speed must be at least the largest pile." },
         ]}
-        hints={[<>Range 1 … max(piles). Check: sum of ceil(pile / k) ≤ h.</>]}
+        hints={[<>Range 1 … max(piles). Check: the sum of ceil(pile / k) must be ≤ h (ceil rounds up).</>]}
         approaches={[
           {
             name: "First speed that works",
-            idea: <p>The traced algorithm.</p>,
+            idea: <p>The algorithm traced in the lesson.</p>,
             code: `function minEatingSpeed(piles, h) {
   let lo = 1, hi = Math.max(...piles);
   while (lo < hi) {
@@ -81,11 +81,11 @@ console.log(minEatingSpeed([30, 11, 23, 4, 20], 5));  // 30`,
         examples={[
           { input: "nums = [1, 2, 5, 9], threshold = 6", output: "5", why: "With 5: 1 + 1 + 1 + 2 = 5 ≤ 6. With 4: 1 + 1 + 2 + 3 = 7 > 6." },
         ]}
-        hints={[<>The same shape as Koko: a bigger divisor gives a smaller sum.</>]}
+        hints={[<>This has the same shape as Koko. A bigger divisor gives a smaller sum.</>]}
         approaches={[
           {
             name: "First divisor that works",
-            idea: <p>Range 1 … max(nums); check the sum of rounded-up divisions.</p>,
+            idea: <p>Use the range 1 … max(nums). Check the sum of the divisions, each rounded up.</p>,
             code: `function smallestDivisor(nums, threshold) {
   let lo = 1, hi = Math.max(...nums);
   while (lo < hi) {
@@ -98,12 +98,12 @@ console.log(minEatingSpeed([30, 11, 23, 4, 20], 5));  // 30`,
 }
 
 console.log(smallestDivisor([1, 2, 5, 9], 6)); // 5`,
-            explain: <p>O(n log m). Recognising that this is Koko in different words is the whole question.</p>,
+            explain: <p>O(n log m) time. The whole question is to see that this is Koko in different words.</p>,
           },
         ]}
         compare={<p>(LeetCode 1283.)</p>}
       >
-        <p>Find the smallest positive divisor such that the sum of every value divided by it (each rounded up) is at most <code>threshold</code>.</p>
+        <p>Find the smallest positive divisor such that the sum of every value divided by it (each result rounded up) is at most <code>threshold</code>.</p>
       </Problem>
 
       <Problem
@@ -139,7 +139,7 @@ console.log(smallestDivisor([1, 2, 5, 9], 6)); // 5`,
 
 console.log(shipWithinDays([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 5)); // 15
 console.log(shipWithinDays([3, 2, 2, 4, 1, 4], 3));              // 6`,
-            explain: <p>O(n log(sum)).</p>,
+            explain: <p>O(n log(sum)) time.</p>,
           },
         ]}
         compare={<p>(LeetCode 1011.)</p>}
@@ -180,7 +180,7 @@ console.log(shipWithinDays([3, 2, 2, 4, 1, 4], 3));              // 6`,
 
 console.log(splitArray([7, 2, 5, 10, 8], 2)); // 18
 console.log(splitArray([1, 2, 3, 4, 5], 2));  // 9`,
-            explain: <p>O(n log(sum)). A hard problem that is easy once the pattern is recognised.</p>,
+            explain: <p>O(n log(sum)) time. This is a hard problem, but it is easy once you see the pattern.</p>,
           },
         ]}
         compare={<p>(LeetCode 410.)</p>}
@@ -196,7 +196,7 @@ console.log(splitArray([1, 2, 3, 4, 5], 2));  // 9`,
           { input: "position = [1, 2, 3, 4, 7], m = 3", output: "3", why: "Balls at 1, 4 and 7: the gaps are 3 and 3." },
           { input: "position = [5, 4, 3, 2, 1, 1000000000], m = 2", output: "999999999", why: "Put the two balls at the ends." },
         ]}
-        hints={[<>Maximise the minimum gap: find the last gap that still lets you place m balls greedily.</>]}
+        hints={[<>You want the largest possible minimum gap. Find the last gap size that still lets you place m balls with the greedy method.</>]}
         approaches={[
           {
             name: "Last true, greedy placement",
@@ -229,7 +229,7 @@ console.log(maxDistance([5, 4, 3, 2, 1, 1000000000], 2));      // 999999999`,
             ),
           },
         ]}
-        compare={<p>O(n log n + n log(range)). (LeetCode 1552.)</p>}
+        compare={<p>O(n log n + n log(range)) time. (LeetCode 1552.)</p>}
       >
         <p>Place <code>m</code> balls in baskets at the given positions so that the smallest distance between any two balls is as large as possible. Return that distance.</p>
       </Problem>

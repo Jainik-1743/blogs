@@ -47,7 +47,7 @@ function searchTrace() {
   const nums = [1, 3, 5, 7, 9, 11, 13];
   const target = 9;
   let lo = 0, hi = nums.length - 1;
-  t.step(3, "start", "lo = 0, hi = 6", "The answer, if it exists, is somewhere in nums[lo..hi] — the whole array for now.", { nums, target, lo, hi });
+  t.step(3, "start", "lo = 0, hi = 6", "If the answer exists, it is somewhere in nums[lo..hi]. For now that is the whole array.", { nums, target, lo, hi });
   while (lo <= hi) {
     t.step(4, "check", `${lo} <= ${hi}? yes`, `${hi - lo + 1} candidate${hi === lo ? "" : "s"} left.`, { nums, target, lo, hi });
     const mid = Math.floor((lo + hi) / 2);
@@ -58,14 +58,14 @@ function searchTrace() {
     }
     if (nums[mid] < target) {
       lo = mid + 1;
-      t.step(7, "update", `${nums[mid]} < 9 → lo = ${lo}`, `9 is bigger, so it cannot be at mid or anywhere left of it. Discard the left half.`, { nums, target, lo, hi, mid }, "lo");
+      t.step(7, "update", `${nums[mid]} < 9 → lo = ${lo}`, `9 is bigger than this value, so it cannot be at mid or anywhere left of mid. Discard the left half.`, { nums, target, lo, hi, mid }, "lo");
     } else {
       hi = mid - 1;
-      t.step(8, "update", `${nums[mid]} > 9 → hi = ${hi}`, `9 is smaller, so it cannot be at mid or anywhere right of it. Discard the right half.`, { nums, target, lo, hi, mid }, "hi");
+      t.step(8, "update", `${nums[mid]} > 9 → hi = ${hi}`, `9 is smaller than this value, so it cannot be at mid or anywhere right of mid. Discard the right half.`, { nums, target, lo, hi, mid }, "hi");
     }
   }
   t.print("found");
-  t.step(10, "print", "console.log(…)", "3 looks at the array instead of up to 7. For a million items: about 20.", { nums, lo, hi });
+  t.step(10, "print", "console.log(…)", "We looked at only 3 items instead of up to 7. For a million items, binary search needs about 20 looks.", { nums, lo, hi });
   return t.steps;
 }
 
@@ -74,7 +74,7 @@ const templateCode = `function binarySearch(nums, target) {
   while (lo <= hi) {                          // non-empty while lo <= hi
     const mid = lo + Math.floor((hi - lo) / 2);
     if (nums[mid] === target) return mid;
-    if (nums[mid] < target) lo = mid + 1;     // mid is ruled out: skip it
+    if (nums[mid] < target) lo = mid + 1;     // mid is ruled out, so skip it
     else hi = mid - 1;
   }
   return -1;
@@ -88,8 +88,8 @@ function lowerBound(nums, target) {
   let lo = 0, hi = nums.length;               // half-open range [lo, hi)
   while (lo < hi) {
     const mid = lo + Math.floor((hi - lo) / 2);
-    if (nums[mid] < target) lo = mid + 1;     // mid is too small: answer is right of it
-    else hi = mid;                            // mid might be the answer: keep it
+    if (nums[mid] < target) lo = mid + 1;     // mid is too small, so the answer is right of it
+    else hi = mid;                            // mid might be the answer, so keep it
   }
   return lo;
 }
@@ -110,7 +110,7 @@ console.log(lowerBound(a, 2), upperBound(a, 2)); // 1 4
 console.log(lowerBound(a, 3), upperBound(a, 3)); // 4 4   (3 would be inserted at 4)
 console.log(upperBound(a, 2) - lowerBound(a, 2)); // 3   how many 2s`;
 
-const predicateCode = `// The first index where check(i) becomes true, if check is false…false, true…true.
+const predicateCode = `// The first index where check(i) becomes true, when check gives false…false, true…true.
 function firstTrue(lo, hi, check) {          // searches [lo, hi); returns hi if never true
   while (lo < hi) {
     const mid = lo + Math.floor((hi - lo) / 2);
@@ -148,20 +148,24 @@ export default function DsaLessonTwentyEightPage() {
     <DsaLessonPage lesson={lesson} outline={outline}>
       <h2 id="concept">Halve the search space every step</h2>
       <p>
-        Think of a number between 1 and 100; I will guess it. If you only say &ldquo;higher&rdquo; or &ldquo;lower&rdquo;,
-        the best strategy is to guess the middle each time: 50, then 25 or 75, and so on. Every answer removes half of
-        the remaining possibilities, so 7 guesses are always enough (2<sup>7</sup> = 128).
+        Think of a number between 1 and 100, and I will guess it. After each guess you only say &ldquo;higher&rdquo; or
+        &ldquo;lower&rdquo;. The best plan is to guess the middle each time: 50, then 25 or 75, and so on. Every answer
+        removes half of the remaining possibilities. So 7 guesses are always enough (2<sup>7</sup> = 128, which is
+        more than 100).
       </p>
       <p>
-        <strong>Binary search</strong> does the same on a sorted array. Compare the target with the middle item: if the
-        middle is too small, the target can only be in the right half; if too big, only in the left half. The halving
-        loop from Lesson 12 makes it <strong>O(log n)</strong>: about 20 steps for a million items, 30 for a billion.
+        <strong>Binary search</strong> is a method that finds a value in a <em>sorted</em> array by checking the middle
+        item and throwing away half of the array each time. Compare the target with the middle item. If the middle item
+        is too small, the target can only be in the right half. If it is too big, the target can only be in the left
+        half. Halving again and again (the loop from Lesson 12) makes the time <strong>O(log n)</strong>. This means
+        about 20 steps for a million items and about 30 steps for a billion items. (log n is the number of times you
+        can halve n until you reach 1.)
       </p>
 
       <h2 id="template">The binary search template</h2>
       <p>
-        Keep two indices, <code>lo</code> and <code>hi</code>, marking the range where the target could still be. Each
-        step looks at the middle and throws away the half that cannot contain the target.
+        Keep two indices (positions), <code>lo</code> and <code>hi</code>. They mark the range where the target could
+        still be. Each step looks at the middle and throws away the half that cannot contain the target.
       </p>
       <CodeBlock lang="js" code={templateCode} />
 
@@ -169,7 +173,7 @@ export default function DsaLessonTwentyEightPage() {
       <CodeTrace
         code={searchCode}
         steps={searchTrace()}
-        caption="Each comparison discards half of what is left. The range [lo, hi] always still contains the target if it exists."
+        caption="Each comparison discards half of what is left. If the target exists, it is always still inside the range [lo, hi]."
       />
       <ArrayBoxes
         values={[1, 3, 5, 7, 9, 11, 13]}
@@ -181,8 +185,10 @@ export default function DsaLessonTwentyEightPage() {
 
       <h2 id="bugs">Infinite loops and off-by-one errors</h2>
       <p>
-        Binary search is short but famously easy to get wrong. Most bugs come from mixing two styles. Choose one style
-        and keep its three parts consistent:
+        Binary search is short, but it is easy to get wrong. An <strong>off-by-one error</strong> means a boundary is
+        wrong by exactly one position. An <strong>infinite loop</strong> is a loop that never ends. Most bugs come from
+        mixing two styles. Choose one style and keep its three parts (start, loop condition, moves) consistent. A
+        closed range [lo, hi] includes both ends. A half-open range [lo, hi) includes lo but not hi.
       </p>
       <div className="table-wrap">
         <table>
@@ -203,23 +209,25 @@ export default function DsaLessonTwentyEightPage() {
       </div>
       <Callout kind="warn" label="The infinite-loop check">
         <p className="mb-0">
-          Every step must make the range smaller. With <code>lo &lt; hi</code> and <code>mid = floor((lo + hi) / 2)</code>,
-          mid is always less than hi, so <code>hi = mid</code> shrinks the range and <code>lo = mid + 1</code> does too.
-          Writing <code>lo = mid</code> in that style can loop forever when two items are left. When in doubt, dry-run
-          with two items.
+          Every step must make the range smaller. Take the half-open style with <code>lo &lt; hi</code> and{" "}
+          <code>mid = floor((lo + hi) / 2)</code>. Here mid is always less than hi. So <code>hi = mid</code> makes the
+          range smaller, and <code>lo = mid + 1</code> does too. If you write <code>lo = mid</code> in that style, the
+          loop can run forever when two items are left. When in doubt, dry-run your code with two items.
         </p>
       </Callout>
       <p>
-        Writing <code>lo + Math.floor((hi - lo) / 2)</code> instead of <code>(lo + hi) / 2</code> avoids overflow in
-        languages with fixed-size integers. JavaScript numbers do not overflow at this size, but the habit is common and
-        interviewers recognise it.
+        Writing <code>lo + Math.floor((hi - lo) / 2)</code> instead of <code>(lo + hi) / 2</code> avoids overflow.
+        Overflow means a number gets too big for the space that holds it. It happens in languages with fixed-size
+        integers, such as Java or C++. JavaScript numbers do not overflow at this size, but many programmers use this
+        habit and interviewers recognise it.
       </p>
 
       <h2 id="bounds">Lower bound and upper bound</h2>
       <p>
-        Often you need not &ldquo;is it there?&rdquo; but &ldquo;where does it start?&rdquo;. The <strong>lower bound</strong>{" "}
-        is the first index whose value is ≥ target; the <strong>upper bound</strong> is the first index whose value is &gt;
-        target. Both use the half-open style: when mid might be the answer, keep it with <code>hi = mid</code>.
+        Often you do not need &ldquo;is it there?&rdquo;. You need &ldquo;where does it start?&rdquo;. The{" "}
+        <strong>lower bound</strong> is the first index whose value is ≥ target. The <strong>upper bound</strong> is
+        the first index whose value is &gt; target. Both use the half-open style. When mid might be the answer, keep it
+        with <code>hi = mid</code>.
       </p>
       <CodeBlock lang="js" code={boundsCode} />
       <DryRun
@@ -232,33 +240,35 @@ export default function DsaLessonTwentyEightPage() {
           ["9", "6", "6", "larger than everything (n)"],
         ]}
       />
-      <p>The lower bound is also the answer to &ldquo;search insert position&rdquo;: where the value would go to keep the array sorted.</p>
+      <p>The lower bound is also the answer to &ldquo;search insert position&rdquo;. This is the index where the value would go to keep the array sorted.</p>
 
       <h2 id="first-last">First and last occurrence</h2>
       <p>
-        With duplicates, the first occurrence of x is <code>lowerBound(x)</code> (if that index holds x), and the last is{" "}
-        <code>upperBound(x) − 1</code>. The count of x is <code>upperBound(x) − lowerBound(x)</code> — two O(log n)
-        searches instead of an O(n) scan.
+        When the array has duplicates, the first occurrence of x is at <code>lowerBound(x)</code> (check that this index
+        really holds x). The last occurrence is at <code>upperBound(x) − 1</code>. The count of x is{" "}
+        <code>upperBound(x) − lowerBound(x)</code>. This uses two O(log n) searches instead of an O(n) scan.
       </p>
 
       <h2 id="predicate">The general idea: find the first “true”</h2>
       <p>
-        Lower and upper bound are the same algorithm with a different test. In general, binary search works whenever a
-        yes/no question about index i is <strong>false for a while and then true for the rest</strong>. Binary search
-        finds the first true:
+        Lower bound and upper bound are the same algorithm with a different test. A <strong>predicate</strong> is a
+        function that answers yes or no (true or false). Binary search works whenever a predicate about index i is{" "}
+        <strong>false for a while and then true for the rest</strong>, like false, false, false, true, true. Binary
+        search finds the first true:
       </p>
       <CodeBlock lang="js" code={predicateCode} />
       <p>
-        This view is what makes binary search so powerful. The &ldquo;array&rdquo; does not even need to exist — Lesson
-        29 searches over possible <em>answers</em> instead of indices.
+        This view makes binary search very powerful. The &ldquo;array&rdquo; does not even need to exist. Lesson 29
+        searches over possible <em>answers</em> instead of indices.
       </p>
 
       <h2 id="rotated">Rotated sorted arrays</h2>
       <p>
-        A sorted array rotated at an unknown point, like <code>[4, 5, 6, 7, 0, 1, 2]</code>, is not sorted — but when you
-        cut it at any mid, <strong>at least one half is sorted</strong>. Check which half is sorted (compare{" "}
-        <code>nums[lo]</code> with <code>nums[mid]</code>); if the target lies within that sorted half&apos;s range, search
-        there, otherwise search the other half.
+        A <strong>rotated sorted array</strong> is a sorted array whose front part was moved to the back, at a point you
+        do not know. An example is <code>[4, 5, 6, 7, 0, 1, 2]</code>. The whole array is not sorted. But when you cut
+        it at any mid, <strong>at least one half is sorted</strong> (this lesson assumes all values are different).
+        Check which half is sorted by comparing <code>nums[lo]</code> with <code>nums[mid]</code>. If the target lies
+        inside the range of that sorted half, search that half. Otherwise search the other half.
       </p>
       <CodeBlock lang="js" code={rotatedCode} />
       <DryRun
@@ -273,7 +283,7 @@ export default function DsaLessonTwentyEightPage() {
       />
 
       <h2 id="practice">Practice questions</h2>
-      <p>For each question, first write the yes/no test that flips from false to true. The code follows from it.</p>
+      <p>For each question, first write the yes/no test that changes from false to true. The code then follows from it.</p>
 
       <Questions />
 
@@ -289,9 +299,9 @@ export default function DsaLessonTwentyEightPage() {
 
       <h2 id="next">What&apos;s next</h2>
       <p>
-        Lesson 29 applies the &ldquo;first true&rdquo; idea to answers: the smallest speed, the smallest capacity, the
-        largest minimum. When checking a guess is easy but finding the answer directly is hard, binary search on the
-        answer often solves it.
+        Lesson 29 uses the &ldquo;first true&rdquo; idea on answers: the smallest speed, the smallest capacity, the
+        largest minimum. Sometimes checking a guess is easy, but finding the answer directly is hard. Then binary
+        search on the answer often solves the problem.
       </p>
     </DsaLessonPage>
   );

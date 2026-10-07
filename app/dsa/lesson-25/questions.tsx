@@ -30,10 +30,10 @@ export default function Questions() {
 
 console.log(diagonalSum([[1, 2, 3], [4, 5, 6], [7, 8, 9]])); // 25
 console.log(diagonalSum([[5]]));                             // 5`,
-            explain: <p>O(n) — only the diagonal cells are visited, not all n².</p>,
+            explain: <p>O(n) time. Only the diagonal cells are visited, not all n² cells.</p>,
           },
         ]}
-        compare={<p>Avoid a double loop with an <code>if</code> for the diagonals; index them directly. (LeetCode 1572.)</p>}
+        compare={<p>Do not use a double loop with an <code>if</code> to find the diagonals. Use the indices directly. (LeetCode 1572.)</p>}
       >
         <p>Return the sum of both diagonals of a square matrix, counting the centre once.</p>
       </Problem>
@@ -59,7 +59,7 @@ console.log(diagonalSum([[5]]));                             // 5`,
 }
 
 console.log(transpose([[1, 2, 3], [4, 5, 6]])); // [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]`,
-            explain: <p>O(rows × cols). A non-square matrix cannot be transposed in place, because its shape changes.</p>,
+            explain: <p>O(rows × cols). A non-square matrix cannot easily be transposed in place, because its shape changes (rows × cols becomes cols × rows).</p>,
           },
           {
             name: "With map",
@@ -67,7 +67,7 @@ console.log(transpose([[1, 2, 3], [4, 5, 6]])); // [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 
             code: `const transpose = (m) => m[0].map((_, c) => m.map((row) => row[c]));
 
 console.log(transpose([[1, 2, 3], [4, 5, 6]])); // [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 ] ]`,
-            explain: <p>Same cost, shorter. Make sure you can also write the loop version.</p>,
+            explain: <p>Same cost, but shorter. Make sure you can also write the loop version.</p>,
           },
         ]}
         compare={<p>(LeetCode 867.)</p>}
@@ -97,7 +97,7 @@ console.log(transpose([[1, 2, 3], [4, 5, 6]])); // [ [ 1, 4 ], [ 2, 5 ], [ 3, 6 
 }
 
 console.log(rotate([[1, 2, 3], [4, 5, 6], [7, 8, 9]])); // [ [ 7, 4, 1 ], [ 8, 5, 2 ], [ 9, 6, 3 ] ]`,
-            explain: <p>O(n²) time and O(n²) extra space — not allowed when the question says &ldquo;in place&rdquo;.</p>,
+            explain: <p>O(n²) time and O(n²) extra space. This is not allowed when the question says &ldquo;in place&rdquo;.</p>,
           },
           {
             name: "Transpose + reverse rows (in place)",
@@ -112,7 +112,7 @@ console.log(rotate([[1, 2, 3], [4, 5, 6], [7, 8, 9]])); // [ [ 7, 4, 1 ], [ 8, 5
 
 console.log(rotate([[5, 1, 9, 11], [2, 4, 8, 10], [13, 3, 6, 7], [15, 14, 12, 16]]));
 // [ [ 15, 13, 2, 5 ], [ 14, 3, 4, 1 ], [ 12, 6, 8, 9 ], [ 16, 7, 10, 11 ] ]`,
-            explain: <p>O(n²) time, O(1) extra space. The inner loop starts at <code>j = i + 1</code> so each pair is swapped once.</p>,
+            explain: <p>O(n²) time, O(1) extra space. The inner loop starts at <code>j = i + 1</code> so that each pair is swapped only once.</p>,
           },
         ]}
         compare={<p>The in-place version is expected. (LeetCode 48.)</p>}
@@ -128,7 +128,7 @@ console.log(rotate([[5, 1, 9, 11], [2, 4, 8, 10], [13, 3, 6, 7], [15, 14, 12, 16
           { input: "[[1, 2, 3], [4, 5, 6], [7, 8, 9]]", output: "[1, 2, 3, 6, 9, 8, 7, 4, 5]", why: "Clockwise from the top-left, moving inwards." },
           { input: "[[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]", output: "[1, 2, 3, 4, 8, 12, 11, 10, 9, 5, 6, 7]", why: "A non-square matrix: the last ring is a single row." },
         ]}
-        hints={[<>Four boundaries: top, bottom, left, right. Shrink each after reading its side.</>, <>Check the boundaries again before reading the bottom row and the left column.</>]}
+        hints={[<>Four boundaries: top, bottom, left, right. Shrink each after reading its side.</>, <>Check the boundaries again before you read the bottom row and the left column.</>]}
         approaches={[
           {
             name: "Four boundaries",
@@ -170,7 +170,7 @@ console.log(spiralOrder([[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]])); // [ 1,
             ),
           },
         ]}
-        compare={<p>O(rows × cols). Test with a single row, a single column and a non-square matrix. (LeetCode 54.)</p>}
+        compare={<p>O(rows × cols) time. Test with a single row, a single column and a non-square matrix. (LeetCode 54.)</p>}
       >
         <p>Return all values of the matrix in spiral order.</p>
       </Problem>
@@ -184,8 +184,8 @@ console.log(spiralOrder([[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]])); // [ 1,
           { input: "[[0, 1, 2, 0], [3, 4, 5, 2], [1, 3, 1, 5]]", output: "[[0, 0, 0, 0], [0, 4, 5, 0], [0, 3, 1, 0]]", why: "Zeros in the first row clear columns 0 and 3." },
         ]}
         hints={[
-          <>The Sets version uses O(rows + cols) space. Where else could you store the marks?</>,
-          <>Use the first row and first column as markers — but remember separately whether they themselves contained a 0.</>,
+          <>The Sets version uses O(rows + cols) extra space. Where else could you store the marks?</>,
+          <>Use the first row and first column as markers. But first remember, in two separate flags, whether they contained a 0 themselves.</>,
         ]}
         approaches={[
           {
@@ -229,10 +229,10 @@ console.log(setZeroes([[1, 1, 1], [1, 0, 1], [1, 1, 1]]));
 // [ [ 1, 0, 1 ], [ 0, 0, 0 ], [ 1, 0, 1 ] ]
 console.log(setZeroes([[0, 1, 2, 0], [3, 4, 5, 2], [1, 3, 1, 5]]));
 // [ [ 0, 0, 0, 0 ], [ 0, 4, 5, 0 ], [ 0, 3, 1, 0 ] ]`,
-            explain: <p>O(1) extra space. The two flags are needed because row 0 and column 0 are overwritten by marks from other cells.</p>,
+            explain: <p>O(1) extra space. The two flags are needed because the marks from other cells overwrite row 0 and column 0.</p>,
           },
         ]}
-        compare={<p>Give the Sets version first; the marker version is the follow-up. (LeetCode 73.)</p>}
+        compare={<p>Give the Sets version first. The marker version is the follow-up. (LeetCode 73.)</p>}
       >
         <p>If a cell is 0, set its entire row and column to 0, in place.</p>
       </Problem>
@@ -266,7 +266,7 @@ console.log(setZeroes([[0, 1, 2, 0], [3, 4, 5, 2], [1, 3, 1, 5]]));
 const M = [[1, 3, 5, 7], [10, 11, 16, 20], [23, 30, 34, 60]];
 console.log(searchMatrix(M, 3));  // true
 console.log(searchMatrix(M, 13)); // false`,
-            explain: <p>O(log(rows × cols)). The index conversion is useful far beyond this problem.</p>,
+            explain: <p>O(log(rows × cols)) time. The index conversion is useful in many other problems too.</p>,
           },
         ]}
         compare={<p>(LeetCode 74.)</p>}
@@ -300,7 +300,7 @@ console.log(searchMatrix(M, 13)); // false`,
 const M = [[1, 4, 7, 11], [2, 5, 8, 12], [3, 6, 9, 16], [10, 13, 14, 17]];
 console.log(searchMatrix(M, 9));  // true
 console.log(searchMatrix(M, 20)); // false`,
-            explain: <p>O(rows + cols), O(1). The bottom-left corner works too, with the directions swapped; the top-left and bottom-right do not, because there both moves go the same way.</p>,
+            explain: <p>O(rows + cols) time, O(1) extra space. The bottom-left corner works too, with the directions swapped. The top-left and bottom-right corners do not work, because from there both moves go in the same direction (both make the value bigger, or both make it smaller), so you cannot tell which way to go.</p>,
           },
         ]}
         compare={<p>Know which kind of &ldquo;sorted matrix&rdquo; you have before choosing the search. (LeetCode 240.)</p>}

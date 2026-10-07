@@ -11,12 +11,12 @@ export default function Questions() {
         level="Easy"
         examples={[
           { input: '"A man, a plan, a canal: Panama"', output: "true", why: 'Keeping only letters and digits and ignoring case gives "amanaplanacanalpanama", which reads the same both ways.' },
-          { input: '"race a car"', output: "false", why: 'It becomes "raceacar"; the outer pairs r/r, a/a and c/c match, but then "e" meets "a" and the check fails.' },
-          { input: '" "', output: "true", why: "After removing everything that is not a letter or digit, the string is empty, and an empty string is a palindrome." },
+          { input: '"race a car"', output: "false", why: 'It becomes "raceacar". The outer pairs r/r, a/a and c/c match, but then "e" meets "a" and the check fails.' },
+          { input: '" "', output: "true", why: "After removing everything that is not a letter or digit, the string is empty. An empty string is a palindrome." },
         ]}
         hints={[
           <>Put one pointer at each end. When must a pointer skip a character?</>,
-          <>Skip with a nested <code>while</code> that also checks <code>l &lt; r</code>, so the pointers never cross while skipping.</>,
+          <>Skip with a nested <code>while</code> loop that also checks <code>l &lt; r</code>. Then the pointers never cross while skipping.</>,
         ]}
         approaches={[
           {
@@ -36,15 +36,15 @@ export default function Questions() {
 console.log(isPalindrome("A man, a plan, a canal: Panama")); // true
 console.log(isPalindrome("race a car"));                     // false
 console.log(isPalindrome(" "));                              // true`,
-            explain: <p>Very readable, but it builds two extra strings: O(n) time and O(n) extra space.</p>,
+            explain: <p>This is easy to read, but it builds two extra strings. It takes O(n) time and O(n) extra space.</p>,
           },
           {
             name: "Two pointers that skip",
             idea: (
               <ol>
                 <li>Start <code>l</code> at the front and <code>r</code> at the back.</li>
-                <li>Move <code>l</code> right past non-alphanumeric characters; move <code>r</code> left past them.</li>
-                <li>Compare the two characters in lower case; a mismatch means false.</li>
+                <li>Move <code>l</code> right past characters that are not letters or digits. Move <code>r</code> left past them.</li>
+                <li>Compare the two characters in lower case. A mismatch means the answer is false.</li>
                 <li>Step both inwards and repeat while <code>l &lt; r</code>.</li>
               </ol>
             ),
@@ -66,16 +66,16 @@ console.log(isPalindrome("race a car"));                     // false
 console.log(isPalindrome(" "));                              // true`,
             explain: (
               <p>
-                Every character is visited at most once: O(n) time, O(1) extra space. For <code>&quot; &quot;</code> the
-                inner loop moves <code>l</code> until it meets <code>r</code>, the outer loop ends, and the answer is true.
+                Every character is visited at most once, so it takes O(n) time and O(1) extra space. For <code>&quot; &quot;</code>,
+                the inner loop moves <code>l</code> until it meets <code>r</code>. Then the outer loop ends and the answer is true.
               </p>
             ),
           },
         ]}
-        compare={<p>Use the two-pointer version in an interview — the extra-space question is the usual follow-up. (LeetCode 125.)</p>}
+        compare={<p>Use the two-pointer version in an interview. The interviewer will often ask a follow-up about extra space. (LeetCode 125.)</p>}
       >
         <p>
-          Return <code>true</code> if the string is a palindrome after converting to lower case and removing every character
+          Return <code>true</code> if the string is a palindrome after you change it to lower case and remove every character
           that is not a letter or digit.
         </p>
       </Problem>
@@ -90,13 +90,13 @@ console.log(isPalindrome(" "));                              // true`,
           { input: '"abc"', output: "false", why: "Deleting any one character leaves two different letters." },
         ]}
         hints={[
-          <>Run the normal two-pointer check. What should happen at the first mismatch?</>,
-          <>At the first mismatch there are only two choices: skip the left character or skip the right one. Check whether either remaining middle part is a palindrome.</>,
+          <>Run the normal two-pointer check. What should you do at the first mismatch?</>,
+          <>At the first mismatch there are only two choices: skip the left character or skip the right character. Check whether either remaining middle part is a palindrome.</>,
         ]}
         approaches={[
           {
             name: "Try deleting each character",
-            idea: <p>For every index, remove that character and test whether the rest is a palindrome.</p>,
+            idea: <p>For every index, remove that character. Then test whether the rest is a palindrome.</p>,
             code: `function validPalindrome(s) {
   const isPal = (t) => t === [...t].reverse().join("");
   if (isPal(s)) return true;
@@ -108,15 +108,15 @@ console.log(isPalindrome(" "));                              // true`,
 
 console.log(validPalindrome("abca")); // true
 console.log(validPalindrome("abc"));  // false`,
-            explain: <p>n deletions × O(n) per check = O(n²). Correct, but too slow for large inputs.</p>,
+            explain: <p>There are n deletions, and each check costs O(n), so the total is O(n²) time. It is correct, but too slow for large inputs.</p>,
           },
           {
             name: "Two pointers, one allowed mismatch",
             idea: (
               <ol>
-                <li>Walk the pointers inwards while characters match.</li>
-                <li>At the first mismatch, the only way to succeed is to drop <code>s[l]</code> or <code>s[r]</code>.</li>
-                <li>Check the remaining range <code>l+1 … r</code> and <code>l … r-1</code> with a plain palindrome helper.</li>
+                <li>Move the pointers inwards while the characters match.</li>
+                <li>At the first mismatch, the only way to succeed is to delete <code>s[l]</code> or <code>s[r]</code>.</li>
+                <li>Check the two remaining ranges, <code>l+1 … r</code> and <code>l … r-1</code>, with a plain palindrome helper function.</li>
               </ol>
             ),
             code: `function validPalindrome(s) {
@@ -142,14 +142,14 @@ console.log(validPalindrome("abca")); // true
 console.log(validPalindrome("abc"));  // false`,
             explain: (
               <p>
-                In &ldquo;abca&rdquo; the first mismatch is <code>b</code> vs <code>c</code> at l = 1, r = 2. Dropping{" "}
-                <code>b</code> leaves <code>s[2..2]</code> = &ldquo;c&rdquo;, a palindrome → true. The helper runs at most once
-                over the middle, so the total is O(n) time and O(1) space.
+                In &ldquo;abca&rdquo; the first mismatch is <code>b</code> vs <code>c</code> at l = 1, r = 2. Deleting{" "}
+                <code>b</code> leaves <code>s[2..2]</code> = &ldquo;c&rdquo;, which is a palindrome, so the answer is true. The helper
+                runs at most twice over the middle part, so the total is O(n) time and O(1) extra space.
               </p>
             ),
           },
         ]}
-        compare={<p>The one-mismatch version. The trick of branching only at the first mismatch is the point of the question. (LeetCode 680.)</p>}
+        compare={<p>The key idea of this question is to branch into two choices only at the first mismatch. (LeetCode 680.)</p>}
       >
         <p>Return <code>true</code> if the string can become a palindrome after deleting <strong>at most one</strong> character.</p>
       </Problem>
@@ -164,7 +164,7 @@ console.log(validPalindrome("abc"));  // false`,
         ]}
         hints={[
           <>The answer is never longer than the shortest word.</>,
-          <>Compare column by column: is the character at index 0 the same in every word? Then index 1?</>,
+          <>Compare column by column. Is the character at index 0 the same in every word? Then is the character at index 1 the same?</>,
         ]}
         approaches={[
           {
@@ -172,7 +172,7 @@ console.log(validPalindrome("abc"));  // false`,
             idea: (
               <ol>
                 <li>Start with the first word as the prefix.</li>
-                <li>For each next word, cut the last character off the prefix until the word starts with it.</li>
+                <li>For each next word, cut the last character off the prefix until the word starts with the prefix.</li>
               </ol>
             ),
             code: `function longestCommonPrefix(strs) {
@@ -185,14 +185,14 @@ console.log(validPalindrome("abc"));  // false`,
 
 console.log(longestCommonPrefix(["flower", "flow", "flight"])); // fl
 console.log(longestCommonPrefix(["dog", "racecar", "car"]));    // (empty)`,
-            explain: <p>O(S) where S is the total number of characters, and O(1) extra space.</p>,
+            explain: <p>O(S) time, where S is the total number of characters, and O(1) extra space.</p>,
           },
           {
             name: "Column by column",
             idea: (
               <ol>
                 <li>For each index <code>i</code> of the first word, take its character.</li>
-                <li>If any other word is too short or has a different character at <code>i</code>, return what has matched so far.</li>
+                <li>If any other word is too short, or has a different character at <code>i</code>, return the part that has matched so far.</li>
               </ol>
             ),
             code: `function longestCommonPrefix(strs) {
@@ -209,12 +209,12 @@ console.log(longestCommonPrefix(["dog", "racecar", "car"]));    // (empty)`,
 console.log(longestCommonPrefix(["flower", "flow", "flight"])); // fl
 console.log(longestCommonPrefix(["dog", "racecar", "car"]));    // (empty)
 console.log(longestCommonPrefix(["same"]));                      // same`,
-            explain: <p>Stops at the first mismatching column, so it never reads characters past the answer. O(S) worst case.</p>,
+            explain: <p>It stops at the first column that does not match, so it never reads characters past the answer. It takes O(S) time in the worst case.</p>,
           },
         ]}
-        compare={<p>Both are fine. Column by column is the easier one to explain on a whiteboard. (LeetCode 14.)</p>}
+        compare={<p>Both are fine. Column by column is easier to explain on a whiteboard. (LeetCode 14.)</p>}
       >
-        <p>Return the longest string that is a prefix of every string in the array, or <code>&quot;&quot;</code> if there is none.</p>
+        <p>Return the longest string that is a prefix of every string in the array. Return <code>&quot;&quot;</code> (an empty string) if there is none.</p>
       </Problem>
 
       <Problem
@@ -227,7 +227,7 @@ console.log(longestCommonPrefix(["same"]));                      // same`,
           { input: '"MCMXCIV"', output: "1994", why: "M = 1000, CM = 900, XC = 90, IV = 4." },
         ]}
         hints={[
-          <>Store the seven symbol values in an object.</>,
+          <>Store the values of the seven symbols in an object.</>,
           <>When is a symbol subtracted instead of added? Compare it with the symbol after it.</>,
         ]}
         approaches={[
@@ -252,14 +252,14 @@ console.log(longestCommonPrefix(["same"]));                      // same`,
 console.log(romanToInt("III"));     // 3
 console.log(romanToInt("LVIII"));   // 58
 console.log(romanToInt("MCMXCIV")); // 1994`,
-            explain: <p>One pass: O(n) time, O(1) space.</p>,
+            explain: <p>One pass: O(n) time and O(1) extra space.</p>,
           },
           {
             name: "Right to left",
             idea: (
               <ol>
-                <li>Walk from the last symbol to the first, remembering the previous (right-hand) value.</li>
-                <li>If the current value is smaller than the one to its right, subtract; else add.</li>
+                <li>Walk from the last symbol to the first. Remember the previous value, which is the one to the right.</li>
+                <li>If the current value is smaller than the value to its right, subtract it. Otherwise, add it.</li>
               </ol>
             ),
             code: `function romanToInt(s) {
@@ -275,12 +275,12 @@ console.log(romanToInt("MCMXCIV")); // 1994`,
 
 console.log(romanToInt("MCMXCIV")); // 1994
 console.log(romanToInt("IX"));      // 9`,
-            explain: <p>Same cost, and no bounds check for &ldquo;is there a next symbol?&rdquo; because the previous value starts at 0.</p>,
+            explain: <p>The cost is the same. There is no bounds check for &ldquo;is there a next symbol?&rdquo;, because the previous value starts at 0.</p>,
           },
         ]}
-        compare={<p>Pick whichever you can write without mistakes. (LeetCode 13.)</p>}
+        compare={<p>Pick the one you can write without mistakes. (LeetCode 13.)</p>}
       >
-        <p>Convert a Roman numeral (valid, from 1 to 3999) to an integer.</p>
+        <p>Convert a valid Roman numeral (from 1 to 3999) to an integer (a whole number).</p>
       </Problem>
 
       <Problem
@@ -299,7 +299,7 @@ console.log(romanToInt("IX"));      // 9`,
         approaches={[
           {
             name: "Check every substring",
-            idea: <p>Generate all substrings, test each with the two-pointer palindrome check, keep the longest.</p>,
+            idea: <p>Make every substring, test each one with the two-pointer palindrome check, and keep the longest.</p>,
             code: `function longestPalindrome(s) {
   const isPal = (l, r) => {
     while (l < r) if (s[l++] !== s[r--]) return false;
@@ -316,14 +316,14 @@ console.log(romanToInt("IX"));      // 9`,
 
 console.log(longestPalindrome("babad")); // bab
 console.log(longestPalindrome("cbbd"));  // bb`,
-            explain: <p>O(n²) substrings × O(n) check = O(n³). Fine as a starting point, too slow for n = 1000 and up.</p>,
+            explain: <p>There are O(n²) substrings, and each check costs O(n), so the total is O(n³) time. It is fine as a starting point, but too slow when n is 1000 or more.</p>,
           },
           {
             name: "Expand around the centre",
             idea: (
               <ol>
-                <li>For each index, expand twice: once for an odd palindrome, once for an even one.</li>
-                <li>Track the best length and where it starts.</li>
+                <li>For each index, expand twice: once for an odd-length palindrome and once for an even-length palindrome.</li>
+                <li>Keep track of the best length and where it starts.</li>
               </ol>
             ),
             code: `function longestPalindrome(s) {
@@ -347,17 +347,17 @@ console.log(longestPalindrome("cbbd"));  // bb
 console.log(longestPalindrome("a"));     // a`,
             explain: (
               <p>
-                O(n²) time, O(1) space. Why <code>start = i - Math.floor((len - 1) / 2)</code>? For an odd palindrome of
-                length 3 centred on i, it begins one place left (i − 1). For an even one of length 4 centred between i and
-                i + 1, it begins at i − 1 as well; the formula covers both.
+                O(n²) time, O(1) extra space. Why is <code>start = i - Math.floor((len - 1) / 2)</code>? An odd palindrome of
+                length 3 centred on i begins one place to the left (i − 1). An even palindrome of length 4 centred between i
+                and i + 1 also begins at i − 1. The formula works for both.
               </p>
             ),
           },
         ]}
         compare={
           <p>
-            Expand around the centre — it is the standard interview answer. (A specialised O(n) algorithm, Manacher&apos;s, exists
-            but is almost never expected.) LeetCode 5.
+            Expanding around the centre is the standard interview answer. (A special O(n) algorithm called Manacher&apos;s algorithm exists,
+            but interviewers almost never expect it.) LeetCode 5.
           </p>
         }
       >
@@ -369,19 +369,19 @@ console.log(longestPalindrome("a"));     // a`,
         title="String compression (in place)"
         level="Medium"
         examples={[
-          { input: '["a","a","b","b","c","c","c"]', output: '6, chars = ["a","2","b","2","c","3"]', why: "Runs aa, bb, ccc become a2, b2, c3." },
+          { input: '["a","a","b","b","c","c","c"]', output: '6, chars = ["a","2","b","2","c","3"]', why: "The runs aa, bb and ccc become a2, b2 and c3." },
           { input: '["a"]', output: '1, chars = ["a"]', why: "A run of length 1 is written without a count." },
-          { input: '["a","b","b","b","b","b","b","b","b","b","b","b","b"]', output: '4, chars = ["a","b","1","2"]', why: "Twelve b's: the count 12 is written as two characters." },
+          { input: '["a","b","b","b","b","b","b","b","b","b","b","b","b"]', output: '4, chars = ["a","b","1","2"]', why: "There are twelve b's. The count 12 is written as two characters." },
         ]}
         hints={[
-          <>Use a read pointer to find the end of each run, and a write pointer to record results.</>,
-          <>Write the character first, then the count only if the run is longer than 1.</>,
-          <>The count may have several digits — write them one at a time.</>,
+          <>Use a read pointer to find the end of each run. Use a write pointer to record the results.</>,
+          <>Write the character first. Write the count only if the run is longer than 1.</>,
+          <>The count may have several digits. Write them one at a time.</>,
         ]}
         approaches={[
           {
             name: "Build a new array",
-            idea: <p>Collect the pieces in a new array, then copy them back into <code>chars</code>.</p>,
+            idea: <p>Collect the pieces in a new array. Then copy them back into <code>chars</code>.</p>,
             code: `function compress(chars) {
   const out = [];
   let i = 0;
@@ -398,14 +398,14 @@ console.log(longestPalindrome("a"));     // a`,
 
 const a = ["a", "a", "b", "b", "c", "c", "c"];
 console.log(compress(a));  // 6`,
-            explain: <p>O(n) time but O(n) extra space, so it breaks the &ldquo;in place&rdquo; requirement.</p>,
+            explain: <p>O(n) time, but O(n) extra space. So it breaks the &ldquo;in place&rdquo; rule.</p>,
           },
           {
             name: "Read and write pointers",
             idea: (
               <ol>
-                <li><code>i</code> marks the start of a run; <code>j</code> scans to the run&apos;s end.</li>
-                <li>Write <code>chars[i]</code> at <code>write</code>; if the run is longer than 1, write each digit of the length.</li>
+                <li><code>i</code> marks the start of a run. <code>j</code> scans to the end of the run.</li>
+                <li>Write <code>chars[i]</code> at position <code>write</code>. If the run is longer than 1, write each digit of its length.</li>
                 <li>Move <code>i</code> to <code>j</code> and repeat.</li>
               </ol>
             ),
@@ -435,17 +435,17 @@ console.log(m);                    // 4
 console.log(b.slice(0, m).join("")); // ab12`,
             explain: (
               <p>
-                The write pointer never passes the read pointer: a run of length 2 or more is replaced by at most the same
-                number of characters (the letter plus its digits), and a run of 1 by exactly 1. O(n) time, O(1) extra space.
+                The write pointer never passes the read pointer. A run of length 2 or more is replaced by at most the same
+                number of characters (the letter plus its digits). A run of length 1 is replaced by exactly 1 character. This takes O(n) time and O(1) extra space.
               </p>
             ),
           },
         ]}
-        compare={<p>The two-pointer version, since the question says &ldquo;in place&rdquo;. (LeetCode 443.)</p>}
+        compare={<p>Use the two-pointer version, because the question says &ldquo;in place&rdquo;. (LeetCode 443.)</p>}
       >
         <p>
-          Compress the character array in place: each run of repeated characters becomes the character, followed by the run
-          length if it is more than 1. Return the new length.
+          Compress the character array in place. Each run of repeated characters becomes the character, followed by the length
+          of the run if that length is more than 1. Return the new length.
         </p>
       </Problem>
 
@@ -454,17 +454,17 @@ console.log(b.slice(0, m).join("")); // ab12`,
         title="Rotate string"
         level="Easy"
         examples={[
-          { input: 's = "abcde", goal = "cdeab"', output: "true", why: 'Shifting "abcde" left by 2 gives "cdeab".' },
-          { input: 's = "abcde", goal = "abced"', output: "false", why: "The letters are the same, but no rotation produces this order." },
+          { input: 's = "abcde", goal = "cdeab"', output: "true", why: 'Moving "ab" from the front of "abcde" to the back gives "cdeab".' },
+          { input: 's = "abcde", goal = "abced"', output: "false", why: "The letters are the same, but no rotation gives this order." },
         ]}
         hints={[
-          <>If the lengths differ the answer is immediately false.</>,
-          <>Write s twice in a row. Where does every rotation of s appear?</>,
+          <>If the lengths are different, the answer is false at once.</>,
+          <>Write s twice in a row. Where does every rotation of s appear in it?</>,
         ]}
         approaches={[
           {
             name: "Try every rotation",
-            idea: <p>Rotate by 1, 2, … n − 1 positions and compare each with the goal.</p>,
+            idea: <p>Rotate by 1, 2, … n − 1 positions. Compare each result with the goal.</p>,
             code: `function rotateString(s, goal) {
   if (s.length !== goal.length) return false;
   for (let k = 0; k < s.length; k++) {
@@ -475,11 +475,11 @@ console.log(b.slice(0, m).join("")); // ab12`,
 
 console.log(rotateString("abcde", "cdeab")); // true
 console.log(rotateString("abcde", "abced")); // false`,
-            explain: <p>n rotations × O(n) per comparison = O(n²).</p>,
+            explain: <p>There are n rotations, and each comparison costs O(n), so the total is O(n²) time.</p>,
           },
           {
             name: "Search in the doubled string",
-            idea: <p>A rotation of s is always a substring of s + s, and any substring of s + s with the same length as s is a rotation.</p>,
+            idea: <p>Every rotation of s is a substring of s + s. And any substring of s + s that has the same length as s is a rotation.</p>,
             code: `function rotateString(s, goal) {
   return s.length === goal.length && (s + s).includes(goal);
 }
@@ -487,12 +487,12 @@ console.log(rotateString("abcde", "abced")); // false`,
 console.log(rotateString("abcde", "cdeab")); // true
 console.log(rotateString("abcde", "abced")); // false
 console.log(rotateString("a", "b"));         // false`,
-            explain: <p>Built-in <code>includes</code> is fast in practice; the length check prevents false positives such as goal = &ldquo;bcdeab&rdquo;.</p>,
+            explain: <p>The built-in <code>includes</code> is fast in practice. The length check prevents wrong answers such as goal = &ldquo;bcdeab&rdquo; (this is inside &ldquo;abcdeabcde&rdquo;, but it is longer than s).</p>,
           },
         ]}
-        compare={<p>The doubled string — a one-line answer that shows you know the trick. (LeetCode 796.)</p>}
+        compare={<p>The doubled string gives a one-line answer and shows that you know the trick. (LeetCode 796.)</p>}
       >
-        <p>Return <code>true</code> if <code>goal</code> can be obtained from <code>s</code> by moving some leading characters to the end, any number of times.</p>
+        <p>Return <code>true</code> if you can get <code>goal</code> from <code>s</code> by moving some characters from the front to the end, any number of times.</p>
       </Problem>
 
       <DryRun
@@ -504,7 +504,7 @@ console.log(rotateString("a", "b"));         // false`,
           ["common prefix of many words", "shrink prefix, or scan columns", "O(total chars)"],
           ["convert symbols with special pairs", "look at the next character", "O(n)"],
           ["modify in place, shorter result", "read pointer + write pointer", "O(n), O(1)"],
-          ["is B a rotation of A", "search B inside A + A", "O(n)"],
+          ["is B a rotation of A", "search B inside A + A", "O(n) typical"],
         ]}
       />
     </>

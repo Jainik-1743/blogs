@@ -31,10 +31,10 @@ export default function Questions() {
 
 console.log(search([-1, 0, 3, 5, 9, 12], 9)); // 4
 console.log(search([-1, 0, 3, 5, 9, 12], 2)); // -1`,
-            explain: <p>O(log n), O(1).</p>,
+            explain: <p>O(log n) time, O(1) extra space.</p>,
           },
         ]}
-        compare={<p>Write it until it is automatic. (LeetCode 704.)</p>}
+        compare={<p>Practise writing it until you can do it without thinking. (LeetCode 704.)</p>}
       >
         <p>Return the index of <code>target</code> in the sorted array, or −1. Use O(log n) time.</p>
       </Problem>
@@ -48,7 +48,7 @@ console.log(search([-1, 0, 3, 5, 9, 12], 2)); // -1`,
           { input: "nums = [1, 3, 5, 6], target = 2", output: "1", why: "2 would go between 1 and 3." },
           { input: "nums = [1, 3, 5, 6], target = 7", output: "4", why: "After everything." },
         ]}
-        hints={[<>This is the lower bound: the first index with value ≥ target.</>]}
+        hints={[<>This is the lower bound: the first index whose value is ≥ target.</>]}
         approaches={[
           {
             name: "Lower bound",
@@ -66,7 +66,7 @@ console.log(search([-1, 0, 3, 5, 9, 12], 2)); // -1`,
 console.log(searchInsert([1, 3, 5, 6], 5)); // 2
 console.log(searchInsert([1, 3, 5, 6], 2)); // 1
 console.log(searchInsert([1, 3, 5, 6], 7)); // 4`,
-            explain: <p>O(log n). Starting <code>hi</code> at <code>nums.length</code> (not length − 1) is what allows the answer &ldquo;after everything&rdquo;.</p>,
+            explain: <p>O(log n) time. Starting <code>hi</code> at <code>nums.length</code> (not length − 1) is what allows the answer &ldquo;after everything&rdquo;.</p>,
           },
         ]}
         compare={<p>(LeetCode 35.)</p>}
@@ -83,11 +83,11 @@ console.log(searchInsert([1, 3, 5, 6], 7)); // 4`,
           { input: "nums = [5, 7, 7, 8, 8, 10], target = 6", output: "[-1, -1]", why: "Not present." },
           { input: "nums = [], target = 0", output: "[-1, -1]", why: "Edge case: empty." },
         ]}
-        hints={[<>Lower bound gives the first; upper bound − 1 gives the last.</>]}
+        hints={[<>The lower bound gives the first index. The upper bound minus 1 gives the last index.</>]}
         approaches={[
           {
             name: "Find first, then scan right",
-            idea: <p>Binary search for any 8, then walk outwards.</p>,
+            idea: <p>Find the first 8 with <code>indexOf</code> (a simple scan), then walk right to the last 8.</p>,
             code: `function searchRange(nums, target) {
   const i = nums.indexOf(target);
   if (i === -1) return [-1, -1];
@@ -97,11 +97,11 @@ console.log(searchInsert([1, 3, 5, 6], 7)); // 4`,
 }
 
 console.log(searchRange([5, 7, 7, 8, 8, 10], 8)); // [ 3, 4 ]`,
-            explain: <p>O(n) in the worst case (all values equal). Not what the problem asks.</p>,
+            explain: <p>O(n) time in the worst case (when all values are equal). The problem asks for O(log n), so this is not enough.</p>,
           },
           {
             name: "Two binary searches",
-            idea: <p>lowerBound(target) and upperBound(target) − 1.</p>,
+            idea: <p>Use lowerBound(target) for the first index and upperBound(target) − 1 for the last index.</p>,
             code: `function searchRange(nums, target) {
   const bound = (strict) => {
     let lo = 0, hi = nums.length;
@@ -120,10 +120,10 @@ console.log(searchRange([5, 7, 7, 8, 8, 10], 8)); // [ 3, 4 ]`,
 console.log(searchRange([5, 7, 7, 8, 8, 10], 8)); // [ 3, 4 ]
 console.log(searchRange([5, 7, 7, 8, 8, 10], 6)); // [ -1, -1 ]
 console.log(searchRange([], 0));                  // [ -1, -1 ]`,
-            explain: <p>O(log n). One helper with a flag gives both bounds.</p>,
+            explain: <p>O(log n) time. One helper function with a flag gives both bounds.</p>,
           },
         ]}
-        compare={<p>A very common medium question; it checks whether you can adapt the template to boundaries. (LeetCode 34.)</p>}
+        compare={<p>This is a very common medium question. It checks whether you can change the template to find boundaries. (LeetCode 34.)</p>}
       >
         <p>Return the first and last index of <code>target</code> in a sorted array, or [−1, −1], in O(log n).</p>
       </Problem>
@@ -133,11 +133,11 @@ console.log(searchRange([], 0));                  // [ -1, -1 ]`,
         title="First bad version"
         level="Easy"
         examples={[{ input: "n = 5, first bad = 4", output: "4", why: "isBad(3) is false, isBad(4) is true; every version after a bad one is also bad." }]}
-        hints={[<>isBad(i) is false…false, true…true. Find the first true.</>]}
+        hints={[<>isBad(i) gives false…false, true…true. Find the first true.</>]}
         approaches={[
           {
             name: "First true",
-            idea: <p>The predicate form of binary search over versions 1…n.</p>,
+            idea: <p>This is binary search with a yes/no test (a predicate), over versions 1…n.</p>,
             code: `function firstBadVersion(n, isBad) {
   let lo = 1, hi = n;
   while (lo < hi) {
@@ -150,12 +150,12 @@ console.log(searchRange([], 0));                  // [ -1, -1 ]`,
 
 console.log(firstBadVersion(5, (v) => v >= 4));          // 4
 console.log(firstBadVersion(2126753390, (v) => v >= 1702766719)); // 1702766719`,
-            explain: <p>O(log n) calls to <code>isBad</code> — about 31 for n ≈ 2 × 10<sup>9</sup>. Here there is no array at all, only a yes/no question.</p>,
+            explain: <p>O(log n) calls to <code>isBad</code>. That is about 31 calls for n ≈ 2 × 10<sup>9</sup>. There is no array here at all, only a yes/no question.</p>,
           },
         ]}
-        compare={<p>The cleanest example of &ldquo;find the first true&rdquo;. (LeetCode 278.)</p>}
+        compare={<p>This is the clearest example of &ldquo;find the first true&rdquo;. (LeetCode 278.)</p>}
       >
-        <p>Versions 1 to n; from some version on, all are bad. Using <code>isBad(v)</code> as few times as possible, return the first bad version.</p>
+        <p>There are versions 1 to n. From some version on, all versions are bad. Return the first bad version, and call <code>isBad(v)</code> as few times as possible.</p>
       </Problem>
 
       <Problem
@@ -167,7 +167,7 @@ console.log(firstBadVersion(2126753390, (v) => v >= 1702766719)); // 1702766719`
           { input: "nums = [4, 5, 6, 7, 0, 1, 2], target = 3", output: "-1", why: "Not present." },
           { input: "nums = [1], target = 0", output: "-1", why: "Edge case." },
         ]}
-        hints={[<>At least one half around mid is sorted. Decide whether the target lies in that sorted half.</>]}
+        hints={[<>At least one half next to mid is sorted. Decide whether the target lies in that sorted half.</>]}
         approaches={[
           {
             name: "Sorted-half test",
@@ -191,7 +191,7 @@ console.log(firstBadVersion(2126753390, (v) => v >= 1702766719)); // 1702766719`
 console.log(search([4, 5, 6, 7, 0, 1, 2], 0)); // 4
 console.log(search([4, 5, 6, 7, 0, 1, 2], 3)); // -1
 console.log(search([1], 0));                   // -1`,
-            explain: <p>O(log n). The <code>&lt;=</code> in <code>nums[lo] &lt;= nums[mid]</code> handles the case lo = mid (a one-item left half).</p>,
+            explain: <p>O(log n) time. The <code>&lt;=</code> in <code>nums[lo] &lt;= nums[mid]</code> handles the case lo = mid (a left half with one item).</p>,
           },
         ]}
         compare={<p>(LeetCode 33.)</p>}
@@ -208,11 +208,11 @@ console.log(search([1], 0));                   // -1`,
           { input: "[4, 5, 6, 7, 0, 1, 2]", output: "0", why: "The drop from 7 to 0 marks the minimum." },
           { input: "[11, 13, 15, 17]", output: "11", why: "Edge case: not rotated (or rotated by n)." },
         ]}
-        hints={[<>Compare nums[mid] with nums[hi]. If nums[mid] &gt; nums[hi], the drop — and the minimum — is to the right of mid.</>]}
+        hints={[<>Compare nums[mid] with nums[hi]. If nums[mid] &gt; nums[hi], the drop (and so the minimum) is to the right of mid.</>]}
         approaches={[
           {
             name: "Compare with the right end",
-            idea: <p>&ldquo;nums[i] ≤ nums[last]&rdquo; is false…false, true…true; the minimum is the first true.</p>,
+            idea: <p>The test &ldquo;nums[i] ≤ nums[last]&rdquo; gives false…false, true…true. The minimum is at the first true.</p>,
             code: `function findMin(nums) {
   let lo = 0, hi = nums.length - 1;
   while (lo < hi) {
@@ -236,7 +236,7 @@ console.log(findMin([11, 13, 15, 17]));      // 11`,
             ),
           },
         ]}
-        compare={<p>Comparing with <code>nums[hi]</code> rather than <code>nums[lo]</code> handles the unrotated case without a special check. (LeetCode 153.)</p>}
+        compare={<p>Comparing with <code>nums[hi]</code> instead of <code>nums[lo]</code> handles the not-rotated case without a special check. (LeetCode 153.)</p>}
       >
         <p>Return the smallest value of a rotated sorted array of distinct values, in O(log n).</p>
       </Problem>
@@ -246,17 +246,17 @@ console.log(findMin([11, 13, 15, 17]));      // 11`,
         title="Find a peak element"
         level="Medium"
         examples={[
-          { input: "[1, 2, 3, 1]", output: "2", why: "3 is larger than both neighbours." },
-          { input: "[1, 2, 1, 3, 5, 6, 4]", output: "5", why: "6 is a peak (index 1, value 2, is also a peak — either is accepted)." },
+          { input: "[1, 2, 3, 1]", output: "2", why: "3 is larger than both of its neighbours." },
+          { input: "[1, 2, 1, 3, 5, 6, 4]", output: "5", why: "6 is a peak. The value 2 at index 1 is also a peak, so either answer is accepted." },
         ]}
         hints={[
-          <>The array is not sorted, but binary search still works. Treat the outside of the array as −∞.</>,
-          <>If nums[mid] &lt; nums[mid + 1], you are on a rising slope: a peak must exist to the right.</>,
+          <>The array is not sorted, but binary search still works. Treat the space outside the array as −∞ (smaller than any value).</>,
+          <>If nums[mid] &lt; nums[mid + 1], you are on a rising slope. A peak must exist to the right.</>,
         ]}
         approaches={[
           {
             name: "Walk uphill with binary search",
-            idea: <p>Go towards the larger neighbour; a rising slope must end in a peak.</p>,
+            idea: <p>Go towards the larger neighbour. A rising slope must end in a peak.</p>,
             code: `function findPeakElement(nums) {
   let lo = 0, hi = nums.length - 1;
   while (lo < hi) {
@@ -269,12 +269,12 @@ console.log(findMin([11, 13, 15, 17]));      // 11`,
 
 console.log(findPeakElement([1, 2, 3, 1]));          // 2
 console.log(findPeakElement([1, 2, 1, 3, 5, 6, 4])); // 5`,
-            explain: <p>O(log n). Binary search only needs a rule that tells you which half certainly contains <em>an</em> answer — not a sorted array.</p>,
+            explain: <p>O(log n) time. Binary search does not need a sorted array. It only needs a rule that tells you which half certainly contains <em>an</em> answer.</p>,
           },
         ]}
-        compare={<p>A favourite question because it breaks the idea that binary search needs sorted data. (LeetCode 162.)</p>}
+        compare={<p>Interviewers like this question because it shows that binary search does not always need sorted data. (LeetCode 162.)</p>}
       >
-        <p>A peak is a value strictly larger than its neighbours (outside the array counts as −∞). Neighbouring values are never equal. Return the index of any peak in O(log n).</p>
+        <p>A peak is a value strictly larger than its neighbours (the space outside the array counts as −∞). Neighbouring values are never equal. Return the index of any peak, in O(log n) time.</p>
       </Problem>
     </>
   );

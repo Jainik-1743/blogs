@@ -25,7 +25,7 @@ const outline = [
   { id: "trace", label: "Traced: finding Koko's speed" },
   { id: "capacity", label: "Minimum capacity and the greedy check" },
   { id: "maxmin", label: "Maximising the minimum" },
-  { id: "practice", label: "Practice questions (7)" },
+  { id: "practice", label: "Practice questions (6)" },
   { id: "recall", label: "Make it stick" },
   { id: "next", label: "Part 6 complete — what's next" },
 ];
@@ -60,26 +60,26 @@ function kokoTrace() {
   const piles = [3, 6, 7, 11], h = 8;
   const hours = (k: number) => piles.reduce((s, p) => s + Math.ceil(p / k), 0);
   let lo = 1, hi = Math.max(...piles);
-  t.step(3, "start", "lo = 1, hi = 11", "The speed is at least 1, and 11 (the largest pile) always finishes in time: one pile per hour.", { piles, h, lo, hi });
+  t.step(3, "start", "lo = 1, hi = 11", "The speed is at least 1. Speed 11 (the largest pile) always finishes in time, because each pile takes one hour.", { piles, h, lo, hi });
   while (lo < hi) {
     const mid = lo + Math.floor((hi - lo) / 2);
     const hr = hours(mid);
-    t.step(5, "run", `try speed ${mid}: ${piles.map((p) => Math.ceil(p / mid)).join(" + ")} = ${hr} hours`, "Checking one guess is easy: add up the hours for each pile.", { piles, h, lo, hi, mid, hours: hr }, "mid");
+    t.step(5, "run", `try speed ${mid}: ${piles.map((p) => Math.ceil(p / mid)).join(" + ")} = ${hr} hours`, "Checking one guess is easy. Add up the hours for each pile.", { piles, h, lo, hi, mid, hours: hr }, "mid");
     if (hr <= h) {
       hi = mid;
-      t.step(6, "update", `${hr} <= 8 → hi = ${hi}`, `Speed ${mid} works, so every faster speed works too. The answer is ${mid} or slower.`, { piles, h, lo, hi, mid, hours: hr }, "hi");
+      t.step(6, "update", `${hr} <= 8 → hi = ${hi}`, `Speed ${mid} works, so every faster speed works too. The answer is ${mid} or a slower speed.`, { piles, h, lo, hi, mid, hours: hr }, "hi");
     } else {
       lo = mid + 1;
-      t.step(7, "update", `${hr} > 8 → lo = ${lo}`, `Speed ${mid} is too slow, and so is every slower speed. The answer is faster.`, { piles, h, lo, hi, mid, hours: hr }, "lo");
+      t.step(7, "update", `${hr} > 8 → lo = ${lo}`, `Speed ${mid} is too slow, and so is every slower speed. The answer is a faster speed.`, { piles, h, lo, hi, mid, hours: hr }, "lo");
     }
   }
   t.print(lo);
-  t.step(9, "print", "console.log(lo)", "Speed 4 is the slowest that finishes in 8 hours. Four checks instead of trying all 11 speeds.", { piles, h, lo, hi });
+  t.step(9, "print", "console.log(lo)", "Speed 4 is the slowest speed that finishes in 8 hours. We needed four checks instead of trying all 11 speeds.", { piles, h, lo, hi });
   return t.steps;
 }
 
 const capacityCode = `function shipWithinDays(weights, days) {
-  // Greedy check: load packages in order; start a new day when the next one does not fit.
+  // Greedy check: load packages in order. Start a new day when the next one does not fit.
   const daysNeeded = (cap) => {
     let d = 1, load = 0;
     for (const w of weights) {
@@ -113,7 +113,7 @@ function maxDistance(position, m) {
   // canPlace is true…true, false…false — find the LAST true
   let lo = 1, hi = pos[pos.length - 1] - pos[0];
   while (lo < hi) {
-    const mid = lo + Math.ceil((hi - lo) / 2);  // round UP, or lo = mid could loop forever
+    const mid = lo + Math.ceil((hi - lo) / 2);  // round UP, or lo = mid could make an endless loop
     if (canPlace(mid)) lo = mid;
     else hi = mid - 1;
   }
@@ -127,62 +127,64 @@ export default function DsaLessonTwentyNinePage() {
     <DsaLessonPage lesson={lesson} outline={outline}>
       <h2 id="concept">Searching for the answer itself</h2>
       <p>
-        Lesson 28 ended with a general idea: binary search finds the first point where a yes/no question switches from
-        false to true. So far the question was about array positions. In this lesson the question is about{" "}
-        <strong>candidate answers</strong>.
+        Lesson 28 ended with a general idea: binary search finds the first point where a yes/no question changes from
+        false to true. <strong>Binary search</strong> is a method that checks the middle of a range and throws away
+        half of the range each time. Until now the question was about array positions. In this lesson the question is
+        about <strong>candidate answers</strong> (possible answers that we want to test).
       </p>
       <p>
-        Example: &ldquo;What is the slowest eating speed that finishes all the bananas in 8 hours?&rdquo; Computing that speed
-        directly is hard. But <em>checking</em> a guess is easy: at speed 5, add up the hours. And if speed 5 works, speed 6
-        works too. So the question &ldquo;does speed k work?&rdquo; is false for small k and true for large k — exactly the
-        shape binary search needs.
+        Example: &ldquo;What is the slowest eating speed that finishes all the bananas in 8 hours?&rdquo; Working out that
+        speed directly is hard. But <em>checking</em> a guess is easy. At speed 5, add up the hours. And if speed 5
+        works, speed 6 works too. So the question &ldquo;does speed k work?&rdquo; is false for small k and true for
+        large k. This is exactly the shape that binary search needs.
       </p>
 
       <h2 id="recognise">Recognising the pattern</h2>
-      <p>Look for these signs in the problem statement:</p>
+      <p>Look for these three signs in the problem:</p>
       <ul>
         <li>It asks for a <strong>minimum</strong> or <strong>maximum</strong> value: the smallest speed, the least capacity, the largest distance.</li>
-        <li>For a given guess, you can <strong>check</strong> whether it works in about O(n) — often with a simple greedy pass.</li>
-        <li>The answer is <strong>monotonic</strong>: if x works, every larger x works (or every smaller one).</li>
+        <li>For a given guess, you can <strong>check</strong> whether it works in about O(n) time. Often this is a simple <strong>greedy</strong> pass. A greedy method always takes the best choice it can see right now, and never goes back.</li>
+        <li>The answer is <strong>monotonic</strong>. This means the results only change in one direction: if x works, every larger x works too (or every smaller x works).</li>
       </ul>
 
       <h2 id="recipe">The four-step recipe</h2>
       <Callout kind="ok" label="Binary search on the answer">
         <ol className="mb-0 mt-1 list-decimal pl-5">
-          <li><strong>Range:</strong> the smallest and largest possible answers, <code>lo</code> and <code>hi</code>.</li>
-          <li><strong>Check:</strong> write <code>works(x)</code>, usually a single O(n) pass.</li>
-          <li><strong>Direction:</strong> confirm that works(x) is false…false, true…true (or the reverse).</li>
-          <li><strong>Search:</strong> find the first true (for a minimum) or the last true (for a maximum).</li>
+          <li><strong>Range:</strong> find the smallest and largest possible answers. These are <code>lo</code> and <code>hi</code>.</li>
+          <li><strong>Check:</strong> write a function <code>works(x)</code> that tells you if guess x is good. It is usually a single O(n) pass.</li>
+          <li><strong>Direction:</strong> confirm that works(x) gives false…false, true…true (or the reverse, true…true, false…false).</li>
+          <li><strong>Search:</strong> use binary search to find the first true (for a minimum) or the last true (for a maximum).</li>
         </ol>
       </Callout>
       <p>
-        The cost is <strong>O(n · log(range))</strong>: log(range) guesses, each checked in O(n). Even a range of 10<sup>9</sup>{" "}
-        needs only about 30 guesses.
+        The time is <strong>O(n · log(range))</strong>. There are about log(range) guesses, and each guess is checked in
+        O(n) time. Even a range of 10<sup>9</sup> needs only about 30 guesses.
       </p>
 
       <h2 id="sqrt">A first example: integer square root</h2>
       <p>
-        The integer square root of x is the largest r with r × r ≤ x. &ldquo;r × r &gt; x&rdquo; is false for small r and
-        true for large r. Find the first r where it is true; the answer is one less.
+        The integer square root of x is the largest whole number r with r × r ≤ x. For example, it is 2 for x = 8. The
+        test &ldquo;r × r &gt; x&rdquo; is false for small r and true for large r. Find the first r where it is true.
+        The answer is one less than that r.
       </p>
       <CodeBlock lang="js" code={sqrtCode} />
 
       <h2 id="speed">Minimum speed: Koko eating bananas</h2>
       <p>
-        Koko has piles of bananas and h hours. At speed k she eats up to k bananas from one pile per hour (a pile of 7 at
-        speed 3 takes 3 hours). Find the slowest speed that finishes in time.
+        Koko has piles of bananas and h hours. At speed k she eats up to k bananas per hour, from one pile only. A pile
+        of 7 at speed 3 takes 3 hours (3 + 3 + 1 bananas). Find the slowest speed that finishes in time.
       </p>
       <ul>
-        <li><strong>Range:</strong> 1 to the largest pile (at that speed, every pile takes exactly 1 hour).</li>
-        <li><strong>Check:</strong> total hours = sum of <code>Math.ceil(pile / k)</code>; it works if that is ≤ h.</li>
-        <li><strong>Direction:</strong> faster never takes longer, so it is false…false, true…true. Find the first true.</li>
+        <li><strong>Range:</strong> 1 to the largest pile. At that speed, every pile takes exactly 1 hour.</li>
+        <li><strong>Check:</strong> total hours = the sum of <code>Math.ceil(pile / k)</code> (<code>Math.ceil</code> rounds up). The speed works if the total is ≤ h.</li>
+        <li><strong>Direction:</strong> a faster speed never takes longer, so the answers are false…false, true…true. Find the first true.</li>
       </ul>
 
       <h2 id="trace">Traced: finding Koko&apos;s speed</h2>
       <CodeTrace
         code={kokoCode}
         steps={kokoTrace()}
-        caption="Each guess is checked with one pass over the piles; the result rules out half of the remaining speeds."
+        caption="Each guess is checked with one pass over the piles. The result rules out half of the remaining speeds."
       />
       <DryRun
         title="hours needed at each speed for piles [3, 6, 7, 11]"
@@ -191,27 +193,29 @@ export default function DsaLessonTwentyNinePage() {
           ["Hours", "27", "15", "10", "8", "8", "6", "…", "4"],
           ["≤ 8?", "no", "no", "no", "yes", "yes", "yes", "…", "yes"],
         ]}
-        note="The first “yes” is at speed 4. Binary search finds it without computing every column."
+        note="The first “yes” is at speed 4. Binary search finds it without working out every column."
       />
 
       <h2 id="capacity">Minimum capacity and the greedy check</h2>
       <p>
-        Packages must be shipped in order within a number of days. What is the smallest ship capacity that works? The check
-        is <strong>greedy</strong>: load packages in order, and start a new day only when the next one does not fit. Loading
-        as much as possible each day can never need more days than any other way of loading.
+        Packages must be shipped in the given order within a number of days. What is the smallest ship capacity (the
+        most weight the ship can carry in one day) that works? The check is <strong>greedy</strong>: load packages in
+        order, and start a new day only when the next package does not fit. Loading as much as possible each day never
+        needs more days than any other way of loading.
       </p>
       <CodeBlock lang="js" code={capacityCode} />
       <p>
-        The lower end of the range matters: the capacity must be at least the heaviest package, or that package could never
-        be shipped. &ldquo;Split an array into k parts minimising the largest sum&rdquo; is the same problem in different words
-        (Practice question 6).
+        The lower end of the range matters. The capacity must be at least the weight of the heaviest package, or that
+        package could never be shipped. &ldquo;Split an array into k parts so that the largest sum is as small as
+        possible&rdquo; is the same problem in different words (Practice question 5).
       </p>
 
       <h2 id="maxmin">Maximising the minimum</h2>
       <p>
-        Some problems ask for the <em>largest</em> value that works — for example, the largest possible smallest gap when
-        placing balls in baskets. Now works(x) is true…true, false…false, and you want the <strong>last</strong> true. Two
-        changes: move <code>lo = mid</code> when it works, and round mid <em>up</em> so the range always shrinks.
+        Some problems ask for the <em>largest</em> value that works. An example is the largest possible smallest gap
+        when you place balls in baskets. Now works(x) gives true…true, false…false, and you want the{" "}
+        <strong>last</strong> true. Make two changes. First, set <code>lo = mid</code> when mid works. Second, round mid{" "}
+        <em>up</em>, so that the range always gets smaller.
       </p>
       <CodeBlock lang="js" code={maxMinCode} />
       <DryRun
@@ -224,7 +228,7 @@ export default function DsaLessonTwentyNinePage() {
       />
 
       <h2 id="practice">Practice questions</h2>
-      <p>For every question, write the four recipe steps as comments before any code.</p>
+      <p>For every question, write the four recipe steps as comments before you write any code.</p>
 
       <Questions />
 
@@ -240,11 +244,11 @@ export default function DsaLessonTwentyNinePage() {
 
       <h2 id="next">Part 6 complete — what&apos;s next</h2>
       <p>
-        You can now binary search arrays, boundaries, rotated arrays and answers. Whenever you see &ldquo;sorted&rdquo;,
-        &ldquo;minimum that works&rdquo; or O(log n) in a problem, think of this part.
+        You can now use binary search on arrays, boundaries, rotated arrays and answers. When a problem says
+        &ldquo;sorted&rdquo;, &ldquo;minimum that works&rdquo; or O(log n), think of this part.
       </p>
       <p>
-        <strong>Part 7 — Strings</strong> applies the techniques you know — two pointers, windows and frequency maps — to
+        <strong>Part 7 — Strings</strong> uses the techniques you know (two pointers, windows and frequency maps) on
         text: palindromes, prefixes, Roman numerals, compression and substring windows.
       </p>
     </DsaLessonPage>

@@ -17,7 +17,7 @@ export default function Questions() {
         approaches={[
           {
             name: "Counts, then a Set of counts",
-            idea: <p>If no two counts are equal, the Set of counts is as big as the Map.</p>,
+            idea: <p>A Set keeps only unique values. If no two counts are equal, the Set of counts has the same size as the Map.</p>,
             code: `function uniqueOccurrences(arr) {
   const freq = new Map();
   for (const x of arr) freq.set(x, (freq.get(x) ?? 0) + 1);
@@ -26,7 +26,7 @@ export default function Questions() {
 
 console.log(uniqueOccurrences([1, 2, 2, 1, 1, 3])); // true
 console.log(uniqueOccurrences([1, 2]));             // false`,
-            explain: <p>O(n). Comparing sizes is the usual way to ask &ldquo;are they all different?&rdquo;.</p>,
+            explain: <p>O(n) time. Comparing the two sizes is a common way to ask &ldquo;are they all different?&rdquo;.</p>,
           },
         ]}
         compare={<p>(LeetCode 1207.)</p>}
@@ -77,10 +77,10 @@ console.log(groupAnagrams(["eat", "tea", "tan", "ate", "nat", "bat"]));
 }
 
 console.log(groupAnagrams([""])); // [ [ '' ] ]`,
-            explain: <p>O(n · L) — slightly better for long words. Sorted keys are fine in most interviews.</p>,
+            explain: <p>O(n · L) time. This is slightly better for long words. Sorted keys are fine in most interviews.</p>,
           },
         ]}
-        compare={<p>A top-10 interview question. Explain the key choice and its cost. (LeetCode 49.)</p>}
+        compare={<p>This is one of the most common interview questions. Explain your key choice and its cost. (LeetCode 49.)</p>}
       >
         <p>Group the words that are anagrams of each other.</p>
       </Problem>
@@ -93,7 +93,7 @@ console.log(groupAnagrams([""])); // [ [ '' ] ]`,
           { input: "nums = [1, 1, 1, 2, 2, 3], k = 2", output: "[1, 2]", why: "1 appears 3 times, 2 twice." },
           { input: "nums = [1], k = 1", output: "[1]", why: "One value." },
         ]}
-        hints={[<>Count, then order by count. Can you avoid an O(n log n) sort?</>, <>A count is between 1 and n: use counts as bucket indices.</>]}
+        hints={[<>Count first, then order by count. Can you avoid an O(n log n) sort?</>, <>A count is between 1 and n. Use the counts as bucket indices.</>]}
         approaches={[
           {
             name: "Count, sort entries",
@@ -105,7 +105,7 @@ console.log(groupAnagrams([""])); // [ [ '' ] ]`,
 }
 
 console.log(topKFrequent([1, 1, 1, 2, 2, 3], 2)); // [ 1, 2 ]`,
-            explain: <p>O(n log n) in the worst case (all values distinct).</p>,
+            explain: <p>O(n log n) time in the worst case (when all values are different).</p>,
           },
           {
             name: "Bucket by count",
@@ -122,10 +122,10 @@ console.log(topKFrequent([1, 1, 1, 2, 2, 3], 2)); // [ 1, 2 ]`,
 
 console.log(topKFrequent([1, 1, 1, 2, 2, 3], 2)); // [ 1, 2 ]
 console.log(topKFrequent([1], 1));                // [ 1 ]`,
-            explain: <p>O(n) time and space.</p>,
+            explain: <p>O(n) time and O(n) space.</p>,
           },
         ]}
-        compare={<p>The problem asks for better than O(n log n): buckets (O(n)) or a heap (O(n log k), Lesson 46). (LeetCode 347.)</p>}
+        compare={<p>The problem asks for better than O(n log n). Use buckets (O(n)) or a heap (O(n log k), Lesson 46). (LeetCode 347.)</p>}
       >
         <p>Return the <code>k</code> most frequent values, in any order.</p>
       </Problem>
@@ -138,7 +138,7 @@ console.log(topKFrequent([1], 1));                // [ 1 ]`,
           { input: "[3, 2, 3]", output: "3", why: "3 appears twice out of three." },
           { input: "[2, 2, 1, 1, 1, 2, 2]", output: "2", why: "Four out of seven." },
         ]}
-        hints={[<>A Map works. For O(1) space, use voting.</>]}
+        hints={[<>A Map works. For O(1) extra space, use voting.</>]}
         approaches={[
           {
             name: "Frequency map",
@@ -156,14 +156,14 @@ console.log(majorityElement([3, 2, 3])); // 3`,
           },
           {
             name: "Sort, take the middle",
-            idea: <p>A value covering more than half of the array must cover the middle index.</p>,
+            idea: <p>A value that fills more than half of the sorted array must be at the middle index.</p>,
             code: `function majorityElement(nums) {
   const a = [...nums].sort((x, y) => x - y);
   return a[Math.floor(a.length / 2)];
 }
 
 console.log(majorityElement([2, 2, 1, 1, 1, 2, 2])); // 2`,
-            explain: <p>O(n log n), very short.</p>,
+            explain: <p>O(n log n) time. The code is very short.</p>,
           },
           {
             name: "Boyer–Moore voting",
@@ -182,7 +182,7 @@ console.log(majorityElement([2, 2, 1, 1, 1, 2, 2])); // 2`,
             explain: <p>O(n) time, O(1) space.</p>,
           },
         ]}
-        compare={<p>Show all three in order of improvement — that is what a strong answer sounds like. (LeetCode 169.)</p>}
+        compare={<p>Show all three, from simplest to best. A strong answer sounds like this. (LeetCode 169.)</p>}
       >
         <p>Return the value that appears more than n / 2 times. It always exists.</p>
       </Problem>
@@ -197,13 +197,13 @@ console.log(majorityElement([2, 2, 1, 1, 1, 2, 2])); // 2`,
           { input: "[1, 1, 1, 3, 3, 2, 2, 2]", output: "[1, 2]", why: "1 and 2 appear 3 times each; 3 > 8/3 ≈ 2.67." },
         ]}
         hints={[
-          <>At most <em>two</em> values can appear more than n/3 times.</>,
-          <>Run voting with two candidates. A value that matches neither cancels one vote from each. Then verify both with a second pass.</>,
+          <>At most <em>two</em> values can appear more than n/3 times (three such values would need more than n items in total).</>,
+          <>Run voting with two candidates. A value that matches neither candidate cancels one vote from each. Then check both candidates with a second pass.</>,
         ]}
         approaches={[
           {
             name: "Frequency map",
-            idea: <p>Count and filter.</p>,
+            idea: <p>Count the values, then keep those with a high count.</p>,
             code: `function majorityElement(nums) {
   const freq = new Map();
   for (const x of nums) freq.set(x, (freq.get(x) ?? 0) + 1);
@@ -215,7 +215,7 @@ console.log(majorityElement([1, 1, 1, 3, 3, 2, 2, 2])); // [ 1, 2 ]`,
           },
           {
             name: "Voting with two candidates",
-            idea: <p>Extended Boyer–Moore, followed by a check, because a candidate may not really pass n/3.</p>,
+            idea: <p>This is Boyer–Moore voting with two candidates. A check follows, because a candidate may not really appear more than n/3 times.</p>,
             code: `function majorityElement(nums) {
   let c1 = null, c2 = null, v1 = 0, v2 = 0;
   for (const x of nums) {
@@ -236,7 +236,7 @@ console.log(majorityElement([1, 1, 1, 3, 3, 2, 2, 2])); // [ 1, 2 ]`,
             explain: <p>O(n) time, O(1) extra space. The verification pass is required here, unlike Question 4.</p>,
           },
         ]}
-        compare={<p>A good follow-up to show you understand <em>why</em> voting works, not just the code. (LeetCode 229.)</p>}
+        compare={<p>This is a good follow-up. It shows that you understand <em>why</em> voting works, not just the code. (LeetCode 229.)</p>}
       >
         <p>Return every value that appears more than ⌊n / 3⌋ times.</p>
       </Problem>
@@ -254,7 +254,7 @@ console.log(majorityElement([1, 1, 1, 3, 3, 2, 2, 2])); // [ 1, 2 ]`,
         approaches={[
           {
             name: "Two Maps",
-            idea: <p>letter → word and word → letter must both stay consistent.</p>,
+            idea: <p>The map from letter to word and the map from word to letter must both stay consistent.</p>,
             code: `function wordPattern(pattern, s) {
   const words = s.split(" ");
   if (words.length !== pattern.length) return false;
@@ -271,7 +271,7 @@ console.log(majorityElement([1, 1, 1, 3, 3, 2, 2, 2])); // [ 1, 2 ]`,
 console.log(wordPattern("abba", "dog cat cat dog")); // true
 console.log(wordPattern("abba", "dog dog dog dog")); // false
 console.log(wordPattern("aaa", "dog dog"));          // false`,
-            explain: <p>O(n). The length check prevents reading past the end of either list.</p>,
+            explain: <p>O(n) time. The length check stops the loop from reading past the end of either list.</p>,
           },
         ]}
         compare={<p>(LeetCode 290.)</p>}
@@ -287,7 +287,7 @@ console.log(wordPattern("aaa", "dog dog"));          // false`,
           { input: `s = "paper", t = "title"`, output: "true", why: "p→t, a→i, e→l, r→e." },
           { input: `s = "badc", t = "baba"`, output: "false", why: "b→b and d→b: two letters cannot map to the same one." },
         ]}
-        hints={[<>Check the mapping in both directions.</>, <>Alternative: compare the position where each character first appeared.</>]}
+        hints={[<>Check the mapping in both directions (s to t, and t to s).</>, <>Another way: compare the position where each character first appeared.</>]}
         approaches={[
           {
             name: "Two Maps",
@@ -304,7 +304,7 @@ console.log(wordPattern("aaa", "dog dog"));          // false`,
 
 console.log(isIsomorphic("paper", "title")); // true
 console.log(isIsomorphic("badc", "baba"));   // false`,
-            explain: <p>O(n). <code>?? t[i]</code> means &ldquo;if not mapped yet, anything is fine&rdquo;.</p>,
+            explain: <p>O(n) time. <code>?? t[i]</code> means &ldquo;if this letter has no mapping yet, any letter is fine&rdquo;.</p>,
           },
           {
             name: "First-occurrence pattern",
@@ -321,14 +321,14 @@ console.log(isIsomorphic("badc", "baba"));   // false`,
                 title="patterns"
                 cols={["String", "First-occurrence pattern"]}
                 rows={[["paper", "0,1,0,3,4"], ["title", "0,1,0,3,4"], ["badc", "0,1,2,3"], ["baba", "0,1,0,1"]]}
-                note="indexOf is a hidden loop, so this is O(n²) for long strings — but it is a nice key-design idea: the pattern is a key that is equal exactly for isomorphic strings."
+                note="indexOf is a hidden loop, so this is O(n²) for long strings. But it is a nice key idea: the pattern is a key that is equal exactly for isomorphic strings."
               />
             ),
           },
         ]}
-        compare={<p>Use the two Maps in interviews; remember the pattern idea for grouping questions such as &ldquo;group isomorphic words&rdquo;. (LeetCode 205.)</p>}
+        compare={<p>Use the two Maps in interviews. Remember the pattern idea for grouping questions such as &ldquo;group isomorphic words&rdquo;. (LeetCode 205.)</p>}
       >
-        <p>Return whether <code>s</code> can be turned into <code>t</code> by consistently replacing characters (no two characters may map to the same one).</p>
+        <p>Return whether <code>s</code> can be turned into <code>t</code> by always replacing a character with the same character. No two different characters may map to the same character.</p>
       </Problem>
     </>
   );

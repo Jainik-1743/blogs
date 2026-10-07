@@ -31,10 +31,10 @@ export default function Questions() {
 console.log(twoSum([2, 7, 11, 15], 9)); // [ 0, 1 ]
 console.log(twoSum([3, 2, 4], 6));      // [ 1, 2 ]
 console.log(twoSum([3, 3], 6));         // [ 0, 1 ]`,
-            explain: <p>O(n) time, O(n) space. Mention the O(n²) brute force first, then improve.</p>,
+            explain: <p>O(n) time, O(n) space. In an interview, say the O(n²) brute force first, then improve it.</p>,
           },
         ]}
-        compare={<p>The pattern behind this question appears in dozens of others — learn the shape, not just the answer. (LeetCode 1.)</p>}
+        compare={<p>The same pattern appears in many other questions. Learn the pattern, not just this answer. (LeetCode 1.)</p>}
       >
         <p>Return the indices of the two values that add up to <code>target</code>. Exactly one answer exists.</p>
       </Problem>
@@ -51,7 +51,7 @@ console.log(twoSum([3, 3], 6));         // [ 0, 1 ]`,
         approaches={[
           {
             name: "Map of latest index",
-            idea: <p>On a repeat, compare the distance to the latest copy; then update the index.</p>,
+            idea: <p>When a value repeats, compare the distance to its latest copy. Then update the stored index.</p>,
             code: `function containsNearbyDuplicate(nums, k) {
   const last = new Map();
   for (let i = 0; i < nums.length; i++) {
@@ -63,10 +63,10 @@ console.log(twoSum([3, 3], 6));         // [ 0, 1 ]`,
 
 console.log(containsNearbyDuplicate([1, 0, 1, 1], 1));       // true
 console.log(containsNearbyDuplicate([1, 2, 3, 1, 2, 3], 2)); // false`,
-            explain: <p>O(n) time, O(n) space. Using <code>-Infinity</code> for &ldquo;never seen&rdquo; makes the distance infinitely large, so no separate <code>has</code> check is needed.</p>,
+            explain: <p>O(n) time, O(n) space. For a value never seen, we use <code>-Infinity</code>. This makes the distance infinitely large, so the check fails and we do not need a separate <code>has</code> check.</p>,
           },
         ]}
-        compare={<p>Lesson 22 solved this with a Set window of size k (O(k) space); this version is simpler to write. (LeetCode 219.)</p>}
+        compare={<p>Lesson 22 solved this with a Set window of size k (O(k) space). This version is simpler to write. (LeetCode 219.)</p>}
       >
         <p>Return <code>true</code> if two equal values are at most <code>k</code> positions apart.</p>
       </Problem>
@@ -84,7 +84,7 @@ console.log(containsNearbyDuplicate([1, 2, 3, 1, 2, 3], 2)); // false`,
         approaches={[
           {
             name: "Sort, then scan",
-            idea: <p>Sort; walk and extend the run when the next value is exactly one more (ignore duplicates).</p>,
+            idea: <p>Sort the array. Then walk through it and make the run longer when the next value is exactly one more. Skip duplicates.</p>,
             code: `function longestConsecutive(nums) {
   if (nums.length === 0) return 0;
   const a = [...nums].sort((x, y) => x - y);
@@ -118,10 +118,10 @@ console.log(longestConsecutive([100, 4, 200, 1, 3, 2])); // 4`,
 console.log(longestConsecutive([100, 4, 200, 1, 3, 2]));         // 4
 console.log(longestConsecutive([0, 3, 7, 2, 5, 8, 4, 6, 0, 1])); // 9
 console.log(longestConsecutive([]));                             // 0`,
-            explain: <p>O(n) time, O(n) space. Looping over the Set rather than the array also skips duplicate values.</p>,
+            explain: <p>O(n) time, O(n) space. Looping over the Set instead of the array also skips duplicate values.</p>,
           },
         ]}
-        compare={<p>Explain why the inner while loop does not make it O(n²) — that explanation is what the interviewer is listening for. (LeetCode 128.)</p>}
+        compare={<p>Explain why the inner while loop does not make it O(n²). The interviewer wants to hear this explanation. (LeetCode 128.)</p>}
       >
         <p>Return the length of the longest run of consecutive integers that can be formed from the values of <code>nums</code>, in O(n) time.</p>
       </Problem>
@@ -132,13 +132,13 @@ console.log(longestConsecutive([]));                             // 0`,
         level="Medium"
         examples={[
           { input: "nums = [1, 2, 3, 4], k = 5", output: "2", why: "Remove (1, 4) and (2, 3)." },
-          { input: "nums = [3, 1, 3, 4, 3], k = 6", output: "1", why: "Only one (3, 3) pair can be formed; the third 3 has no partner left." },
+          { input: "nums = [3, 1, 3, 4, 3], k = 6", output: "1", why: "Only one (3, 3) pair can be formed. The third 3 has no partner left." },
         ]}
-        hints={[<>Like Two Sum, but each value can be used once. Store counts of unpaired values.</>]}
+        hints={[<>This is like Two Sum, but each value can be used only once. Store the counts of values that are still unpaired.</>]}
         approaches={[
           {
             name: "Map of unpaired counts",
-            idea: <p>If an unpaired partner exists, use it (decrease its count); otherwise store this value as unpaired.</p>,
+            idea: <p>If an unpaired partner exists, use it and decrease its count. Otherwise, store this value as unpaired.</p>,
             code: `function maxOperations(nums, k) {
   const waiting = new Map();
   let pairs = 0;
@@ -172,7 +172,7 @@ console.log(maxOperations([3, 1, 3, 4, 3], 6)); // 1`,
           },
           {
             name: "Sort + two pointers",
-            idea: <p>Sorted pair sum, but count every match and move both pointers.</p>,
+            idea: <p>Use the sorted pair-sum method, but count every match and move both pointers.</p>,
             code: `function maxOperations(nums, k) {
   const a = [...nums].sort((x, y) => x - y);
   let l = 0, r = a.length - 1, pairs = 0;
@@ -189,7 +189,7 @@ console.log(maxOperations([1, 2, 3, 4], 5)); // 2`,
             explain: <p>O(n log n) time, O(1) extra space after sorting.</p>,
           },
         ]}
-        compare={<p>Map: O(n) time, O(n) space. Sort: O(n log n) time, less memory. Mention both. (LeetCode 1679.)</p>}
+        compare={<p>Map: O(n) time, O(n) space. Sort: O(n log n) time, less memory. Mention both in an interview. (LeetCode 1679.)</p>}
       >
         <p>In one operation you remove two values that add up to <code>k</code>. Return the maximum number of operations.</p>
       </Problem>
@@ -204,13 +204,13 @@ console.log(maxOperations([1, 2, 3, 4], 5)); // 2`,
           { input: "nums = [5, 0, 0], k = 3", output: "true", why: "[0, 0] sums to 0, and 0 is a multiple of every k." },
         ]}
         hints={[
-          <>Two prefix sums with the same remainder mod k enclose a subarray whose sum is a multiple of k.</>,
-          <>The subarray must have length at least 2: store the <em>first</em> index of each remainder.</>,
+          <>The remainder is what is left after dividing (the <code>%</code> operator). If two prefix sums have the same remainder when divided by k, the subarray between them has a sum that is a multiple of k.</>,
+          <>The subarray must have at least 2 items. So store the <em>first</em> index of each remainder.</>,
         ]}
         approaches={[
           {
             name: "Remainder → first index",
-            idea: <p>Walk with a running remainder. If the same remainder appeared at least 2 positions earlier, the part in between works.</p>,
+            idea: <p>Walk through the array with a running remainder. If the same remainder appeared at least 2 positions earlier, the part in between is a valid answer.</p>,
             code: `function checkSubarraySum(nums, k) {
   const first = new Map([[0, -1]]);       // remainder 0 "seen" before index 0
   let sum = 0;
@@ -228,10 +228,10 @@ console.log(maxOperations([1, 2, 3, 4], 5)); // 2`,
 console.log(checkSubarraySum([23, 2, 4, 6, 7], 6));  // true
 console.log(checkSubarraySum([23, 2, 6, 4, 7], 13)); // false
 console.log(checkSubarraySum([5, 0, 0], 3));         // true`,
-            explain: <p>O(n) time, O(min(n, k)) space. Keeping only the first index makes the length check as generous as possible. Values here are non-negative, so no remainder fix is needed.</p>,
+            explain: <p>O(n) time, O(min(n, k)) space. Keeping only the first index gives the longest possible subarray, so the length check is as easy to pass as possible. The values here are not negative, so we do not need to fix negative remainders.</p>,
           },
         ]}
-        compare={<p>Three earlier ideas meet here: prefix sums (Lesson 20), remainders (Lesson 13) and &ldquo;store the first index&rdquo; (this lesson). (LeetCode 523.)</p>}
+        compare={<p>Three ideas meet here: prefix sums (Lesson 20), remainders (Lesson 13) and &ldquo;store the first index&rdquo; (this lesson). (LeetCode 523.)</p>}
       >
         <p>Return <code>true</code> if some subarray of length at least 2 has a sum that is a multiple of <code>k</code>.</p>
       </Problem>
@@ -244,7 +244,7 @@ console.log(checkSubarraySum([5, 0, 0], 3));         // true`,
           { input: "nums = [1, 1, 2, 1, 1], k = 3", output: "2", why: "[1, 1, 2, 1] and [1, 2, 1, 1]." },
           { input: "nums = [2, 4, 6], k = 1", output: "0", why: "No odd numbers." },
         ]}
-        hints={[<>Turn each value into 1 (odd) or 0 (even). Now it is &ldquo;subarray sum equals k&rdquo;.</>]}
+        hints={[<>Turn each value into 1 (if odd) or 0 (if even). Now the question is &ldquo;how many subarrays have a sum equal to k?&rdquo;.</>]}
         approaches={[
           {
             name: "Prefix count of odds + Map",
@@ -262,10 +262,10 @@ console.log(checkSubarraySum([5, 0, 0], 3));         // true`,
 
 console.log(numberOfSubarrays([1, 1, 2, 1, 1], 3)); // 2
 console.log(numberOfSubarrays([2, 4, 6], 1));       // 0`,
-            explain: <p>O(n). Lesson 23&apos;s &ldquo;at most k − at most (k − 1)&rdquo; window also works, since all counts are non-negative.</p>,
+            explain: <p>O(n) time. Lesson 23&apos;s &ldquo;at most k minus at most (k − 1)&rdquo; window also works, because the values we count are never negative.</p>,
           },
         ]}
-        compare={<p>Reducing a new problem to one you already know (here, subarray sum = k) is the main skill this part teaches. (LeetCode 1248.)</p>}
+        compare={<p>The main skill this part teaches is to change a new problem into one you already know (here, subarray sum = k). (LeetCode 1248.)</p>}
       >
         <p>Return the number of subarrays that contain exactly <code>k</code> odd numbers.</p>
       </Problem>
