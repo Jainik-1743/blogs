@@ -533,7 +533,7 @@ console.log(minimumSemesters(4, [[1, 2], [2, 3], [1, 4]]));         // 3`,
 console.log(minimumSemesters(3, [[1, 3], [2, 3]]));                 // 2
 console.log(minimumSemesters(3, [[1, 2], [2, 3], [3, 1]]));         // -1
 console.log(minimumSemesters(4, [[1, 2], [2, 3], [1, 4]]));         // 3`,
-            explain: <p>Memoisation (saving each answer so you never work it out twice) means each course is worked out only once. The time is O(n + E). This is the idea of the longest path in a DAG. It only works because the graph has no cycles.</p>,
+            explain: <p>Memoization is a technique that saves (remembers) the result of a call, so the same call is never worked out twice. Here it means each course is worked out only once. The time is O(n + E). This is the idea of the longest path in a DAG. It only works because the graph has no cycles.</p>,
           },
         ]}
         compare={<p>Kahn level by level is the cleaner choice, because the number of rounds is the answer. This is a premium (paid) problem on LeetCode (1136, &quot;Parallel Courses&quot;). The statement is copied here.</p>}

@@ -45,7 +45,7 @@ const queueCode = `class Queue {
   dequeue() {
     if (this.head >= this.items.length) return undefined;
     const x = this.items[this.head];
-    this.items[this.head] = undefined;                        // let the value be garbage collected
+    this.items[this.head] = undefined;                        // drop the old value so its memory can be freed
     this.head++;
     if (this.head > 1000 && this.head * 2 > this.items.length) {   // compact now and then so the array does not grow forever
       this.items = this.items.slice(this.head);
@@ -167,7 +167,7 @@ export default function DsaLessonThirtyNinePage() {
       <h2 id="concept">First in, first out</h2>
       <p>
         A <strong>queue</strong> is like a line at a ticket counter. People join at the back and are served from the front. So
-        whoever arrived first leaves first. This rule is <strong>FIFO</strong>: first in, first out. It is the opposite of a stack.
+        whoever arrived first leaves first. This rule is <strong>FIFO</strong>: first in, first out. In code, a queue is a collection of values where you add at one end (the back) and remove at the other end (the front). It is the opposite of a stack (a stack uses one end only).
         The operations are:
       </p>
       <ul>
@@ -176,7 +176,7 @@ export default function DsaLessonThirtyNinePage() {
         <li><strong>peek</strong> — look at the front.</li>
       </ul>
       <p>
-        Queues fit anything where the order of arrival matters. Examples are print jobs and messages waiting for a worker. Later in the course,
+        Queues fit anything where the order of arrival matters. Examples are print jobs and messages waiting for a worker (a program that handles them one by one). Later in the course,
         you will also use a queue for breadth-first search (visiting a tree or graph level by level).
       </p>
       <CodeBlock lang="js" code={arrayQueueCode} />
@@ -185,7 +185,7 @@ export default function DsaLessonThirtyNinePage() {
       <p>
         Using <code>push</code> with <code>shift</code> works, and it is fine for small data. But <code>shift()</code> removes the{" "}
         <em>first</em> item. By the rules of the language, every other item then has to move one place to the left. That makes each
-        dequeue <strong>O(n)</strong>, so the time grows with the size of the array. Engines such as V8 (the part of Chrome and Node.js that runs JavaScript) have tricks that make <code>shift</code> fast for arrays up to a certain size. But those tricks can change, and they stop helping on large arrays. In an interview, you can say &quot;shift is O(n), so I
+        dequeue <strong>O(n)</strong>, so the time grows with the size of the array. (O(n) means the work grows in step with n, the number of items.) Engines such as V8 (the part of Chrome and Node.js that runs JavaScript) have tricks that make <code>shift</code> fast for arrays up to a certain size. But those tricks can change, and they stop helping on large arrays. In an interview, you can say &quot;shift is O(n), so I
         will track a head index instead&quot;. That shows you know how arrays really work.
       </p>
       <Callout kind="warn" label="Hidden O(n²) slowness">
@@ -238,7 +238,7 @@ export default function DsaLessonThirtyNinePage() {
 
       <h2 id="window">Sliding window maximum</h2>
       <p>
-        Find the biggest value in every window of size <em>k</em> (a window is k values side by side that slides along the array). Checking each window again from scratch costs O(n·k). The trick is to keep only the
+        The <strong>sliding window maximum</strong> problem asks for the biggest value in every window of size <em>k</em> (a window is k values side by side that slides along the array one place at a time). Checking each window again from scratch costs O(n·k). The trick is to keep only the
         <em> candidates</em> that could still become the biggest value. Keep them in a deque of indices:
       </p>
       <ol>

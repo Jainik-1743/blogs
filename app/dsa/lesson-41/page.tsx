@@ -337,7 +337,7 @@ export default function DsaLessonFortyOnePage() {
       </p>
       <p>
         The big new idea: a tree is <em>recursive</em>. Recursive means made of smaller copies of itself, like a set of
-        nesting dolls. Look at any node and everything below it, and you see a smaller tree. So you can answer a question about
+        nesting dolls. In code, <strong>recursion</strong> is a function that calls itself on a smaller part of the problem. Look at any node and everything below it, and you see a smaller tree. So you can answer a question about
         a whole tree by answering the same question for the left part and the right part, then joining the two answers.
         Almost every tree problem in this part of the series uses this one trick.
       </p>

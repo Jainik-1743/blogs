@@ -71,7 +71,7 @@ console.log(toArray(mergeTwoLists(fromArray([1, 2, 4]), fromArray([1, 3, 4]))));
         approaches={[
           {
             name: "Set of visited nodes",
-            idea: <p>The first node that you reach a second time is the start of the cycle.</p>,
+            idea: <p>A Set is a collection that keeps each item once and can check quickly whether an item is inside. Walk the list and add each node to the Set. The first node that you reach a second time is the start of the cycle.</p>,
             code: `function detectCycle(head) {
   const seen = new Set();
   for (let c = head; c !== null; c = c.next) {
@@ -88,7 +88,7 @@ console.log(detectCycle(fromArray([1]))); // null`,
             explain: <p>O(n) time and O(n) space.</p>,
           },
           {
-            name: "Floyd's two phases",
+            name: "Floyd's two phases (slow and fast pointers)",
             idea: (
               <ol>
                 <li>Move slow and fast until they meet. If they never meet, there is no cycle.</li>
@@ -188,7 +188,7 @@ console.log(toArray(removeNthFromEnd(fromArray([1]), 1)));             // []`,
         approaches={[
           {
             name: "Set of nodes from A",
-            idea: <p>Put every node of A in a Set. Then walk B and return the first node that is in the Set.</p>,
+            idea: <p>A Set is a collection that keeps each item once and can check quickly whether an item is inside. Put every node of A in a Set. Then walk B and return the first node that is in the Set.</p>,
             code: `function getIntersectionNode(a, b) {
   const seen = new Set();
   for (let c = a; c !== null; c = c.next) seen.add(c);
@@ -283,7 +283,7 @@ console.log(toArray(addTwoNumbers(fromArray([2, 4, 3]), fromArray([5, 6, 4]))));
         ]}
         compare={<p>Use the carry loop. (LeetCode 2.)</p>}
       >
-        <p>Each list is a number that is zero or more, with one digit per node and the ones digit first. Return their sum as a list in the same form.</p>
+        <p>Each list is a whole number that is not negative. It has one digit per node, with the ones digit first. Return their sum as a list in the same form.</p>
       </Problem>
 
       <Problem

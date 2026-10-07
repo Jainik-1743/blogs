@@ -283,7 +283,7 @@ function inorderTraversal(root) {
 
 console.log(inorderTraversal(buildTree([1, null, 2, 3])));  // [1, 3, 2]
 console.log(inorderTraversal(buildTree([1, 2, 3, 4, 5]))); // [4, 2, 5, 1, 3]`,
-            explain: <p>Still O(n) time (each edge, or link, is walked at most twice). But it uses only O(1) extra space, and the tree is back to normal at the end. While it runs, it changes the tree for a short time. So it is not safe if other code reads the tree at the same moment. Know that it exists. Interviews usually expect the stack version.</p>,
+            explain: <p>Still O(n) time (each edge, or link, is walked only a small fixed number of times). But it uses only O(1) extra space, and the tree is back to normal at the end. While it runs, it changes the tree for a short time. So it is not safe if other code reads the tree at the same moment. Know that it exists. Interviews usually expect the stack version.</p>,
           },
         ]}
         compare={<p>Start with recursion. Use the stack version if recursion is not allowed. Mention Morris if they ask for O(1) space. (LeetCode 94.)</p>}

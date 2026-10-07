@@ -63,7 +63,7 @@ function buildMatrix(n, edges) {
   const matrix = Array.from({ length: n }, () => new Array(n).fill(0));
   for (const [a, b] of edges) {
     matrix[a][b] = 1;
-    matrix[b][a] = 1;     // undirected: the matrix is symmetric
+    matrix[b][a] = 1;     // undirected: the matrix is symmetric (the same when flipped over its diagonal)
   }
   return matrix;
 }
@@ -214,13 +214,14 @@ export default function DsaLessonFortyNinePage() {
         prerequisites (courses you must finish first) are edges. All of these are graphs.
       </p>
       <p>
-        You already know two special graphs. A linked list is a graph where each vertex has one edge going out. A tree is a graph
-        with no loops. A general graph has no such limits: any vertex can connect to any other. That freedom is why graphs describe
+        You already know two special graphs. A linked list is a graph where each vertex has one edge going out. A tree is a connected graph
+        with no cycles (no way to walk in a loop). A general graph has no such limits: any vertex can connect to any other. That freedom is why graphs describe
         so many real problems. It is also why walking through them needs some care, because you can reach the same vertex twice.
       </p>
       <p>
         We usually write <strong>V</strong> for the number of vertices and <strong>E</strong> for the number of edges. We give
-        running times using these letters, for example O(V + E).
+        running times using these letters, for example O(V + E). (Big-O notation, such as O(V + E), is a way to say how the work
+        grows when the input grows.)
       </p>
 
       <h2 id="kinds">Directed, undirected, weighted</h2>
@@ -271,12 +272,14 @@ export default function DsaLessonFortyNinePage() {
         &quot;directly connected&quot;). In JavaScript this is a <code>Map</code> from each vertex to an array. If the vertices are
         numbered <code>0</code> to <code>n-1</code>, it can also be just an array of arrays. An <strong>adjacency matrix</strong> is
         a table with V rows and V columns. Cell <code>[a][b]</code> tells you whether the edge from a to b exists.
+        A <strong>Map</strong> is a JavaScript object that stores key-value pairs and finds a value by its key quickly. A{" "}
+        <strong>Set</strong> is a JavaScript collection that keeps each value only once and can check quickly whether a value is inside.
       </p>
       <DryRun
         title="adjacency list vs adjacency matrix"
         cols={["Operation", "Adjacency list", "Adjacency matrix"]}
         rows={tradeRows}
-        note="Most interview graphs are sparse, which means E is much smaller than V². So the adjacency list is the default choice. Use the matrix when V is small, or when the input already comes as a matrix."
+        note="A graph is sparse when it has few edges (E is much smaller than V²) and dense when it has many (E is close to V²). Most interview graphs are sparse. So the adjacency list is the default choice. Use the matrix when V is small, or when the input already comes as a matrix."
       />
       <CodeBlock lang="js" code={matrixCode} />
       <p>For a weighted graph, put the weight next to each neighbour:</p>
@@ -369,7 +372,8 @@ export default function DsaLessonFortyNinePage() {
       <h2 id="next">What&apos;s next</h2>
       <p>
         <strong>Lesson 50</strong> turns the walk you just saw into the two main graph algorithms. <strong>Breadth-first
-        search</strong> uses a queue (first in, first out). <strong>Depth-first search</strong> uses a stack or recursion. You will
+        search</strong> (BFS) visits the closest vertices first. It uses a queue, which is a list where the first item added is the first item removed.
+        <strong>Depth-first search</strong> uses a stack, which is a list where the last item added is the first item removed, or it uses recursion. You will
         use them on islands, flood fill, rotting oranges and cloning a graph.
       </p>
     </DsaLessonPage>

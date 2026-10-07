@@ -170,7 +170,8 @@ export default function DsaLessonThirtyEightPage() {
       <h2 id="concept">Last in, first out</h2>
       <p>
         A <strong>stack</strong> is like a pile of plates. You can only add a plate on top, and you can only take a plate from the top. So the plate
-        you put on last is the first one to come off. This rule is called <strong>LIFO</strong>: last in, first out. A stack
+        you put on last is the first one to come off. This rule is called <strong>LIFO</strong>: last in, first out. In code, a stack is a collection of values
+        where you may only add or remove at one end, called the top. A stack
         has just three operations. Each one is O(1), which means it takes the same short time however big the stack is:
       </p>
       <ul>
@@ -180,7 +181,7 @@ export default function DsaLessonThirtyEightPage() {
       </ul>
       <p>
         You have already used a stack, even if you did not know its name. The <strong>call stack</strong> is a stack. It is the list of
-        function calls that have started but not finished. This is what recursion (a function calling itself) uses. The most recent
+        function calls that have started but not finished. Recursion (a function that calls itself) relies on it. The most recent
         function call is the first to finish.
       </p>
 
@@ -191,7 +192,7 @@ export default function DsaLessonThirtyEightPage() {
       </p>
       <CodeBlock lang="js" code={arrayCode} />
       <Callout kind="warn" label="Use the end, not the front">
-        <code>unshift</code> and <code>shift</code> work on the front of an array. They have to move every other item, so they take O(n) time. Always treat the{" "}
+        <code>unshift</code> adds an item at the front of an array and <code>shift</code> removes the first item. In general they have to move every other item, so they can take O(n) time. Always treat the{" "}
         <em>end</em> as the top. If you write <code>shift</code> on a stack, something is wrong.
       </Callout>
 
@@ -225,8 +226,8 @@ export default function DsaLessonThirtyEightPage() {
           ["undo, backspace, most recent first", "stack of actions or characters"],
           ["the inner part must finish before the outer part", "stack of unfinished outer parts (decode string)"],
           ["evaluate an expression", "stack of operands"],
-          ["next greater / smaller element", "monotonic stack (a stack that keeps its values in order, Lesson 40)"],
-          ["a DFS (depth-first search) that you want to write without recursion", "a stack that you make yourself"],
+          ["next greater / smaller element", "monotonic stack (a stack whose values are always kept in increasing or decreasing order, Lesson 40)"],
+          ["a DFS (depth-first search: follow one path as deep as it goes, then go back) that you want to write without recursion", "a stack that you make yourself"],
         ]}
         note="What they have in common: the item you need next is always the most recent one that you have not finished with."
       />
@@ -242,7 +243,7 @@ export default function DsaLessonThirtyEightPage() {
 
       <h2 id="postfix">Evaluating postfix expressions</h2>
       <p>
-        In <strong>postfix</strong> (also called Reverse Polish) notation, the operator comes <em>after</em> its numbers (its operands). So you need no brackets and no
+        An <strong>operator</strong> is a symbol such as <code>+</code> or <code>*</code>, and its <strong>operands</strong> are the numbers it works on. In <strong>postfix</strong> (also called Reverse Polish) notation, the operator comes <em>after</em> its operands. So you need no brackets and no
         rules about which operator goes first. For example, <code>2 1 + 3 *</code> means <code>(2 + 1) * 3</code>. Read from left to right. If you see a number, push it on the
         stack. If you see an operator, pop two numbers, apply the operator to them, and push the result.
       </p>
@@ -254,7 +255,7 @@ export default function DsaLessonThirtyEightPage() {
 
       <h2 id="decode">Nested structure: decode a string</h2>
       <p>
-        <code>&quot;3[a2[c]]&quot;</code> means &quot;repeat three times: <em>a</em>, then <em>c</em> repeated twice&quot;. The innermost
+        A string like <code>k[text]</code> means &quot;write <code>text</code> k times&quot;. For example, <code>&quot;3[a2[c]]&quot;</code> means &quot;repeat three times: <em>a</em>, then <em>c</em> repeated twice&quot;. The innermost
         bracket must finish first. That is LIFO again. When you see <code>[</code>, save the outer part (the text so far
         and the repeat count) on stacks, and start fresh inside the bracket. When you see <code>]</code>, take the saved outer part back and add
         the repeated inside text to it.

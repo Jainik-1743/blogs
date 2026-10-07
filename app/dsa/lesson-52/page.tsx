@@ -265,7 +265,7 @@ const chooseRows: string[][] = [
   ["Costs differ, none negative", "Dijkstra", "O((V + E) log V)"],
   ["Some costs are negative, or there is a limit on the number of edges used", "Bellman–Ford", "O(V × E), or O(k × E) for k rounds"],
   ["The cost is the largest (or smallest) edge on the path, not the sum", "Dijkstra with max/min instead of adding", "O((V + E) log V)"],
-  ["Costs are only 0 or 1", "0-1 BFS (a deque) or Dijkstra", "O(V + E)"],
+  ["Costs are only 0 or 1", "0-1 BFS (with a deque, a list you can add to and remove from at both ends) or Dijkstra", "O(V + E)"],
 ];
 
 const gridRows: string[][] = [
@@ -305,7 +305,7 @@ export default function DsaLessonFiftyTwoPage() {
       <p>
         With different weights, the next vertex to process is no longer &quot;the one that has waited longest&quot;. It is &quot;the one with the smallest total
         so far&quot;. A <strong>priority queue</strong> is a line that always gives you the smallest item first. It is usually built on a{" "}
-        <strong>binary heap</strong>. A binary heap is an array kept in a special order: each item is smaller than its two children (item <code>i</code> has children at{" "}
+        <strong>binary heap</strong>. A binary heap is an array kept in a special order: each item is no larger than its two children, so the smallest item is always at the front (item <code>i</code> has children at{" "}
         <code>2i + 1</code> and <code>2i + 2</code>). Adding an item or removing the smallest one costs O(log n). Searching the whole list for the smallest would cost O(n).
       </p>
       <p>
@@ -350,8 +350,8 @@ export default function DsaLessonFiftyTwoPage() {
       </p>
       <CodeBlock lang="js" code={negativeCode} />
       <Callout kind="warn" label="Lazy deletion does not fix this either">
-        The heap version with the stale check may update such a vertex again, and on some inputs with negative weights it gives the right answer. But it
-        can then take an extremely long time (exponential time). If there is a negative <em>cycle</em> (a loop whose total cost is below zero), the true shortest distance is minus
+        The heap version with the stale check can update a vertex again after it was popped. If the graph has negative weights but no negative cycle, it may
+        still end with the right answer, but on some inputs it can take an extremely long time (exponential time). If there is a negative <em>cycle</em> (a loop whose total cost is below zero), the true shortest distance is minus
         infinity and the algorithm never stops. If weights can be negative, use Bellman–Ford.
       </Callout>
 

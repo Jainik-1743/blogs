@@ -327,11 +327,11 @@ const choiceRows: string[][] = [
 ];
 
 const rottenRows: string[][] = [
-  ["0", "2 1 1 / 1 1 0 / 0 1 1", "the start: one rotten orange (top-left). Its fresh neighbours are (0,1) and (1,0)"],
-  ["1", "2 2 1 / 2 1 0 / 0 1 1", "the newly rotten oranges make (0,2) and (1,1) rot"],
-  ["2", "2 2 2 / 2 2 0 / 0 1 1", "(1,1) makes (2,1) rot"],
-  ["3", "2 2 2 / 2 2 0 / 0 2 1", "(2,1) makes (2,2) rot"],
-  ["4", "2 2 2 / 2 2 0 / 0 2 2", "no fresh oranges are left: the answer is 4"],
+  ["0", "2 1 1 / 1 1 0 / 0 1 1", "the start: one rotten orange (top-left)"],
+  ["1", "2 2 1 / 2 1 0 / 0 1 1", "the top-left orange makes its fresh neighbours (0,1) and (1,0) rot"],
+  ["2", "2 2 2 / 2 2 0 / 0 1 1", "the two new rotten oranges make (0,2) and (1,1) rot"],
+  ["3", "2 2 2 / 2 2 0 / 0 2 1", "(1,1) makes (2,1) rot"],
+  ["4", "2 2 2 / 2 2 0 / 0 2 2", "(2,1) makes (2,2) rot. No fresh oranges are left, so the answer is 4"],
 ];
 
 export default function DsaLessonFiftyPage() {
@@ -386,7 +386,9 @@ export default function DsaLessonFiftyPage() {
         DFS goes as deep as it can before it goes back. Pick a neighbour, then one of its neighbours, and so on. Stop when a vertex
         has no neighbours you have not visited. Then go back to the previous vertex and try its next neighbour. The easiest way to
         write it is recursion (a function that calls itself). The <strong>call stack</strong> is the language&apos;s own list of
-        waiting function calls. It remembers where to come back to.
+        waiting function calls. It remembers where to come back to. A <strong>stack</strong> is a list where you add and remove
+        items at the same end, so the last item added is the first one removed (like a pile of plates). The difference in one line:
+        a queue serves the oldest item first, and a stack serves the newest item first.
       </p>
       <CodeBlock lang="js" code={dfsRecCode} />
       <p>

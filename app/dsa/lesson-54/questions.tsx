@@ -1,6 +1,6 @@
 import Problem from "@/components/dsa/Problem";
 
-/** Lesson 54 practice questions: from plain recursion to memoisation and tabulation on easy 1-D problems. */
+/** Lesson 54 practice questions: from plain recursion to memoization and tabulation on easy 1-D problems. */
 export default function Questions() {
   return (
     <>
@@ -33,7 +33,7 @@ console.log(fib(0)); // 0`,
             explain: <p>The tree of calls has about 1.6ⁿ boxes, so the time grows exponentially (O(2ⁿ) is an easy upper limit). The space is the recursion depth, O(n). It is fine for n up to 30, but far too slow for bigger n.</p>,
           },
           {
-            name: "Memoisation (top-down)",
+            name: "Memoization (top-down)",
             idea: <p>Use the same recursion plus a Map. Look the answer up before you work it out. Store it before you return.</p>,
             code: `function fib(n, memo = new Map()) {
   if (n <= 1) return n;
@@ -104,7 +104,7 @@ console.log(climbStairs(5)); // 8`,
             explain: <p>The time grows exponentially, because the answer for the same step is worked out again in many branches.</p>,
           },
           {
-            name: "Memoisation",
+            name: "Memoization",
             idea: <p>Save <code>ways(n)</code> in a Map (the cache).</p>,
             code: `function climbStairs(n, memo = new Map()) {
   if (n <= 1) return 1;
@@ -220,7 +220,7 @@ console.log(minCostClimbingStairs([1, 100, 1, 1, 1, 100, 1, 1, 100, 1])); // 6`,
         ]}
         approaches={[
           {
-            name: "Memoised recursion",
+            name: "Memoized recursion",
             idea: <p>Recurse on the three earlier terms and save each result in a cache.</p>,
             code: `function tribonacci(n, memo = new Map()) {
   if (n === 0) return 0;

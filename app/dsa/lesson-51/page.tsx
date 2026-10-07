@@ -265,8 +265,7 @@ export default function DsaLessonFiftyOnePage() {
         <li>Repeat until the queue is empty.</li>
       </ol>
       <p>
-        If the answer has all n dots, you have a valid order. If it is shorter, the dots left over all wait on each other in
-        a cycle, so none of them ever reached in-degree 0. Use the same trick as BFS (breadth-first search): keep a head number for the front of the queue instead of removing items.
+        If the answer has all n dots, you have a valid order. If it is shorter, the dots left over are stuck. Each one is on a cycle, or waits for a dot that is on a cycle, so none of them ever reached in-degree 0. Use the same trick as BFS (breadth-first search): keep a head number for the front of the queue instead of removing items.
         This keeps the time at O(V + E), where V is the number of dots and E is the number of arrows. Every dot goes into the queue once and every arrow is looked at once.
       </p>
       <CodeBlock lang="js" code={kahnCode} />
@@ -280,7 +279,7 @@ export default function DsaLessonFiftyOnePage() {
 
       <h2 id="dfs">DFS-based ordering</h2>
       <p>
-        There is a second way. DFS (depth-first search) means you follow one path as deep as you can before you go back. Run DFS and write down each dot at the moment it is <em>finished</em>.
+        There is a second way. DFS (depth-first search) is a way to explore a graph: you follow one path as deep as you can, then go back and try another. Run DFS and write down each dot at the moment it is <em>finished</em>.
         A dot is finished when every dot it points to is already finished. So a dot always finishes after everything it unlocks.
         That means the finishing list is a valid order <em>backwards</em>. Reverse it and you have a topological order. The finishing order is called the{" "}
         <strong>post-order</strong> of the DFS.
@@ -297,7 +296,7 @@ export default function DsaLessonFiftyOnePage() {
 
       <h2 id="cycle">Finding loops in directed graphs</h2>
       <p>
-        In an <em>undirected</em> graph (arrows can go both ways), meeting a dot you already visited means a cycle. The one exception is the dot you just came from. That rule is
+        In an <em>undirected</em> graph (every edge works both ways), meeting a dot you already visited means a cycle. The one exception is the dot you just came from. That rule is
         <strong> wrong for directed graphs</strong>. Look at the diamond 0 → 1 → 3 and 0 → 2 → 3. Dot 3 is reached twice, once through 1 and once
         through 2. Still, there is no cycle, because both arrows go the same way. &quot;Seen before&quot; is a cycle only if the earlier visit is still{" "}
         <em>on the path we are walking now</em>. The VISITING state remembers exactly this. A plain visited set cannot.

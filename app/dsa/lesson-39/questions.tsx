@@ -116,7 +116,7 @@ const s = new MyStack();
 s.push(1); s.push(2); s.push(3);
 console.log(s.pop());  // 3
 console.log(s.top());  // 2`,
-            explain: <p>Now pop costs O(n). One of the two sides must pay O(n). With one queue, you cannot make every stack operation O(1).</p>,
+            explain: <p>Now pop costs O(n). In both versions, one side (push or pop) has to pay O(n).</p>,
           },
         ]}
         compare={<p>The first one keeps top and pop simple. Say that one operation has to be O(n). (LeetCode 225.)</p>}

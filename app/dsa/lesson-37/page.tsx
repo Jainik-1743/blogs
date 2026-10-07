@@ -182,6 +182,9 @@ export default function DsaLessonThirtySevenPage() {
     <DsaLessonPage lesson={lesson} outline={outline}>
       <h2 id="merge">Merging two sorted lists</h2>
       <p>
+        A <strong>linked list</strong> is a chain of small objects called <strong>nodes</strong>. Each node holds a value
+        and a link (<code>next</code>) to the following node. A <strong>pointer</strong> here just means a variable that holds one node, so it
+        &quot;points&quot; at a place in the chain. <strong>Merging</strong> means joining two sorted lists into one sorted list.
         You already merged two sorted <em>arrays</em> in the sorting part. With linked lists the idea is the same, but it
         is even neater. You do not copy anything. You just change the links of the existing nodes to put them in the right order. A{" "}
         <strong>dummy head</strong> and a <code>tail</code> pointer keep the code short. The dummy is a fake first node that you throw away at the end.
@@ -202,6 +205,11 @@ export default function DsaLessonThirtySevenPage() {
       </p>
 
       <h2 id="start">Where a cycle starts</h2>
+      <p>
+        A <strong>cycle</strong> is a loop in a linked list: some node&apos;s <code>next</code> points back to an earlier node, so the chain never ends.
+        <strong> Floyd&apos;s algorithm</strong> (also called tortoise and hare) is a method that finds a cycle with two pointers. The slow one
+        moves 1 node per step and the fast one moves 2 nodes per step. If there is a cycle, they must meet inside it.
+      </p>
       <p>
         Lesson 36 checked <em>whether</em> there is a cycle. To find <em>where</em> it begins, add a second phase. When slow and
         fast first meet, leave <code>slow</code> where it is and put a new pointer at the head. Move both one step at a time. They meet at
@@ -261,9 +269,11 @@ export default function DsaLessonThirtySevenPage() {
 
       <h2 id="sort">Sorting a list with merge sort</h2>
       <p>
+        <strong>Merge sort</strong> is a sorting algorithm that splits the list into two halves, sorts each half (by calling itself), and then merges
+        the two sorted halves. A list of 0 or 1 nodes is already sorted, so that is where the splitting stops.
         Merge sort works well on linked lists. Finding the middle uses the slow and fast trick. Splitting takes one pointer change. Merging
-        needs no extra array. It runs in <strong>O(n log n)</strong> time. Quick sort and binary search are a poor fit for lists. They need random
-        access, which means jumping straight to any position. A linked list cannot do that.
+        needs no extra array. It runs in <strong>O(n log n)</strong> time. Binary search is a poor fit for lists, because it needs random
+        access, which means jumping straight to any position. A linked list cannot do that. Array-style quick sort, which swaps items by position, has the same problem.
       </p>
       <CodeBlock lang="js" code={sortCode} />
       <Callout kind="ok" label="Why fast starts at head.next">

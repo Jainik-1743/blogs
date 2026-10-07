@@ -73,7 +73,7 @@ console.log(numIslands([["1", "1", "1"], ["0", "1", "0"], ["1", "1", "1"]]));   
 
 console.log(numIslands([["1", "1", "0", "0"], ["1", "1", "0", "0"], ["0", "0", "1", "0"], ["0", "0", "0", "1"]])); // 3
 console.log(numIslands([["1", "1", "1"], ["0", "1", "0"], ["1", "1", "1"]]));                                      // 1`,
-            explain: <p>It takes O(rows × cols) time and space. The queue size depends on the perimeter of the island, not on its depth, so there is no risk of stack overflow. The input stays unchanged.</p>,
+            explain: <p>It takes O(rows × cols) time and space. The queue only holds the cells at the edge of the search, and there is no deep recursion, so there is no risk of stack overflow. The input stays unchanged.</p>,
           },
         ]}
         compare={<p>Recursive DFS is the shortest to write. Use BFS (or your own stack) when the grid is so large that deep recursion could be a problem, or when you must not change the input. (LeetCode 200.)</p>}
@@ -301,7 +301,7 @@ console.log(findCircleNum([[1, 0, 0], [0, 1, 0], [0, 0, 1]])); // 3`,
 console.log(findCircleNum([[1, 1, 0], [1, 1, 0], [0, 0, 1]])); // 2
 console.log(findCircleNum([[1, 0, 0], [0, 1, 0], [0, 0, 1]])); // 3
 console.log(findCircleNum([[1, 0, 1], [0, 1, 0], [1, 0, 1]])); // 2`,
-            explain: <p>It is also O(n²). Union-find (lesson 53) solves the same problem. It is the better tool when edges arrive one at a time.</p>,
+            explain: <p>It is also O(n²). Union-find (lesson 53) is a data structure that keeps items in groups and can quickly merge two groups. It solves the same problem, and it is the better tool when edges arrive one at a time.</p>,
           },
         ]}
         compare={<p>Either traversal works. The key is to see that &quot;groups of cities connected directly or indirectly&quot; means connected components. (LeetCode 547.)</p>}

@@ -193,7 +193,7 @@ export default function DsaLessonFortyPage() {
     <DsaLessonPage lesson={lesson} outline={outline}>
       <h2 id="problem">The question: next greater element</h2>
       <p>
-        For every item in an array, find the first item to its <em>right</em> that is bigger. If there is none, the answer is -1. For{" "}
+        The <strong>next greater element</strong> of an item is the first item to its <em>right</em> that is bigger than it. For every item in an array, find it. If there is none, the answer is -1. For{" "}
         <code>[2, 1, 5, 3, 4]</code> the answers are <code>[5, 5, -1, 4, -1]</code>. The simple way is to scan to the right from every item:
       </p>
       <CodeBlock lang="js" code={bruteCode} />
@@ -244,7 +244,7 @@ export default function DsaLessonFortyPage() {
       <h2 id="circular">Circular arrays</h2>
       <p>
         Sometimes the array wraps around: after the last item, you look at the first item again. In this case, loop through the indices <strong>twice</strong>{" "}
-        using <code>i % n</code> (the remainder, which sends the index back to the start). Push only during the first lap. The second lap lets every item see the items that come before it.
+        using <code>i % n</code> (the remainder after dividing i by n, which sends the index back to the start). Push only during the first lap. The second lap lets every item see the items that come before it.
       </p>
       <CodeBlock lang="js" code={circularCode} />
 
@@ -258,7 +258,7 @@ export default function DsaLessonFortyPage() {
 
       <h2 id="histogram">Largest rectangle in a histogram</h2>
       <p>
-        You get the heights of some bars. Find the largest rectangle that fits inside the bars. For each bar, the widest rectangle that uses its
+        A <strong>histogram</strong> is a bar chart: bars of different heights, all of width 1, standing side by side. You get the heights of the bars. Find the largest rectangle that fits inside the bars. For each bar, the widest rectangle that uses its
         full height goes left and right until it meets a <em>shorter</em> bar. Those edges are exactly the
         previous smaller and next smaller elements. A monotonic stack of increasing heights finds them in one pass. When a shorter bar
         arrives at index <code>i</code>, each taller bar on the stack is finished. Its right edge is <code>i</code>. Its left
@@ -279,7 +279,7 @@ export default function DsaLessonFortyPage() {
           ["i=5, h=3: push", "1, 2, 3", "-"],
           ["i=6 (sentinel 0): pop 3, 2, 1", "empty", "3×1=3, 2×4=8, 1×6=6"],
         ]}
-        note="The best rectangle is 10. It is made by the bars of height 5 and 6 side by side."
+        note="The best rectangle is 10. It is made by the bars of height 5 and 6 side by side. The sentinel is a fake extra bar of height 0 added at the end. It forces every bar still on the stack to be finished."
       />
 
       <h2 id="rain">Trapping rain water</h2>
@@ -290,7 +290,7 @@ export default function DsaLessonFortyPage() {
       </p>
       <CodeBlock lang="js" code={rainStackCode} />
       <p>
-        There is also a smarter version with two pointers. It needs only O(1) space (no extra memory that grows). The shorter side always decides the water level at
+        There is also a smarter version with two pointers. It needs only O(1) space (a fixed amount of extra memory, however long the input is). The shorter side always decides the water level at
         its own position, because the other side has a wall at least as tall:
       </p>
       <CodeBlock lang="js" code={rainTwoPointerCode} />

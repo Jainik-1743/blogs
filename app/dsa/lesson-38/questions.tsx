@@ -90,7 +90,7 @@ console.log(isValid(")"));      // false`,
 const s = new SlowMinStack();
 s.push(-2); s.push(0); s.push(-3);
 console.log(s.getMin()); // -3`,
-            explain: <p><code>getMin</code> takes O(n) time. Also, passing a very large array into <code>Math.min</code> with <code>...</code> can even cause a RangeError (an error for a value that is too big). The question asks for O(1).</p>,
+            explain: <p><code>getMin</code> takes O(n) time. Also, passing a very large array into <code>Math.min</code> with <code>...</code> can even throw a RangeError (JavaScript&apos;s error for &quot;too many arguments&quot;). The question asks for O(1).</p>,
           },
           {
             name: "A second stack for the smallest values",
@@ -361,7 +361,7 @@ console.log(removeDuplicates("azxxzy"));  // ay`,
           },
           {
             name: "Repeat until no change",
-            idea: <p>Remove one pair at a time with a regex (a pattern for searching text), until nothing matches.</p>,
+            idea: <p>Remove one pair at a time with a regex (a pattern for searching text), until nothing matches. The pattern <code>{String.raw`(.)\1`}</code> means &quot;any character followed by the same character again&quot;.</p>,
             code: `function removeDuplicates(s) {
   const re = /(.)\\1/;
   while (re.test(s)) s = s.replace(re, "");

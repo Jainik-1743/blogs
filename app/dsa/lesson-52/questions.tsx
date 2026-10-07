@@ -21,7 +21,7 @@ export default function Questions() {
         approaches={[
           {
             name: "Brute force: DFS over every path",
-            idea: <p>Try every path from the top-left that does not repeat a cell. Mark a cell as visited, and remove the mark when you go back (this is called backtracking: try, undo, try another way). Remember the shortest path that reaches the goal.</p>,
+            idea: <p>Try every path from the top-left that does not repeat a cell. Mark a cell as visited, and remove the mark when you go back (this is called backtracking: make a choice, explore it, then undo the choice and try another). Remember the shortest path that reaches the goal.</p>,
             code: `function shortestPathBinaryMatrix(grid) {
   const n = grid.length;
   if (grid[0][0] === 1 || grid[n - 1][n - 1] === 1) return -1;
@@ -718,7 +718,7 @@ console.log(maxProbability(3, [[0, 1]], [0.5], 0, 2));                          
             explain: <p>The worst-case time is O(V × E), and no heap is needed. It works because multiplying by a number between 0 and 1 never improves a cycle, so n − 1 rounds are enough.</p>,
           },
         ]}
-        compare={<p>Write Dijkstra when the graph is big. The Bellman–Ford version is the simplest. In maths, both are the same as making the sum of −log(p) as small as possible. (LeetCode 1514.)</p>}
+        compare={<p>Write Dijkstra when the graph is big. The Bellman–Ford version is the simplest. In maths, this is the same as making the sum of −log(p) as small as possible, which is an ordinary shortest-path problem. (LeetCode 1514.)</p>}
       >
         <p>
           An undirected graph has <code>n</code> nodes. Edge <code>edges[i]</code> works with probability <code>succProb[i]</code>. Given{" "}

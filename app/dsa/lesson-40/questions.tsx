@@ -29,7 +29,7 @@ export default function Questions() {
 }
 
 console.log(nextGreaterElement([4, 1, 2], [1, 3, 4, 2])); // [-1, 3, -1]`,
-            explain: <p>O(m·n).</p>,
+            explain: <p>O(m·n), where m is the length of nums1 and n is the length of nums2.</p>,
           },
           {
             name: "Monotonic stack plus a Map",
@@ -284,7 +284,7 @@ console.log(largestRectangle([2, 1, 5, 6, 2, 3])); // 10`,
 console.log(largestRectangle([2, 1, 5, 6, 2, 3])); // 10
 console.log(largestRectangle([2, 4]));             // 4
 console.log(largestRectangle([1, 1, 1, 1]));       // 4`,
-            explain: <p>O(n). When two bars have equal heights, the earlier bar is popped with a width that stops at the equal bar. But the later equal bar then covers the full width. So the biggest area is still correct.</p>,
+            explain: <p>O(n). When two bars have equal heights, the later bar is popped first, and its width stops at the earlier equal bar. But the earlier bar is popped afterwards, and its rectangle covers the full width. So the biggest area is still correct.</p>,
           },
         ]}
         compare={<p>Use the stack. This is one of the hard questions that interviewers ask most. Practise until you can write it without looking. (LeetCode 84.)</p>}

@@ -21,7 +21,7 @@ const outline = [
   { id: "two", label: "Two properties that make DP work" },
   { id: "recipe", label: "The four questions" },
   { id: "plain", label: "Step 1: plain recursion" },
-  { id: "memo", label: "Step 2: memoisation (top-down)" },
+  { id: "memo", label: "Step 2: memoization (top-down)" },
   { id: "trace", label: "Traced: climbing stairs with a cache" },
   { id: "tab", label: "Step 3: tabulation (bottom-up)" },
   { id: "space", label: "Step 4: reducing space" },
@@ -211,8 +211,8 @@ const recipeRows: string[][] = [
 ];
 
 const compareRows: string[][] = [
-  ["Plain recursion", "O(φⁿ), about 1.6ⁿ", "O(n) call stack", "never reuses any answer"],
-  ["Memoisation (top-down)", "O(n)", "O(n) cache + O(n) call stack", "easy to write from the recursion; only works out what is needed"],
+  ["Plain recursion", "O(φⁿ), about 1.6ⁿ (φ is about 1.618)", "O(n) call stack", "never reuses any answer"],
+  ["Memoization (top-down)", "O(n)", "O(n) cache + O(n) call stack", "easy to write from the recursion; only works out what is needed"],
   ["Tabulation (bottom-up)", "O(n)", "O(n) table", "no recursion, so no stack overflow; fills every entry"],
   ["Space-reduced", "O(n)", "O(1)", "keep only the last few entries"],
 ];
@@ -232,7 +232,8 @@ export default function DsaLessonFiftyFourPage() {
     <DsaLessonPage lesson={lesson} outline={outline}>
       <h2 id="why">The same work, again and again</h2>
       <p>
-        Part 14 is about one big idea: <strong>dynamic programming</strong> (DP). The name sounds grand, but it is just{" "}
+        Part 14 is about one big idea: <strong>dynamic programming</strong> (DP). DP is a method that solves a problem by splitting it into smaller
+        versions of itself, solving each small version only once, and saving its answer. The name sounds grand, but it is just{" "}
         &ldquo;recursion that remembers&rdquo;. Recursion means a function that calls itself. You break a problem into smaller copies of itself, as in Part 8. But you never
         solve the same small copy twice.
       </p>
@@ -266,7 +267,7 @@ export default function DsaLessonFiftyFourPage() {
       <p>
         A <strong>subproblem</strong> is just &ldquo;the same question with a smaller input&rdquo;. Sometimes subproblems
         do <em>not</em> overlap. Merge sort&apos;s two halves never share work, so saving answers does nothing, and plain divide and conquer
-        (split, solve each part, join) is the right tool. If subproblems do overlap, DP turns a very slow (exponential) solution into a fast (polynomial) one.
+        (split, solve each part, join) is the right tool. If subproblems do overlap, DP turns a very slow (exponential, like 2ⁿ) solution into a fast (polynomial, like n or n²) one.
       </p>
 
       <h2 id="recipe">The four questions</h2>
@@ -295,11 +296,11 @@ export default function DsaLessonFiftyFourPage() {
         (The brute-force coin counter in lesson 47 is another one: &ldquo;try every first coin&rdquo;.)
       </p>
 
-      <h2 id="memo">Step 2: memoisation (top-down)</h2>
+      <h2 id="memo">Step 2: memoization (top-down)</h2>
       <p>
-        <strong>Memoisation</strong> comes from &ldquo;memo&rdquo;, a note to yourself. It is not &ldquo;memorisation&rdquo;. You keep the
+        <strong>Memoization</strong> is a technique that saves (remembers) the result of each call, so the same call is never worked out twice. The word comes from &ldquo;memo&rdquo;, a note to yourself. It is not &ldquo;memorization&rdquo;. You keep the
         recursion exactly as it was and add a notebook. Before you work out a state, look it up in the notebook. After you work it out, write it down.
-        The notebook (the cache) is usually a <code>Map</code> (lesson 32 used the same trick) or an array indexed by the state. It is called{" "}
+        The notebook is called a <strong>cache</strong>: a place where you store answers you already worked out, so you can reuse them. It is usually a <code>Map</code> (lesson 32 used the same trick) or an array indexed by the state. It is called{" "}
         <strong>top-down</strong> because you start from the big question and let the recursion find the smaller ones.
       </p>
       <CodeBlock lang="js" code={memoCode} />
@@ -346,7 +347,7 @@ export default function DsaLessonFiftyFourPage() {
         note="A simple rule: write the recursion first. Add the memo if it is slow. Change to a table if you want to avoid recursion. Make the table smaller last, and only if the transition looks back a fixed distance."
       />
       <Callout kind="warn" label="Recursion depth in JavaScript">
-        The memoised version goes n levels deep. When n is in the tens of thousands, the call stack can overflow (run out of room). This is one practical
+        The memoized version goes n levels deep. When n is in the tens of thousands, the call stack can overflow (run out of room). This is one practical
         reason to prefer the bottom-up loop on large inputs.
       </Callout>
 
@@ -392,8 +393,8 @@ export default function DsaLessonFiftyFourPage() {
           <>Use the recursion tree to explain why plain recursive Fibonacci is so slow (exponential).</>,
           <>Name the two properties of a DP problem and give an example of each.</>,
           <>List the four questions: state, transition, base cases, order.</>,
-          <>Turn a recursive function into a memoised one by adding a cache lookup and a cache write.</>,
-          <>Change the memoised version into a bottom-up table, then reduce it to O(1) space.</>,
+          <>Turn a recursive function into a memoized one by adding a cache lookup and a cache write.</>,
+          <>Change the memoized version into a bottom-up table, then reduce it to O(1) space.</>,
           <>Show with coins 1, 3, 4 and amount 6 why greedy fails but DP works.</>,
         ]}
       />

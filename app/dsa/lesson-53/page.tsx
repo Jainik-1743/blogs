@@ -275,8 +275,8 @@ export default function DsaLessonFiftyThreePage() {
       <p>
         Lesson 50 counted connected components (separate groups of linked things) by walking through the graph. That works when you get the whole graph at once. But
         what if the edges (links) arrive <em>one at a time</em>, and after each one someone asks: &ldquo;are A and B in the same group now?&rdquo;
-        Running BFS again after every edge would cost O(V + E) per question. <strong>Union-Find</strong> is also called a{" "}
-        <strong>disjoint-set union</strong> (DSU). It answers the same questions much faster. It has two operations:
+        Running BFS again after every edge would cost O(V + E) per question. <strong>Union-Find</strong> is a data structure that keeps elements in separate groups, and can quickly tell whether two elements are in the same group and merge two groups.
+        It is also called a <strong>disjoint-set union</strong> (DSU). It answers the same questions much faster. It has two operations:
       </p>
       <ul>
         <li><strong>find(x)</strong>: which group is x in? (It returns one element that stands for the whole group.)</li>
@@ -344,8 +344,8 @@ export default function DsaLessonFiftyThreePage() {
       />
       <p>
         People often say &ldquo;union-find is O(1)&rdquo;. This is a fair shortcut, but it is not exactly true. The exact cost is{" "}
-        <strong>O(α(n)) amortised</strong> per operation. α is the <strong>inverse Ackermann function</strong>. It grows
-        so slowly that α(n) is at most 4 for any n you could ever store. So in practice it acts like a constant, but
+        <strong>O(α(n)) amortised</strong> per operation. α is the <strong>inverse Ackermann function</strong>, a function that
+        grows so slowly that α(n) is at most 4 for any n you could ever store. So in practice it acts like a constant, but
         in maths it is not one. &ldquo;Amortised&rdquo; means averaged over a whole series of operations. One{" "}
         <code>find</code> can still be slow, but slow calls flatten the tree so well that the average stays tiny.
         In interviews, say &ldquo;nearly constant, formally inverse Ackermann&rdquo; and you are correct.
@@ -418,7 +418,7 @@ export default function DsaLessonFiftyThreePage() {
       <p>
         That finishes Part 13 (graphs). <strong>Lesson 54</strong> starts Part 14, <strong>dynamic programming</strong>. We begin with
         the plain recursion from Part 8. You will see that it solves the same small problems again and again. We fix that by saving answers
-        (memoisation), and then by filling a table in order (tabulation).
+        (memoization: remembering the result of each call), and then by filling a table in order (tabulation: building answers from the smallest problem up).
       </p>
     </DsaLessonPage>
   );

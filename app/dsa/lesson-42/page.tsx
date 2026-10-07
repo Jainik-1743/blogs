@@ -325,7 +325,7 @@ export default function DsaLessonFortyTwoPage() {
   4   5   6      level 2:  4  5  6`}
       </pre>
       <p>
-        Breadth-first search (BFS) is the right tool when the question is about <em>rows</em> or <em>how close a node is to the
+        <strong>Breadth-first search (BFS)</strong> is a way of walking a tree or graph that visits all nodes at distance 1 from the start, then all nodes at distance 2, and so on. It is the right tool when the question is about <em>rows</em> or <em>how close a node is to the
         root</em>. For example: print the tree row by row, what do I see from the right side, or what is the shortest path to
         a leaf. The tool that gives this order is a <strong>queue</strong>, a first-in, first-out line, like a line at a shop.
         Nodes join at the back and leave from the front. So the children of a node always wait behind everyone who was found
@@ -344,7 +344,7 @@ export default function DsaLessonFortyTwoPage() {
       <p>
         Every node enters the queue once and leaves once, so the time is <strong>O(n)</strong>. The extra space is the queue
         itself. It holds at most about one or two rows of the tree at a time. That is <strong>O(w)</strong>, where{" "}
-        <em>w</em> is the number of nodes in the widest row. In a complete tree (every row full) the last row holds about half
+        <em>w</em> is the number of nodes in the widest row. In a full tree (every row completely filled) the last row holds about half
         of all the nodes, so w can be about n/2.
       </p>
       <Callout kind="note" label="Why we say O(w) and not O(h)">
@@ -396,7 +396,7 @@ export default function DsaLessonFortyTwoPage() {
 
       <h2 id="views">Right side view and zigzag</h2>
       <p>
-        Once the rows are separate, many questions need only a few lines. The <strong>right side view</strong> is what you would
+        Once the rows are separate, many questions need only a few lines. A <strong>row</strong> (or <strong>level</strong>) is all the nodes that are the same number of steps away from the root. The <strong>right side view</strong> is what you would
         see if you stood to the right of the tree. You see the last node of each row. The other nodes in that row are hidden
         behind it. The <strong>zigzag</strong> order changes direction each row: row 0 goes left to right, row 1 goes right to
         left, and so on. We do not need to reverse a row. When a row goes right to left, we write each value straight into its
@@ -408,7 +408,7 @@ export default function DsaLessonFortyTwoPage() {
       <p>
         <strong>Minimum depth</strong> is the number of nodes on the shortest path from the root to a <em>leaf</em> (a node with
         no children). BFS goes through the tree from the top down. So the first leaf it meets is the closest one to the top, and
-        it can return at once without looking at the rest of the tree. A depth-first search would have to look at everything.
+        it can return at once without looking at the rest of the tree. A depth-first search may have to look at much more of the tree before it knows the answer.
       </p>
       <Callout kind="warn" label="A node with one child is not a leaf">
         For a chain like <code>[2, null, 3]</code> the answer is 2, not 1. The root has a right child, so it is not a leaf. The
