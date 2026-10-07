@@ -51,8 +51,9 @@ export default function SdLessonOneNinePage() {
           <p>Your shopping app has a search box. The first version is one line of SQL:</p>
           <CodeBlock lang="sql" code={code1} />
           <p>
-            It works with 1,000 products. With 5 million, each search takes seconds, because <code>LIKE '%...%'</code>{" "}
-            can't use a normal index and scans every row. And users complain about the results:
+            It works with 1,000 products. With 5 million, each search takes seconds. The reason is that{" "}
+            <code>LIKE '%...%'</code> (a pattern match with a wildcard at the start) cannot use a normal index. So the
+            database reads every row. Users also complain about the results:
           </p>
           <ul>
             <li>"Running shoe" (singular) finds nothing.</li>
@@ -60,8 +61,9 @@ export default function SdLessonOneNinePage() {
             <li>The best match shows up on page 4.</li>
           </ul>
           <p>
-            Real search needs a different data structure, called the <strong>inverted index</strong>, and usually a
-            separate system built around it.
+            Real search needs a different data structure. It is called the <strong>inverted index</strong>. An inverted
+            index is a lookup table that maps each word to the list of documents that contain that word. Real search
+            usually runs in a separate system built around it.
           </p>
         </Section>
 
@@ -71,12 +73,12 @@ export default function SdLessonOneNinePage() {
           </p>
           <CodeBlock code={code2} />
           <p>
-            Instead of reading every page looking for "photosynthesis", you look up the <strong>word</strong> and jump
+            You do not read every page to find "photosynthesis". You look up the <strong>word</strong> and jump
             straight to the <strong>pages</strong> that contain it.
           </p>
           <p>
-            A normal database row says "document → words it contains". An <strong>inverted index</strong> flips that
-            around: "word → documents that contain it". That's why it's called <em>inverted</em>.
+            A normal record says "document → words it contains". An <strong>inverted index</strong> flips that
+            around: "word → documents that contain it". That is why it is called <em>inverted</em>.
           </p>
         </Section>
 
@@ -85,13 +87,14 @@ export default function SdLessonOneNinePage() {
           <p>Three products:</p>
           <CodeBlock code={code3} />
           <p>
-            <strong>Step 1: Analyse the text.</strong> Break it into words (tokens), make them lowercase, and simplify
-            them:
+            <strong>Step 1: Analyse the text.</strong> Break it into words (called tokens), make them lowercase, and cut
+            each word down to a simple form (for example, "running" becomes "run"):
           </p>
           <CodeBlock code={code4} />
           <p>
-            <strong>Step 2: Build the index.</strong> For each term, list the documents (and positions) where it
-            appears. That list is called a <strong>posting list</strong>:
+            <strong>Step 2: Build the index.</strong> A <em>term</em> is one cleaned-up word stored in the index. For each
+            term, list the documents (and the positions) where it appears. That list is called a{" "}
+            <strong>posting list</strong>:
           </p>
           <InvertedIndex caption="A live inverted index over five products. Type a query and watch it become term lookups, a posting-list intersection and a ranking." />
           <p>
@@ -105,12 +108,13 @@ export default function SdLessonOneNinePage() {
               Look up each term: <code>red</code> → &#123;1, 3&#125;, <code>shoe</code> → &#123;1, 3&#125;.
             </li>
             <li>
-              <strong>AND</strong> them together (intersect the lists): &#123;1, 3&#125;.
+              <strong>AND</strong> them together. This means you keep only the documents that are in both lists (an
+              intersection): &#123;1, 3&#125;.
             </li>
-            <li>Rank the results (below). Both match; doc 1 might rank higher if it's more relevant.</li>
+            <li>Rank the results (explained below). Both documents match. Doc 1 might rank higher if it is more relevant.</li>
           </ul>
           <p>
-            No scanning of every document is needed. Just a few quick lookups, even across <strong>millions</strong> of
+            You do not scan every document. You only do a few quick lookups, even across <strong>millions</strong> of
             documents.
           </p>
           <h3 id="text-analysis-making-search-forgiving">Text analysis: making search forgiving</h3>
@@ -129,8 +133,9 @@ export default function SdLessonOneNinePage() {
             ]}
           />
           <p>
-            The <strong>analyser</strong> is where much of search quality comes from. The same analysis is applied to
-            documents when they're indexed and to queries when they're searched:
+            The <strong>analyser</strong> is the part that turns raw text into index terms. Much of search quality comes
+            from it. It must treat documents (when you index them) and queries (when you search) in the same way.
+            These are its steps:
           </p>
           <ul>
             <li>
@@ -141,75 +146,82 @@ export default function SdLessonOneNinePage() {
               <strong>Lowercasing:</strong> <code>Shoes</code> = <code>shoes</code>.
             </li>
             <li>
-              <strong>Stop words:</strong> optionally drop very common words ("the", "for", "a").
+              <strong>Stop words:</strong> you can choose to drop very common words ("the", "for", "a"). They say little
+              about the topic.
             </li>
             <li>
-              <strong>Stemming or lemmatisation:</strong> reduce words to a root, so <code>running</code>,{" "}
-              <code>runs</code>, <code>ran</code> → <code>run</code> and <code>shoes</code> → <code>shoe</code>. Now
-              "running shoe" matches "run shoes".
+              <strong>Stemming or lemmatisation:</strong> cut a word down to its root. <em>Stemming</em> chops off word
+              endings with simple rules (<code>running</code>, <code>runs</code> → <code>run</code>;{" "}
+              <code>shoes</code> → <code>shoe</code>). <em>Lemmatisation</em> uses a dictionary, so it can also turn{" "}
+              <code>ran</code> into <code>run</code>. Now "running shoe" matches "run shoes".
             </li>
             <li>
-              <strong>Synonyms:</strong> <code>sneakers</code> ↔ <code>trainers</code> ↔ <code>running shoes</code>, and{" "}
-              <code>TV</code> ↔ <code>television</code>.
+              <strong>Synonyms:</strong> words with the same meaning are treated as equal:{" "}
+              <code>sneakers</code> ↔ <code>trainers</code> ↔ <code>running shoes</code>, and <code>TV</code> ↔{" "}
+              <code>television</code>.
             </li>
             <li>
-              <strong>N-grams / edge n-grams:</strong> index pieces of words (<code>sho</code>, <code>shoe</code>,{" "}
-              <code>shoes</code>) for <strong>autocomplete</strong> and partial matches.
+              <strong>N-grams / edge n-grams:</strong> an n-gram is a short piece of a word. Edge n-grams are pieces from
+              the start of the word (<code>sho</code>, <code>shoe</code>, <code>shoes</code>). You index these pieces
+              for <strong>autocomplete</strong> (suggestions while the user types) and partial matches.
             </li>
             <li>
-              <strong>Fuzzy matching:</strong> match words within a small number of edits, so <code>runing</code> →{" "}
-              <code>running</code>, which handles typos.
+              <strong>Fuzzy matching:</strong> match words that are only a few edits apart. An edit is adding, removing or
+              changing one letter. So <code>runing</code> still finds <code>running</code>. This handles typos.
             </li>
             <li>
-              <strong>Language-specific rules</strong> for Hindi, Japanese, German compound words and so on.
+              <strong>Language-specific rules</strong> for Hindi, Japanese, German compound words (long words made from
+              several words) and so on.
             </li>
           </ul>
           <h3 id="ranking-which-results-come-first">Ranking: which results come first?</h3>
           <p>
-            Finding matches is half the job. <strong>Ordering</strong> them is the other half.
+            Finding matches is half the job. Putting them in a good <strong>order</strong> (ranking) is the other half.
+            Ranking gives each match a score. The best scores come first.
           </p>
           <p>
-            <strong>TF-IDF</strong> is the classic idea:
+            <strong>TF-IDF</strong> is a classic scoring formula. It multiplies two ideas:
           </p>
           <ul>
             <li>
-              <strong>TF (term frequency):</strong> a document that mentions "shoes" many times is probably more about
-              shoes.
+              <strong>TF (term frequency):</strong> how often the word appears in one document. A document that mentions
+              "shoes" many times is probably more about shoes.
             </li>
             <li>
-              <strong>IDF (inverse document frequency):</strong> rare words matter more. Matching "leather" (in few
-              documents) says more than matching "for" (in almost all).
+              <strong>IDF (inverse document frequency):</strong> how rare the word is across all documents. Rare words
+              matter more. Matching "leather" (in few documents) says more than matching "for" (in almost all).
             </li>
           </ul>
           <p>
-            <strong>BM25</strong> is an improved version of TF-IDF and the default in Elasticsearch, OpenSearch and
-            Lucene. It stops over-rewarding repeated words and adjusts for document length, so a short title that
-            matches well beats a long page that mentions the word once.
+            <strong>BM25</strong> is a ranking formula that improves on TF-IDF. It is the default in Elasticsearch,
+            OpenSearch and Lucene. It stops giving too much credit for repeated words. It also adjusts for document
+            length. So a short title that matches well beats a long page that mentions the word once.
           </p>
           <p>
-            Real products then add <strong>business signals</strong>:
+            Real products then add <strong>business signals</strong> (facts about your business that change the order):
           </p>
           <ul>
             <li>popularity, ratings and sales,</li>
             <li>recency (for news),</li>
             <li>user location or personalisation,</li>
             <li>
-              <strong>boosting</strong> fields (a match in the <em>title</em> counts more than a match in the{" "}
-              <em>description</em>),
+              <strong>boosting</strong> fields (boosting means giving one field more weight: a match in the{" "}
+              <em>title</em> counts more than a match in the <em>description</em>),
             </li>
-            <li>and increasingly, machine-learning ranking models.</li>
+            <li>and, more and more, machine-learning ranking models (models that learn the best order from past clicks).</li>
           </ul>
           <h3 id="filters-and-facets">Filters and facets</h3>
           <p>
             Search pages usually combine <strong>text search</strong> with <strong>structured filters</strong>: "red
-            shoes" + size 9 + price under ₹3,000 + brand = Nike. Search engines also compute <strong>facets</strong>{" "}
-            ("Nike (120), Adidas (95), Puma (40)") for the sidebar. Search engines store these structured fields in
-            formats optimised for filtering and counting.
+            shoes" + size 9 + price under ₹3,000 + brand = Nike. A <strong>facet</strong> is a count of results for
+            each value of a field. For example, "Nike (120), Adidas (95), Puma (40)" in the sidebar. Search engines
+            compute facets for you. They store these structured fields in formats that are fast for filtering and
+            counting.
           </p>
           <h3 id="search-at-scale-distributed-search">Search at scale: distributed search</h3>
           <p>
-            One machine can't hold the index for billions of documents or answer thousands of queries per second. So
-            search engines split the index:
+            One machine cannot hold the index for billions of documents. It also cannot answer thousands of queries per
+            second. So search engines split the index into parts:
           </p>
           <SequenceDiagram
             caption="Scatter-gather across shards. The response waits for the slowest shard — tail latency again."
@@ -228,42 +240,46 @@ export default function SdLessonOneNinePage() {
           />
           <ul>
             <li>
-              <strong>Shards:</strong> each holds part of the documents and their index.
+              <strong>Shards:</strong> a shard is one slice of the data. Each shard holds part of the documents and their
+              index.
             </li>
             <li>
-              <strong>Replicas:</strong> copies of each shard, for availability and more read capacity.
+              <strong>Replicas:</strong> copies of each shard. They keep search working if a machine fails (availability).
+              They also let more queries run at the same time.
             </li>
             <li>
-              <strong>Scatter-gather:</strong> a coordinator sends the query to all shards, each returns its top
-              results, and the coordinator merges them into a final top 10.
+              <strong>Scatter-gather:</strong> a coordinator (the node that receives the query) sends the query to all
+              shards. Each shard returns its best results. The coordinator merges them into a final top 10.
             </li>
           </ul>
           <p>
-            This ties into post 8: a search that fans out to many shards is exposed to <strong>tail latency</strong>.
-            The slowest shard decides the response time.
+            This connects to Lesson 8 on latency. A search that fans out to many shards is exposed to{" "}
+            <strong>tail latency</strong> (the rare slow responses). The slowest shard decides the response time.
           </p>
           <p>
-            <strong>Near-real-time:</strong> new documents usually become searchable after a short{" "}
-            <strong>refresh interval</strong> (often about a second), not instantly.
+            <strong>Near-real-time:</strong> new documents do not become searchable at once. They become searchable after
+            a short <strong>refresh interval</strong>. In Elasticsearch the default is 1 second.
           </p>
           <h3 id="keeping-search-in-sync-with-your-database">Keeping search in sync with your database</h3>
           <p>
-            The search index is usually a <strong>copy</strong> of data whose "source of truth" is your main database.
-            How do you keep them in sync?
+            The search index is usually a <strong>copy</strong> of your data. The "source of truth" (the place where the
+            correct data lives) is your main database. How do you keep the two in sync?
           </p>
           <p>
             <strong>1. Dual writes.</strong> The app writes to the database <em>and</em> to the search engine.
           </p>
           <ul>
-            <li>Simple, but if one write fails, they disagree. It's easy to get subtly wrong.</li>
+            <li>It is simple. But if one write fails, the two systems disagree. This is easy to get wrong without noticing.</li>
           </ul>
           <p>
-            <strong>2. Queue or events (recommended).</strong> The app writes to the database and publishes an event
-            ("product 991 updated"). A worker updates the search index.
+            <strong>2. Queue or events (recommended).</strong> The app writes to the database and sends an event (a
+            short message such as "product 991 updated") to a queue. A worker reads the event and updates the search
+            index.
           </p>
           <p>
-            <strong>3. Change Data Capture (CDC).</strong> A tool reads the database's change log and streams every
-            change to the indexer automatically, so no app code can forget.
+            <strong>3. Change Data Capture (CDC).</strong> CDC is a method that reads the database's change log (the
+            file where the database records every change) and sends each change to the indexer. This happens
+            automatically, so no app code can forget to do it.
           </p>
           <Flow
             caption="Keep the index as a derived copy, fed from the database's change log."
@@ -278,25 +294,26 @@ export default function SdLessonOneNinePage() {
             ]}
           />
           <p>
-            An important mindset: <strong>treat the search index as derived, rebuildable data.</strong> If it gets
-            corrupted or you change the analyser, you can <strong>re-index</strong> everything from the database. Never
-            make the search engine the only place important data lives.
+            An important rule: <strong>treat the search index as derived, rebuildable data.</strong> If it gets
+            damaged, or you change the analyser, you can <strong>re-index</strong> (build the index again) from the
+            database. Never make the search engine the only place where important data lives.
           </p>
           <h3 id="beyond-keywords-semantic-vector-search">Beyond keywords: semantic (vector) search</h3>
           <p>
             Keyword search matches <strong>words</strong>. But "cheap flights to Goa" and "budget air tickets to Goa"
-            mean the same thing with different words.
+            mean the same thing in different words. A keyword search may miss that.
           </p>
           <p>
-            <strong>Vector search</strong> turns text (or images) into lists of numbers called{" "}
-            <strong>embeddings</strong>, using machine-learning models, so that similar <strong>meanings</strong> end up
-            close together. The search engine then finds the "nearest" vectors using{" "}
-            <strong>approximate nearest neighbour (ANN)</strong> algorithms.
+            <strong>Vector search</strong> finds results by meaning. A machine-learning model turns text (or images) into
+            a list of numbers called an <strong>embedding</strong>. Similar <strong>meanings</strong> get lists that
+            are close to each other. The search engine then finds the "nearest" lists. It uses{" "}
+            <strong>approximate nearest neighbour (ANN)</strong> algorithms. These find close neighbours quickly, but
+            not always the exact closest ones.
           </p>
           <p>
-            Many systems now use <strong>hybrid search</strong>: keyword (BM25) plus vector results, combined and
-            re-ranked. This is also how many AI assistants find relevant documents before answering questions (known as
-            retrieval-augmented generation, or RAG).
+            Many systems now use <strong>hybrid search</strong>. It combines keyword results (BM25) with vector
+            results and then ranks them again. Many AI assistants also use search to find relevant documents before
+            they answer a question. This is called retrieval-augmented generation, or RAG.
           </p>
           <h3 id="popular-tools">Popular tools</h3>
           <div className="table-wrap">
@@ -318,7 +335,7 @@ export default function SdLessonOneNinePage() {
                   <td>
                     <strong>Elasticsearch / OpenSearch</strong>
                   </td>
-                  <td>Distributed search and analytics engines built on Lucene; very widely used</td>
+                  <td>Distributed search and analytics engines built on Lucene. OpenSearch is a fork of Elasticsearch. Very widely used</td>
                 </tr>
                 <tr>
                   <td>
@@ -358,7 +375,8 @@ export default function SdLessonOneNinePage() {
               ❌ <strong>Another system to run.</strong> Search clusters need memory, tuning, monitoring and upgrades.
             </li>
             <li>
-              ❌ <strong>Eventually consistent.</strong> New or updated items appear after a short delay.
+              ❌ <strong>Eventually consistent.</strong> New or updated items appear in search after a short delay, not at
+              once.
             </li>
             <li>
               ❌ <strong>Sync complexity.</strong> Keeping the index in step with the database needs care (events, CDC,
@@ -379,13 +397,13 @@ export default function SdLessonOneNinePage() {
 
         <Section id="in-the-real-world" title="In the Real World" kind="real">
           <p>
-            <strong>Wikipedia</strong> uses Elasticsearch to power its on-site search across hundreds of languages, with
-            language-specific analysers so that searches work well in each language.
+            <strong>Wikipedia</strong> uses Elasticsearch for its on-site search across hundreds of languages. It uses
+            analysers made for each language, so that search works well in each one.
           </p>
           <p>
-            <strong>GitHub code search.</strong> GitHub built its own search engine for code (written in Rust) because
-            general-purpose search engines didn't handle code well: symbols, exact substrings and enormous numbers of
-            files. It's a reminder that the <strong>type of content</strong> changes how the index should be designed.
+            <strong>GitHub code search.</strong> GitHub built its own search engine for code (written in Rust). General-purpose
+            search engines did not handle code well: symbols, exact substrings and a huge number of
+            files. It shows that the <strong>type of content</strong> changes how you should design the index.
           </p>
           <p>
             <strong>E-commerce search.</strong> Large online stores combine keyword search with filters (size, brand,
@@ -394,12 +412,12 @@ export default function SdLessonOneNinePage() {
           </p>
           <p>
             <strong>Log search.</strong> Tools like the ELK stack (Elasticsearch, Logstash, Kibana) or OpenSearch are
-            used by many companies to search through application logs. It's the same inverted-index technology, applied
-            to billions of log lines (Part 8).
+            used by many companies to search through application logs. It is the same inverted-index idea, used
+            on billions of log lines (more in Part 8, Observability).
           </p>
           <p>
             <strong>AI assistants and "chat with your documents".</strong> Many products that let you ask questions
-            about your own files use vector or hybrid search to find the most relevant passages first, then pass them to
+            about your own files use vector or hybrid search to find the most relevant passages first. Then they give those passages to
             a language model.
           </p>
         </Section>
@@ -412,9 +430,10 @@ export default function SdLessonOneNinePage() {
                 a: (
                   <>
                     <p>
-                      A leading wildcard can't use a B-tree index, so the database scans every row. A search engine
-                      builds an inverted index mapping each analysed term to the documents containing it, so a query is
-                      a few posting-list lookups and intersections, whatever the collection size.
+                      A wildcard at the start of the pattern cannot use a B-tree index (the normal database index, which
+                      is sorted), so the database scans every row. A search engine builds an inverted index. It maps
+                      each analysed term to the documents that contain it. So a query becomes a few posting-list
+                      lookups and intersections. The work stays small even when the collection is very large.
                     </p>
                   </>
                 ),
@@ -424,8 +443,9 @@ export default function SdLessonOneNinePage() {
                 a: (
                   <>
                     <p>
-                      Tokenising, lowercasing, removing stop words, stemming, synonyms and n-grams turn text into index
-                      terms. If the query isn't analysed the same way, “Running” never finds the stored term “run”.
+                      Text analysis turns raw text into index terms. It splits text into tokens, lowercases them, removes
+                      stop words, stems them, and adds synonyms and n-grams. The query must go through the same steps.
+                      If it does not, “Running” never finds the stored term “run”.
                     </p>
                   </>
                 ),
@@ -435,9 +455,10 @@ export default function SdLessonOneNinePage() {
                 a: (
                   <>
                     <p>
-                      It scores term matches by term frequency (with diminishing returns for repeats), inverse document
-                      frequency (rare terms count more) and document length (short, focused fields win). Products layer
-                      business signals — popularity, recency, field boosts — on top.
+                      It gives each match a score. The score uses three things. First, term frequency, with smaller extra
+                      credit for each repeat. Second, inverse document frequency, so rare terms count more. Third,
+                      document length, so short and focused fields win. Products then add business signals on top:
+                      popularity, recency and field boosts.
                     </p>
                   </>
                 ),
@@ -447,9 +468,9 @@ export default function SdLessonOneNinePage() {
                 a: (
                   <>
                     <p>
-                      Treat the index as derived data. Publish change events or use CDC from the database log to an
-                      indexer, rather than dual writes that can silently diverge. Keep the ability to rebuild the whole
-                      index from the source of truth.
+                      Treat the index as derived data. Send change events, or use CDC from the database log, to an
+                      indexer. Do not use dual writes, because the two systems can drift apart without anyone
+                      noticing. Always keep the ability to rebuild the whole index from the source of truth.
                     </p>
                   </>
                 ),
@@ -459,9 +480,10 @@ export default function SdLessonOneNinePage() {
                 a: (
                   <>
                     <p>
-                      Modest data and query volume, simple relevance needs and no heavy faceting — for example searching
-                      an app's own notes or tickets. It avoids running and syncing a second system. Move to
-                      Elasticsearch or OpenSearch for scale, typo tolerance, facets and relevance tuning.
+                      It is enough when data and query volume are modest, relevance needs are simple and you need no heavy
+                      facets. For example, searching an app's own notes or tickets. It saves you from running and
+                      syncing a second system. Move to Elasticsearch or OpenSearch when you need scale, typo
+                      tolerance, facets and relevance tuning.
                     </p>
                   </>
                 ),
@@ -471,9 +493,9 @@ export default function SdLessonOneNinePage() {
                 a: (
                   <>
                     <p>
-                      Keyword search matches words exactly (after analysis) and is precise and explainable. Vector
-                      search matches meaning using embeddings and nearest-neighbour search, so “budget air tickets”
-                      finds “cheap flights”. Hybrid search combines both and re-ranks.
+                      Keyword search matches words exactly (after analysis). It is precise, and you can explain why a
+                      result matched. Vector search matches meaning by using embeddings and nearest-neighbour search.
+                      So “budget air tickets” finds “cheap flights”. Hybrid search combines both and ranks again.
                     </p>
                   </>
                 ),
@@ -494,7 +516,7 @@ export default function SdLessonOneNinePage() {
             </li>
             <li>
               Big search systems <strong>shard and replicate</strong> the index and use <strong>scatter-gather</strong>{" "}
-              queries, which makes tail latency matter.
+              queries, so tail latency matters.
             </li>
             <li>
               Keep search <strong>in sync</strong> with the database using <strong>events or CDC</strong>, and treat the
@@ -522,7 +544,7 @@ export default function SdLessonOneNinePage() {
           </ul>
           <p>
             <em>
-              This wraps up Part 3. Next up, Part 4: Databases &amp; Data at Scale, starting with "SQL vs NoSQL: Picking
+              This ends Part 3. Next is Part 4: Databases &amp; Data at Scale, starting with "SQL vs NoSQL: Picking
               the Right Data Model".
             </em>
           </p>

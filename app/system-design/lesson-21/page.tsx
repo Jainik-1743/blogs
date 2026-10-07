@@ -78,101 +78,110 @@ export default function SdLessonTwoOnePage() {
         <Section id="the-problem" title="The Problem" kind="problem">
           <p>
             A concert has <strong>one seat left</strong>. Two people click "Book" at the same moment. Both requests
-            check "is the seat free?", and both see <strong>yes</strong>. Both book it. Now two people have tickets for
-            the same seat.
+            ask "is the seat free?", and both get the answer <strong>yes</strong>. Both book it. Now two people have
+            tickets for the same seat. This kind of bug is called a <strong>race condition</strong>: the result depends
+            on which request is faster.
           </p>
           <p>
-            Or this one: you transfer ₹5,000 to a friend. The money leaves your account, then the server crashes{" "}
-            <strong>before</strong> it reaches theirs. Where did the money go?
+            Here is another problem. You transfer ₹5,000 to a friend. The money leaves your account. Then the server
+            crashes <strong>before</strong> the money reaches your friend's account. Where did the money go?
           </p>
           <p>
-            These aren't rare edge cases. With thousands of users and servers that sometimes crash, they{" "}
-            <strong>will</strong> happen. <strong>Transactions</strong> are how databases protect you from them, but
-            only if you understand what they actually guarantee.
+            These are not rare cases. With thousands of users, and servers that sometimes crash, they{" "}
+            <strong>will</strong> happen. A <strong>transaction</strong> is the tool a database gives you to protect
+            against them. But it only helps if you understand what it really promises.
           </p>
         </Section>
 
         <Section id="the-core-idea" title="The Core Idea" kind="idea">
           <p>
             Think about <strong>buying something at a shop</strong>. You hand over the money and the shopkeeper hands
-            over the item. Either <strong>both</strong> happen or <strong>neither</strong> does. You'd never accept "you
-            paid, but the item got stuck halfway".
+            over the item. Either <strong>both</strong> happen or <strong>neither</strong> happens. You would never accept
+            "you paid, but the item got stuck halfway".
           </p>
           <p>
-            A <strong>transaction</strong> groups several database operations into one <strong>all-or-nothing</strong>{" "}
-            unit:
+            A <strong>transaction</strong> is a group of database operations that the database treats as one{" "}
+            <strong>all-or-nothing</strong> unit. <code>BEGIN</code> starts it. <code>COMMIT</code> saves all of it:
           </p>
           <CodeBlock lang="sql" code={code1} />
           <p>
-            If anything fails before <code>COMMIT</code>, the database <strong>rolls back</strong>: it undoes
-            everything, as if nothing happened.
+            If anything fails before <code>COMMIT</code>, the database <strong>rolls back</strong>. A rollback undoes
+            every change in the transaction, as if nothing had happened.
           </p>
           <p>
-            <strong>Isolation</strong> answers a second question: when <strong>many</strong> transactions run at the
-            same time, how much can they see of each other's unfinished work? That's where most of the tricky bugs live.
+            <strong>Isolation</strong> answers a second question. When <strong>many</strong> transactions run at the
+            same time, how much can each one see of the unfinished work of the others? Most of the tricky bugs live
+            here.
           </p>
         </Section>
 
         <Section id="how-it-works" title="How It Works" kind="how">
           <h3 id="acid-letter-by-letter">ACID, letter by letter</h3>
           <p>
-            <strong>A: Atomicity (all or nothing).</strong> Every change in the transaction is applied, or none is. If
-            the server crashes after the first <code>UPDATE</code>, the database undoes it on restart.
+            <strong>A: Atomicity (all or nothing).</strong> ACID is a set of four promises that a transaction makes.
+            The first is atomicity. Every change in the transaction is applied, or none is. If the server crashes after
+            the first <code>UPDATE</code>, the database undoes it when it restarts.
           </p>
           <p>
-            <strong>C: Consistency (rules stay true).</strong> The data moves from one valid state to another.
-            Constraints (like <code>balance &gt;= 0</code>, unique emails, valid foreign keys) are never broken. Note:
-            "consistency" here is mostly about <strong>your application's rules</strong>, enforced with constraints and
-            correct transactions. It's <strong>not</strong> the same "consistency" as in CAP (post 27).
+            <strong>C: Consistency (rules stay true).</strong> The data moves from one valid state to another valid
+            state. Constraints (rules the database enforces, like <code>balance &gt;= 0</code>, unique emails, valid
+            foreign keys) are never broken. Note: "consistency" here is mostly about{" "}
+            <strong>your application's rules</strong>. You enforce them with constraints and correct transactions. It is{" "}
+            <strong>not</strong> the same "consistency" as in the CAP theorem (Lesson 27).
           </p>
           <p>
-            <strong>I: Isolation (concurrent transactions do not interfere with each other).</strong> Ideally each transaction
-            behaves <strong>as if it ran alone</strong>. In practice, databases offer different <strong>levels</strong>{" "}
-            of isolation (below), trading safety for speed.
+            <strong>I: Isolation (transactions that run at the same time do not disturb each other).</strong> Ideally each
+            transaction behaves <strong>as if it ran alone</strong>. In practice, databases offer different{" "}
+            <strong>levels</strong> of isolation (below). A lower level is faster but less safe.
           </p>
           <p>
             <strong>D: Durability (committed means saved).</strong> Once the database says "committed", the data
-            survives crashes and power cuts.
+            stays saved. It survives crashes and power cuts.
           </p>
           <h3 id="how-durability-works-the-write-ahead-log">How durability works: the write-ahead log</h3>
           <p>
-            Databases don't rewrite data files directly on every change. That would be slow, and a crash in the middle
-            could corrupt them. Instead:
+            A database does not rewrite its data files directly on every change. That would be slow. A crash in the middle
+            could also damage the files. Instead, it uses a <strong>write-ahead log (WAL)</strong>. The WAL is a file
+            where the database first writes down every change, one after another. Here is the order:
           </p>
           <Flow
-            caption="The write-ahead log. Commit means “it's in the log on disk”, not “the data files are updated”."
+            caption="The write-ahead log. Commit means “the change is safe in the log on disk”, not “the data files are updated”."
             nodes={[
               { title: <>Append the change to the WAL</>, desc: <>sequential, fast</> },
-              { title: <>Force the log to disk (fsync)</>, desc: <>now it survives a power cut</> },
+              { title: <>Force the log to disk (fsync)</>, desc: <>fsync tells the operating system to really write to disk. Now it survives a power cut</> },
               { title: <>Reply “COMMIT OK”</>, desc: <>the app can move on</>, tone: "good" },
               { title: <>Apply to data files later</>, desc: <>in the background, in batches</> },
               {
                 title: <>On crash &amp; restart</>,
-                desc: <>replay the log: redo committed work, undo uncommitted work</>,
+                desc: <>replay the log to restore committed work; uncommitted work is dropped</>,
                 tone: "warn",
               },
             ]}
           />
           <p>
-            Appending to a log is fast, because it's sequential writing (post 10). The same log is also used for{" "}
-            <strong>replication</strong> (post 24) and <strong>point-in-time recovery</strong> (Part 7).
+            Appending to a log is fast, because it is sequential writing (one record after another, see Lesson 10). The same
+            log is also used for <strong>replication</strong> (copying data to other servers, Lesson 24) and for{" "}
+            <strong>point-in-time recovery</strong> (restoring the database to an exact moment, Part 7).
           </p>
           <h3 id="the-problems-isolation-prevents">The problems isolation prevents</h3>
-          <p>Here are the classic "anomalies", things that can go wrong when transactions run at the same time.</p>
           <p>
-            <strong>1. Dirty read: reading uncommitted data.</strong>
+            An "anomaly" is a wrong result that can happen when transactions run at the same time. Here are the five
+            classic ones. In the examples, T1 and T2 are two transactions.
+          </p>
+          <p>
+            <strong>1. Dirty read: reading data that is not committed yet.</strong>
           </p>
           <CodeBlock code={code2} />
           <p>
-            <strong>2. Non-repeatable read: the same row changes mid-transaction.</strong>
+            <strong>2. Non-repeatable read: you read the same row twice and get two different values.</strong>
           </p>
           <CodeBlock code={code3} />
           <p>
-            <strong>3. Phantom read: new rows appear.</strong>
+            <strong>3. Phantom read: you run the same query twice and new rows appear.</strong>
           </p>
           <CodeBlock code={code4} />
           <p>
-            <strong>4. Lost update: two read-modify-writes overwrite each other.</strong>
+            <strong>4. Lost update: two transactions read a value, change it and write it back. One write wipes out the other.</strong>
           </p>
           <SequenceDiagram
             caption="A lost update. Two read-modify-write cycles overwrite each other."
@@ -197,8 +206,8 @@ export default function SdLessonTwoOnePage() {
             ]}
           />
           <p>
-            <strong>5. Write skew: two transactions each check a rule, then both break it together.</strong> This is the
-            classic example from Martin Kleppmann's book. A hospital requires{" "}
+            <strong>5. Write skew: two transactions each check a rule, then together they break it.</strong> This is a
+            classic example from Martin Kleppmann's book. A hospital needs{" "}
             <strong>at least one doctor on call</strong>. Two doctors are on call and both feel sick:
           </p>
           <SequenceDiagram
@@ -222,12 +231,15 @@ export default function SdLessonTwoOnePage() {
             ]}
           />
           <p>
-            Each transaction was fine <strong>on its own</strong>. Together they broke the rule, because each{" "}
-            <strong>changed a different row</strong> based on a check that the other made false. The concert seat and
-            double-booking bugs are often write skew.
+            Each transaction was fine <strong>on its own</strong>. Together they broke the rule. Each one{" "}
+            <strong>changed a different row</strong>, based on a check that the other one made false. The concert seat
+            and double-booking bugs are often write skew.
           </p>
           <h3 id="isolation-levels">Isolation levels</h3>
-          <p>The SQL standard defines four levels. Higher means safer, but can mean slower or more retries.</p>
+          <p>
+            An <strong>isolation level</strong> is a setting that says which anomalies the database must prevent. The SQL
+            standard defines four levels. A higher level is safer, but it can be slower or need more retries.
+          </p>
           <div className="table-wrap">
             <table>
               <thead>
@@ -280,8 +292,8 @@ export default function SdLessonTwoOnePage() {
             </table>
           </div>
           <p>
-            *Exact behaviour differs between databases. For example, PostgreSQL's Repeatable Read prevents lost updates
-            on the same row but still allows write skew.
+            *Exact behaviour differs between databases. For example, PostgreSQL's Repeatable Read prevents phantoms and
+            prevents lost updates on the same row (the second writer gets an error). But it still allows write skew.
           </p>
           <p>
             <strong>Default levels in popular databases:</strong>
@@ -298,79 +310,86 @@ export default function SdLessonTwoOnePage() {
             </li>
           </ul>
           <p>
-            So <strong>by default, most databases do not prevent all anomalies.</strong> Many developers assume "I'm in
-            a transaction, so I'm safe". That's not always true.
+            So <strong>by default, most databases do not prevent all anomalies.</strong> Many developers think "I am in
+            a transaction, so I am safe". That is not always true.
           </p>
           <h3 id="how-databases-implement-isolation">How databases implement isolation</h3>
           <p>
-            <strong>Locking (pessimistic).</strong> Transactions take <strong>locks</strong> on the rows they read or
-            write. Others wait.
+            <strong>Locking (pessimistic).</strong> "Pessimistic" means you expect a clash, so you prevent it first. A
+            transaction takes a <strong>lock</strong> on each row it reads or writes. A lock is a "do not touch" sign.
+            Other transactions must wait until it is removed.
           </p>
           <ul>
             <li>
-              The classic full version, <strong>two-phase locking (2PL)</strong>, gives serializable isolation.
+              The classic full version is <strong>two-phase locking (2PL)</strong>. A transaction takes locks while it
+              works and releases them only at the end. This gives serializable isolation (the same result as if the
+              transactions ran one at a time).
             </li>
             <li>
-              It's safe, but can cause waiting and <strong>deadlocks</strong> (post 4). The database detects deadlocks
-              and aborts one transaction.
+              It is safe, but it can cause waiting and <strong>deadlocks</strong> (Lesson 4). A deadlock is when two
+              transactions each wait for a lock that the other one holds, so neither can go on. The database detects
+              deadlocks and cancels one transaction.
             </li>
           </ul>
           <p>
             <strong>MVCC: Multi-Version Concurrency Control.</strong> Used by PostgreSQL, MySQL InnoDB, Oracle and
-            others. The database keeps <strong>multiple versions</strong> of each row. Each transaction sees a{" "}
-            <strong>snapshot</strong>, a consistent picture of the data as of a certain moment.
+            others. The database keeps <strong>several versions</strong> of each row. Each transaction sees a{" "}
+            <strong>snapshot</strong>. A snapshot is a consistent picture of the data as it was at one moment.
           </p>
           <CodeBlock code={code5} />
           <ul>
             <li>
-              <strong>Readers don't block writers, and writers don't block readers.</strong> That's great for
+              <strong>Readers do not block writers, and writers do not block readers.</strong> This is great for
               performance.
             </li>
             <li>
-              Old versions must be cleaned up later (in PostgreSQL this is <strong>VACUUM</strong>).
+              Old versions must be cleaned up later. In PostgreSQL the cleanup job is called <strong>VACUUM</strong>.
             </li>
           </ul>
           <p>
-            <strong>Serializable Snapshot Isolation (SSI).</strong> PostgreSQL's Serializable level uses snapshots plus
-            tracking of who read what. If two transactions would create an anomaly like write skew, one of them{" "}
-            <strong>fails at commit</strong> with a "could not serialize" error.{" "}
-            <strong>Your app must retry it.</strong>
+            <strong>Serializable Snapshot Isolation (SSI).</strong> PostgreSQL's Serializable level uses snapshots and
+            also tracks which transaction read what. If two transactions would cause an anomaly like write skew, the
+            database stops one of them. It <strong>fails</strong> (often at commit) with a "could not serialize"
+            error. <strong>Your app must retry it.</strong>
           </p>
           <p>
-            <strong>Optimistic concurrency (in the app).</strong> Add a <code>version</code> column and only update if
-            it hasn't changed:
+            <strong>Optimistic concurrency (in the app).</strong> "Optimistic" means you expect no clash, so you do not
+            lock. You only check at the end. Add a <code>version</code> column and update the row only if the version
+            has not changed:
           </p>
           <CodeBlock lang="sql" code={code6} />
           <p>
-            This is common in web apps and APIs (the HTTP <code>ETag</code> / <code>If-Match</code> headers work the
-            same way).
+            This is common in web apps and APIs. The HTTP <code>ETag</code> and <code>If-Match</code> headers work the
+            same way.
           </p>
           <h3 id="practical-tools-to-fix-real-bugs">Practical tools to fix real bugs</h3>
           <p>
-            <strong>1. Let the database do the maths (atomic updates).</strong> Instead of read-then-write in your app:
+            <strong>1. Let the database do the maths (atomic updates).</strong> An atomic operation is one step that cannot
+            be split or interrupted. Do not read a value and then write it back from your app. Use one statement:
           </p>
           <CodeBlock lang="sql" code={code7} />
           <p>
             <strong>
-              2. Lock the rows you're about to change (<code>SELECT ... FOR UPDATE</code>).
+              2. Lock the rows you are about to change (<code>SELECT ... FOR UPDATE</code>).
             </strong>
           </p>
           <CodeBlock lang="sql" code={code8} />
           <p>
-            A second booking request waits for the lock, then sees <code>status = 'booked'</code>.
+            A second booking request waits for the lock. Then it sees <code>status = 'booked'</code>.
           </p>
           <p>
-            <strong>3. Unique constraints as a safety net.</strong>
+            <strong>3. Unique constraints as a safety net.</strong> A unique index tells the database to refuse duplicates.
           </p>
           <CodeBlock lang="sql" code={code9} />
           <p>Even if your code has a bug, the database refuses a second booking for the same seat.</p>
           <p>
-            <strong>4. Use Serializable for tricky invariants,</strong> like the doctors rule, and{" "}
-            <strong>retry on serialization errors</strong>.
+            <strong>4. Use Serializable for tricky invariants,</strong> like the doctors rule. An invariant is a rule that
+            must always be true. Also <strong>retry on serialization errors</strong>.
           </p>
           <p>
-            <strong>5. Keep transactions short.</strong> Never hold a transaction open while calling an external API or
-            waiting for a user. Long transactions hold locks, block others and bloat MVCC versions.
+            <strong>5. Keep transactions short.</strong> Never keep a transaction open while you call an external API or
+            wait for a user. A long transaction holds locks, blocks others and keeps old MVCC versions from being
+            cleaned up.
           </p>
           <Compare
             caption="Two ways to stop concurrent transactions clashing."
@@ -397,53 +416,56 @@ export default function SdLessonTwoOnePage() {
           />
           <h3 id="transactions-across-services">Transactions across services</h3>
           <p>
-            ACID works <strong>inside one database</strong>. If an order service and a payment service each have their
-            own database, you can't wrap both in a single <code>BEGIN ... COMMIT</code>.
+            ACID works <strong>inside one database</strong>. Suppose an order service and a payment service each have their
+            own database. You cannot wrap both in a single <code>BEGIN ... COMMIT</code>.
           </p>
           <ul>
             <li>
-              <strong>Two-phase commit (2PC)</strong> can coordinate them, but it's slow and fragile: if the coordinator
-              dies, everyone waits.
+              <strong>Two-phase commit (2PC)</strong> can coordinate them. A coordinator first asks every database "can you
+              commit?". If all say yes, it tells them to commit. But 2PC is slow and fragile. If the coordinator dies,
+              everyone waits.
             </li>
             <li>
-              Most microservice systems use <strong>sagas</strong> instead: a sequence of local transactions with{" "}
-              <strong>compensating actions</strong> ("payment failed, so cancel the order"). Part 6 covers sagas.
+              Most microservice systems use <strong>sagas</strong> instead. A saga is a sequence of local transactions
+              (one per service). If a step fails, <strong>compensating actions</strong> undo the earlier steps
+              ("payment failed, so cancel the order"). Part 6 covers sagas.
             </li>
           </ul>
           <p>
-            This is one reason people say "<strong>don't split your database until you have to</strong>".
+            This is one reason people say "<strong>do not split your database until you have to</strong>".
           </p>
           <h3 id="acid-vs-base">ACID vs BASE</h3>
           <p>
             Some NoSQL systems describe themselves as <strong>BASE</strong>: <strong>B</strong>asically{" "}
             <strong>A</strong>vailable, <strong>S</strong>oft state, <strong>E</strong>ventually consistent. That means
-            they prefer staying available and fast over strict transactional guarantees. Many modern NoSQL databases now
-            offer ACID transactions in limited forms (for example, within one partition, or with extra cost). Always
-            check exactly what's guaranteed.
+            they prefer to stay available and fast, instead of giving strict transaction guarantees. "Soft state" means
+            the data may change over time even without new input. "Eventually consistent" means all copies become equal
+            after a short time. Many modern NoSQL databases now offer ACID transactions in limited forms (for example,
+            within one partition, or at extra cost). Always check exactly what is guaranteed.
           </p>
         </Section>
 
         <Section id="trade-offs" title="Trade-offs" kind="tradeoffs">
           <ul>
             <li>
-              <strong>Higher isolation</strong> means fewer bugs, but more locking, more aborted transactions to retry,
-              and sometimes lower throughput.
+              <strong>Higher isolation</strong> means fewer bugs. But you get more locking, more cancelled transactions to
+              retry, and sometimes lower throughput (fewer transactions per second).
             </li>
             <li>
-              <strong>Lower isolation</strong> gives better performance, but you must reason carefully about races,
-              often with explicit locks or atomic updates.
+              <strong>Lower isolation</strong> gives better performance. But you must think carefully about race
+              conditions, often with explicit locks or atomic updates.
             </li>
             <li>
-              <strong>Pessimistic locking</strong> is simple and certain, but can cause waiting and deadlocks under
-              contention.
+              <strong>Pessimistic locking</strong> is simple and certain. But it can cause waiting and deadlocks when many
+              transactions compete for the same rows (contention).
             </li>
             <li>
-              <strong>Optimistic concurrency</strong> has no waiting, but needs retries. It's great when conflicts are
-              rare, and poor when they're frequent (a flash sale on one item).
+              <strong>Optimistic concurrency</strong> has no waiting, but it needs retries. It is great when clashes are
+              rare. It is poor when they are frequent (a flash sale on one item).
             </li>
             <li>
-              <strong>Distributed transactions</strong> give correctness across systems, at the cost of complexity and
-              latency. Sagas are usually preferred.
+              <strong>Distributed transactions</strong> give correct results across systems, but they add complexity and
+              delay. Sagas are usually preferred.
             </li>
           </ul>
         </Section>
@@ -452,19 +474,20 @@ export default function SdLessonTwoOnePage() {
           <p>
             <strong>Ticket booking and flash sales.</strong> Movie, concert and train booking systems face exactly the
             "last seat" race when thousands of people try to book popular seats at once. They combine row locks or
-            atomic updates, unique constraints, and often short-lived "seat holds" with timeouts, so one seat is sold
-            once.
+            atomic updates, unique constraints, and often short "seat holds" with a timeout. This way, each seat is
+            sold only once.
           </p>
           <p>
             <strong>Banking and payments.</strong> Every card payment, UPI transfer or bank transfer relies on atomic,
-            durable transactions, plus <strong>ledgers</strong> where every movement of money is recorded as entries
-            that always balance. Payment companies are famously careful about isolation, idempotency (post 34) and
-            reconciliation.
+            durable transactions. Payment systems also keep <strong>ledgers</strong>, where every movement of money is
+            written as entries that always balance. Payment companies are very careful about isolation, idempotency
+            (doing an action twice has the same effect as doing it once, Lesson 34) and reconciliation (checking that
+            two sets of records agree).
           </p>
           <p>
             <strong>Jepsen testing.</strong> Kyle Kingsbury's Jepsen project tests databases under network failures and
-            has found cases where databases, including well-known ones, didn't provide the isolation or consistency they
-            claimed in their documentation. It's a reminder to <strong>understand and test</strong> the guarantees you
+            has found cases where databases, including well-known ones, did not give the isolation or consistency that their
+            documentation claimed. It reminds us to <strong>understand and test</strong> the guarantees that we
             depend on.
           </p>
           <p>
@@ -473,8 +496,8 @@ export default function SdLessonTwoOnePage() {
             can mean quite different things in different databases.
           </p>
           <p>
-            <strong>Inventory bugs in e-commerce.</strong> "Overselling" (selling more items than exist) is a common,
-            costly bug, and it's usually a lost update or write skew. The fix is almost always an atomic conditional
+            <strong>Inventory bugs in e-commerce.</strong> "Overselling" (selling more items than exist) is a common
+            and costly bug. It is usually a lost update or write skew. The fix is almost always an atomic conditional
             update or a constraint, not more application code.
           </p>
         </Section>
@@ -487,10 +510,11 @@ export default function SdLessonTwoOnePage() {
                 a: (
                   <>
                     <p>
-                      Atomicity: all of a transaction's changes happen or none do. Consistency: the database moves
-                      between valid states, keeping constraints and invariants true. Isolation: concurrent transactions
-                      don't see each other's in-progress work (to a chosen level). Durability: once committed, data
-                      survives crashes — via the write-ahead log.
+                      Atomicity: all of a transaction's changes happen, or none do. Consistency: the database moves
+                      from one valid state to another, and constraints and invariants stay true. Isolation:
+                      transactions that run at the same time do not see each other's unfinished work (up to the
+                      isolation level you chose). Durability: once a transaction is committed, its data survives
+                      crashes. The write-ahead log gives this.
                     </p>
                   </>
                 ),
@@ -500,9 +524,9 @@ export default function SdLessonTwoOnePage() {
                 a: (
                   <>
                     <p>
-                      Two transactions read the same condition, each updates a different row based on it, and together
-                      they break the rule (the on-call doctors). Snapshot / Repeatable Read allows it; Serializable
-                      prevents it, or you lock the rows you depend on with SELECT … FOR UPDATE.
+                      Two transactions read the same condition. Each one updates a different row because of it. Together
+                      they break a rule (the on-call doctors). Snapshot / Repeatable Read allows this. Serializable
+                      prevents it. Or you can lock the rows you depend on with SELECT … FOR UPDATE.
                     </p>
                   </>
                 ),
@@ -513,8 +537,8 @@ export default function SdLessonTwoOnePage() {
                   <>
                     <p>
                       Make the check and the write one atomic statement: UPDATE products SET stock = stock − 1 WHERE id
-                      = ? AND stock &gt; 0, then check the affected row count. For more complex flows, lock the row with
-                      SELECT … FOR UPDATE, and keep a constraint (CHECK stock &gt;= 0) as a safety net.
+                      = ? AND stock &gt; 0. Then check the affected row count. For more complex flows, lock the row
+                      with SELECT … FOR UPDATE. Also keep a constraint (CHECK stock &gt;= 0) as a safety net.
                     </p>
                   </>
                 ),
@@ -525,8 +549,8 @@ export default function SdLessonTwoOnePage() {
                   <>
                     <p>
                       Multi-Version Concurrency Control keeps several versions of each row, so each transaction reads a
-                      consistent snapshot. Readers never block writers and writers never block readers, giving high
-                      concurrency; the cost is cleaning up old versions (VACUUM in PostgreSQL).
+                      consistent snapshot. Readers never block writers and writers never block readers. This gives
+                      high concurrency. The cost is that old versions must be cleaned up (VACUUM in PostgreSQL).
                     </p>
                   </>
                 ),
@@ -536,9 +560,9 @@ export default function SdLessonTwoOnePage() {
                 a: (
                   <>
                     <p>
-                      Read Committed. It prevents dirty reads, but allows non-repeatable reads, phantoms, lost updates
-                      in read-modify-write code, and write skew. Being inside a transaction does not by itself make you
-                      safe from races.
+                      Read Committed. It prevents dirty reads. But it allows non-repeatable reads, phantoms, lost updates
+                      in read-modify-write code, and write skew. Being inside a transaction does not by itself keep
+                      you safe from race conditions.
                     </p>
                   </>
                 ),
@@ -548,9 +572,11 @@ export default function SdLessonTwoOnePage() {
                 a: (
                   <>
                     <p>
-                      Not with one ACID transaction. Two-phase commit is possible but slow and fragile. Usually you use
-                      a saga: a sequence of local transactions, each publishing an event, with compensating actions
-                      (refund, cancel) if a later step fails — plus idempotent handlers and an outbox.
+                      Not with one ACID transaction. Two-phase commit is possible, but it is slow and fragile. Usually
+                      you use a saga. A saga is a sequence of local transactions. Each one publishes an event. If a
+                      later step fails, compensating actions (refund, cancel) undo the earlier steps. You also use
+                      idempotent handlers (safe to run twice) and an outbox (a table in the same database that holds
+                      the events to publish, so the data change and the event are saved together).
                     </p>
                   </>
                 ),
@@ -571,8 +597,8 @@ export default function SdLessonTwoOnePage() {
             </li>
             <li>
               Know the anomalies:{" "}
-              <strong>dirty reads, non-repeatable reads, phantoms, lost updates and write skew</strong>. Most databases'{" "}
-              <strong>default</strong> level doesn't prevent all of them.
+              <strong>dirty reads, non-repeatable reads, phantoms, lost updates and write skew</strong>. The{" "}
+              <strong>default</strong> level of most databases does not prevent all of them.
             </li>
             <li>
               Fix races with <strong>atomic updates</strong> (<code>SET x = x - 1 WHERE x &gt; 0</code>),{" "}

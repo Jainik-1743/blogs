@@ -40,24 +40,24 @@ export default function SdLessonTwoFourPage() {
       <div className="lesson">
         <Section id="the-problem" title="The Problem" kind="problem">
           <p>
-            Your whole app depends on <strong>one database server</strong>. Three things will eventually go wrong:
+            Your whole app depends on <strong>one database server</strong>. Sooner or later, three things will go wrong:
           </p>
           <ol>
             <li>
-              <strong>It dies.</strong> A disk fails or the machine crashes, and the whole app is down until it's
+              <strong>It dies.</strong> A disk fails or the machine crashes. The whole app is down until the database is
               restored.
             </li>
             <li>
-              <strong>It's overloaded with reads.</strong> The product pages, feeds and searches are 95% reads, and one
-              machine can't keep up.
+              <strong>It is overloaded with reads.</strong> Product pages, feeds and searches are 95% reads. One machine
+              cannot keep up.
             </li>
             <li>
-              <strong>Users are far away.</strong> Users in Europe wait 150 ms per query to reach your database in
+              <strong>Users are far away.</strong> Users in Europe wait 150 ms for each query to reach your database in
               India.
             </li>
           </ol>
           <p>
-            The answer to all three is <strong>replication</strong>: keeping{" "}
+            The answer to all three is <strong>replication</strong>. Replication means keeping{" "}
             <strong>copies of the same data on several machines</strong>. But copies bring new problems:
           </p>
           <ul>
@@ -71,7 +71,7 @@ export default function SdLessonTwoFourPage() {
 
         <Section id="the-core-idea" title="The Core Idea" kind="idea">
           <p>
-            Think about a <strong>school notice board system</strong>.
+            Think about the <strong>notice boards in a school</strong>.
           </p>
           <ul>
             <li>
@@ -80,26 +80,26 @@ export default function SdLessonTwoFourPage() {
             </li>
             <li>
               Every classroom has a copy of the board. A student runner carries each new notice from the office to every
-              classroom. Students read the notices in their own classroom. (These are the <strong>followers</strong>, or{" "}
-              <strong>replicas</strong>.)
+              classroom. Students read the notices in their own classroom. (These classrooms are the{" "}
+              <strong>followers</strong>, also called <strong>replicas</strong>.)
             </li>
           </ul>
           <p>
-            It works well. Reading is spread across many classrooms, and if one classroom's board falls down, the others
-            still have the notices. But:
+            This works well. Reading is spread across many classrooms. If one classroom's board falls down, the others
+            still have the notices. But there are problems:
           </p>
           <ul>
             <li>
-              The runner takes time, so for a few minutes a classroom may show <strong>yesterday's</strong> notice. (
-              <strong>Replication lag</strong>.)
+              The runner takes time, so for a few minutes a classroom may show <strong>yesterday's</strong> notice. This
+              delay is called <strong>replication lag</strong>.
             </li>
             <li>
-              If the principal's office burns down, one classroom must become the new office. (<strong>Failover</strong>
-              .)
+              If the principal's office burns down, one classroom must become the new office. This switch is called{" "}
+              <strong>failover</strong>.
             </li>
             <li>
-              What if two rooms both think they're the office and post different notices? (<strong>Split brain</strong>
-              .)
+              What if two rooms both think that they are the office, and they post different notices? This is called{" "}
+              <strong>split brain</strong>.
             </li>
           </ul>
         </Section>
@@ -108,21 +108,25 @@ export default function SdLessonTwoFourPage() {
           <h3 id="why-replicate">Why replicate?</h3>
           <ul>
             <li>
-              <strong>High availability:</strong> if one machine dies, another has the data.
+              <strong>High availability:</strong> the app stays up. If one machine dies, another one has the data.
             </li>
             <li>
-              <strong>Read scaling:</strong> spread reads across replicas.
+              <strong>Read scaling:</strong> spread the reads across the replicas, so each machine does less work.
             </li>
             <li>
               <strong>Lower latency:</strong> put replicas close to users in other regions.
             </li>
             <li>
-              <strong>Backups and analytics:</strong> run heavy reports or backups on a replica without slowing the main
-              database.
+              <strong>Backups and analytics:</strong> run heavy reports or backups on a replica. The main database stays
+              fast.
             </li>
           </ul>
           <h3 id="single-leader-replication-primary-replica">Single-leader replication (primary–replica)</h3>
-          <p>This is the most common setup: PostgreSQL, MySQL, SQL Server, MongoDB replica sets and many more.</p>
+          <p>
+            In single-leader replication, one machine (the <strong>leader</strong>, also called the primary) accepts
+            all writes. The other machines (the <strong>followers</strong>, also called replicas) copy its changes. This
+            is the most common setup: PostgreSQL, MySQL, SQL Server, MongoDB replica sets and many more.
+          </p>
           <Flow
             caption="Single-leader replication. One writer, many readers, one ordered log."
             nodes={[
@@ -137,7 +141,7 @@ export default function SdLessonTwoFourPage() {
                 desc: <>replay the same changes in the same order</>,
                 label: <>streams the log</>,
               },
-              { title: <>App reads</>, desc: <>spread across replicas — and the leader</>, tone: "good" },
+              { title: <>App reads</>, desc: <>spread across replicas and the leader</>, tone: "good" },
             ]}
           />
           <ol>
@@ -145,10 +149,12 @@ export default function SdLessonTwoFourPage() {
               <strong>All writes go to the leader.</strong>
             </li>
             <li>
-              The leader records every change in its <strong>log</strong> (the WAL in PostgreSQL, the binlog in MySQL).
+              The leader records every change in its <strong>log</strong>. A log is a file where changes are written in
+              order (the WAL in PostgreSQL, the binlog in MySQL).
             </li>
             <li>
-              Replicas receive the log and <strong>replay</strong> the same changes, in the same order.
+              Replicas receive the log and <strong>replay</strong> the same changes, in the same order. Replaying means
+              doing the same changes again on their own copy.
             </li>
             <li>
               <strong>Reads</strong> can go to the leader or to any replica.
@@ -156,30 +162,31 @@ export default function SdLessonTwoFourPage() {
           </ol>
           <h3 id="synchronous-vs-asynchronous-replication">Synchronous vs asynchronous replication</h3>
           <p>
-            <strong>Asynchronous (the most common default).</strong> The leader commits and replies "OK"{" "}
-            <strong>without waiting</strong> for replicas.
+            <strong>Asynchronous (the most common default).</strong> To commit means to save a change for good. In
+            asynchronous replication, the leader commits and replies "OK" <strong>without waiting</strong> for the
+            replicas.
           </p>
           <ul>
-            <li>✅ Fast writes, and slow or broken replicas don't block the leader.</li>
+            <li>✅ Fast writes. Slow or broken replicas do not block the leader.</li>
             <li>
-              ❌ If the leader dies, <strong>the most recent writes may not have reached any replica</strong>, so
-              they're lost after failover.
+              ❌ If the leader dies, <strong>the most recent writes may not have reached any replica</strong>. They
+              are lost after failover.
             </li>
           </ul>
           <p>
-            <strong>Synchronous.</strong> The leader waits until at least one replica confirms it has the change before
-            replying "OK".
+            <strong>Synchronous.</strong> The leader waits until at least one replica confirms that it has the change.
+            Only then does it reply "OK".
           </p>
           <ul>
             <li>✅ No data loss if the leader dies (a replica has everything).</li>
             <li>
-              ❌ Slower writes. If that replica is slow or down, <strong>writes stall</strong>.
+              ❌ Slower writes. If that replica is slow or down, <strong>writes stop and wait</strong>.
             </li>
           </ul>
           <p>
-            <strong>Semi-synchronous (a common compromise).</strong> Wait for <strong>one</strong> replica to confirm,
-            and replicate to the rest asynchronously. If the synchronous replica fails, another one takes over that
-            role.
+            <strong>Semi-synchronous (a common compromise).</strong> The leader waits for <strong>one</strong> replica to
+            confirm. It copies to the other replicas asynchronously. If the synchronous replica fails, another one takes
+            over that role.
           </p>
           <Compare
             caption="When does the leader say “OK”?"
@@ -208,14 +215,18 @@ export default function SdLessonTwoFourPage() {
           />
           <h3 id="replication-lag-and-the-problems-it-causes">Replication lag and the problems it causes</h3>
           <p>
-            With async replication, replicas are usually behind by milliseconds, but under heavy load it can be seconds
-            or even minutes. This causes real user-facing bugs:
+            With async replication, replicas are usually behind the leader by only milliseconds. Under heavy load they can
+            be behind by seconds or even minutes. This delay is the <strong>replication lag</strong>. It causes bugs
+            that users can see:
           </p>
           <p>
             <strong>1. Read-your-own-writes failure.</strong>
           </p>
           <ReplicationLag caption="Save a new name, then immediately read it back from a follower. Switch to synchronous replication and watch what you pay instead." />
-          <p>The user thinks the update failed.</p>
+          <p>
+            The user saves a change, but the next read goes to a replica that has not received it yet. The user thinks
+            the update failed.
+          </p>
           <p>Fixes:</p>
           <ul>
             <li>
@@ -223,84 +234,85 @@ export default function SdLessonTwoFourPage() {
               <strong>leader</strong>, at least for a short time after they write.
             </li>
             <li>
-              Track the time or log position of the user's last write, and only read from replicas that have caught up
-              to it.
+              Remember the time (or log position) of the user's last write. Read only from replicas that have caught up
+              to that point.
             </li>
-            <li>Update the UI locally (optimistic UI) so the user sees their change immediately.</li>
+            <li>Update the screen at once in the browser (optimistic UI), so the user sees their change immediately.</li>
           </ul>
           <p>
-            <strong>2. Monotonic reads (going back in time).</strong>
+            <strong>2. Monotonic reads (going back in time).</strong> Monotonic means "never going backwards". Here, a user sees newer data and then older data.
           </p>
           <AsciiDiagram text={diagram1} />
           <p>
-            The fix is to send each user to the <strong>same replica</strong> (for example, choose it by hashing the
-            user ID).
+            The fix is to send each user to the <strong>same replica</strong> every time. For example, choose the replica
+            by hashing the user ID (turning it into a number).
           </p>
           <p>
-            <strong>3. Consistent prefix (effects before causes).</strong> In partitioned systems, you might see an
-            answer before the question it replies to, because they came from different, differently lagging copies. The
-            fix is to keep causally related writes together, which is covered more in post 28.
+            <strong>3. Consistent prefix (effects before causes).</strong> In systems where data is split into
+            partitions, you might see an answer before the question it replies to. The two came from different copies
+            with different lag. The fix is to keep writes that depend on each other together. Lesson 28 covers this
+            more.
           </p>
           <p>
-            <strong>Monitor replication lag</strong> and alert on it. If a replica falls too far behind, take it out of
-            the read pool.
+            <strong>Monitor replication lag</strong> and set an alert for it. If a replica falls too far behind, remove it
+            from the group of replicas that serve reads.
           </p>
           <h3 id="failover-when-the-leader-dies">Failover: when the leader dies</h3>
           <Flow
             caption="Failover, step by step. Each step has its own way to go wrong."
             nodes={[
-              { title: <>Detect</>, desc: <>heartbeats time out — or was it just a network blip?</> },
+              { title: <>Detect</>, desc: <>heartbeats (regular "I am alive" signals) time out. Or was it just a short network problem?</> },
               { title: <>Choose</>, desc: <>pick the most up-to-date replica</> },
               { title: <>Promote</>, desc: <>it becomes the new leader</> },
               { title: <>Redirect</>, desc: <>apps and other replicas send writes to it</> },
               {
                 title: <>Fence</>,
-                desc: <>make sure the old leader can never accept writes again (STONITH)</>,
+                desc: <>make sure the old leader can never accept writes again (for example, STONITH)</>,
                 tone: "warn",
               },
             ]}
           />
-          <p>It sounds simple, but it's one of the trickiest operations in databases:</p>
+          <p>It sounds simple, but it is one of the hardest jobs in databases:</p>
           <ul>
             <li>
-              <strong>Lost writes (with async replication).</strong> Writes that only the old leader had are gone, or
-              they cause conflicts when it returns.
+              <strong>Lost writes (with async replication).</strong> Writes that only the old leader had are lost. Or
+              they cause conflicts when the old leader comes back.
             </li>
             <li>
-              <strong>False alarms.</strong> A short network glitch can look like a dead leader. Failing over too
-              eagerly causes unnecessary disruption.
+              <strong>False alarms.</strong> A short network problem can look like a dead leader. If you fail over too
+              quickly, you cause trouble for no reason.
             </li>
             <li>
-              <strong>Split brain.</strong> The old leader wasn't really dead, just cut off, and now{" "}
-              <strong>two leaders</strong> accept writes. Data diverges.
+              <strong>Split brain.</strong> The old leader was not really dead. It was only cut off. Now{" "}
+              <strong>two leaders</strong> accept writes, and the data drifts apart.
             </li>
           </ul>
           <p>
-            <strong>Fencing</strong> prevents split brain: make sure the old leader is truly stopped, cut off from
-            storage, or rejected by the system. A dramatic name for one fencing technique is "STONITH":{" "}
-            <em>Shoot The Other Node In The Head</em>.
+            <strong>Fencing</strong> prevents split brain. You make sure the old leader is really stopped, cut off from
+            storage, or refused by the rest of the system. One fencing method has a dramatic name: "STONITH", which
+            means <em>Shoot The Other Node In The Head</em> (switch the old machine off by force).
           </p>
           <p>
-            <strong>Consensus algorithms.</strong> Deciding "who is the leader?" safely across machines, even when
-            messages are delayed or lost, is exactly what consensus algorithms like <strong>Raft</strong> and{" "}
-            <strong>Paxos</strong> solve. The machines vote, and a leader needs a <strong>majority</strong>. So a
+            <strong>Consensus algorithms.</strong> Machines must decide "who is the leader?" in a safe way, even when
+            messages are delayed or lost. Consensus algorithms like <strong>Raft</strong> and <strong>Paxos</strong>{" "}
+            solve exactly this. The machines vote, and a leader needs a <strong>majority</strong> of the votes. So a
             cluster of 3 survives 1 failure, and a cluster of 5 survives 2. Tools like <strong>etcd</strong>,{" "}
-            <strong>ZooKeeper</strong> and <strong>Consul</strong> provide this, and many databases (CockroachDB, TiDB,
-            MongoDB and others) build it in. For PostgreSQL, tools like Patroni handle automatic failover using etcd or
-            similar.
+            <strong>ZooKeeper</strong> and <strong>Consul</strong> give you this. Many databases (CockroachDB, TiDB,
+            MongoDB and others) have it built in. For PostgreSQL, tools like Patroni handle automatic failover, using
+            etcd or something similar.
           </p>
           <h3 id="multi-leader-replication">Multi-leader replication</h3>
           <p>
-            Here, <strong>several nodes accept writes</strong>, often one leader per region, and they replicate to each
-            other.
+            Here, <strong>several nodes accept writes</strong>. Often there is one leader per region. They copy their
+            changes to each other. (A node is one machine in the cluster.)
           </p>
           <AsciiDiagram text={diagram2} />
           <ul>
             <li>
-              ✅ Fast writes for users in every region, and each region keeps working if the links between regions fail.
+              ✅ Fast writes for users in every region. Each region keeps working if the links between regions fail.
             </li>
             <li>
-              ❌ <strong>Write conflicts.</strong> Two regions change the same record at the same time. Which wins?
+              ❌ <strong>Write conflicts.</strong> Two regions change the same record at the same time. Which change wins?
             </li>
           </ul>
           <p>
@@ -308,48 +320,50 @@ export default function SdLessonTwoFourPage() {
           </p>
           <ul>
             <li>
-              <strong>Last-write-wins (LWW):</strong> keep the change with the latest timestamp. It's simple, but{" "}
-              <strong>silently loses</strong> the other write, and clocks on different machines aren't perfectly in
-              sync.
+              <strong>Last-write-wins (LWW):</strong> keep the change with the latest timestamp. It is simple. But it{" "}
+              <strong>silently loses</strong> the other write. Also, the clocks of different machines are never
+              perfectly in sync.
             </li>
             <li>
-              <strong>Merge the values:</strong> for example, combine two sets of cart items.
+              <strong>Merge the values:</strong> for example, join two sets of cart items into one.
             </li>
             <li>
               <strong>CRDTs (Conflict-free Replicated Data Types):</strong> special data structures (counters, sets,
-              text) designed to merge automatically and correctly (post 28).
+              text) that are built so that copies always merge automatically and correctly (Lesson 28).
             </li>
             <li>
-              <strong>Ask the user or the app:</strong> keep both versions and let the application decide.
+              <strong>Ask the user or the app:</strong> keep both versions and let the application (or the user) decide.
             </li>
           </ul>
           <p>
-            The best strategy is to <strong>avoid conflicts</strong>: route all writes for a given record (for example,
-            a given user) to the same "home" region.
+            The best strategy is to <strong>avoid conflicts</strong>. Send all writes for one record (for example, one
+            user) to the same "home" region.
           </p>
           <p>
-            Collaborative apps like Google Docs, and offline-capable mobile apps, are really multi-leader systems: every
-            device accepts edits and syncs later.
+            Collaborative apps like Google Docs, and mobile apps that work offline, are really multi-leader systems. Every
+            device accepts edits and syncs them later.
           </p>
           <h3 id="leaderless-replication-dynamo-style">Leaderless replication (Dynamo-style)</h3>
           <p>
-            There's no leader at all. The client (or a coordinator node) sends each write to{" "}
-            <strong>several replicas at once</strong> and reads from several at once. This is used by Cassandra,
-            ScyllaDB, Riak, and the original Amazon Dynamo.
+            There is no leader at all. The client (or a coordinator node) sends each write to{" "}
+            <strong>several replicas at once</strong>. It also reads from several replicas at once. Cassandra, ScyllaDB,
+            Riak and the original Amazon Dynamo (the system in the 2007 paper) work this way.
           </p>
           <p>
-            <strong>Quorums.</strong> With <strong>N</strong> copies of each piece of data:
+            <strong>Quorums.</strong> A quorum is the minimum number of replicas that must agree. Say there are{" "}
+            <strong>N</strong> copies of each piece of data:
           </p>
           <ul>
             <li>
               a write succeeds when <strong>W</strong> replicas confirm,
             </li>
             <li>
-              a read asks <strong>R</strong> replicas and takes the newest value.
+              a read asks <strong>R</strong> replicas and takes the newest value that it gets.
             </li>
           </ul>
           <p>
-            If <strong>W + R &gt; N</strong>, every read overlaps with at least one replica that has the latest write.
+            If <strong>W + R &gt; N</strong>, every read meets at least one replica that has the latest write. The reason:
+            the replicas that took the write and the replicas that answer the read must share at least one machine.
           </p>
           <Stats
             caption="Quorums with N = 3 copies. If W + R > N, every read overlaps the latest write."
@@ -360,43 +374,45 @@ export default function SdLessonTwoFourPage() {
             ]}
           />
           <p>
-            You can <strong>tune</strong> this per query. In Cassandra, for example, consistency levels like{" "}
-            <code>ONE</code>, <code>QUORUM</code> and <code>ALL</code> let you trade speed against freshness.
+            You can <strong>tune</strong> W and R for each query. In Cassandra, for example, consistency levels like{" "}
+            <code>ONE</code>, <code>QUORUM</code> and <code>ALL</code> let you trade speed against freshness of data.
           </p>
           <p>
-            <strong>Keeping replicas in sync without a leader:</strong>
+            <strong>How to keep replicas in sync without a leader:</strong>
           </p>
           <ul>
             <li>
-              <strong>Read repair:</strong> during a read, if one replica returns an old value, update it.
+              <strong>Read repair:</strong> during a read, if one replica returns an old value, the reader updates that
+              replica with the newer value.
             </li>
             <li>
-              <strong>Anti-entropy:</strong> background processes compare replicas (often using{" "}
-              <strong>Merkle trees</strong>, hash trees that quickly find which ranges differ) and fix differences.
+              <strong>Anti-entropy:</strong> background jobs compare the replicas and fix the differences. They often use{" "}
+              <strong>Merkle trees</strong>. A Merkle tree is a tree of hashes (short fingerprints of data) that quickly
+              shows which ranges of data differ.
             </li>
             <li>
-              <strong>Hinted handoff:</strong> if a replica is down, another node temporarily holds its writes and hands
-              them over when it returns.
+              <strong>Hinted handoff:</strong> if a replica is down, another node keeps its writes for a while. It hands
+              them over when the replica comes back.
             </li>
             <li>
               <strong>Sloppy quorums:</strong> during failures, accept writes on "stand-in" nodes to stay available.
-              This improves availability but weakens the W + R &gt; N guarantee.
+              This improves availability. But it weakens the W + R &gt; N guarantee.
             </li>
           </ul>
           <h3 id="how-changes-are-shipped">How changes are shipped</h3>
           <ul>
             <li>
-              <strong>Statement-based:</strong> send the SQL statements. Risky, because functions like{" "}
-              <code>NOW()</code> or <code>RAND()</code> can produce different results on each replica.
+              <strong>Statement-based:</strong> send the SQL statements themselves. This is risky. Functions like{" "}
+              <code>NOW()</code> or <code>RAND()</code> can give a different result on each replica.
             </li>
             <li>
-              <strong>Physical / WAL shipping:</strong> send the low-level disk changes. Exact, but tied to the same
-              database version.
+              <strong>Physical / WAL shipping:</strong> send the low-level changes to the disk files. This is exact. But
+              it only works between the same database versions.
             </li>
             <li>
-              <strong>Logical (row-based) replication:</strong> send "row X changed from A to B". It's flexible and
-              works across versions. It's also the basis of <strong>Change Data Capture (CDC)</strong> (post 23, Part
-              6).
+              <strong>Logical (row-based) replication:</strong> send "row X changed from A to B". It is flexible and
+              works across versions. It is also the basis of <strong>Change Data Capture (CDC)</strong>, which streams
+              database changes to other systems (Lessons 19 and 23, Part 6).
             </li>
           </ul>
           <h3 id="comparison">Comparison</h3>
@@ -439,7 +455,7 @@ export default function SdLessonTwoFourPage() {
                   <td>Examples</td>
                   <td>PostgreSQL, MySQL, MongoDB</td>
                   <td>Multi-region setups, offline/collab apps</td>
-                  <td>Cassandra, ScyllaDB, DynamoDB-style</td>
+                  <td>Cassandra, ScyllaDB, Riak, the original Amazon Dynamo</td>
                 </tr>
               </tbody>
             </table>
@@ -449,26 +465,27 @@ export default function SdLessonTwoFourPage() {
         <Section id="trade-offs" title="Trade-offs" kind="tradeoffs">
           <ul>
             <li>
-              <strong>Replicas scale reads, not writes.</strong> All writes still go to one leader in single-leader
-              setups. To scale writes, you shard (post 25).
+              <strong>Replicas scale reads, not writes.</strong> In single-leader setups, all writes still go to one
+              leader. To scale writes, you shard, which means you split the data across machines (Lesson 25).
             </li>
             <li>
-              <strong>Async replication</strong> gives fast writes, a possible loss of the latest writes on failover,
-              and <strong>stale reads</strong>.
+              <strong>Async replication</strong> gives fast writes. The costs are a possible loss of the latest writes on
+              failover, and <strong>stale reads</strong> (reads that return old data).
             </li>
             <li>
-              <strong>Sync replication</strong> gives no loss, but slower writes that depend on replica health.
+              <strong>Sync replication</strong> loses no data. But writes are slower, and they depend on the health of the
+              replica.
             </li>
             <li>
-              <strong>Automatic failover</strong> means less downtime, but the risk of false failovers and split brain.
-              Test it regularly.
+              <strong>Automatic failover</strong> means less downtime. But there is a risk of false failovers and split
+              brain. Test it regularly.
             </li>
             <li>
-              <strong>Multi-leader and leaderless</strong> give high availability and local writes, but conflicts and
-              more complex reasoning.
+              <strong>Multi-leader and leaderless</strong> give high availability and local writes. But you get conflicts,
+              and the system is harder to understand.
             </li>
             <li>
-              <strong>Replication is not a backup.</strong> A mistaken <code>DELETE</code> replicates to every copy
+              <strong>Replication is not a backup.</strong> A <code>DELETE</code> by mistake is copied to every replica
               within milliseconds. You still need backups (Part 7).
             </li>
           </ul>
@@ -476,28 +493,28 @@ export default function SdLessonTwoFourPage() {
 
         <Section id="in-the-real-world" title="In the Real World" kind="real">
           <p>
-            <strong>GitHub's October 2018 incident.</strong> A brief network problem (about 43 seconds) cut connectivity
+            <strong>GitHub's October 2018 incident.</strong> A short network problem (about 43 seconds) cut the link
             between GitHub's East Coast data centre and the rest of its network. Its automated failover system promoted
-            database primaries on the <strong>West Coast</strong>. When connectivity returned, some writes existed only
-            in the East and others only in the West, and the databases couldn't simply be merged. GitHub ran in a
-            degraded state for about 24 hours while engineers carefully reconciled the data. It's one of the best public
+            database primaries on the <strong>West Coast</strong>. When the link came back, some writes existed only
+            in the East and others only in the West. The databases could not simply be merged. GitHub ran in a
+            degraded state for about 24 hours while engineers carefully fixed the data. It is one of the best public
             examples of how hard failover and split brain are.
           </p>
           <p>
             <strong>Read replicas in everyday apps.</strong> Managed services like Amazon RDS, Google Cloud SQL and
-            Azure Database make adding read replicas a few clicks. Many teams then hit the "I updated my profile but see
-            old data" bug, and fix it by reading the user's own data from the primary.
+            Azure Database let you add read replicas with a few clicks. Many teams then meet the "I updated my profile
+            but I see old data" bug. They fix it by reading the user's own data from the primary.
           </p>
           <p>
-            <strong>Cassandra at Netflix and Apple.</strong> Leaderless, multi-data-centre Cassandra clusters are used
-            for huge volumes of data like viewing history and service data. Tunable consistency lets teams choose, per
+            <strong>Cassandra at Netflix and Apple.</strong> Leaderless Cassandra clusters that span several data centres hold huge
+            amounts of data, such as viewing history and service data. Tunable consistency lets teams choose, for each
             query, between speed and freshness.
           </p>
           <p>
             <strong>Amazon's shopping cart.</strong> The Dynamo paper describes how the cart stays writable during
-            failures using leaderless replication, and how conflicting versions are merged. The paper also admits a side
-            effect: deleted items could occasionally <strong>reappear</strong> after a merge. It was accepted as a
-            reasonable trade for never refusing "add to cart".
+            failures by using leaderless replication, and how conflicting versions are merged. The paper also admits a
+            side effect: deleted items could sometimes <strong>reappear</strong> after a merge. Amazon accepted this as a
+            fair price for never refusing "add to cart".
           </p>
         </Section>
 
@@ -509,9 +526,9 @@ export default function SdLessonTwoFourPage() {
                 a: (
                   <>
                     <p>
-                      Availability (another copy survives a crash), read scaling, lower latency for distant users, and a
-                      safe place for backups and reports. It does not scale writes in a single-leader setup, and it is
-                      not a backup — a bad DELETE replicates everywhere within milliseconds.
+                      It gives you availability (another copy survives a crash), read scaling, lower latency for distant
+                      users, and a safe place to run backups and reports. It does not scale writes in a single-leader
+                      setup. It is also not a backup, because a bad DELETE is copied everywhere within milliseconds.
                     </p>
                   </>
                 ),
@@ -521,9 +538,10 @@ export default function SdLessonTwoFourPage() {
                 a: (
                   <>
                     <p>
-                      Asynchronous replication lag: the write went to the leader, the read hit a replica that hadn't
-                      caught up. Serve a user's own data from the leader for a while after they write, route to replicas
-                      that have reached the user's last write position, or show the change optimistically in the UI.
+                      The cause is asynchronous replication lag. The write went to the leader, but the read hit a replica
+                      that had not caught up. To fix it, serve a user's own data from the leader for a while after they
+                      write. Or send reads only to replicas that have reached the user's last write position. Or show
+                      the change in the UI at once (optimistic UI).
                     </p>
                   </>
                 ),
@@ -533,10 +551,10 @@ export default function SdLessonTwoFourPage() {
                 a: (
                   <>
                     <p>
-                      Two nodes both believe they are the leader and accept conflicting writes, usually after a network
-                      partition triggers failover while the old leader is still alive. Prevent it with consensus-based
-                      leader election that needs a majority (Raft, etcd) and fencing that stops the old leader from
-                      writing.
+                      Two nodes both believe that they are the leader, and they accept conflicting writes. This usually
+                      happens after a network partition (a break in the network) triggers a failover while the old
+                      leader is still alive. To prevent it, use leader election based on consensus that needs a
+                      majority (Raft, etcd). Also use fencing, which stops the old leader from writing.
                     </p>
                   </>
                 ),
@@ -546,9 +564,10 @@ export default function SdLessonTwoFourPage() {
                 a: (
                   <>
                     <p>
-                      With N replicas, a write waits for W acknowledgements and a read queries R replicas. If W + R &gt;
-                      N, every read set overlaps every write set, so at least one replica in each read has the latest
-                      value. Tuning W and R trades write latency, read latency and availability.
+                      With N replicas, a write waits for W acknowledgements and a read asks R replicas. If W + R &gt;
+                      N, every group of read replicas overlaps every group of write replicas. So at least one replica in
+                      each read has the latest value. Changing W and R trades write latency, read latency and
+                      availability against each other.
                     </p>
                   </>
                 ),
@@ -558,9 +577,10 @@ export default function SdLessonTwoFourPage() {
                 a: (
                   <>
                     <p>
-                      Last-write-wins by timestamp (simple, but silently drops writes and trusts clocks), merging
-                      values, CRDTs that merge automatically, or keeping both versions for the app or user to resolve.
-                      Best of all is avoiding conflicts by routing each record's writes to one home region.
+                      You can use last-write-wins by timestamp. It is simple, but it silently drops writes and it
+                      trusts clocks. You can merge the values. You can use CRDTs, which merge automatically. Or you can
+                      keep both versions for the app or the user to resolve. The best way is to avoid conflicts by
+                      sending each record's writes to one home region.
                     </p>
                   </>
                 ),
@@ -570,8 +590,9 @@ export default function SdLessonTwoFourPage() {
                 a: (
                   <>
                     <p>
-                      A leader needs a majority. Three nodes survive one failure and five survive two; a fourth or sixth
-                      node adds cost without adding tolerance, and even counts make ties possible.
+                      A leader needs a majority. Three nodes survive one failure and five survive two. A fourth node
+                      adds cost but still survives only one failure (a majority of 4 is 3). Even counts also make ties
+                      possible.
                     </p>
                   </>
                 ),
@@ -583,7 +604,7 @@ export default function SdLessonTwoFourPage() {
         <Section id="key-takeaways" title="Key Takeaways" kind="takeaways">
           <ul>
             <li>
-              <strong>Replication</strong> keeps copies of data on multiple machines, for{" "}
+              <strong>Replication</strong> keeps copies of data on many machines, for{" "}
               <strong>availability, read scaling, lower latency and safe reporting</strong>.
             </li>
             <li>

@@ -44,27 +44,29 @@ export default function SdLessonTwoTwoPage() {
       <div className="lesson">
         <Section id="the-problem" title="The Problem" kind="problem">
           <p>
-            In post 5 we saw a query go from <strong>812 ms to 0.09 ms</strong> after adding an index. The improvement
-            was dramatic. But questions remain:
+            In Lesson 5 we saw a query go from <strong>812 ms to 0.09 ms</strong> after we added an index. An index is an
+            extra structure that the database keeps so that it can find rows fast. The improvement was big. But some
+            questions remain:
           </p>
           <ul>
             <li>Why does an index make reads fast?</li>
             <li>Why do indexes make writes slower?</li>
             <li>
-              Why do some databases (like Cassandra) handle millions of writes per second, while others (like
-              PostgreSQL) shine at complex reads?
+              Why can some databases (like Cassandra) handle millions of writes per second, while others (like
+              PostgreSQL) are very good at complex reads?
             </li>
           </ul>
           <p>
-            The answer is in the <strong>storage engine</strong>, the data structure the database uses to organise data
-            on disk. The two big families are <strong>B-trees</strong> and <strong>LSM-trees</strong>. Understanding
-            them helps you pick the right database and design the right indexes.
+            The answer is in the <strong>storage engine</strong>. The storage engine is the part of the database that
+            decides how data is laid out and stored on disk. The two big families are <strong>B-trees</strong> and{" "}
+            <strong>LSM-trees</strong>. A tree here means data arranged in levels, like a family tree. If you understand
+            them, you can pick the right database and design the right indexes.
           </p>
         </Section>
 
         <Section id="the-core-idea" title="The Core Idea" kind="idea">
           <p>
-            Imagine two ways of running a <strong>big library</strong>.
+            Imagine two ways to run a <strong>big library</strong>.
           </p>
           <p>
             <strong>Library 1: the carefully sorted shelves (B-tree).</strong>
@@ -72,10 +74,10 @@ export default function SdLessonTwoTwoPage() {
           <ul>
             <li>Every book has an exact place on a sorted shelf.</li>
             <li>Signs at the entrance say "A–F: floor 1", then "A–C: aisle 3", then "shelf 2".</li>
-            <li>Finding a book takes a few quick steps.</li>
+            <li>Finding a book takes only a few quick steps.</li>
             <li>
               But when a new book arrives, a librarian must walk to its exact spot and squeeze it in. If the shelf is
-              full, the books have to be split onto a new shelf.
+              full, some books must move to a new shelf.
             </li>
           </ul>
           <p>
@@ -83,22 +85,23 @@ export default function SdLessonTwoTwoPage() {
           </p>
           <ul>
             <li>
-              New books are dropped into a <strong>sorted tray at the front desk</strong>. That's very fast.
+              New books are dropped into a <strong>sorted tray at the front desk</strong>. This is very fast.
             </li>
             <li>
-              When the tray fills up, it's boxed and stored as a <strong>sorted box</strong>, and never changed again.
+              When the tray is full, it is put in a box and stored as a <strong>sorted box</strong>. A box is never
+              changed again.
             </li>
             <li>
-              At night, staff <strong>merge</strong> several boxes into bigger sorted boxes and throw away outdated
-              copies.
+              At night, staff <strong>merge</strong> several boxes into bigger sorted boxes. They also throw away
+              outdated copies.
             </li>
             <li>
-              Finding a book might mean checking the tray and then a few boxes, but there are tricks to skip boxes that
-              definitely don't have it.
+              To find a book, you may need to check the tray and then a few boxes. But there are tricks to skip boxes
+              that surely do not have the book.
             </li>
           </ul>
           <p>
-            <strong>B-trees optimise for reading and updating in place. LSM-trees optimise for writing fast.</strong>
+            <strong>B-trees are best for reading and for updating data in place. LSM-trees are best for writing fast.</strong>
           </p>
         </Section>
 
@@ -106,8 +109,9 @@ export default function SdLessonTwoTwoPage() {
           <h3 id="why-we-need-indexes-at-all">Why we need indexes at all</h3>
           <p>
             Without an index, finding <code>WHERE email = 'asha@example.com'</code> means reading{" "}
-            <strong>every row</strong>: a full scan, O(n). With a sorted structure, you can{" "}
-            <strong>binary search</strong>: O(log n).
+            <strong>every row</strong>. This is a full scan, and the work grows with the number of rows n: O(n). With a
+            sorted structure you can use <strong>binary search</strong>. Binary search checks the middle, then keeps only
+            the half that can hold the answer, and repeats. The work grows very slowly: O(log n).
           </p>
           <div className="table-wrap">
             <table>
@@ -137,26 +141,28 @@ export default function SdLessonTwoTwoPage() {
               </tbody>
             </table>
           </div>
-          <p>That's why indexes change everything as tables grow.</p>
+          <p>That is why indexes make such a big difference as tables grow.</p>
           <h3 id="b-trees-and-b-trees">B-trees (and B+trees)</h3>
           <p>
-            A <strong>B-tree</strong> is a <strong>wide, shallow, sorted tree</strong> stored in fixed-size{" "}
-            <strong>pages</strong> on disk (often 8 KB in PostgreSQL and 16 KB in MySQL InnoDB).
+            A <strong>B-tree</strong> is a sorted tree that is <strong>wide and shallow</strong>. It is stored in
+            fixed-size blocks called <strong>pages</strong> on disk (8 KB in PostgreSQL and 16 KB in MySQL InnoDB by
+            default). Each page is one node of the tree.
           </p>
           <CodeBlock code={code1} />
           <ul>
             <li>
-              Each page holds <strong>hundreds of keys</strong>, so the tree has high <strong>fan-out</strong>.
+              Each page holds <strong>hundreds of keys</strong>, so every node has many children. This is called high{" "}
+              <strong>fan-out</strong>.
             </li>
             <li>
-              Because of that, even a billion rows need only about <strong>3–4 levels</strong>, which means{" "}
-              <strong>3–4 page reads</strong> to find anything. The top levels are usually in memory, so often it's just
-              1–2 disk reads.
+              Because of that, even a billion rows need only about <strong>3–4 levels</strong>. That means{" "}
+              <strong>3–4 page reads</strong> to find anything. The top levels are usually kept in memory, so often it
+              is just 1–2 disk reads.
             </li>
             <li>
-              In a <strong>B+tree</strong> (what most databases really use), the leaves are{" "}
-              <strong>linked in order</strong>, so <strong>range queries</strong> (
-              <code>WHERE created_at BETWEEN ...</code>) are fast: find the start, then walk along the leaves.
+              In a <strong>B+tree</strong> (the version most databases really use), the bottom pages (leaves) are{" "}
+              <strong>linked in order</strong>. So <strong>range queries</strong> (
+              <code>WHERE created_at BETWEEN ...</code>) are fast. You find the start, then walk along the leaves.
             </li>
           </ul>
           <p>
@@ -172,79 +178,84 @@ export default function SdLessonTwoTwoPage() {
             </li>
           </ol>
           <p>
-            Every write may touch several pages, in random places on disk. Updates are written to the{" "}
-            <strong>WAL</strong> first for crash safety (post 21).
+            Every write may touch several pages, in random places on disk. For crash safety, the change is written to the{" "}
+            <strong>WAL</strong> (write-ahead log, a file of changes) first. See Lesson 21.
           </p>
           <p>
             <strong>B-trees are good for:</strong>
           </p>
           <ul>
-            <li>fast point lookups and range scans,</li>
-            <li>predictable read performance,</li>
+            <li>fast point lookups (find one key) and range scans (find all keys between two values),</li>
+            <li>predictable read speed,</li>
             <li>the default in PostgreSQL, MySQL InnoDB, SQL Server, Oracle and SQLite.</li>
           </ul>
           <h3 id="lsm-trees-log-structured-merge-trees">LSM-trees (Log-Structured Merge-trees)</h3>
           <p>
-            An <strong>LSM-tree</strong> never updates data in place. Instead:
+            An <strong>LSM-tree</strong> (Log-Structured Merge-tree) never updates data in place. It only adds new data
+            and merges it later. These are the steps:
           </p>
           <Flow
-            caption="The LSM-tree write path. Nothing on disk is ever modified — only appended, then merged."
+            caption="The LSM-tree write path. Nothing on disk is ever changed. Data is only added, and merged later."
             nodes={[
-              { title: <>Commit log</>, desc: <>append for crash safety — sequential</> },
-              { title: <>Memtable</>, desc: <>sorted, in memory — the write is done here</> },
+              { title: <>Commit log</>, desc: <>added to the end of a file for crash safety (sequential)</> },
+              { title: <>Memtable</>, desc: <>a sorted table in memory; the write is done here</> },
               {
                 title: <>SSTables on disk</>,
-                desc: <>immutable sorted files, newest → oldest, each with a Bloom filter</>,
+                desc: <>immutable (never changed) sorted files, newest → oldest, each with a Bloom filter</>,
                 label: <>when full, flush</>,
               },
               {
                 title: <>Compaction</>,
-                desc: <>background merge; keep the newest version of each key, drop tombstones</>,
+                desc: <>a merge in the background; keep the newest version of each key, drop tombstones (delete markers)</>,
                 tone: "good",
               },
             ]}
           />
           <p>
-            <strong>Why writes are fast:</strong> writes are just an <strong>append</strong> to a log plus a memory
-            insert. Disk writes happen in big <strong>sequential</strong> chunks, which is ideal for both SSDs and
-            spinning disks.
+            <strong>Why writes are fast:</strong> a write is just an <strong>append</strong> to a log plus an insert in
+            memory. Data goes to disk in big <strong>sequential</strong> chunks (one after another). This is good for
+            both SSDs and spinning disks.
           </p>
           <p>
             <strong>Reads are more work:</strong>
           </p>
           <ol>
             <li>Check the memtable.</li>
-            <li>Check the newest SSTable, then older ones, until the key is found.</li>
+            <li>
+              Check the newest SSTable, then older ones, until you find the key. An SSTable (sorted string table) is
+              one sorted file on disk.
+            </li>
           </ol>
           <p>To keep this fast:</p>
           <ul>
             <li>
-              <strong>Bloom filters.</strong> Each SSTable has a small <strong>Bloom filter</strong>, a compact
-              structure that can say "this key is <strong>definitely not</strong> in this file" (or "probably is"). Most
-              files are skipped without touching disk.
+              <strong>Bloom filters.</strong> A <strong>Bloom filter</strong> is a small, compact structure that tells you
+              "this key is <strong>definitely not</strong> in this file" or "it might be". It never gives a wrong "not
+              here" answer. Each SSTable has one. So most files are skipped without reading them from disk.
             </li>
             <li>
-              <strong>Sparse indexes</strong> inside each SSTable let the engine jump near the right spot.
+              <strong>Sparse indexes</strong> inside each SSTable (an index with only some of the keys) let the engine jump
+              close to the right spot.
             </li>
             <li>
-              <strong>Compaction</strong> keeps the number of files small.
+              <strong>Compaction</strong> (merging files in the background) keeps the number of files small.
             </li>
           </ul>
           <p>
-            <strong>Deletes</strong> are written as <strong>tombstones</strong> ("key X was deleted"). The data only
-            truly disappears when compaction runs.
+            <strong>Deletes</strong> are written as <strong>tombstones</strong>. A tombstone is a marker that says "key X
+            was deleted". The data only really disappears when compaction runs.
           </p>
           <p>
             <strong>Compaction strategies:</strong>
           </p>
           <ul>
             <li>
-              <strong>Size-tiered:</strong> merge files of similar size. Good for write-heavy loads, but uses more
+              <strong>Size-tiered:</strong> merge files of similar size. Good for write-heavy loads. But it uses more
               temporary disk space.
             </li>
             <li>
-              <strong>Levelled:</strong> organise files into levels with no overlapping keys within a level. Better
-              reads and less space, but more rewriting.
+              <strong>Levelled:</strong> organise files into levels. Inside one level, the files do not share any keys.
+              Reads are better and less space is used. But data is rewritten more often.
             </li>
           </ul>
           <p>
@@ -254,10 +265,10 @@ export default function SdLessonTwoTwoPage() {
           </p>
           <h3 id="hash-indexes">Hash indexes</h3>
           <p>
-            The simplest index is a <strong>hash map</strong> from key to position on disk. It's very fast for exact
-            lookups (<code>WHERE id = 42</code>), but <strong>useless for ranges</strong> (<code>WHERE id &gt; 42</code>
-            ) and sorting. Some key-value stores use this design (for example, the Bitcask model). PostgreSQL also
-            offers hash indexes, but B-trees are almost always preferred.
+            The simplest index is a <strong>hash map</strong>. It maps each key to a position on disk. It is very fast for
+            exact lookups (<code>WHERE id = 42</code>). But it is <strong>useless for ranges</strong> (
+            <code>WHERE id &gt; 42</code>) and for sorting. Some key-value stores use this design (for example, the
+            Bitcask model). PostgreSQL also offers hash indexes, but B-trees are almost always the better choice.
           </p>
           <Compare
             caption="The two storage-engine families."
@@ -285,7 +296,10 @@ export default function SdLessonTwoTwoPage() {
             ]}
           />
           <h3 id="the-three-amplifications">The three "amplifications"</h3>
-          <p>Engineers compare storage engines using three costs:</p>
+          <p>
+            Engineers compare storage engines using three costs. "Amplification" means doing more work than the
+            minimum:
+          </p>
           <div className="table-wrap">
             <table>
               <thead>
@@ -303,7 +317,7 @@ export default function SdLessonTwoTwoPage() {
                   </td>
                   <td>Bytes actually written to disk per byte you write</td>
                   <td>Medium (pages rewritten, plus WAL)</td>
-                  <td>Can be high (data rewritten during compaction), but it's sequential</td>
+                  <td>Can be high (data is rewritten during compaction), but the writes are sequential</td>
                 </tr>
                 <tr>
                   <td>
@@ -325,38 +339,43 @@ export default function SdLessonTwoTwoPage() {
             </table>
           </div>
           <p>
-            Roughly: <strong>B-trees are read-optimised. LSM-trees are write-optimised.</strong> Real performance
-            depends heavily on the workload and tuning, so benchmark with <em>your</em> data.
+            Roughly: <strong>B-trees are best for reads. LSM-trees are best for writes.</strong> Real performance
+            depends a lot on the workload and the settings, so test with <em>your</em> own data.
           </p>
-          <h3 id="types-of-indexes-you-ll-use">Types of indexes you'll use</h3>
+          <h3 id="types-of-indexes-you-ll-use">Types of indexes you will use</h3>
           <p>
             <strong>Clustered vs secondary (non-clustered).</strong>
           </p>
           <ul>
             <li>
               A <strong>clustered index</strong> stores the <strong>table rows themselves</strong> in index order. In
-              MySQL InnoDB, the primary key is the clustered index. Lookups by primary key are very fast.
+              MySQL InnoDB, the primary key is the clustered index. Lookups by primary key are very fast. A table can
+              have only one clustered index.
             </li>
             <li>
-              A <strong>secondary index</strong> stores the indexed column(s) plus a <strong>pointer</strong> to the
-              row: in InnoDB, the primary key; in PostgreSQL, a row location. Using it means one lookup in the index
-              plus one fetch of the row.
+              A <strong>secondary index</strong> is any other index. It stores the indexed column(s) plus a{" "}
+              <strong>pointer</strong> to the row. In InnoDB the pointer is the primary key. In PostgreSQL it is the row
+              location. Using it takes one lookup in the index plus one fetch of the row.
             </li>
           </ul>
           <p>
-            <strong>Composite (multi-column).</strong> <code>(country, city, created_at)</code>, with the left-prefix
-            rule from post 5.
+            <strong>Composite (multi-column).</strong> One index over several columns, for example{" "}
+            <code>(country, city, created_at)</code>. It follows the left-prefix rule from Lesson 5: it can help a
+            query on <code>country</code>, or on <code>country</code> and <code>city</code>, but not on{" "}
+            <code>city</code> alone.
           </p>
           <p>
-            <strong>Covering index.</strong> It contains <strong>all the columns a query needs</strong>, so the database
-            never has to fetch the table row:
+            <strong>Covering index.</strong> It contains <strong>all the columns a query needs</strong>. So the database
+            never has to fetch the table row. The <code>INCLUDE</code> columns are stored in the index but are not
+            part of the sort key:
           </p>
           <CodeBlock lang="sql" code={code2} />
           <p>
-            <strong>Unique index.</strong> It enforces uniqueness (and is the safety net from post 21).
+            <strong>Unique index.</strong> It does not allow two rows with the same value. It is the safety net from
+            Lesson 21.
           </p>
           <p>
-            <strong>Partial index.</strong> It only indexes some rows, which saves space:
+            <strong>Partial index.</strong> It only indexes the rows that match a condition. This saves space:
           </p>
           <CodeBlock lang="sql" code={code3} />
           <p>
@@ -364,48 +383,51 @@ export default function SdLessonTwoTwoPage() {
           </p>
           <ul>
             <li>
-              <strong>GIN</strong> for arrays, JSONB and full-text search,
+              <strong>GIN</strong> (an inverted index, like the one in Lesson 19) for arrays, JSONB and full-text search,
             </li>
             <li>
-              <strong>GiST / SP-GiST</strong> for geometric and geospatial data,
+              <strong>GiST / SP-GiST</strong> (flexible tree indexes) for shapes and map data,
             </li>
             <li>
-              <strong>BRIN</strong> for huge, naturally ordered tables like time-series logs,
+              <strong>BRIN</strong> (a very small index that stores the min and max value of each block of rows) for huge
+              tables whose rows are already in order, like time-series logs,
             </li>
             <li>
-              <strong>geospatial indexes</strong> (PostGIS, geohashes) for "restaurants near me".
+              <strong>geospatial indexes</strong> (PostGIS, geohashes) for "restaurants near me". PostGIS is a PostgreSQL
+              extension for map data. A geohash is a short text code for a map area.
             </li>
           </ul>
           <h3 id="choosing-indexes-in-practice">Choosing indexes in practice</h3>
           <ol>
             <li>
-              <strong>Start from real queries.</strong> Look at slow-query logs and the most frequent queries.
+              <strong>Start from real queries.</strong> Look at the slow-query log (a list of slow queries) and at the
+              most frequent queries.
             </li>
             <li>
               <strong>
                 Index columns used in <code>WHERE</code>, <code>JOIN</code> and <code>ORDER BY</code>
               </strong>
-              , and put the most selective (equality) columns first in composite indexes.
+              . In a composite index, put the columns that you compare with equality first, and a range column last.
             </li>
             <li>
               <strong>
                 Check with <code>EXPLAIN ANALYZE</code>
               </strong>{" "}
-              (post 5).
+              (Lesson 5). It shows the plan the database really used and how long each step took.
             </li>
             <li>
-              <strong>Don't over-index.</strong> Each index slows every insert and update and uses memory. A write-heavy
-              table with 15 indexes will struggle.
+              <strong>Do not add too many indexes.</strong> Each index slows every insert and update and uses memory. A
+              write-heavy table with 15 indexes will struggle.
             </li>
             <li>
               <strong>Remove unused indexes.</strong> Most databases can tell you which indexes are never used.
             </li>
             <li>
-              <strong>Watch for low-selectivity columns.</strong> An index on <code>is_active</code> (true/false) rarely
-              helps on its own.
+              <strong>Watch for low-selectivity columns.</strong> Selectivity means how well a value narrows down the rows.
+              An index on <code>is_active</code> (true/false) has low selectivity. It rarely helps on its own.
             </li>
             <li>
-              <strong>Remember that indexes live in memory best.</strong> If your hot indexes don't fit in RAM,
+              <strong>Remember that indexes work best in memory.</strong> If your most-used indexes do not fit in RAM,
               performance drops sharply.
             </li>
           </ol>
@@ -416,17 +438,17 @@ export default function SdLessonTwoTwoPage() {
             <strong>B-tree engines</strong>
           </p>
           <ul>
-            <li>✅ Fast, predictable reads and range scans; mature; strong transactional support.</li>
+            <li>✅ Fast, predictable reads and range scans. Mature. Strong transaction support.</li>
             <li>❌ Random writes, and page splits under heavy insert load, especially with random keys like UUIDv4.</li>
           </ul>
           <p>
             <strong>LSM engines</strong>
           </p>
           <ul>
-            <li>✅ Very high write throughput, sequential I/O and good compression.</li>
+            <li>✅ Very high write throughput (many writes per second), sequential I/O (disk access in order) and good compression.</li>
             <li>
-              ❌ Reads may check multiple files. Compaction uses background CPU and disk, and can cause latency spikes
-              if it falls behind. Tuning is more complex.
+              ❌ Reads may check many files. Compaction uses background CPU and disk. It can cause latency spikes (sudden
+              slow responses) if it falls behind. Tuning is harder.
             </li>
           </ul>
           <p>
@@ -434,41 +456,41 @@ export default function SdLessonTwoTwoPage() {
           </p>
           <ul>
             <li>✅ Huge read speedups.</li>
-            <li>❌ Slower writes, more storage and memory, and more for the query planner to choose between.</li>
+            <li>❌ Slower writes, more storage and memory, and more choices for the query planner (the part of the database that picks how to run a query).</li>
           </ul>
           <p>
-            <strong>Rule of thumb:</strong> read-heavy, relational, transactional apps usually suit B-tree databases.
-            Massive write-heavy streams (events, logs, messages, metrics) suit LSM-based databases.
+            <strong>Rule of thumb:</strong> apps with many reads, relational data and transactions usually suit B-tree
+            databases. Massive streams of writes (events, logs, messages, metrics) suit LSM-based databases.
           </p>
         </Section>
 
         <Section id="in-the-real-world" title="In the Real World" kind="real">
           <p>
-            <strong>Facebook's MyRocks.</strong> Facebook built <strong>MyRocks</strong>, which replaces MySQL's InnoDB
-            (B-tree) storage engine with <strong>RocksDB</strong> (LSM). For its main user database, this significantly
-            cut storage space and write amplification, while keeping the MySQL interface engineers already used.
+            <strong>Facebook's MyRocks.</strong> Facebook built <strong>MyRocks</strong>. It replaces MySQL's InnoDB
+            (B-tree) storage engine with <strong>RocksDB</strong> (LSM). For its main user database, this cut storage
+            space and write amplification by a large amount. Engineers could keep using the same MySQL interface.
           </p>
           <p>
             <strong>Cassandra and ScyllaDB at Discord, Netflix and Apple.</strong> These LSM-based databases are chosen
-            for huge write volumes such as messages, viewing history and events, where fast appends matter more than
-            complex queries.
+            for huge write volumes such as messages, viewing history and events. In these cases fast appends matter more
+            than complex queries.
           </p>
           <p>
-            <strong>RocksDB everywhere.</strong> RocksDB, created at Facebook from Google's LevelDB, is embedded inside
-            many other systems: databases like CockroachDB (in its earlier versions) and TiKV, stream processors like
-            Kafka Streams and Apache Flink (for local state), and more. When you use these systems, you're often using
-            an LSM-tree underneath.
+            <strong>RocksDB everywhere.</strong> RocksDB was created at Facebook as a fork of Google's LevelDB. Many other systems embed it
+            (run it inside themselves): databases like CockroachDB (in its earlier versions) and TiKV, and stream
+            processors like Kafka Streams and Apache Flink (to keep local state). When you use these systems, you often
+            use an LSM-tree underneath.
           </p>
           <p>
-            <strong>UUID primary keys and B-trees.</strong> Many teams have seen insert performance drop after switching
-            to random UUIDv4 primary keys in B-tree databases, because random keys scatter inserts across the whole
+            <strong>UUID primary keys and B-trees.</strong> Many teams have seen insert speed drop after they switched
+            to random UUIDv4 primary keys in B-tree databases. Random keys scatter the inserts across the whole
             index and cause many page splits. Time-ordered IDs (UUIDv7, Snowflake-style IDs) keep new keys close
-            together and fix this.
+            together, which fixes this.
           </p>
           <p>
             <strong>Geospatial search.</strong> Apps like food delivery or ride-hailing need "find drivers or
             restaurants near this location" queries. They use specialised spatial indexes (like PostGIS GiST indexes,
-            geohashes or grid systems like Uber's H3) because a normal B-tree on latitude and longitude doesn't answer
+            geohashes or grid systems like Uber's H3) because a normal B-tree on latitude and longitude cannot answer
             "nearby" efficiently.
           </p>
         </Section>
@@ -481,8 +503,9 @@ export default function SdLessonTwoTwoPage() {
                 a: (
                   <>
                     <p>
-                      Each page holds hundreds of keys, so fan-out is huge: roughly 500 × 500 × 500 ≈ 125 million leaves
-                      at depth three. The top levels stay in memory, so a lookup is often one or two disk reads.
+                      Each page holds hundreds of keys, so the fan-out (children per node) is huge. Roughly 500 × 500 ×
+                      500 ≈ 125 million leaf pages at depth three. The top levels stay in memory, so a lookup is
+                      often only one or two disk reads.
                     </p>
                   </>
                 ),
@@ -492,9 +515,9 @@ export default function SdLessonTwoTwoPage() {
                 a: (
                   <>
                     <p>
-                      A write is an append to a sequential log plus an insert into an in-memory table; data reaches disk
-                      in large sequential flushes, never as random in-place updates. The cost moves to reads (checking
-                      several files) and background compaction.
+                      A write is an append to a sequential log plus an insert into an in-memory table. Data reaches disk
+                      in large sequential flushes, never as random in-place updates. The cost moves to reads (which
+                      may check several files) and to background compaction.
                     </p>
                   </>
                 ),
@@ -504,8 +527,9 @@ export default function SdLessonTwoTwoPage() {
                 a: (
                   <>
                     <p>
-                      It's a small probabilistic structure per SSTable that answers “this key is definitely not here” or
-                      “it might be here”. Reads skip most files without touching disk, keeping read amplification low.
+                      It is a small structure, one per SSTable, that answers “this key is definitely not here” or
+                      “it might be here”. It is probabilistic: it can say “might be” by mistake, but never “not here”
+                      by mistake. Reads skip most files without touching the disk. This keeps read amplification low.
                     </p>
                   </>
                 ),
@@ -515,9 +539,9 @@ export default function SdLessonTwoTwoPage() {
                 a: (
                   <>
                     <p>
-                      An index containing every column a query needs, so the database answers from the index alone (an
-                      index-only scan) without fetching table rows — for example (user_id, created_at) INCLUDE (total,
-                      status).
+                      It is an index that contains every column a query needs. The database answers from the index alone
+                      (an index-only scan) and does not fetch table rows. Example: (user_id, created_at) INCLUDE
+                      (total, status).
                     </p>
                   </>
                 ),
@@ -527,9 +551,9 @@ export default function SdLessonTwoTwoPage() {
                 a: (
                   <>
                     <p>
-                      Random keys land all over the index, so inserts touch random pages, cause frequent page splits and
-                      keep far more of the index hot in memory. Time-ordered IDs (UUIDv7, Snowflake) keep inserts near
-                      the right edge of the tree.
+                      Random keys land all over the index. So inserts touch random pages, cause frequent page splits and
+                      need much more of the index to stay in memory. Time-ordered IDs (UUIDv7, Snowflake) keep inserts
+                      near the right edge of the tree.
                     </p>
                   </>
                 ),
@@ -539,9 +563,10 @@ export default function SdLessonTwoTwoPage() {
                 a: (
                   <>
                     <p>
-                      On write-heavy tables where the query is rare, on low-selectivity columns (booleans) by
-                      themselves, or when an existing composite index already covers it through its left prefix. Every
-                      index costs write time, disk and memory.
+                      Do not add one on a write-heavy table when the query is rare. Do not add one on a
+                      low-selectivity column (like a boolean) by itself. Do not add one when an existing composite
+                      index already covers the query through its left prefix. Every index costs write time, disk space
+                      and memory.
                     </p>
                   </>
                 ),
@@ -553,7 +578,7 @@ export default function SdLessonTwoTwoPage() {
         <Section id="key-takeaways" title="Key Takeaways" kind="takeaways">
           <ul>
             <li>
-              Indexes turn <strong>O(n) scans</strong> into <strong>O(log n) lookups</strong>, which makes an enormous
+              Indexes turn <strong>O(n) scans</strong> into <strong>O(log n) lookups</strong>. This makes a huge
               difference as tables grow.
             </li>
             <li>
@@ -562,12 +587,12 @@ export default function SdLessonTwoTwoPage() {
             </li>
             <li>
               <strong>LSM-trees</strong> <strong>append to memory and immutable files</strong>, then{" "}
-              <strong>compact</strong> in the background: excellent for writes. <strong>Bloom filters</strong> keep
-              reads reasonable.
+              <strong>compact</strong> in the background. This is excellent for writes. <strong>Bloom filters</strong> keep
+              reads fast enough.
             </li>
             <li>
-              Engines trade <strong>write, read and space amplification</strong> against each other. Benchmark with your
-              own workload.
+              Engines trade <strong>write, read and space amplification</strong> against each other. Test with your own
+              workload.
             </li>
             <li>
               Design indexes from <strong>real queries</strong> (composite, covering, partial, specialised). Avoid
