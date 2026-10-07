@@ -31,7 +31,7 @@ const code1 = `POST /api/orders HTTP/1.1
 Host: shop.example.com
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOi...
-Content-Length: 42
+Content-Length: 33
 
 {"productId": 991, "quantity": 2}`;
 
@@ -49,26 +49,30 @@ export default function SdLessonThreePage() {
       <div className="lesson">
         <Section id="the-problem" title="The Problem" kind="problem">
           <p>
-            TCP gets bytes from one computer to another reliably. But bytes alone don't mean anything. The browser and
+            TCP gets bytes from one computer to another reliably. But bytes alone do not mean anything. The browser and
             the server need a shared language, a way to say things like:
           </p>
           <ul>
             <li>"Give me this page."</li>
             <li>"Here is a new order."</li>
-            <li>"You're not allowed to see that."</li>
+            <li>"You are not allowed to see that."</li>
             <li>"Try again later."</li>
           </ul>
           <p>
-            That language is <strong>HTTP</strong>.
+            That language is <strong>HTTP (HyperText Transfer Protocol)</strong>. HTTP is a set of rules for how a
+            client (such as a browser) asks a server for something and how the server answers.
           </p>
           <p>
-            There's a second problem too. Your data passes through Wi-Fi routers, internet providers and many other
-            networks. Anyone along the way could read your password or change the page you receive.{" "}
-            <strong>HTTPS</strong> solves that by wrapping HTTP in encryption called <strong>TLS</strong>.
+            There is a second problem too. Your data passes through Wi-Fi routers, internet providers and many other
+            networks. Anyone on the way could read your password or change the page you receive.{" "}
+            <strong>HTTPS</strong> is HTTP with encryption added. Encryption means scrambling data so that only the
+            right people can read it. The encryption protocol is called <strong>TLS</strong>.
           </p>
           <p>
-            Almost every system you design will talk HTTP. Load balancers, CDNs, caches and API gateways all depend on
-            it. Using it correctly is a big part of good system design.
+            Almost every system you design will talk HTTP. Load balancers (servers that share requests between many
+            servers), CDNs (servers around the world that keep copies of files near users), caches (fast stores of
+            saved answers) and API gateways (one front door for many backend services) all depend on it. Using HTTP
+            correctly is a big part of good system design.
           </p>
         </Section>
 
@@ -81,31 +85,32 @@ export default function SdLessonThreePage() {
               You (the client) make a <strong>request</strong>: "One pizza, no onions, please."
             </li>
             <li>
-              The waiter (the server) gives a <strong>response</strong>: "Here's your pizza" (success), "We're out of
-              pizza" (not found), or "The kitchen is on fire" (server error).
+              The waiter (the server) gives a <strong>response</strong>: “Here is your pizza” (success), “We are out of
+              pizza” (not found), or “The kitchen is on fire” (server error).
             </li>
           </ul>
           <p>
             Every request says <strong>what action</strong> you want (the method) and <strong>what thing</strong> you
-            want it on (the URL). Every response starts with a <strong>status code</strong> that tells you, in one
-            number, how it went.
+            want it on (the URL). Every response starts with a <strong>status code</strong>. This is a number that tells
+            you how the request went.
           </p>
           <p>
             HTTPS is the same conversation in a <strong>sealed, tamper-proof envelope</strong>. Only you and the
-            restaurant can read it, and you've checked the restaurant's ID to make sure it's really them.
+            restaurant can read it, and you have checked the restaurant's ID to make sure it is really them.
           </p>
         </Section>
 
         <Section id="how-it-works" title="How It Works" kind="how">
           <h3 id="what-an-http-request-looks-like">What an HTTP request looks like</h3>
-          <p>HTTP is surprisingly readable. Here's a real request:</p>
+          <p>HTTP is easy to read. Here is a real request:</p>
           <CodeBlock lang="http" code={code1} />
           <ul>
             <li>
-              <strong>First line:</strong> method (<code>POST</code>), path (<code>/api/orders</code>), version.
+              <strong>First line:</strong> the method (<code>POST</code>, the action), the path (<code>/api/orders</code>,
+              the thing) and the HTTP version.
             </li>
             <li>
-              <strong>Headers:</strong> extra information as <code>Key: Value</code> pairs.
+              <strong>Headers:</strong> extra information about the request, written as <code>Key: Value</code> pairs.
             </li>
             <li>
               <strong>Blank line</strong>, then the <strong>body</strong> (the data).
@@ -114,7 +119,8 @@ export default function SdLessonThreePage() {
           <p>And the response:</p>
           <CodeBlock lang="http" code={code2} />
           <p>
-            Try it yourself: <code>curl -v https://example.com</code> shows every line.
+            Try it yourself: <code>curl -v https://example.com</code> shows every line. (curl is a command-line tool
+            that sends HTTP requests.)
           </p>
           <h3 id="http-methods">HTTP methods</h3>
           <div className="table-wrap">
@@ -170,19 +176,23 @@ export default function SdLessonThreePage() {
                 <tr>
                   <td>OPTIONS</td>
                   <td>"What am I allowed to do here?"</td>
-                  <td>Used by browsers for CORS checks</td>
+                  <td>Used by browsers for CORS checks (explained below)</td>
                 </tr>
               </tbody>
             </table>
           </div>
-          <p>Three properties of methods matter a lot in system design:</p>
+          <p>
+            A resource is the thing a URL points to, such as a user or an order. Three properties of methods matter a
+            lot in system design:
+          </p>
           <ul>
             <li>
-              <strong>Safe</strong> means the method doesn't change anything on the server. GET and HEAD are safe, so
-              crawlers and caches can call them freely.
+              <strong>Safe</strong> means the method does not change anything on the server. GET and HEAD are safe, so
+              crawlers (programs that visit many pages) and caches can call them freely.
             </li>
             <li>
-              <strong>Idempotent</strong> means doing it once or ten times has the same result.
+              <strong>Idempotent</strong> means doing it once or ten times gives the same final result. (Like pressing
+              the "lift up" button in an elevator: pressing it again does nothing new.)
               <ul>
                 <li>GET, PUT and DELETE are idempotent. Deleting item 3 twice still leaves item 3 deleted.</li>
                 <li>
@@ -191,17 +201,18 @@ export default function SdLessonThreePage() {
               </ul>
             </li>
             <li>
-              <strong>Cacheable</strong> means the response can be stored and reused. GET responses usually are.
+              <strong>Cacheable</strong> means the response can be saved and reused later. GET responses usually are.
             </li>
           </ul>
           <p>
             <strong>Why idempotency matters:</strong> networks fail. Say your app sends "pay ₹500" and the connection
             drops before the response arrives. Did the payment go through? If the request is idempotent, you can simply
-            retry it. If it's a plain POST, retrying might <strong>charge the customer twice</strong>. We'll cover how
-            companies like Stripe solve this with <em>idempotency keys</em> in Part 5.
+            send it again. If it is a plain POST, sending it again might <strong>charge the customer twice</strong>.
+            Companies like Stripe solve this with an <em>idempotency key</em>: a unique ID that you send with the
+            request, so the server can see that a repeat is the same request. We cover this in a later lesson.
           </p>
           <h3 id="status-codes">Status codes</h3>
-          <p>The first digit tells you the category:</p>
+          <p>A status code is a three-digit number in the response. The first digit tells you the category:</p>
           <div className="table-wrap">
             <table>
               <thead>
@@ -225,7 +236,7 @@ export default function SdLessonThreePage() {
                 <tr>
                   <td>3xx</td>
                   <td>Redirect</td>
-                  <td>"It's over there."</td>
+                  <td>"It is over there."</td>
                 </tr>
                 <tr>
                   <td>4xx</td>
@@ -240,7 +251,7 @@ export default function SdLessonThreePage() {
               </tbody>
             </table>
           </div>
-          <p>The ones you'll use most:</p>
+          <p>The ones you will use most:</p>
           <ul>
             <li>
               <strong>200 OK:</strong> success.
@@ -253,23 +264,26 @@ export default function SdLessonThreePage() {
               <strong>204 No Content:</strong> success, with nothing to return (common for DELETE).
             </li>
             <li>
-              <strong>301 Moved Permanently:</strong> the URL changed forever. Browsers and search engines remember it.
+              <strong>301 Moved Permanently:</strong> the URL has changed for good. Browsers and search engines
+              remember the new one.
             </li>
             <li>
               <strong>302 Found / 307 Temporary Redirect:</strong> go there <em>for now</em>.
             </li>
             <li>
-              <strong>304 Not Modified:</strong> "your cached copy is still good", so no body needs to be sent. This
-              saves lots of bandwidth.
+              <strong>304 Not Modified:</strong> "your saved copy is still good", so no body needs to be sent. This
+              saves a lot of bandwidth (the amount of data you can send).
             </li>
             <li>
               <strong>400 Bad Request:</strong> the input is broken (bad JSON, missing field).
             </li>
             <li>
-              <strong>401 Unauthorized:</strong> "I don't know who you are". You need to log in.
+              <strong>401 Unauthorized:</strong> "I do not know who you are". You need to log in. (The name is misleading: it
+              is really about authentication, which means proving who you are.)
             </li>
             <li>
-              <strong>403 Forbidden:</strong> "I know who you are, but you're not allowed".
+              <strong>403 Forbidden:</strong> "I know who you are, but you are not allowed". (This is about authorization,
+              which means what you are allowed to do.)
             </li>
             <li>
               <strong>404 Not Found:</strong> no such thing.
@@ -278,13 +292,15 @@ export default function SdLessonThreePage() {
               <strong>409 Conflict:</strong> clashes with the current state (for example, that username is taken).
             </li>
             <li>
-              <strong>429 Too Many Requests:</strong> you hit a rate limit. Slow down.
+              <strong>429 Too Many Requests:</strong> you hit a rate limit (a cap on how many requests you may send in a
+              time). Slow down.
             </li>
             <li>
-              <strong>500 Internal Server Error:</strong> the server's code crashed.
+              <strong>500 Internal Server Error:</strong> something unexpected went wrong in the server's code.
             </li>
             <li>
-              <strong>502 Bad Gateway:</strong> a proxy or load balancer got a bad answer from the server behind it.
+              <strong>502 Bad Gateway:</strong> a proxy (a server that passes requests on for another server) or a load
+              balancer got a bad answer from the server behind it.
             </li>
             <li>
               <strong>503 Service Unavailable:</strong> overloaded or under maintenance. Try later.
@@ -294,7 +310,7 @@ export default function SdLessonThreePage() {
             </li>
           </ul>
           <p>
-            When you're debugging production issues, <strong>502, 503 and 504 point to different problems</strong>:
+            When you debug problems on a live system, <strong>502, 503 and 504 point to different problems</strong>:
           </p>
           <ul>
             <li>
@@ -319,20 +335,21 @@ export default function SdLessonThreePage() {
               <strong>
                 <code>Authorization</code>:
               </strong>{" "}
-              who you are (a token or credentials).
+              who you are (a token or login details). A token is a secret string that proves your identity.
             </li>
             <li>
               <strong>
                 <code>Cache-Control</code>:
               </strong>{" "}
-              caching rules, for example <code>max-age=3600</code> means "you can reuse this for an hour".
+              caching rules, for example <code>max-age=3600</code> means "you can reuse this for 3,600 seconds (one
+              hour)".
             </li>
             <li>
               <strong>
                 <code>ETag</code> / <code>If-None-Match</code>:
               </strong>{" "}
-              a fingerprint of the content. The browser sends it back, and if nothing changed the server replies{" "}
-              <code>304</code>.
+              a fingerprint (a short code made from the content). The browser sends it back, and if nothing changed the
+              server replies <code>304</code>.
             </li>
             <li>
               <strong>
@@ -354,20 +371,24 @@ export default function SdLessonThreePage() {
             </li>
           </ul>
           <h3 id="http-is-stateless-and-cookies-add-memory">HTTP is stateless, and cookies add memory</h3>
-          <p>Each HTTP request stands alone. The server doesn't naturally remember that you logged in a moment ago.</p>
           <p>
-            <strong>Cookies</strong> fix this. The server sends <code>Set-Cookie: session=abc123</code>, and the browser
-            sends <code>Cookie: session=abc123</code> with every later request to that site. We'll dig into sessions,
-            cookies and tokens in the security series.
+            <strong>Stateless</strong> means the server keeps no memory between requests. Each HTTP request stands
+            alone. The server does not remember that you logged in a moment ago.
+          </p>
+          <p>
+            A <strong>cookie</strong> is a small piece of text that the browser stores and sends back to the server. It
+            fixes this problem. The server sends <code>Set-Cookie: session=abc123</code>, and the browser
+            sends <code>Cookie: session=abc123</code> with every later request to that site. We look at sessions,
+            cookies and tokens in more detail in the security series.
           </p>
           <h3 id="cors-in-one-paragraph">CORS in one paragraph</h3>
           <p>
-            Browsers block a web page on <code>site-a.com</code> from reading responses from <code>api.site-b.com</code>{" "}
-            unless <code>site-b</code> explicitly allows it. That's the <strong>same-origin policy</strong>, and it
-            protects you from malicious sites reading your bank data. <strong>CORS</strong> (Cross-Origin Resource
-            Sharing) is how a server says "requests from <code>site-a.com</code> are OK", using headers like{" "}
-            <code>Access-Control-Allow-Origin</code>. If you've built a React frontend and a separate API, you've
-            probably met a CORS error.
+            Browsers stop a web page on <code>site-a.com</code> from reading responses from <code>api.site-b.com</code>{" "}
+            unless <code>site-b</code> clearly allows it. This rule is the <strong>same-origin policy</strong>. An
+            origin is the combination of protocol, domain and port. The rule protects you from bad sites that try to
+            read your bank data. <strong>CORS</strong> (Cross-Origin Resource Sharing) is how a server says "requests
+            from <code>site-a.com</code> are OK", using headers like <code>Access-Control-Allow-Origin</code>. If you
+            have built a React frontend and a separate API, you have probably seen a CORS error.
           </p>
           <h3 id="http-versions-1-1-2-and-3">HTTP versions: 1.1, 2 and 3</h3>
           <p>
@@ -378,24 +399,25 @@ export default function SdLessonThreePage() {
               Text-based. A connection can be reused (keep-alive), but it handles <strong>one request at a time</strong>
               .
             </li>
-            <li>Browsers open about 6 connections per site to work around this.</li>
+            <li>Browsers open about 6 connections per site to get around this limit.</li>
             <li>
-              Developers used tricks like bundling all JS into one file and combining icons into one "sprite" image.
+              Developers used tricks to need fewer requests, such as bundling all JS into one file and combining icons
+              into one "sprite" image.
             </li>
           </ul>
           <p>
             <strong>HTTP/2 (2015)</strong>
           </p>
           <ul>
-            <li>Binary instead of text.</li>
+            <li>Binary instead of text (computers read it faster, but people cannot read it directly).</li>
             <li>
-              <strong>Multiplexing:</strong> many requests and responses share <strong>one connection</strong> at the
-              same time.
+              <strong>Multiplexing</strong> means sending many things at once over one path. Here, many requests and
+              responses share <strong>one connection</strong> at the same time.
             </li>
-            <li>Headers are compressed (called HPACK).</li>
+            <li>Headers are made smaller (compressed) with a method called HPACK.</li>
             <li>
               The problem that remains: it still runs on TCP, so one lost packet blocks <strong>all</strong> the streams
-              (TCP head-of-line blocking).
+              (this is TCP head-of-line blocking, from the last lesson).
             </li>
           </ul>
           <p>
@@ -403,7 +425,7 @@ export default function SdLessonThreePage() {
           </p>
           <ul>
             <li>
-              Runs on <strong>QUIC over UDP</strong>.
+              Runs on <strong>QUIC over UDP</strong> (QUIC is a modern protocol built on UDP, from the last lesson).
             </li>
             <li>A lost packet only delays the stream it belongs to.</li>
             <li>Faster connection setup, and better on mobile networks.</li>
@@ -436,14 +458,15 @@ export default function SdLessonThreePage() {
                   { sign: "+", text: <>A lost packet only delays its own stream</> },
                   { sign: "+", text: <>Faster setup; survives network switches</> },
                 ],
-                verdict: <>Mobile users on patchy networks gain the most</>,
+                verdict: <>Mobile users on weak or changing networks gain the most</>,
               },
             ]}
           />
           <hr />
           <h3 id="https-and-tls">HTTPS and TLS</h3>
           <p>
-            HTTPS = HTTP + <strong>TLS</strong> (Transport Layer Security). TLS gives you three things:
+            HTTPS = HTTP + <strong>TLS</strong> (Transport Layer Security). TLS is a protocol that protects a
+            connection with encryption. It gives you three things:
           </p>
           <ol>
             <li>
@@ -453,18 +476,19 @@ export default function SdLessonThreePage() {
               <strong>Integrity.</strong> Nobody can secretly change it on the way.
             </li>
             <li>
-              <strong>Authentication.</strong> You're really talking to <code>yourbank.com</code>, not an impostor.
+              <strong>Authentication.</strong> You are really talking to <code>yourbank.com</code>, not a fake site.
             </li>
           </ol>
           <h3 id="two-kinds-of-encryption-working-together">Two kinds of encryption working together</h3>
           <ul>
             <li>
-              <strong>Symmetric encryption</strong> uses one shared key to lock and unlock (for example, AES). It's very
-              fast. The problem: how do two strangers agree on a secret key over a public network?
+              <strong>Symmetric encryption</strong> uses one shared secret key to lock and unlock the data (for
+              example, AES). A key is a secret number used to scramble and unscramble data. Symmetric encryption is
+              very fast. The problem: how do two strangers agree on a secret key over a public network?
             </li>
             <li>
               <strong>Asymmetric encryption</strong> uses a key pair: a public key (shared with everyone) and a private
-              key (kept secret). It's slower, but solves the "strangers" problem.
+              key (kept secret). It is slower, but it solves the "strangers" problem.
             </li>
           </ul>
           <p>
@@ -472,24 +496,26 @@ export default function SdLessonThreePage() {
             <strong>fast symmetric encryption</strong> for the actual data.
           </p>
           <p>
-            Here's an analogy. Asymmetric crypto is like a padlock that anyone can snap shut but only the owner can
-            open. You use it once to send a secret code safely. From then on, you both use that code to talk quickly.
+            Here is a comparison. Asymmetric encryption is like a padlock that anyone can snap shut but only the owner
+            can open. You use it once to send a secret code safely. From then on, you both use that code to talk
+            quickly. Difference in one line: symmetric uses one key and is fast, asymmetric uses two keys and is slow.
           </p>
           <h3 id="certificates-proving-who-you-are">Certificates: proving who you are</h3>
           <p>
             How do you know the public key really belongs to <code>yourbank.com</code>? Through a{" "}
-            <strong>certificate</strong>. It's a digital ID card that says "this public key belongs to yourbank.com",
-            signed by a trusted <strong>Certificate Authority (CA)</strong>.
+            <strong>certificate</strong>. A certificate is a digital ID card that says "this public key belongs to
+            yourbank.com". It is signed by a trusted <strong>Certificate Authority (CA)</strong>, a company that checks
+            who owns a domain and vouches for it.
           </p>
           <Flow
-            caption="The chain of trust. Your browser only trusts the top of the chain; each link vouches for the next."
+            caption="The chain of trust. Your browser only trusts the top of the chain; each link vouches for the next one."
             nodes={[
               {
                 title: <>Root CA</>,
                 desc: <>pre-installed in your OS or browser — trusted by default</>,
                 tone: "good",
               },
-              { title: <>Intermediate CA</>, desc: <>keeps the precious root key offline</>, label: <>signs</> },
+              { title: <>Intermediate CA</>, desc: <>lets the root CA keep its very valuable key offline</>, label: <>signs</> },
               {
                 title: <>yourbank.com certificate</>,
                 desc: <>contains the site's public key, domain name and expiry date</>,
@@ -500,7 +526,7 @@ export default function SdLessonThreePage() {
           <p>Your browser checks:</p>
           <ul>
             <li>Is this chain signed by a CA I trust?</li>
-            <li>Is the certificate expired?</li>
+            <li>Has the certificate expired?</li>
             <li>Does it match the domain I typed?</li>
           </ul>
           <p>If any check fails, you see a big warning page.</p>
@@ -513,9 +539,9 @@ export default function SdLessonThreePage() {
                 from: 0,
                 to: 1,
                 label: <>ClientHello + key share</>,
-                note: <>“I support these ciphers; here's my half of the key”</>,
+                note: <>“I support these ciphers (ways to encrypt); here is my half of the key”</>,
               },
-              { from: 1, to: 0, label: <>ServerHello + key share</>, note: <>“Here's my half”</>, reply: true },
+              { from: 1, to: 0, label: <>ServerHello + key share</>, note: <>“Here is my half”</>, reply: true },
               {
                 from: 1,
                 to: 0,
@@ -540,40 +566,46 @@ export default function SdLessonThreePage() {
           />
           <ul>
             <li>
-              <strong>TLS 1.3</strong> needs just <strong>one round trip</strong>. The older TLS 1.2 needed two.
+              <strong>TLS 1.3</strong> needs just <strong>one round trip</strong> (one trip to the server and back).
+              The older TLS 1.2 needed two.
             </li>
             <li>
-              On a repeat visit, TLS 1.3 can even send data immediately ("0-RTT"). But that data could be replayed by an
-              attacker, so it should only be used for safe requests like GET.
+              On a repeat visit, TLS 1.3 can even send data immediately ("0-RTT"). But an attacker could copy and
+              send that data again (a replay), so it should only be used for safe requests like GET.
             </li>
           </ul>
           <p>
             Add it all up for a brand-new HTTPS connection over TCP: 1 round trip (TCP) + 1 round trip (TLS 1.3) + 1
             round trip (HTTP request and response) = about <strong>3 round trips</strong> before the first byte of the
-            page. At 100 ms per round trip, that's 300 ms of pure waiting. This is why{" "}
+            page. (This does not count the DNS lookup.) At 100 ms per round trip, that is 300 ms of pure waiting. This is why{" "}
             <strong>connection reuse, CDNs and HTTP/3 matter.</strong>
           </p>
           <h3 id="where-to-terminate-tls">Where to "terminate" TLS</h3>
-          <p>In a real system, you choose where the encryption is removed:</p>
+          <p>
+            To terminate TLS means to decrypt the traffic at some point. In a real system, you choose where the
+            encryption is removed:
+          </p>
           <ul>
             <li>
-              <strong>At the load balancer (most common).</strong> The LB decrypts traffic, reads the HTTP (so it can
-              route by URL), and forwards it to the app servers. It's simpler, and certificates live in one place.
+              <strong>At the load balancer (most common).</strong> The load balancer (LB) decrypts the traffic, reads
+              the HTTP (so it can route by URL), and forwards it to the app servers. This is simpler, and the
+              certificates live in one place.
             </li>
             <li>
-              <strong>Re-encrypt to the backend.</strong> The LB decrypts, then encrypts again to the app servers. This
-              is safer inside your network and often required in finance and healthcare.
+              <strong>Re-encrypt to the backend.</strong> The LB decrypts, then encrypts again before it sends the
+              data to the app servers. This is safer inside your network and is often required in finance and
+              healthcare.
             </li>
             <li>
-              <strong>Passthrough.</strong> The LB doesn't decrypt at all; the app servers do. The downside is that the
-              LB can't see URLs or headers.
+              <strong>Passthrough.</strong> The LB does not decrypt at all; the app servers do. The downside is that the
+              LB cannot see URLs or headers.
             </li>
           </ul>
           <h3 id="hsts">HSTS</h3>
           <p>
             Even with HTTPS, a user might type <code>http://yourbank.com</code>. That first plain-text request can be
-            intercepted. <strong>HSTS</strong> (HTTP Strict Transport Security) is a header that tells the browser: "for
-            the next year, only ever use HTTPS for this site".
+            intercepted. <strong>HSTS</strong> (HTTP Strict Transport Security) is a response header that tells the
+            browser: "for a set time (often a year), only use HTTPS for this site".
           </p>
           <Stats
             caption="The latency bill for the first byte of a brand-new HTTPS page, at 100 ms per round trip."
@@ -590,9 +622,10 @@ export default function SdLessonThreePage() {
           />
           <Callout kind="note" label="Debugging 5xx errors">
             <p>
-              <strong>502</strong> — the app crashed or sent garbage back to the proxy. <strong>503</strong> — no
-              healthy servers, or the app is shedding load. <strong>504</strong> — the app answered, but too slowly for
-              the proxy's timeout. Three different fixes, so return the right one.
+              <strong>502</strong> — the app crashed or sent a broken answer back to the proxy. <strong>503</strong>{" "}
+              — no healthy servers, or the app is refusing some requests because it is overloaded.{" "}
+              <strong>504</strong> — the app was too slow, so the proxy gave up waiting (a timeout). These need three
+              different fixes, so return the right code.
             </p>
           </Callout>
         </Section>
@@ -600,38 +633,39 @@ export default function SdLessonThreePage() {
         <Section id="trade-offs" title="Trade-offs" kind="tradeoffs">
           <ul>
             <li>
-              <strong>HTTP/2 and HTTP/3</strong> make pages faster but add complexity in servers and proxies. Some older
-              tools don't support them.
+              <strong>HTTP/2 and HTTP/3</strong> make pages faster but make servers and proxies more complex. Some older
+              tools do not support them.
             </li>
             <li>
-              <strong>TLS</strong> adds a small amount of CPU cost and handshake latency. Modern hardware makes the CPU
-              cost tiny; the latency is the real cost. Connection reuse mostly removes it.
+              <strong>TLS</strong> adds a small CPU cost and some handshake latency (waiting time). On modern hardware
+              the CPU cost is tiny, and the latency is the real cost. Reusing connections mostly removes it.
             </li>
             <li>
               <strong>Terminating TLS at the load balancer</strong> is simple and lets it route smartly, but traffic
-              inside your network is then unencrypted unless you re-encrypt.
+              inside your network is then not encrypted unless you re-encrypt.
             </li>
             <li>
               <strong>Long cache times</strong> (<code>Cache-Control: max-age</code>) make sites fast but make updates
-              slow to reach users. Use versioned file names like <code>app.3f2a.js</code> to get both.
+              slow to reach users. To get both, put a version in the file name, like <code>app.3f2a.js</code>. A new
+              version has a new name, so it is never served from the old cache.
             </li>
             <li>
               <strong>Choosing status codes:</strong> returning <code>200</code> with{" "}
               <code>&#123;"error": "..."&#125;</code> in the body feels easy, but it breaks monitoring, caching and
-              client retry logic. Use the real codes.
+              the retry logic in clients. Use the real codes.
             </li>
           </ul>
         </Section>
 
         <Section id="in-the-real-world" title="In the Real World" kind="real">
           <p>
-            <strong>"Not Secure" in Chrome.</strong> Since 2018, Chrome labels every plain HTTP page as "Not Secure".
-            Combined with free certificates, this pushed most of the web to HTTPS within a few years.
+            <strong>"Not Secure" in Chrome.</strong> Since 2018, Chrome labels every plain HTTP page as "Not secure".
+            Together with free certificates, this moved most of the web to HTTPS within a few years.
           </p>
           <p>
             <strong>Let's Encrypt</strong> is a non-profit certificate authority that gives out free certificates, and
             tools like Certbot renew them automatically. It issues certificates for hundreds of millions of websites.
-            Because its certificates are short-lived, automation is a must, and that's a good thing:{" "}
+            Its certificates are short-lived (90 days), so automatic renewal is a must. This is good, because{" "}
             <strong>expired certificates are a classic cause of outages</strong>. In February 2020, Microsoft Teams went
             down for hours because an authentication certificate expired. In December 2018, millions of O2 mobile
             customers in the UK lost data service after an expired certificate in Ericsson's network software.
@@ -644,12 +678,12 @@ export default function SdLessonThreePage() {
           <p>
             <strong>GitHub's API</strong> returns <code>ETag</code> headers. If your app sends back{" "}
             <code>If-None-Match</code> and nothing has changed, GitHub replies <code>304 Not Modified</code>, and these
-            conditional requests don't count against your rate limit. It's a real example of HTTP caching saving money
-            on both sides.
+            conditional requests do not count against your rate limit. This is a real example of HTTP caching saving
+            money on both sides.
           </p>
           <p>
-            <strong>Google and Cloudflare</strong> were early adopters of HTTP/2 and HTTP/3. Much of the traffic to
-            Google services from Chrome now uses QUIC.
+            <strong>Google and Cloudflare</strong> were early to use HTTP/2 and HTTP/3. Much of the traffic from Chrome
+            to Google services now uses QUIC.
           </p>
         </Section>
 
@@ -661,9 +695,9 @@ export default function SdLessonThreePage() {
                 a: (
                   <>
                     <p>
-                      PUT replaces a resource completely and is idempotent. PATCH changes part of it (not guaranteed
-                      idempotent, though it often is). POST creates something or triggers an action and is not
-                      idempotent, so sending it twice may create two orders.
+                      PUT replaces a resource completely and is idempotent. PATCH changes part of it (it is not
+                      guaranteed to be idempotent, though it often is). POST creates something or triggers an action and
+                      is not idempotent, so sending it twice may create two orders.
                     </p>
                   </>
                 ),
@@ -673,10 +707,10 @@ export default function SdLessonThreePage() {
                 a: (
                   <>
                     <p>
-                      Networks fail after a request is sent but before the response arrives, so clients must retry
-                      without knowing whether the first attempt worked. Idempotent operations can be retried safely. For
-                      non-idempotent ones like payments, the client sends an idempotency key so the server can recognise
-                      and dedupe the retry.
+                      Networks can fail after a request is sent but before the response arrives, so a client must try
+                      again without knowing if the first attempt worked. Idempotent operations are safe to repeat. For
+                      operations that are not idempotent, like payments, the client sends an idempotency key. The
+                      server uses it to recognise the repeat and ignore the duplicate.
                     </p>
                   </>
                 ),
@@ -686,8 +720,8 @@ export default function SdLessonThreePage() {
                 a: (
                   <>
                     <p>
-                      401 Unauthorized means “I don't know who you are” — authenticate first. 403 Forbidden means “I
-                      know who you are, and you're not allowed to do this.”
+                      401 Unauthorized means “I do not know who you are” — log in first. 403 Forbidden means “I
+                      know who you are, and you are not allowed to do this.”
                     </p>
                   </>
                 ),
@@ -697,9 +731,9 @@ export default function SdLessonThreePage() {
                 a: (
                   <>
                     <p>
-                      Asymmetric cryptography (key shares plus the certificate's key pair) lets two strangers agree on a
-                      shared secret and proves the server's identity. It is slow, so once the handshake is done both
-                      sides switch to fast symmetric encryption like AES-GCM with that secret for the actual data.
+                      Asymmetric cryptography (the key shares plus the certificate's key pair) lets two strangers agree
+                      on a shared secret and proves the server's identity. It is slow, so after the handshake both
+                      sides switch to fast symmetric encryption, such as AES-GCM, with that secret for the real data.
                     </p>
                   </>
                 ),
@@ -709,9 +743,10 @@ export default function SdLessonThreePage() {
                 a: (
                   <>
                     <p>
-                      Usually at the load balancer or CDN edge: certificates live in one place and the balancer can read
-                      HTTP to route by path and header. In regulated environments you re-encrypt from the balancer to
-                      the backends, and you use passthrough only when the backend itself must hold the keys.
+                      Usually at the load balancer or the CDN edge. The certificates live in one place, and the balancer
+                      can read the HTTP to route by path and header. In regulated industries (such as finance), you
+                      encrypt again from the balancer to the backends. You use passthrough only when the backend itself
+                      must hold the keys.
                     </p>
                   </>
                 ),
@@ -727,7 +762,7 @@ export default function SdLessonThreePage() {
               request, a <strong>status code + body</strong> in the response.
             </li>
             <li>
-              Know which methods are <strong>safe</strong> and <strong>idempotent</strong>. That's what makes{" "}
+              Know which methods are <strong>safe</strong> and <strong>idempotent</strong>. That is what makes{" "}
               <strong>retries</strong> safe or dangerous.
             </li>
             <li>

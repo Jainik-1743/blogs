@@ -118,25 +118,26 @@ export default function SdLessonFivePage() {
       <div className="lesson">
         <Section id="the-problem" title="The Problem" kind="problem">
           <p>
-            A small online store launches with a simple database. For months everything is fast. Then the product list
+            A small online store starts with a simple database. For months everything is fast. Then the product list
             takes 8 seconds to load. The team adds more app servers, and it gets <strong>worse</strong>: the database
-            starts refusing connections.
+            starts to refuse connections.
           </p>
           <p>
-            The fix turned out to be one line: <strong>an index</strong>. The second problem was{" "}
-            <strong>too many connections</strong>, not too many users.
+            The first fix was one line: <strong>an index</strong> (a lookup structure that makes searches fast, explained
+            below). The second problem was <strong>too many connections</strong>, not too many users.
           </p>
           <p>
-            Most scaling stories begin here. Before you talk about sharding, replicas or NoSQL, you need to know how to
-            use <strong>one relational database well</strong>. Instagram, Shopify and GitHub all grew very large on
+            Most scaling stories begin here. Before you talk about sharding (splitting data across many databases),
+            replicas (extra copies of a database) or NoSQL (databases that are not tables), you need to know how to use{" "}
+            <strong>one relational database well</strong>. Instagram, Shopify and GitHub all grew very large on
             relational databases like PostgreSQL and MySQL.
           </p>
         </Section>
 
         <Section id="the-core-idea" title="The Core Idea" kind="idea">
           <p>
-            A relational database is like a set of <strong>very strict spreadsheets</strong> that can point to each
-            other.
+            A <strong>relational database</strong> is a database that stores data in tables that are linked to each
+            other. It is like a set of <strong>very strict spreadsheets</strong> that can point to each other.
           </p>
           <ul>
             <li>
@@ -149,49 +150,54 @@ export default function SdLessonFivePage() {
               Each <strong>column</strong> has a fixed type: <code>email</code> is text, <code>price</code> is a number.
             </li>
             <li>
-              <strong>Keys</strong> link the tables: an order row says "I belong to user 42".
+              <strong>Keys</strong> link the tables. A key is a column value that identifies a row. For example, an
+              order row says "I belong to user 42".
             </li>
           </ul>
           <p>
-            <strong>SQL</strong> is the language you use to ask questions ("show me all orders over ₹1,000 from last
-            week") and make changes.
+            <strong>SQL (Structured Query Language)</strong> is the language you use to ask a database questions ("show
+            me all orders over ₹1,000 from last week") and to change its data. A <strong>query</strong> is one such
+            question or command.
           </p>
           <p>
-            An <strong>index</strong> is like the <strong>index at the back of a textbook</strong>. Without it, finding
-            "photosynthesis" means reading every page. With it, you jump straight to page 214. It makes reads fast, but
-            every time you add a page, the index must be updated too.
+            An <strong>index</strong> is an extra, sorted structure that the database keeps so it can find rows
+            without reading the whole table. It is like the <strong>index at the back of a textbook</strong>. Without
+            it, finding "photosynthesis" means reading every page. With it, you jump straight to page 214. It makes
+            reads fast, but every time you add a page, the index must be updated too.
           </p>
         </Section>
 
         <Section id="how-it-works" title="How It Works" kind="how">
           <h3 id="tables-and-keys">Tables and keys</h3>
-          <p>Let's model a simple blog:</p>
+          <p>Let us model a simple blog. This SQL creates three tables:</p>
           <CodeBlock lang="sql" code={code1} />
           <ul>
             <li>
               <strong>
                 Primary key (<code>id</code>).
               </strong>{" "}
-              Uniquely identifies each row.
+              A column (or columns) whose value identifies each row, and no two rows can have the same value.
             </li>
             <li>
               <strong>
                 Foreign key (<code>REFERENCES</code>).
               </strong>{" "}
-              "This <code>author_id</code> must be a real user". The database refuses bad data.
+              A column that points to a row in another table. Here it says "this <code>author_id</code> must be a real
+              user". The database refuses bad data.
             </li>
             <li>
               <strong>
                 <code>UNIQUE</code>.
               </strong>{" "}
-              No two users can share an email, even if two sign-up requests arrive at the same moment. The database is
-              your last line of defence against race conditions (remember post 4).
+              No two rows can have the same value in this column. No two users can share an email, even if two sign-up
+              requests arrive at the same moment. The database is your last line of defence against race conditions
+              (bugs where timing changes the result, from lesson 4).
             </li>
             <li>
               <strong>
                 <code>NOT NULL</code>.
               </strong>{" "}
-              This field is required.
+              This column cannot be empty (null means "no value").
             </li>
           </ul>
           <p>
@@ -199,16 +205,17 @@ export default function SdLessonFivePage() {
           </p>
           <ul>
             <li>
-              <strong>Auto-increment IDs</strong> (1, 2, 3…) are small and fast to index. But they reveal how many
-              records you have, and they are hard to generate across many servers.
+              <strong>Auto-increment IDs</strong> (1, 2, 3…) are numbers that the database counts up for you. They are
+              small and fast to index. But they reveal how many records you have, and they are hard to generate across
+              many servers.
             </li>
             <li>
-              <strong>UUIDs</strong> (random 128-bit IDs) can be generated anywhere without coordination. But they are
-              bigger, and random values scatter writes across the index.
+              <strong>UUIDs</strong> (Universally Unique IDs, random 128-bit numbers) can be created anywhere without
+              asking another server. But they are bigger, and random values spread writes all over the index.
             </li>
             <li>
               Newer time-ordered formats like <strong>UUIDv7</strong>, or Twitter-style <strong>Snowflake IDs</strong>,
-              give you a middle ground. We'll return to this in the URL-shortener case study.
+              are a middle way. We come back to this in the URL-shortener case study.
             </li>
           </ul>
           <h3 id="the-queries-you-ll-use-constantly">The queries you'll use constantly</h3>
@@ -217,9 +224,15 @@ export default function SdLessonFivePage() {
             <strong>
               Always use a <code>WHERE</code> in <code>UPDATE</code> and <code>DELETE</code>.
             </strong>{" "}
-            Forgetting it changes every row. It's one of the most famous production mistakes.
+            <code>WHERE</code> says which rows to change. If you forget it, the command changes every row. This is one
+            of the most famous mistakes on live systems.
           </p>
           <h3 id="joins-combining-tables">Joins: combining tables</h3>
+          <p>
+            A <strong>join</strong> combines rows from two tables by matching a column, such as{" "}
+            <code>author_id</code> with <code>id</code>. This query lists the posts of the last 7 days with the author's
+            name:
+          </p>
           <CodeBlock lang="sql" code={code3} />
           <div className="table-wrap">
             <table>
@@ -241,7 +254,7 @@ export default function SdLessonFivePage() {
                     <code>LEFT JOIN</code>
                   </td>
                   <td>
-                    Every row from the left table, with NULLs where there's no match (for example, posts with zero
+                    Every row from the left table, with NULLs where there is no match (for example, posts with zero
                     comments)
                   </td>
                 </tr>
@@ -261,7 +274,11 @@ export default function SdLessonFivePage() {
             </table>
           </div>
           <h3 id="aggregates-and-group-by">Aggregates and GROUP BY</h3>
-          <p>"The 10 most-commented posts this week, with author names":</p>
+          <p>
+            An <strong>aggregate</strong> is a function that turns many rows into one value, such as <code>COUNT</code>{" "}
+            or <code>SUM</code>. <code>GROUP BY</code> puts rows into groups, and the aggregate runs once per group. This
+            query answers "the 10 most-commented posts this week, with author names":
+          </p>
           <CodeBlock lang="sql" code={code4} />
           <ul>
             <li>
@@ -281,16 +298,17 @@ export default function SdLessonFivePage() {
           <p>
             Without an index, <code>WHERE author_id = 42</code> makes the database read <strong>every row</strong> in{" "}
             <code>posts</code>. This is called a <strong>sequential scan</strong> (or full table scan). With 100 rows,
-            you won't notice. With 50 million rows, it takes seconds.
+            you will not notice. With 50 million rows, it takes seconds.
           </p>
           <CodeBlock lang="sql" code={code5} />
           <p>
-            Now the database keeps a sorted structure (usually a <strong>B-tree</strong>, which we'll explore in Part 4)
-            that jumps straight to author 42's posts.
+            Now the database keeps a sorted structure (usually a <strong>B-tree</strong>, a tree of sorted pages that
+            we explore in Part 4) that jumps straight to author 42's posts.
           </p>
           <p>
-            <strong>Composite indexes and the "left-prefix" rule.</strong> Our earlier query filters by{" "}
-            <code>author_id</code> and sorts by <code>created_at</code>. One index can serve both:
+            <strong>Composite indexes and the "left-prefix" rule.</strong> A composite index is an index on more than
+            one column. Our earlier query filters by <code>author_id</code> and sorts by <code>created_at</code>. One
+            index can serve both:
           </p>
           <CodeBlock lang="sql" code={code6} />
           <p>
@@ -304,16 +322,17 @@ export default function SdLessonFivePage() {
           </ul>
           <p>
             In the same way, an index on <code>(author_id, created_at)</code> helps queries on <code>author_id</code>,
-            or on <code>author_id</code> + <code>created_at</code>. It does not help queries on <code>created_at</code>{" "}
-            alone.
+            or on <code>author_id</code> + <code>created_at</code>. It usually does not help queries on{" "}
+            <code>created_at</code> alone. (PostgreSQL 18 can sometimes "skip" the first column when it has only a few
+            different values, but you should not count on it.)
           </p>
           <p>
             <strong>The cost of indexes:</strong>
           </p>
           <ul>
             <li>
-              Every <code>INSERT</code>, <code>UPDATE</code> and <code>DELETE</code> must also update every index. More
-              indexes mean slower writes.
+              Every <code>INSERT</code>, <code>UPDATE</code> and <code>DELETE</code> must also update the indexes on
+              that table. More indexes mean slower writes.
             </li>
             <li>Indexes take disk space and memory.</li>
             <li>
@@ -322,6 +341,10 @@ export default function SdLessonFivePage() {
             </li>
           </ul>
           <h3 id="explain-ask-the-database-how-it-runs-your-query">EXPLAIN: ask the database how it runs your query</h3>
+          <p>
+            <code>EXPLAIN</code> shows the plan the database will use for a query. <code>EXPLAIN ANALYZE</code> also runs
+            the query and shows the real time each step took.
+          </p>
           <CodeBlock lang="sql" code={code7} />
           <p>Before the index:</p>
           <AsciiDiagram caption="EXPLAIN — before the index" text={diagram1} />
@@ -336,21 +359,24 @@ export default function SdLessonFivePage() {
             ]}
           />
           <p>
-            Here the query went from <strong>812 ms to 0.09 ms</strong>, thousands of times faster.{" "}
-            <strong>Seq Scan</strong> on a big table in a frequent query is the first thing to look for.
+            Here the query went from <strong>812 ms to 0.09 ms</strong>, thousands of times faster. (These numbers are
+            an example, and your results will differ.) <strong>Seq Scan</strong> on a big table in a frequent query is the
+            first thing to look for.
           </p>
           <h3 id="the-n-1-query-problem">The N+1 query problem</h3>
           <p>
-            ORMs (Prisma, Sequelize, Django ORM, Hibernate, ActiveRecord) make it easy to write code like this by
-            accident:
+            An <strong>ORM</strong> (Object-Relational Mapper) is a library that lets you use database rows as objects
+            in your code, so you do not write SQL by hand. ORMs (Prisma, Sequelize, Django ORM, Hibernate,
+            ActiveRecord) make it easy to write code like this by accident:
           </p>
           <CodeBlock lang="js" code={code8} />
           <p>
-            That's <strong>1 + N queries</strong> (21 here). Each one is a network round trip. With 100 posts and a 2 ms
-            round trip, that's 200+ ms wasted.
+            This is <strong>1 + N queries</strong> (21 here). Each one is a network round trip (a trip to the database
+            and back). With 100 posts and a 2 ms round trip, that is 200+ ms wasted.
           </p>
           <p>
-            <strong>Fix:</strong> fetch everything in one or two queries, with a join or eager loading:
+            <strong>Fix:</strong> fetch everything in one or two queries, with a join or with eager loading (loading
+            the related rows together with the main rows):
           </p>
           <CodeBlock lang="js" code={code9} />
           <SequenceDiagram
@@ -372,23 +398,28 @@ export default function SdLessonFivePage() {
             ]}
           />
           <p>
-            N+1 is one of the most common reasons "the database is slow" when really the{" "}
-            <strong>app is asking too many times</strong>.
+            N+1 is one of the most common reasons why people say "the database is slow" when really the{" "}
+            <strong>app asks too many times</strong>.
           </p>
           <h3 id="transactions-all-or-nothing-a-first-look">Transactions: all or nothing (a first look)</h3>
-          <p>Transferring money needs two updates. Both must succeed, or neither:</p>
+          <p>
+            A <strong>transaction</strong> is a group of database steps that run as one unit: all of them succeed, or
+            none of them do. Transferring money needs two updates. Both must succeed, or neither:
+          </p>
           <CodeBlock lang="sql" code={code10} />
           <p>
             If the server crashes between the two updates, the database undoes the first one. This is the{" "}
-            <strong>"A" (Atomicity) in ACID</strong>. Part 4 covers the full ACID story and isolation levels.
+            <strong>"A" (Atomicity) in ACID</strong>. Atomicity means "all or nothing". ACID is the set of four
+            promises that a transaction database makes. Part 4 covers the full ACID story and isolation levels.
           </p>
           <h3 id="connections-the-hidden-limit">Connections: the hidden limit</h3>
           <p>
-            Every app server talks to the database over <strong>connections</strong>. Each connection uses real memory
-            on the database server. In PostgreSQL, each connection is a separate process using several MB. Databases
-            have a <strong>maximum</strong> number of connections, often a few hundred.
+            Every app server talks to the database over <strong>connections</strong>. A connection is an open channel
+            between the app and the database. Each connection uses real memory on the database server. In PostgreSQL,
+            each connection is a separate process that uses several MB. Databases have a <strong>maximum</strong>{" "}
+            number of connections (PostgreSQL's default is 100, and many setups use a few hundred).
           </p>
-          <p>Here's the classic trap:</p>
+          <p>Here is the classic trap:</p>
           <Stats
             caption="Scaling the app tier multiplies database connections — even though the queries per user never changed."
             stats={[
@@ -398,7 +429,7 @@ export default function SdLessonFivePage() {
             ]}
           />
           <Flow
-            caption="A connection pooler lets thousands of app connections share a few dozen real ones."
+            caption="A connection pooler (a middle server that shares a few real connections) lets thousands of app connections use a few dozen real ones."
             nodes={[
               {
                 title: <>Hundreds of app servers or serverless functions</>,
@@ -416,28 +447,33 @@ export default function SdLessonFivePage() {
             ]}
           />
           <p>
-            Scaling out the app tier can <strong>take down the database</strong>, even though the number of queries per
-            user didn't change. Serverless functions make this worse, because every function instance may open its own
-            connection.
+            Adding more app servers can <strong>take down the database</strong>, even though the number of queries per
+            user did not change. Serverless functions (small pieces of code that the cloud starts on demand) make this
+            worse, because every function instance may open its own connection.
           </p>
           <p>
             <strong>Fixes:</strong>
           </p>
           <ul>
             <li>
-              <strong>Connection pooling in the app</strong>, with sensibly small pools (HikariCP for Java, built-in
-              pools in most ORMs).
+              <strong>Connection pooling in the app.</strong> A connection pool keeps a few connections open and
+              reuses them. Use small pools (HikariCP for Java, or the built-in pools in most ORMs).
             </li>
             <li>
               <strong>A pooler in front of the database</strong> (for example, <strong>PgBouncer</strong> for
               PostgreSQL). Thousands of app connections share a few dozen real database connections.
             </li>
             <li>
-              <strong>Remember that a bigger pool isn't always faster.</strong> The database only has so many CPU cores.
-              Beyond a point, more concurrent queries just wait on each other.
+              <strong>Remember that a bigger pool is not always faster.</strong> The database only has so many CPU
+              cores. After some point, more queries at the same time just wait for each other.
             </li>
           </ul>
           <h3 id="oltp-vs-olap">OLTP vs OLAP</h3>
+          <p>
+            <strong>OLTP (Online Transaction Processing)</strong> means many small, quick reads and writes, such as
+            orders and logins. <strong>OLAP (Online Analytical Processing)</strong> means a few big queries that scan a
+            lot of data to make reports.
+          </p>
           <div className="table-wrap">
             <table>
               <thead>
@@ -472,9 +508,9 @@ export default function SdLessonFivePage() {
             </table>
           </div>
           <p>
-            Running heavy analytics on your main (OLTP) database can slow down every user's checkout. That's why
-            companies copy data into a separate <strong>analytics warehouse</strong>, or at least run reports on a{" "}
-            <strong>read replica</strong>.
+            Running heavy analytics on your main (OLTP) database can slow down every user's checkout. That is why
+            companies copy data into a separate <strong>analytics warehouse</strong> (a database built for reports), or
+            at least run reports on a <strong>read replica</strong> (a copy of the database that only answers reads).
           </p>
         </Section>
 
@@ -485,16 +521,17 @@ export default function SdLessonFivePage() {
               patterns, and check <code>EXPLAIN</code>.
             </li>
             <li>
-              <strong>Constraints</strong> (foreign keys, <code>UNIQUE</code>): protect data quality and prevent
-              race-condition duplicates, but add a small write cost and make some large-scale designs (like sharding)
-              harder later.
+              <strong>Constraints</strong> (rules the database enforces, such as foreign keys and{" "}
+              <code>UNIQUE</code>): protect data quality and prevent duplicates caused by race conditions. But they add
+              a small write cost and can make some large-scale designs (like sharding) harder later.
             </li>
             <li>
-              <strong>ORMs:</strong> faster development, but they can hide N+1 queries and slow SQL. Learn to look at
-              the SQL they generate.
+              <strong>ORMs:</strong> faster development, but they can hide N+1 queries and slow SQL. Learn to read the
+              SQL that they generate.
             </li>
             <li>
-              <strong>Auto-increment vs UUID IDs:</strong> fast and compact vs globally unique without coordination.
+              <strong>Auto-increment vs UUID IDs:</strong> fast and compact, versus unique everywhere without asking
+              another server.
             </li>
             <li>
               <strong>One database for everything:</strong> simple at first. Separating OLTP and analytics protects
@@ -505,12 +542,12 @@ export default function SdLessonFivePage() {
 
         <Section id="in-the-real-world" title="In the Real World" kind="real">
           <p>
-            <strong>Instagram</strong> famously ran on PostgreSQL in its early years, serving millions of users with a
-            very small team. It relied on careful indexing, and later on splitting data across many Postgres servers.
+            <strong>Instagram</strong> ran on PostgreSQL in its early years, serving millions of users with a very
+            small team. It relied on careful indexing, and later on splitting data across many PostgreSQL servers.
           </p>
           <p>
-            <strong>GitHub and Shopify</strong> run huge MySQL fleets. Both have written about how much performance they
-            got from query tuning, indexes and connection management before needing more complex solutions.
+            <strong>GitHub and Shopify</strong> run very large MySQL setups. Both have written about how much speed they
+            got from query tuning, indexes and connection management before they needed more complex solutions.
           </p>
           <p>
             <strong>Serverless apps and connection limits.</strong> Teams moving to AWS Lambda or similar platforms
@@ -523,13 +560,14 @@ export default function SdLessonFivePage() {
               The missing <code>WHERE</code> clause.
             </strong>{" "}
             Many teams have a story about an <code>UPDATE</code> or <code>DELETE</code> run without a <code>WHERE</code>{" "}
-            in production. It's one reason why backups and point-in-time recovery (covered in Part 7) matter, and why
-            many teams require reviewed migrations instead of manual queries.
+            on a live system. This is one reason why backups and point-in-time recovery (restoring the database to an
+            exact moment, covered in Part 7) matter. It is also why many teams require a review for database changes
+            instead of manual queries.
           </p>
           <p>
-            <strong>E-commerce reporting.</strong> A common growing pain: a "sales dashboard" query that scans the whole{" "}
-            <code>orders</code> table every few minutes slows down checkout for everyone. Moving that report to a read
-            replica or an analytics database fixes it without touching the checkout code.
+            <strong>E-commerce reporting.</strong> A common problem as a shop grows: a "sales dashboard" query that
+            scans the whole <code>orders</code> table every few minutes slows down checkout for everyone. Moving that
+            report to a read replica or an analytics database fixes it without changing the checkout code.
           </p>
         </Section>
 
@@ -542,7 +580,7 @@ export default function SdLessonFivePage() {
                   <>
                     <p>
                       Run EXPLAIN ANALYZE on it. Look for sequential scans on big tables, sorts that spill to disk, and
-                      row estimates that are far from the actual counts. Then add or fix an index that matches the
+                      row estimates that are far from the real counts. Then add or fix an index that matches the
                       WHERE, JOIN and ORDER BY columns, and check the plan again.
                     </p>
                   </>
@@ -554,8 +592,8 @@ export default function SdLessonFivePage() {
                   <>
                     <p>
                       An index on (a, b) is sorted by a, then b — like a phone book sorted by last name, then first
-                      name. It serves queries on a, or on a and b, but not queries on b alone, because rows with the
-                      same b are scattered all over the index.
+                      name. It serves queries on a, or on a and b. It usually does not serve queries on b alone, because rows with
+                      the same b are spread all over the index.
                     </p>
                   </>
                 ),
@@ -565,9 +603,9 @@ export default function SdLessonFivePage() {
                 a: (
                   <>
                     <p>
-                      Loading a list with one query, then running one more query per item to load related data: 1 + N
-                      round trips. Fix it with a JOIN, or with eager loading that fetches all related rows in one WHERE
-                      id IN (…) query.
+                      The code loads a list with one query, then runs one more query for each item to load related
+                      data. That is 1 + N round trips. Fix it with a JOIN, or with eager loading that fetches all the
+                      related rows in one WHERE id IN (…) query.
                     </p>
                   </>
                 ),
@@ -578,20 +616,20 @@ export default function SdLessonFivePage() {
                   <>
                     <p>
                       Every server keeps its own pool of connections, and each database connection costs real memory (a
-                      whole process in PostgreSQL). Fifty servers with a pool of 20 each is 1,000 connections, above
-                      most limits. Use small pools and a pooler like PgBouncer in front of the database.
+                      whole process in PostgreSQL). Fifty servers with a pool of 20 each make 1,000 connections, which is
+                      above most limits. Use small pools and a pooler like PgBouncer in front of the database.
                     </p>
                   </>
                 ),
               },
               {
-                q: <>What's the difference between OLTP and OLAP, and why keep them apart?</>,
+                q: <>What is the difference between OLTP and OLAP, and why keep them apart?</>,
                 a: (
                   <>
                     <p>
                       OLTP is many small, fast transactions touching a few rows (checkout, login). OLAP is big
                       analytical queries scanning millions of rows (revenue by city). Running OLAP on the OLTP database
-                      steals CPU and I/O from users, so analytics go to a read replica or a warehouse.
+                      takes CPU and disk speed away from users, so analytics go to a read replica or a warehouse.
                     </p>
                   </>
                 ),
@@ -641,7 +679,7 @@ export default function SdLessonFivePage() {
             <li>The HikariCP wiki article "About Pool Sizing"</li>
           </ul>
           <p>
-            <em>This wraps up Part 1. Next up, Part 2: What is system design? Start with requirements.</em>
+            <em>This ends Part 1. Next is Part 2: What is system design? Start with requirements.</em>
           </p>
         </Section>
       </div>

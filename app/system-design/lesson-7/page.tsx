@@ -41,8 +41,8 @@ export default function SdLessonSevenPage() {
       <div className="lesson">
         <Section id="the-problem" title="The Problem" kind="problem">
           <p>
-            Your app runs on one server, and traffic has doubled in three months. CPU sits at 90%, pages are slowing
-            down, and a big sale is coming next week. You have two options:
+            Your app runs on one server, and traffic has doubled in three months. The CPU (the processor that does the
+            work) is 90% busy, pages are getting slower, and a big sale starts next week. You have two options:
           </p>
           <ul>
             <li>
@@ -53,27 +53,29 @@ export default function SdLessonSevenPage() {
             </li>
           </ul>
           <p>
-            Both work, but they lead to very different systems. And if you choose "more servers", you may discover a
-            surprise. Users keep getting logged out, and uploaded profile pictures randomly disappear. That's a{" "}
-            <strong>state</strong> problem, and it's the hidden reason many apps can't simply "add more servers".
+            Both work, but they lead to very different systems. And if you choose "more servers", you may get a
+            surprise. Users keep getting logged out, and uploaded profile pictures randomly disappear. This is a{" "}
+            <strong>state</strong> problem. It is the hidden reason why many apps cannot simply "add more servers".
+            Scaling means making a system able to handle more load.
           </p>
         </Section>
 
         <Section id="the-core-idea" title="The Core Idea" kind="idea">
           <p>Imagine a busy chai stall.</p>
           <p>
-            <strong>Vertical scaling (scale up)</strong> means giving your one chaiwala a bigger stove, a bigger pot and
-            faster hands. It's simple. Nothing about how the stall works changes. But one person can only get so fast,
-            bigger equipment gets very expensive, and if they fall sick, the stall closes.
+            <strong>Vertical scaling (scale up)</strong> means giving your one chaiwala (tea seller) a bigger stove, a
+            bigger pot and faster hands. It is simple. Nothing about how the stall works changes. But one person can
+            only get so fast, bigger equipment gets very expensive, and if the chaiwala falls sick, the stall closes.
           </p>
           <p>
             <strong>Horizontal scaling (scale out)</strong> means opening more counters with more chaiwalas, and having
-            someone at the front direct customers to whichever counter is free. You can keep adding counters almost
-            forever, and if one chaiwala takes a break, the others keep serving. But now you need coordination. If a
-            customer paid at counter 1 and comes back to counter 3 for their change, counter 3 needs to know about it.
+            someone at the front send customers to whichever counter is free. You can keep adding counters almost
+            forever, and if one chaiwala takes a break, the others keep serving. But now you need coordination. Say a
+            customer paid at counter 1 and comes back to counter 3 for their change. Counter 3 needs to know about the
+            payment.
           </p>
           <p>
-            That "does counter 3 know about you?" question is the <strong>stateless vs stateful</strong> idea. It
+            The question "does counter 3 know about you?" is the <strong>stateless vs stateful</strong> idea. It
             decides how easily you can scale out.
           </p>
         </Section>
@@ -81,32 +83,36 @@ export default function SdLessonSevenPage() {
         <Section id="how-it-works" title="How It Works" kind="how">
           <h3 id="vertical-scaling">Vertical scaling</h3>
           <p>
-            You move to a machine with more CPU cores, more RAM, faster disks or a faster network. In the cloud this can
-            be as easy as changing the instance size and restarting.
+            You move to a machine with more CPU cores, more RAM (the fast working memory), faster disks or a faster
+            network. In the cloud this can be as easy as changing the instance size (the size of the rented virtual
+            machine) and restarting.
           </p>
           <CodeBlock code={code1} />
           <p>
             <strong>Good things:</strong>
           </p>
           <ul>
-            <li>No code changes. Your app doesn't know anything changed.</li>
-            <li>No distributed-system problems: one machine, one memory, one clock.</li>
-            <li>Great for databases, which are hard to split across machines.</li>
+            <li>No code changes. Your app does not know that anything changed.</li>
+            <li>
+              No distributed-system problems. (A distributed system is a system that runs on many machines.) You have
+              one machine, one memory and one clock.
+            </li>
+            <li>Good for databases, which are hard to split across machines.</li>
           </ul>
           <p>
             <strong>Limits:</strong>
           </p>
           <ul>
             <li>
-              <strong>There's a ceiling.</strong> Even the biggest cloud machines have limits.
+              <strong>There is a ceiling.</strong> Even the biggest cloud machines have limits.
             </li>
             <li>
-              <strong>The cost curve is steep.</strong> A machine twice as big often costs more than twice as much at
-              the high end.
+              <strong>The cost grows fast.</strong> At the high end, a machine twice as big often costs more than twice
+              as much.
             </li>
             <li>
-              <strong>It's still a single point of failure.</strong> One machine means one hardware failure takes you
-              down.
+              <strong>It is still a single point of failure.</strong> A single point of failure is one part that, if it
+              breaks, stops the whole system. With one machine, one hardware failure takes you down.
             </li>
             <li>
               <strong>It usually needs a restart</strong>, which means downtime.
@@ -114,23 +120,26 @@ export default function SdLessonSevenPage() {
           </ul>
           <h3 id="horizontal-scaling">Horizontal scaling</h3>
           <p>
-            You run many copies of your app on many machines, with a <strong>load balancer</strong> in front that
-            spreads requests between them.
+            You run many copies of your app on many machines. A <strong>load balancer</strong> sits in front of them. It
+            is a server that spreads the incoming requests between the machines.
           </p>
           <AsciiDiagram text={diagram1} />
           <p>
             <strong>Good things:</strong>
           </p>
           <ul>
-            <li>Almost unlimited growth. Just add servers.</li>
+            <li>Almost unlimited growth. You just add servers.</li>
             <li>
-              <strong>Fault tolerance.</strong> If server 2 dies, the load balancer sends traffic to 1 and 3.
+              <strong>Fault tolerance.</strong> This means the system keeps working when a part fails. If server 2
+              dies, the load balancer sends traffic to servers 1 and 3.
             </li>
             <li>
-              <strong>Cheaper hardware.</strong> Many ordinary machines instead of one huge one.
+              <strong>Cheaper hardware.</strong> You use many ordinary machines (commodity machines) instead of one huge
+              one.
             </li>
             <li>
-              <strong>Zero-downtime deploys.</strong> Update servers one at a time.
+              <strong>Zero-downtime deploys.</strong> A deploy is putting a new version of your app on the servers. You
+              update the servers one at a time, so the site never goes down.
             </li>
           </ul>
           <p>
@@ -142,34 +151,38 @@ export default function SdLessonSevenPage() {
               Your app must be <strong>stateless</strong> (see below).
             </li>
             <li>
-              Some parts, especially the <strong>database</strong>, don't scale out easily. Part 4 covers replication
-              and sharding.
+              Some parts, especially the <strong>database</strong>, do not scale out easily. Part 4 covers replication
+              (keeping copies of data on several machines) and sharding (splitting data across several machines).
             </li>
           </ul>
           <h3 id="different-tiers-scale-differently">Different tiers scale differently</h3>
           <ul>
             <li>
-              <strong>The web/app tier</strong> is usually easy to scale out, <em>if</em> it's stateless.
+              <strong>The web/app tier</strong> (the servers that run your application code) is usually easy to scale
+              out, <em>if</em> it is stateless.
             </li>
             <li>
-              <strong>Caches</strong> can be scaled out with partitioning.
+              <strong>Caches</strong> can be scaled out with partitioning (each server holds a different part of the
+              data).
             </li>
             <li>
               <strong>Databases</strong> are hard. Most teams scale the database <strong>vertically first</strong>, then
-              add <strong>read replicas</strong>, and only shard when nothing else works.
+              add <strong>read replicas</strong> (extra copies that only answer reads), and shard only when nothing else
+              works.
             </li>
           </ul>
           <p>
-            A very common real-world setup is <strong>many small app servers + one big database</strong> (plus
+            A very common setup in real systems is <strong>many small app servers + one big database</strong> (plus
             replicas).
           </p>
           <h3 id="what-is-state">What is "state"?</h3>
           <p>
-            <strong>State</strong> is any data a server remembers between requests. Common examples:
+            <strong>State</strong> is any data that a server remembers between requests. Common examples:
           </p>
           <ul>
             <li>
-              <strong>Login sessions</strong> kept in server memory.
+              <strong>Login sessions</strong> kept in server memory. (A session is the server's record that you are
+              logged in.)
             </li>
             <li>
               <strong>Uploaded files</strong> saved to the server's local disk.
@@ -178,10 +191,11 @@ export default function SdLessonSevenPage() {
               <strong>In-memory caches</strong> holding user-specific data.
             </li>
             <li>
-              <strong>Open connections</strong>, like WebSockets for chat.
+              <strong>Open connections</strong>, like WebSockets for chat. (A WebSocket is a connection that stays
+              open so that the server and the browser can send messages at any time.)
             </li>
           </ul>
-          <p>Here's why state breaks horizontal scaling:</p>
+          <p>Here is why state breaks horizontal scaling:</p>
           <SequenceDiagram
             caption="Why in-memory sessions break when you add a second server."
             actors={["User", "Load balancer", "Server A", "Server B"]}
@@ -191,7 +205,7 @@ export default function SdLessonSevenPage() {
               { from: 2, to: 2, label: <>remember session 123 = Asha (in RAM)</> },
               { from: 2, to: 0, label: <>Set-Cookie: session=123</>, reply: true },
               { from: 0, to: 1, label: <>GET /dashboard (cookie 123)</> },
-              { from: 1, to: 3, label: <>forward — round robin</> },
+              { from: 1, to: 3, label: <>forward — round robin (servers take turns)</> },
               {
                 from: 3,
                 to: 0,
@@ -203,12 +217,13 @@ export default function SdLessonSevenPage() {
           />
           <p>
             The same thing happens with files. The profile picture was saved to Server A's disk, so when Server B
-            handles the next request, the image "doesn't exist".
+            handles the next request, the image "does not exist".
           </p>
           <h3 id="making-services-stateless">Making services stateless</h3>
           <p>
             A <strong>stateless</strong> server keeps nothing important in its own memory or disk between requests. Any
-            server can handle any request. You move the state somewhere shared:
+            server can handle any request. Difference in one line: a stateful server remembers you, a stateless server
+            does not need to. You move the state to a shared place:
           </p>
           <div className="table-wrap">
             <table>
@@ -222,20 +237,21 @@ export default function SdLessonSevenPage() {
                 <tr>
                   <td>Login sessions</td>
                   <td>
-                    A shared store like <strong>Redis</strong>, or signed <strong>tokens</strong> (like JWTs) that the
-                    client sends each time
+                    A shared store like <strong>Redis</strong> (a very fast in-memory data store), or signed{" "}
+                    <strong>tokens</strong> (like JWTs, small signed texts) that the client sends each time
                   </td>
                 </tr>
                 <tr>
                   <td>Uploaded files</td>
                   <td>
-                    <strong>Object storage</strong> (like Amazon S3)
+                    <strong>Object storage</strong> (a service that stores files, like Amazon S3)
                   </td>
                 </tr>
                 <tr>
                   <td>Cached data</td>
                   <td>
-                    A shared cache (<strong>Redis / Memcached</strong>)
+                    A shared cache (<strong>Redis / Memcached</strong>, a fast store of saved answers that all servers
+                    use)
                   </td>
                 </tr>
                 <tr>
@@ -248,24 +264,25 @@ export default function SdLessonSevenPage() {
             </table>
           </div>
           <Layers
-            caption="The stateless layout. App servers are interchangeable; everything they must remember lives in shared stores."
+            caption="The stateless layout. App servers are interchangeable. Everything they must remember lives in shared stores."
             layers={[
               { name: <>Load balancer</>, desc: <>any server can take any request</> },
-              { name: <>App servers × N</>, desc: <>stateless — add, remove, restart or replace at will</> },
+              { name: <>App servers × N</>, desc: <>stateless — you can add, remove, restart or replace them at any time</> },
               { name: <>Redis</>, tech: <>sessions, cache</>, desc: <>shared by every app server</> },
-              { name: <>Database</>, tech: <>business data</>, desc: <>the source of truth</> },
+              { name: <>Database</>, tech: <>business data</>, desc: <>the source of truth (the one place that holds the correct data)</> },
               { name: <>Object storage (S3)</>, tech: <>uploaded files</>, desc: <>never on a server's local disk</> },
             ]}
           />
           <p>
             Now servers are <strong>interchangeable</strong>, like identical counters at the chai stall. You can add
             servers, remove them, restart them or replace them at any time. This is the key idea behind the well-known
-            "Twelve-Factor App" guidelines: <em>run your app as stateless processes</em>.
+            "Twelve-Factor App" guidelines (a popular list of rules for building web apps):{" "}
+            <em>run your app as stateless processes</em>.
           </p>
           <h3 id="sticky-sessions-a-shortcut-with-costs">Sticky sessions: a shortcut with costs</h3>
           <p>
             Another option is <strong>sticky sessions</strong>: the load balancer always sends the same user to the same
-            server, usually using a cookie. It's a quick fix, but:
+            server, usually using a cookie. It is a quick fix, but:
           </p>
           <ul>
             <li>
@@ -276,27 +293,28 @@ export default function SdLessonSevenPage() {
             </li>
             <li>
               <strong>Scaling down or deploying is harder</strong>, because users are "attached" to specific machines.
+              Scaling down means removing servers.
             </li>
           </ul>
           <p>
-            Use sticky sessions only when you truly must, such as for some long-lived connections. Otherwise, make the
+            Use sticky sessions only when you really must, such as for some long-lived connections. Otherwise, make the
             app stateless.
           </p>
           <h3 id="some-things-are-naturally-stateful">Some things are naturally stateful</h3>
           <p>
             Not everything can be stateless. Databases, chat servers holding WebSocket connections, multiplayer game
-            servers and stream processors all <em>have</em> to hold state. They're scaled with extra techniques:
+            servers and stream processors all <em>have</em> to hold state. They are scaled with extra techniques:
           </p>
           <ul>
             <li>replication (copies),</li>
             <li>partitioning (each server owns part of the data or part of the users),</li>
             <li>routing that sends each user or key to the right server.</li>
           </ul>
-          <p>We'll cover these in later series.</p>
+          <p>We cover these in later lessons.</p>
           <h3 id="auto-scaling">Auto-scaling</h3>
           <p>
-            With stateless servers, you can let the cloud <strong>add and remove servers automatically</strong> based on
-            a signal:
+            <strong>Auto-scaling</strong> means the cloud adds and removes servers for you, based on a signal. It works
+            well with stateless servers. Common signals:
           </p>
           <ul>
             <li>CPU usage (for example, "keep average CPU around 60%"),</li>
@@ -306,30 +324,33 @@ export default function SdLessonSevenPage() {
           <p>Two practical points:</p>
           <ul>
             <li>
-              <strong>New servers take time to start and warm up</strong>, from seconds to minutes. Auto-scaling reacts{" "}
-              <em>after</em> load rises, so for predictable spikes (a sale, a big match),{" "}
-              <strong>scale up in advance</strong>.
+              <strong>New servers take time to start and warm up</strong> (to load code and fill caches), from seconds
+              to minutes. Auto-scaling reacts <em>after</em> the load rises, so for spikes that you can predict (a
+              sale, a big match), <strong>add servers in advance</strong>.
             </li>
             <li>
-              Set a <strong>minimum</strong> number of servers, so a failure never leaves you with zero.
+              Set a <strong>minimum</strong> number of servers, so that a failure never leaves you with none.
             </li>
           </ul>
           <h3 id="why-10-servers-aren-t-10-faster">Why 10 servers aren't 10× faster</h3>
-          <p>Adding servers rarely gives perfect linear growth:</p>
+          <p>Adding servers rarely gives perfect linear growth (twice the servers, twice the speed):</p>
           <ul>
             <li>
-              <strong>Shared bottlenecks.</strong> All servers still use the same database, cache or third-party API.
+              <strong>Shared bottlenecks.</strong> A bottleneck is the one slow part that limits everything else. All
+              servers still use the same database, cache or third-party API (a service run by another company).
             </li>
             <li>
-              <strong>Coordination costs.</strong> Servers may need to talk to each other, share locks or sync data.
+              <strong>Coordination costs.</strong> Servers may need to talk to each other, share locks (a lock lets
+              only one worker use something at a time) or keep data in sync.
             </li>
             <li>
-              <strong>Amdahl's law.</strong> If part of the work can't be split, like one shared database write, that
-              part limits your total speedup, no matter how many servers you add.
+              <strong>Amdahl's law.</strong> If part of the work cannot be split, like one shared database write, that
+              part limits your total speed-up, no matter how many servers you add.
             </li>
           </ul>
           <p>
-            Scalability isn't just adding boxes. It's <strong>removing the shared bottlenecks</strong> one by one.
+            Scalability is not just adding machines. It is <strong>removing the shared bottlenecks</strong> one by
+            one.
           </p>
           <Compare
             caption="The two directions you can grow."
@@ -350,7 +371,7 @@ export default function SdLessonSevenPage() {
                 items: [
                   { sign: "+", text: <>Nearly unlimited: just add servers</> },
                   { sign: "+", text: <>Survives a server dying</> },
-                  { sign: "+", text: <>Zero-downtime rolling deploys</> },
+                  { sign: "+", text: <>Zero-downtime rolling deploys (update servers one by one)</> },
                   { sign: "-", text: <>Needs a load balancer and stateless design</> },
                   { sign: "-", text: <>Shared bottlenecks (the database) remain</> },
                 ],
@@ -374,7 +395,7 @@ export default function SdLessonSevenPage() {
                 <tr>
                   <td>Simplicity</td>
                   <td>✅ Very simple</td>
-                  <td>❌ Needs LB, stateless design</td>
+                  <td>❌ Needs a load balancer (LB) and a stateless design</td>
                 </tr>
                 <tr>
                   <td>Max scale</td>
@@ -404,41 +425,42 @@ export default function SdLessonSevenPage() {
           </p>
           <ul>
             <li>Your app is small and a bigger machine solves the problem for years.</li>
-            <li>The bottleneck is a database that's hard to split.</li>
+            <li>The bottleneck is a database that is hard to split.</li>
             <li>You need a quick fix before a deadline, while you plan a longer-term change.</li>
           </ul>
           <p>
-            <strong>Don't</strong> scale out before making the app stateless. You'll just get random logouts and missing
-            files.
+            <strong>Do not</strong> scale out before making the app stateless. You will just get random logouts and
+            missing files.
           </p>
         </Section>
 
         <Section id="in-the-real-world" title="In the Real World" kind="real">
           <p>
-            <strong>Stack Overflow</strong> is famous for serving a huge global audience with a{" "}
-            <strong>surprisingly small number of powerful servers</strong>, including large SQL Server database
-            machines. The team chose to scale up, and to tune performance carefully, instead of splitting into hundreds
-            of services. It shows vertical scaling can go a very long way.
+            <strong>Stack Overflow</strong> is known for serving a huge global audience with a{" "}
+            <strong>small number of powerful servers</strong>, including large SQL Server database machines. The team
+            chose to scale up, and to tune performance carefully, instead of splitting into hundreds of services. This
+            shows that vertical scaling can go a very long way.
           </p>
           <p>
             <strong>Let's Encrypt</strong>, which issues certificates for hundreds of millions of websites, wrote about
-            upgrading its main database to much more powerful servers instead of redesigning the database layer. It's a
-            clear, practical example of choosing vertical scaling for a database.
+            upgrading its main database to much more powerful servers instead of redesigning the database layer. This
+            is a clear, practical example of choosing vertical scaling for a database.
           </p>
           <p>
-            <strong>Netflix</strong> runs its services as large fleets of stateless instances in the cloud, using
-            auto-scaling to add capacity in the evening when viewing peaks and remove it overnight. Because the
-            instances are interchangeable, Netflix can even deliberately kill random ones in production (their "Chaos
-            Monkey" tool) to prove the system survives.
+            <strong>Netflix</strong> runs its services as large groups of stateless instances in the cloud. It uses
+            auto-scaling to add capacity in the evening when viewing peaks and to remove it overnight. Because the
+            instances are interchangeable, Netflix can even stop random ones on purpose in production (with its "Chaos
+            Monkey" tool) to prove that the system survives.
           </p>
           <p>
             <strong>Live sports streaming</strong> platforms know exactly when the big match starts, so they{" "}
-            <strong>pre-scale</strong> their fleets before the first ball instead of relying only on auto-scaling.
-            Waiting for CPU to rise would be too late when millions of people join within minutes.
+            <strong>pre-scale</strong> (add servers early) before the first ball instead of relying only on
+            auto-scaling. Waiting for the CPU load to rise would be too late when millions of people join within
+            minutes.
           </p>
           <p>
             <strong>Your own projects.</strong> If you deploy a Node.js or Next.js app to a platform like Vercel, Render
-            or Kubernetes, you're often running several instances without realising it. Storing sessions in memory or
+            or Kubernetes, you are often running several instances without realising it. Keeping sessions in memory or
             files on local disk "works on my machine", then breaks in production for exactly the reasons above.
           </p>
         </Section>
@@ -451,9 +473,9 @@ export default function SdLessonSevenPage() {
                 a: (
                   <>
                     <p>
-                      When the app is small and a bigger machine buys years of headroom, when the bottleneck is a
-                      database that is hard to split, or as a quick fix before a deadline. It keeps the system simple —
-                      at the price of a ceiling and a single point of failure.
+                      When the app is small and a bigger machine gives you years of room to grow, when the bottleneck is
+                      a database that is hard to split, or as a quick fix before a deadline. It keeps the system simple.
+                      The price is a ceiling and a single point of failure.
                     </p>
                   </>
                 ),
@@ -463,21 +485,21 @@ export default function SdLessonSevenPage() {
                 a: (
                   <>
                     <p>
-                      A stateless server keeps nothing important in its own memory or disk between requests; sessions,
+                      A stateless server keeps nothing important in its own memory or disk between requests. Sessions,
                       files and caches live in shared stores. Then any server can handle any request, so you can add,
-                      remove and replace servers freely — the precondition for horizontal scaling and auto-scaling.
+                      remove and replace servers freely. This is required for horizontal scaling and auto-scaling.
                     </p>
                   </>
                 ),
               },
               {
-                q: <>What's wrong with sticky sessions?</>,
+                q: <>What is wrong with sticky sessions?</>,
                 a: (
                   <>
                     <p>
-                      They pin users to servers, so load becomes uneven, users lose their sessions when their server
-                      dies, and scaling in or deploying means draining attached users. Use them only when needed, such
-                      as for some long-lived connections.
+                      They tie users to servers. So the load becomes uneven, users lose their sessions when their server
+                      dies, and scaling in or deploying means waiting for attached users to finish. Use them only when
+                      needed, such as for some long-lived connections.
                     </p>
                   </>
                 ),
@@ -487,9 +509,10 @@ export default function SdLessonSevenPage() {
                 a: (
                   <>
                     <p>
-                      A shared bottleneck — usually the database, a cache, a lock or a third-party API — now limits
-                      everyone. Amdahl's law: the part of the work that can't be parallelised caps the total speed-up.
-                      Find it with metrics and remove it (caching, replicas, batching, partitioning).
+                      A shared bottleneck now limits everyone. It is usually the database, a cache, a lock or a
+                      third-party API. Amdahl's law says that the part of the work that cannot be done in parallel
+                      limits the total speed-up. Find the bottleneck with metrics and remove it (with caching, replicas,
+                      batching or partitioning).
                     </p>
                   </>
                 ),
@@ -499,9 +522,9 @@ export default function SdLessonSevenPage() {
                 a: (
                   <>
                     <p>
-                      Auto-scaling reacts after load rises, and new instances take minutes to boot and warm up. When
-                      millions of users arrive in minutes — a match, a sale — waiting for CPU to climb is too late, so
-                      capacity is added in advance.
+                      Auto-scaling reacts after the load rises, and new instances take minutes to start and warm up.
+                      When millions of users arrive within minutes, such as for a match or a sale, waiting for the CPU
+                      load to climb is too late. So you add capacity in advance.
                     </p>
                   </>
                 ),

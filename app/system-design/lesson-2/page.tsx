@@ -38,7 +38,8 @@ export default function SdLessonTwoPage() {
       <div className="lesson">
         <Section id="the-problem" title="The Problem" kind="problem">
           <p>
-            In the last post we saw that data travels as packets. But the internet makes <strong>no promises</strong>{" "}
+            In the last lesson we saw that data travels as packets. A packet is a small chunk of data with an address
+            on it. But the internet makes <strong>no promises</strong>{" "}
             about those packets:
           </p>
           <ul>
@@ -47,14 +48,20 @@ export default function SdLessonTwoPage() {
             <li>Some arrive in the wrong order: packet 5 before packet 3.</li>
           </ul>
           <p>
-            For a bank transfer, that is unacceptable. For a live video call, waiting for a lost packet is worse than
-            just skipping it.
+            For a bank transfer, this is not acceptable. For a live video call, it is worse to wait for a lost packet
+            than to skip it.
           </p>
           <p>
             So which do you want: <strong>"everything, in order, no matter how long it takes"</strong> or{" "}
             <strong>"fast, even if a bit is missing"</strong>? That choice is the difference between{" "}
             <strong>TCP</strong> and <strong>UDP</strong>, and it shapes how chat apps, games, video streaming and APIs
             are built.
+          </p>
+          <p>
+            A <strong>protocol</strong> is a set of rules that two computers agree on for talking to each other.{" "}
+            <strong>TCP (Transmission Control Protocol)</strong> is a protocol that delivers data reliably and in
+            order. <strong>UDP (User Datagram Protocol)</strong> is a protocol that just sends data fast, with no
+            promises. Difference in one line: TCP checks that everything arrived, UDP does not check.
           </p>
         </Section>
 
@@ -63,11 +70,11 @@ export default function SdLessonTwoPage() {
           <p>
             <strong>TCP is like a courier with tracking.</strong> You number every page. The friend confirms each page
             they receive. If page 7 goes missing, you send it again. Your friend puts the pages in order before reading.
-            It's reliable, but there is extra back-and-forth.
+            It is reliable, but there is extra back-and-forth.
           </p>
           <p>
-            <strong>UDP is like shouting across a room.</strong> You just say things. There's no "did you hear that?"
-            and no repeating. If a word gets lost in the noise, it's gone. But it's very fast and very simple.
+            <strong>UDP is like shouting across a room.</strong> You just say things. Nobody asks "did you hear that?"
+            and nothing is repeated. If a word gets lost in the noise, it is gone. But it is very fast and very simple.
           </p>
           <div className="table-wrap">
             <table>
@@ -96,11 +103,11 @@ export default function SdLessonTwoPage() {
                 </tr>
                 <tr>
                   <td>Speed</td>
-                  <td>More overhead, slower to start</td>
+                  <td>More overhead (extra work and extra bytes), slower to start</td>
                   <td>Minimal overhead</td>
                 </tr>
                 <tr>
-                  <td>Header size</td>
+                  <td>Header size (the extra control bytes added to every packet)</td>
                   <td>20+ bytes</td>
                   <td>8 bytes</td>
                 </tr>
@@ -116,7 +123,11 @@ export default function SdLessonTwoPage() {
 
         <Section id="how-it-works" title="How It Works" kind="how">
           <h3 id="tcp-the-three-way-handshake">TCP: the three-way handshake</h3>
-          <p>Before sending any data, TCP opens a connection with three messages:</p>
+          <p>
+            A <strong>handshake</strong> is a short exchange of messages that two computers do before they start
+            talking. Before sending any data, TCP opens a connection with three messages. SYN means "synchronise" (let
+            us agree on starting numbers). ACK means "acknowledge" (I got it).
+          </p>
           <SequenceDiagram
             caption="The TCP three-way handshake. One full round trip passes before a single byte of real data moves."
             actors={["Client", "Server"]}
@@ -130,73 +141,78 @@ export default function SdLessonTwoPage() {
             ]}
           />
           <p>
-            This costs <strong>one full round trip</strong> before any real data is sent. If the server is 100 ms away,
-            you've waited 100 ms just to say hello. This is why:
+            This costs <strong>one full round trip</strong> before any real data is sent. A round trip (RTT, round-trip
+            time) is the time for a message to go to the other side and come back. If one round trip to the server takes
+            100 ms, you have waited 100 ms just to say hello. This is why:
           </p>
           <ul>
             <li>
-              <strong>Keep-alive</strong> (reusing one connection for many requests) matters so much.
+              <strong>Keep-alive</strong> (keeping one connection open and reusing it for many requests) matters so
+              much.
             </li>
             <li>
-              <strong>Connection pools</strong> in backends keep connections open instead of making new ones for every
-              database query.
+              <strong>Connection pools</strong> in backend servers keep a set of ready connections to the database
+              and reuse them, instead of making a new one for every query.
             </li>
           </ul>
           <h3 id="tcp-how-reliability-works">TCP: how reliability works</h3>
           <ul>
             <li>
               <strong>Sequence numbers.</strong> Every byte has a number, so the receiver can put data back in order and
-              spot gaps.
+              see what is missing.
             </li>
             <li>
-              <strong>Acknowledgements (ACKs).</strong> The receiver says "I've got everything up to byte 4,000".
+              <strong>Acknowledgements (ACKs).</strong> Short replies from the receiver, such as "I have everything up to byte 4,000".
             </li>
             <li>
-              <strong>Retransmission.</strong> If the sender doesn't get an ACK in time, it sends the data again.
+              <strong>Retransmission.</strong> If the sender does not get an ACK in time, it sends the data again.
             </li>
           </ul>
           <h3 id="tcp-flow-control-and-congestion-control">TCP: flow control and congestion control</h3>
-          <p>These two ideas sound alike but protect different things.</p>
+          <p>These two ideas sound alike but protect different things. Congestion means too much traffic on the network at once, like a traffic jam.</p>
           <ul>
             <li>
               <strong>Flow control</strong> protects the <strong>receiver</strong>. The receiver says "I only have room
-              for 64 KB right now, don't send more". This is the <em>receive window</em>.
+              for 64 KB right now, do not send more". This limit is called the <em>receive window</em>.
             </li>
             <li>
               <strong>Congestion control</strong> protects the <strong>network</strong>. TCP starts slowly (called{" "}
-              <strong>slow start</strong>), sends more and more while things go well, and backs off sharply when packets
-              are lost, because loss usually means the road is jammed. Modern algorithms like <strong>CUBIC</strong>{" "}
-              (the Linux default) and <strong>BBR</strong> (created by Google) are smarter versions of this.
+              <strong>slow start</strong>), sends more and more while things go well, and slows down sharply when
+              packets are lost, because loss usually means the road is jammed. Modern algorithms like{" "}
+              <strong>CUBIC</strong> (the Linux default) and <strong>BBR</strong> (created by Google) are smarter
+              versions of this.
             </li>
           </ul>
           <p>
             A practical result: <strong>a brand-new TCP connection is slow at first</strong>. It needs a few round trips
-            to "ramp up". That's another reason reusing connections is faster.
+            to "ramp up" (reach full speed). That is another reason why reusing connections is faster.
           </p>
           <h3 id="tcp-head-of-line-blocking">TCP: head-of-line blocking</h3>
           <p>
             TCP promises order. So if packet 3 is lost, packets 4, 5 and 6 may have already arrived, but the app{" "}
-            <strong>can't see them</strong> until packet 3 is resent and arrives.
+            <strong>cannot see them</strong> until packet 3 is sent again and arrives.
           </p>
           <AsciiDiagram caption="Head-of-line blocking" text={diagram1} />
           <p>
-            This is called <strong>head-of-line blocking</strong>. It's fine for downloading a file. It's painful for a
-            video call, where old data is useless.
+            This is called <strong>head-of-line blocking</strong>: one stuck item at the front of the line makes
+            everything behind it wait. It is fine for downloading a file. It hurts a video call, where old data is
+            useless.
           </p>
           <h3 id="closing-a-tcp-connection">Closing a TCP connection</h3>
           <p>
-            Connections close with FIN and ACK messages. The side that closes first then waits in a state called{" "}
-            <strong>TIME_WAIT</strong> for a short time, to catch any stray packets.
+            Connections close with FIN ("finish") and ACK messages. The side that closes first then waits in a state
+            called <strong>TIME_WAIT</strong> for a short time (about 60 seconds on Linux), to catch any late packets.
           </p>
           <p>
             On a very busy server that opens and closes thousands of short connections, these waiting connections can
-            pile up and use up the available ports. This is one more reason to reuse connections.
+            pile up and use up the available ports. (A port is a number that picks one program on a machine.) This is
+            one more reason to reuse connections.
           </p>
           <h3 id="udp-just-send-it">UDP: just send it</h3>
           <p>
-            UDP has no handshake, no ACKs, no retransmission and no ordering. The app hands UDP a message (a{" "}
-            <em>datagram</em>) and it goes. The header is only 8 bytes: source port, destination port, length and
-            checksum.
+            UDP has no handshake, no ACKs, no retransmission and no ordering. The app gives UDP a message (called a{" "}
+            <em>datagram</em>) and it is sent. The header is only 8 bytes: source port, destination port, length and
+            checksum. A checksum is a small number used to detect damaged data.
           </p>
           <p>This means:</p>
           <ul>
@@ -217,21 +233,21 @@ export default function SdLessonTwoPage() {
           </p>
           <ul>
             <li>
-              A game sends player positions over UDP (it's fine to lose one, because a newer one is coming in 16 ms),
-              but adds sequence numbers so it can ignore old, out-of-order updates.
+              A game sends player positions over UDP (it is fine to lose one, because a newer one comes in about 16
+              ms), but adds sequence numbers so it can ignore old updates that arrive late.
             </li>
-            <li>A video call adds timestamps to play audio smoothly, and may resend only important frames.</li>
+            <li>A video call adds timestamps so it can play audio smoothly, and may resend only the important frames.</li>
           </ul>
           <h3 id="quic-the-best-of-both">QUIC: the best of both</h3>
           <p>
             <strong>QUIC</strong> is a newer protocol, originally built at Google and now an internet standard. It runs{" "}
-            <strong>on top of UDP</strong> but adds TCP-like reliability, built-in encryption, and multiple independent
-            streams.
+            <strong>on top of UDP</strong> but adds TCP-like reliability, built-in encryption, and many independent
+            streams. A stream is one separate flow of data inside a connection, such as one image.
           </p>
           <ul>
             <li>
-              <strong>Faster setup.</strong> It combines the connection and encryption handshakes into one round trip,
-              and can use zero round trips when reconnecting to a known server.
+              <strong>Faster setup.</strong> It combines the connection handshake and the encryption handshake into one
+              round trip. When you reconnect to a server you know, it can send data with zero round trips of waiting.
             </li>
             <li>
               <strong>No head-of-line blocking between streams.</strong> If a packet for image A is lost, image B keeps
@@ -239,23 +255,24 @@ export default function SdLessonTwoPage() {
             </li>
             <li>
               <strong>Connection migration.</strong> If your phone switches from Wi-Fi to mobile data, the connection
-              can survive.
+              can keep working.
             </li>
           </ul>
           <p>
-            Why build it on UDP instead of creating a new protocol? Because routers, firewalls and home routers across
-            the world only understand TCP and UDP. A brand-new protocol would get blocked. UDP lets QUIC travel through
-            the existing internet. <strong>HTTP/3 runs on QUIC.</strong>
+            Why build it on UDP instead of creating a new protocol? Routers and firewalls (programs that block
+            unwanted traffic) across the world only understand TCP and UDP. A brand-new protocol would be blocked. UDP
+            lets QUIC travel through the existing internet. <strong>HTTP/3, the newest version of the web protocol,
+            runs on QUIC.</strong>
           </p>
           <h3 id="choosing-between-them">Choosing between them</h3>
           <Compare
-            caption="Which transport? Ask one question first: does every byte have to arrive, in order?"
+            caption="Which protocol? Ask one question first: does every byte have to arrive, in order?"
             columns={[
               {
                 title: <>TCP</>,
                 items: [
                   { sign: "+", text: <>Every byte arrives, in order</> },
-                  { sign: "+", text: <>OS handles retries, flow and congestion control</> },
+                  { sign: "+", text: <>The operating system handles retries, flow control and congestion control</> },
                   { sign: "-", text: <>Handshake before any data</> },
                   { sign: "-", text: <>One lost packet blocks everything behind it</> },
                 ],
@@ -269,7 +286,7 @@ export default function SdLessonTwoPage() {
                   { sign: "-", text: <>No delivery or order guarantees</> },
                   { sign: "-", text: <>Some firewalls block it; needs a TCP fallback</> },
                 ],
-                verdict: <>Voice and video calls, games, DNS, live telemetry</>,
+                verdict: <>Voice and video calls, games, DNS, live telemetry (a steady stream of measurements)</>,
               },
               {
                 title: <>QUIC (HTTP/3)</>,
@@ -316,38 +333,41 @@ export default function SdLessonTwoPage() {
             <li>❌ No built-in congestion control. A careless UDP app can flood a network.</li>
           </ul>
           <p>
-            <strong>When NOT to use UDP:</strong> anything where losing data means wrong results, such as payments,
-            orders, account updates or file uploads. Just use TCP (or HTTP on top of it).
+            <strong>When NOT to use UDP:</strong> anything where losing data gives wrong results, such as payments,
+            orders, account updates or file uploads. Use TCP (or HTTP on top of it) instead.
           </p>
         </Section>
 
         <Section id="in-the-real-world" title="In the Real World" kind="real">
           <p>
-            <strong>Zoom, Google Meet and WhatsApp calls</strong> send audio and video mostly over UDP (usually through
-            WebRTC or similar technology). If a packet is lost, you might hear a tiny glitch, but the call keeps going
-            in real time. If the network blocks UDP, these apps often fall back to TCP, and calls usually feel laggier.
+            <strong>Zoom, Google Meet and WhatsApp calls</strong> send audio and video mostly over UDP (often through
+            WebRTC, a set of browser technologies for live calls). If a packet is lost, you might hear a tiny glitch,
+            but the call keeps going in real time. If the network blocks UDP, these apps often fall back to TCP, and
+            calls usually feel slower to respond.
           </p>
           <p>
             <strong>Online games</strong> like Fortnite, Valorant or Call of Duty send player movement over UDP many
-            times per second. Losing one update doesn't matter because the next one arrives milliseconds later. Things
+            times per second. Losing one update does not matter because the next one arrives a few milliseconds later. Things
             like purchases in the in-game store go over normal HTTPS, which uses TCP.
           </p>
           <p>
-            <strong>DNS</strong> mostly uses UDP. A question and answer usually fit in a single small packet, so a
-            handshake would double the time. If an answer is too big, DNS switches to TCP.
+            <strong>DNS</strong> (the system that turns names into IP addresses) mostly uses UDP. A question and an
+            answer usually fit in one small packet each, so a handshake would double the time. If an answer is too
+            big, DNS switches to TCP.
           </p>
           <p>
             <strong>Google, YouTube and Cloudflare</strong> serve a large share of their traffic over HTTP/3, which runs
-            on QUIC over UDP. Mobile users on patchy networks benefit the most.
+            on QUIC over UDP. Mobile users on weak or changing networks benefit the most.
           </p>
           <p>
-            <strong>Netflix and YouTube videos</strong> are mostly delivered over TCP (HTTP), unlike video calls. Why? A
-            movie isn't live, so the player can <strong>buffer</strong> several seconds ahead. Reliability matters more
-            than a few extra milliseconds.
+            <strong>Movies and recorded videos</strong> (for example on Netflix) are mostly delivered over HTTP on TCP,
+            unlike video calls. (YouTube also uses QUIC.) Why? A recorded video is not live, so the player can{" "}
+            <strong>buffer</strong> (download and keep) several seconds ahead. Reliability matters more than a few
+            extra milliseconds.
           </p>
           <p>
             <strong>Databases</strong> such as PostgreSQL and MySQL use TCP. A query result with a missing row would be
-            a bug, not a glitch.
+            a bug, not a small glitch.
           </p>
         </Section>
 
@@ -359,10 +379,10 @@ export default function SdLessonTwoPage() {
                 a: (
                   <>
                     <p>
-                      When fresh data beats complete data: voice and video calls, multiplayer games, live telemetry, and
-                      small request/response lookups like DNS. In those cases waiting for a lost packet is worse than
-                      skipping it, and the app can add just the reliability it needs (sequence numbers, occasional
-                      resends).
+                      When fresh data is more important than complete data: voice and video calls, multiplayer games, live
+                      telemetry, and small question-and-answer lookups like DNS. In these cases it is worse to wait for
+                      a lost packet than to skip it, and the app can add only the reliability it needs (sequence
+                      numbers, a few resends).
                     </p>
                   </>
                 ),
@@ -373,7 +393,7 @@ export default function SdLessonTwoPage() {
                   <>
                     <p>
                       TCP delivers bytes strictly in order, so one lost packet holds back everything that arrived after
-                      it. HTTP/2 multiplexes many streams over one TCP connection, so one loss stalls all of them. QUIC
+                      it. HTTP/2 multiplexes (sends together) many streams over one TCP connection, so one loss stalls all of them. QUIC
                       tracks ordering per stream on top of UDP, so a lost packet only delays the stream it belongs to.
                     </p>
                   </>
@@ -384,9 +404,9 @@ export default function SdLessonTwoPage() {
                 a: (
                   <>
                     <p>
-                      It costs a handshake round trip, and slow start sends only a little data at first, ramping up over
-                      several round trips. Systems reuse connections: HTTP keep-alive, connection pools to databases,
-                      and long-lived connections between services.
+                      It costs one round trip for the handshake, and slow start sends only a little data at first, so
+                      it takes several round trips to reach full speed. Systems reuse connections to avoid this: HTTP
+                      keep-alive, connection pools to databases, and long-lived connections between services.
                     </p>
                   </>
                 ),
@@ -396,8 +416,8 @@ export default function SdLessonTwoPage() {
                 a: (
                   <>
                     <p>
-                      Flow control protects the receiver: it advertises a receive window so the sender never overruns
-                      its buffer. Congestion control protects the network: TCP grows its sending rate while things go
+                      Flow control protects the receiver: it announces a receive window so the sender never fills
+                      the receiver's buffer (its waiting area in memory). Congestion control protects the network: TCP grows its sending rate while things go
                       well and backs off sharply on packet loss, which usually signals a jammed path.
                     </p>
                   </>
@@ -408,9 +428,10 @@ export default function SdLessonTwoPage() {
                 a: (
                   <>
                     <p>
-                      Middleboxes. Routers, firewalls and home NAT boxes across the internet only understand TCP and
-                      UDP, and block anything else. Building on UDP lets QUIC pass through the existing internet while
-                      implementing reliability and encryption in user space.
+                      Because of middleboxes. Middleboxes are the routers, firewalls and home routers (NAT boxes) on
+                      the path. They only understand TCP and UDP, and block anything else. Building on UDP lets QUIC
+                      pass through the existing internet. QUIC adds reliability and encryption inside the application
+                      (user space) instead of inside the operating system.
                     </p>
                   </>
                 ),
@@ -422,11 +443,11 @@ export default function SdLessonTwoPage() {
         <Section id="key-takeaways" title="Key Takeaways" kind="takeaways">
           <ul>
             <li>
-              <strong>TCP</strong> gives you reliable, ordered delivery, at the cost of handshakes, ACKs and possible
+              <strong>TCP</strong> gives you reliable, ordered delivery. The cost is handshakes, ACKs and possible
               head-of-line blocking.
             </li>
             <li>
-              <strong>UDP</strong> gives you speed and simplicity, but no guarantees. The app handles loss itself.
+              <strong>UDP</strong> gives you speed and simplicity, but no guarantees. The app must handle loss itself.
             </li>
             <li>
               New TCP connections are slow to start, so <strong>reuse connections</strong> with keep-alive and
@@ -436,7 +457,7 @@ export default function SdLessonTwoPage() {
               Use UDP when <strong>fresh data beats complete data</strong>: calls, games, live streams.
             </li>
             <li>
-              <strong>QUIC</strong> (and HTTP/3) builds reliability and encryption on top of UDP, getting much of TCP's
+              <strong>QUIC</strong> (and HTTP/3) builds reliability and encryption on top of UDP, giving you much of TCP's
               safety with less delay.
             </li>
           </ul>
