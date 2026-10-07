@@ -62,68 +62,75 @@ export default function SdLessonThreeOnePage() {
       <div className="lesson">
         <Section id="the-problem" title="The Problem" kind="problem">
           <p>
-            Your company has grown from one app into 40 internal services. A single "open product page" request now
-            triggers <strong>dozens of service-to-service calls</strong>: pricing, stock, reviews, recommendations,
-            delivery estimates. Each call:
+            Your company has grown from one app into 40 internal services. A service is a small program that does one
+            job. Now a single "open product page" request starts <strong>dozens of calls between services</strong>:
+            pricing, stock, reviews, recommendations and delivery estimates. Each call:
           </p>
           <ul>
-            <li>sends JSON, a text format that's verbose and slow to parse,</li>
-            <li>has a contract that lives only in a wiki page nobody updates,</li>
-            <li>and breaks silently when one team renames a field.</li>
+            <li>sends JSON, a text format that is long and slow to parse (to parse is to read text and turn it into data),</li>
+            <li>has a contract (the agreement about what data is sent) that lives only in a wiki page nobody updates,</li>
+            <li>and breaks without warning when one team renames a field.</li>
           </ul>
           <p>
-            At millions of requests per second, the CPU spent just <strong>encoding and decoding JSON</strong> becomes a
-            real cost. And the "contract drift" bugs keep coming.
+            At millions of requests per second, the CPU time spent just <strong>encoding and decoding JSON</strong>{" "}
+            becomes a real cost. And "contract drift" bugs keep coming. Contract drift means the code and the written
+            contract slowly stop matching.
           </p>
           <p>
-            <strong>gRPC</strong> with <strong>Protocol Buffers</strong> was designed for exactly this:{" "}
-            <strong>fast, strongly-typed communication between services</strong>, with contracts written as code.
+            <strong>gRPC</strong> with <strong>Protocol Buffers</strong> was designed for exactly this. gRPC is a
+            framework that lets one service call a function in another service over the network. Protocol Buffers
+            (Protobuf) is a way to describe data and to turn it into small binary bytes. Together they give you{" "}
+            <strong>fast, strongly-typed communication between services</strong>. "Strongly typed" means every field
+            has a fixed type, like number or text. The contract is written as code.
           </p>
         </Section>
 
         <Section id="the-core-idea" title="The Core Idea" kind="idea">
-          <p>Think about the difference between two ways of sending instructions to a colleague.</p>
+          <p>Think about two ways of sending instructions to a colleague.</p>
           <p>
-            <strong>Writing a letter in plain language (REST + JSON).</strong> It's flexible and anyone can read it, but
-            it's long, the reader has to interpret it, and misunderstandings happen ("did you mean the <em>delivery</em>{" "}
+            <strong>Writing a letter in plain language (REST + JSON).</strong> It is flexible and anyone can read it. But
+            it is long, the reader has to interpret it, and misunderstandings happen ("did you mean the <em>delivery</em>{" "}
             date or the <em>order</em> date?").
           </p>
           <p>
             <strong>Filling in an agreed, numbered form (gRPC + Protobuf).</strong> Both sides have{" "}
             <strong>the same printed form</strong>. Field 1 is always the customer ID, field 2 is always the quantity.
-            It's compact, fast to process, and there's no ambiguity. If someone wants to add a new field, it's added to
-            the shared form, and everyone knows about it.
+            It is short, fast to process, and clear. If someone wants a new field, it is added to the shared form, and
+            everyone knows about it.
           </p>
           <p>
             <strong>gRPC</strong> also makes calling another service{" "}
-            <strong>feel like calling a normal function</strong> in your code:
+            <strong>feel like calling a normal function</strong> in your code. A generated client object (a stub) hides the network work:
           </p>
           <CodeBlock lang="python" code={code1} />
           <p>
-            That's what RPC means: <strong>Remote Procedure Call</strong>.
+            This is what RPC means: <strong>Remote Procedure Call</strong>. It is a call to a function that runs on
+            another machine.
           </p>
         </Section>
 
         <Section id="how-it-works" title="How It Works" kind="how">
           <h3 id="protocol-buffers-the-contract-and-the-format">Protocol Buffers: the contract and the format</h3>
           <p>
-            You define your data and service in a{" "}
+            You describe your data and your service in a{" "}
             <strong>
               <code>.proto</code> file
             </strong>
-            :
+            . A <code>message</code> is a set of fields (like a record). A <code>service</code> lists the calls
+            (<code>rpc</code>) that clients can make.
           </p>
           <CodeBlock lang="protobuf" code={code2} />
           <p>
             The numbers (<code>= 1</code>, <code>= 2</code>, <code>= 3</code>) are <strong>field numbers</strong>. They
-            are what's actually sent over the wire, not the field names. That's one reason Protobuf is compact.
+            are what is actually sent over the network ("the wire"), not the field names. This is one reason Protobuf
+            is small.
           </p>
           <p>
-            Then a code generator (<code>protoc</code> or tools like Buf) creates{" "}
+            Then a code generator (<code>protoc</code>, the Protobuf compiler, or tools like Buf) creates{" "}
             <strong>client and server code</strong> in your languages (Go, Java, Python, TypeScript, C#, Rust and more):
           </p>
           <Flow
-            caption="One contract, generated into every language. Mismatches fail at compile time, not in production."
+            caption="One contract, generated into every language. In compiled languages, mismatches fail when you build the code, not in production."
             dir="row"
             nodes={[
               { title: <>inventory.proto</>, desc: <>the contract</> },
@@ -132,8 +139,8 @@ export default function SdLessonThreeOnePage() {
             ]}
           />
           <p>
-            Every team uses the <strong>same contract</strong>, and the compiler catches mismatches{" "}
-            <strong>before</strong> anything runs.
+            Every team uses the <strong>same contract</strong>. In compiled languages the compiler (the tool that turns
+            code into a program) catches mismatches <strong>before</strong> anything runs.
           </p>
           <h3 id="why-protobuf-is-smaller-and-faster-than-json">Why Protobuf is smaller and faster than JSON</h3>
           <p>The same data in two formats:</p>
@@ -151,32 +158,32 @@ export default function SdLessonThreeOnePage() {
           />
           <ul>
             <li>
-              <strong>No field names</strong> are repeated in every message, only small field numbers.
+              <strong>No field names</strong> are repeated in each message. Only small field numbers are sent.
             </li>
             <li>
-              <strong>Numbers are packed efficiently</strong> (small numbers take fewer bytes).
+              <strong>Numbers are packed tightly</strong> (small numbers use fewer bytes, called varint encoding).
             </li>
             <li>
-              <strong>Parsing binary</strong> is much faster than parsing text.
+              <strong>Reading binary</strong> is much faster than reading text. Binary means raw bytes, not readable characters.
             </li>
           </ul>
           <p>
-            The trade-off: you <strong>can't read it by eye</strong>. You need tools like <code>grpcurl</code> or
-            Postman to inspect it.
+            The trade-off: you <strong>cannot read it by eye</strong>. You need tools like <code>grpcurl</code> (like
+            curl, but for gRPC) or Postman to look at it.
           </p>
           <h3 id="evolving-schemas-safely">Evolving schemas safely</h3>
           <p>
-            APIs change. Protobuf is designed for <strong>backward and forward compatibility</strong> if you follow a
-            few rules:
+            APIs change over time. Protobuf supports <strong>backward compatibility</strong> (new code can read old data)
+            and <strong>forward compatibility</strong> (old code can read new data), if you follow a few rules:
           </p>
           <ul>
             <li>
-              ✅ <strong>Adding new fields is safe.</strong> Old clients just ignore fields they don't know, and new
-              clients see default values when old servers don't send them.
+              ✅ <strong>Adding new fields is safe.</strong> Old clients ignore fields they do not know. New
+              clients see default values (such as 0 or an empty string) when an old server does not send the field.
             </li>
             <li>
-              ✅ <strong>Removing a field is OK</strong>, but mark its number and name as <code>reserved</code> so
-              nobody reuses them:
+              ✅ <strong>Removing a field is OK</strong>, but mark its number and name as <code>reserved</code> (the
+              compiler then refuses to let anyone use them again):
               <CodeBlock lang="protobuf" code={code3} />
             </li>
             <li>
@@ -184,10 +191,10 @@ export default function SdLessonThreeOnePage() {
             </li>
             <li>
               ❌ <strong>Never reuse an old field number</strong> for something new. Old data or old clients will
-              misread it.
+              read it wrongly.
             </li>
             <li>
-              ❌ <strong>Don't change a field's type</strong> (like <code>int32</code> to <code>string</code>).
+              ❌ <strong>Do not change a field's type</strong> (like <code>int32</code> to <code>string</code>).
             </li>
             <li>
               Put a <strong>version in the package name</strong> (<code>inventory.v1</code>) and create <code>v2</code>{" "}
@@ -196,17 +203,18 @@ export default function SdLessonThreeOnePage() {
           </ul>
           <h3 id="grpc-runs-on-http-2">gRPC runs on HTTP/2</h3>
           <p>
-            gRPC uses <strong>HTTP/2</strong> (post 3) under the hood, which gives it:
+            gRPC sends its calls over <strong>HTTP/2</strong> (lesson 3), a newer version of HTTP that sends binary
+            data and can carry many requests at once. This gives gRPC:
           </p>
           <ul>
             <li>
-              <strong>Multiplexing:</strong> many calls at once over <strong>one connection</strong>.
+              <strong>Multiplexing:</strong> many calls at the same time over <strong>one connection</strong>, without waiting for each other.
             </li>
             <li>
-              <strong>Binary framing</strong> and <strong>header compression</strong>.
+              <strong>Binary framing</strong> (messages are cut into small binary pieces) and <strong>header compression</strong> (repeated header data is made smaller).
             </li>
             <li>
-              <strong>Streaming</strong> in both directions.
+              <strong>Streaming</strong> in both directions: data can keep flowing as a series of messages.
             </li>
           </ul>
           <h3 id="four-kinds-of-calls">Four kinds of calls</h3>
@@ -247,35 +255,39 @@ export default function SdLessonThreeOnePage() {
             ]}
           />
           <p>
-            In gRPC, every call can carry a <strong>deadline</strong>: "I need an answer within 300 ms". The deadline{" "}
-            <strong>travels with the request</strong> to downstream services. If service A calls B with 300 ms left, and
-            B spends 100 ms, B's call to C carries the remaining ~200 ms. When the deadline passes, everyone{" "}
+            In gRPC, every call can carry a <strong>deadline</strong>: "I need an answer within 300 ms". A deadline is the latest time by which the answer must arrive. It{" "}
+            <strong>travels with the request</strong> to downstream services (the services that your service calls in turn). If service A calls B with 300 ms left, and
+            B spends 100 ms, B's call to C carries the remaining ~200 ms. (Your code must pass the call's context to the next call for this to work.) When the deadline passes, everyone{" "}
             <strong>stops working</strong> on that request.
           </p>
           <p>
-            This prevents wasted work and helps stop <strong>cascading failures</strong> (Part 7). Always set deadlines.
-            A missing deadline means a call could wait forever.
+            This prevents wasted work. It also helps stop <strong>cascading failures</strong> (Part 7), where one slow
+            service makes the services that call it slow too. Always set deadlines. gRPC has no deadline by default,
+            so a call could wait forever.
           </p>
           <p>
             gRPC also has its own <strong>status codes</strong>: <code>OK</code>, <code>NOT_FOUND</code>,{" "}
             <code>INVALID_ARGUMENT</code>, <code>DEADLINE_EXCEEDED</code>, <code>UNAVAILABLE</code>,{" "}
-            <code>PERMISSION_DENIED</code>, <code>RESOURCE_EXHAUSTED</code> (rate limited) and more. They're similar in
-            spirit to HTTP status codes.
+            <code>PERMISSION_DENIED</code>, <code>RESOURCE_EXHAUSTED</code> (rate limited) and more. They are similar in
+            purpose to HTTP status codes.
           </p>
           <h3 id="interceptors-middleware">Interceptors (middleware)</h3>
           <p>
-            <strong>Interceptors</strong> wrap every call, which is the natural place for:
+            <strong>Interceptors</strong> are pieces of code that run before and after every call. They are the natural
+            place for:
           </p>
           <ul>
             <li>authentication (checking tokens),</li>
             <li>logging and metrics,</li>
-            <li>distributed tracing (Part 8),</li>
-            <li>retries with backoff (Part 7).</li>
+            <li>distributed tracing (following one request across many services, Part 8),</li>
+            <li>retries with backoff (trying again after a growing wait, Part 7).</li>
           </ul>
           <h3 id="the-load-balancing-gotcha">The load-balancing pitfall</h3>
           <p>
-            gRPC keeps <strong>long-lived HTTP/2 connections</strong> and sends many requests over each one. That
-            creates a problem with <strong>L4 load balancers</strong> (post 12):
+            A load balancer shares requests between several servers. gRPC keeps <strong>long-lived HTTP/2
+            connections</strong> and sends many requests over each one. This causes a problem with{" "}
+            <strong>L4 load balancers</strong> (lesson 12). An L4 balancer works at the connection level. It picks a
+            server once per connection and does not look at the requests inside. An L7 balancer reads each request.
           </p>
           <Compare
             caption="The long-lived-connection pitfall."
@@ -313,13 +325,13 @@ export default function SdLessonThreeOnePage() {
             </li>
           </ul>
           <h3 id="grpc-in-the-browser">gRPC in the browser</h3>
-          <p>Browsers don't give JavaScript the low-level HTTP/2 control that gRPC needs. Options:</p>
+          <p>Browsers do not give JavaScript the low-level HTTP/2 control that gRPC needs. Options:</p>
           <ul>
             <li>
-              <strong>gRPC-Web</strong>, with a proxy (such as Envoy) translating to gRPC.
+              <strong>gRPC-Web</strong>, a browser-friendly version of gRPC. A proxy (such as Envoy) translates it to real gRPC.
             </li>
             <li>
-              <strong>Connect</strong>, a newer protocol that is gRPC-compatible and also works over plain HTTP/JSON.
+              <strong>Connect</strong>, a newer protocol that works with gRPC and also works over plain HTTP with JSON.
             </li>
             <li>
               Most commonly: <strong>REST or GraphQL for browsers and mobile, gRPC between backend services.</strong>
@@ -369,7 +381,7 @@ export default function SdLessonThreeOnePage() {
                   <td>🟡 Needs tools (grpcurl, Postman)</td>
                 </tr>
                 <tr>
-                  <td>Caching via HTTP/CDN</td>
+                  <td>Caching via HTTP/CDN (a CDN is a network of servers that cache content near users)</td>
                   <td>✅ Easy</td>
                   <td>❌ Not really</td>
                 </tr>
@@ -384,13 +396,13 @@ export default function SdLessonThreeOnePage() {
           <h3 id="alternatives">Alternatives</h3>
           <ul>
             <li>
-              <strong>Apache Thrift:</strong> created at Facebook; similar idea, with its own format and RPC framework.
+              <strong>Apache Thrift:</strong> created at Facebook. It has a similar idea, with its own data format and RPC framework.
             </li>
             <li>
-              <strong>Apache Avro:</strong> popular in data pipelines and Kafka, with schemas stored alongside data.
+              <strong>Apache Avro:</strong> popular in data pipelines and Kafka (a system for streams of events). The schema is stored together with the data.
             </li>
             <li>
-              <strong>JSON-RPC:</strong> simple RPC over JSON.
+              <strong>JSON-RPC:</strong> simple RPC that sends calls as JSON.
             </li>
             <li>
               <strong>MessagePack / CBOR:</strong> compact binary encodings of JSON-like data, without schemas.
@@ -405,10 +417,10 @@ export default function SdLessonThreeOnePage() {
               <strong>built-in streaming</strong>, and <strong>deadlines and cancellation</strong>.
             </li>
             <li>
-              ✅ <strong>Polyglot:</strong> the same contract works across many languages.
+              ✅ <strong>Polyglot:</strong> one contract works for many programming languages.
             </li>
             <li>
-              ❌ <strong>Not human-readable</strong>, so debugging needs tools.
+              ❌ <strong>Not readable by people</strong>, so debugging needs tools.
             </li>
             <li>
               ❌ <strong>Limited browser support</strong> and no easy HTTP/CDN caching.
@@ -426,30 +438,30 @@ export default function SdLessonThreeOnePage() {
           </ul>
           <p>
             <strong>When not to use gRPC:</strong> public APIs for third-party developers (REST is easier for them),
-            simple apps with a few endpoints, or when your team and infrastructure don't support HTTP/2 end to end.
+            simple apps with a few endpoints, or when your team and infrastructure do not support HTTP/2 end to end.
           </p>
         </Section>
 
         <Section id="in-the-real-world" title="In the Real World" kind="real">
           <p>
             <strong>Google</strong> created gRPC based on its internal RPC system (called Stubby), which it had used for
-            years for enormous numbers of calls between services. It open-sourced gRPC in 2015, and it's now a Cloud
-            Native Computing Foundation project.
+            years for a huge number of calls between services. It released gRPC as open source in 2015. Today gRPC is a
+            project of the Cloud Native Computing Foundation (CNCF).
           </p>
           <p>
-            <strong>Kubernetes and etcd.</strong> etcd, the database that stores Kubernetes' cluster state, exposes a
-            gRPC API. Kubernetes uses gRPC in key places, such as the interface between the kubelet and container
-            runtimes (the CRI). Envoy's configuration APIs (xDS) are gRPC as well.
+            <strong>Kubernetes and etcd.</strong> etcd is the database that stores the state of a Kubernetes cluster. It offers a
+            gRPC API. Kubernetes uses gRPC in key places, such as the interface (the CRI) between the kubelet (the agent on each node) and the container
+            runtime (the program that runs containers). Envoy's configuration APIs (xDS) are gRPC as well.
           </p>
           <p>
             <strong>Dropbox's migration to gRPC.</strong> Dropbox wrote about moving its many internal services to a
-            gRPC-based framework (called Courier), gaining a single, well-defined RPC layer with deadlines, tracing and
+            gRPC-based framework (called Courier), and gained one clear RPC layer with deadlines, tracing and
             security built in.
           </p>
           <p>
             <strong>Microservice platforms.</strong> Many companies with large microservice estates (in ride-hailing,
             fintech, streaming and e-commerce) use gRPC internally, while exposing REST or GraphQL APIs to their mobile
-            apps and partners. That's the "gRPC inside, REST/GraphQL outside" pattern.
+            apps and partners. This is the "gRPC inside, REST/GraphQL outside" pattern.
           </p>
         </Section>
 
@@ -461,9 +473,10 @@ export default function SdLessonThreeOnePage() {
                 a: (
                   <>
                     <p>
-                      Compact binary Protobuf messages that are cheaper to send and parse, a required typed contract
-                      with generated clients in every language, HTTP/2 multiplexing, built-in streaming, and deadlines
-                      that propagate through call chains. REST is easier for public, browser-facing APIs.
+                      Protobuf messages are small binary data, so they are cheaper to send and read. The typed
+                      contract is required, and clients are generated in every language. HTTP/2 multiplexing and
+                      streaming are built in. Deadlines pass along through chains of calls. REST is easier for public
+                      APIs that browsers use.
                     </p>
                   </>
                 ),
@@ -473,9 +486,9 @@ export default function SdLessonThreeOnePage() {
                 a: (
                   <>
                     <p>
-                      Add new fields with new numbers (old readers ignore them); never change or reuse a field number or
-                      change a field's type; mark removed numbers and names as reserved; put a version in the package
-                      and create v2 for breaking changes.
+                      Add new fields with new numbers, because old readers ignore them. Never change or reuse a field
+                      number, and never change a field's type. Mark removed numbers and names as reserved. Put a
+                      version in the package name and create v2 for breaking changes.
                     </p>
                   </>
                 ),
@@ -485,9 +498,9 @@ export default function SdLessonThreeOnePage() {
                 a: (
                   <>
                     <p>
-                      gRPC multiplexes many calls over one long-lived HTTP/2 connection, and L4 balancers balance
-                      connections, so each client's traffic sticks to one server and load becomes very uneven. Use an L7
-                      proxy that balances per request, or client-side load balancing.
+                      gRPC sends many calls over one long-lived HTTP/2 connection, and L4 balancers balance whole
+                      connections. So each client's traffic stays on one server, and the load becomes very uneven. Use
+                      an L7 proxy that balances each request, or client-side load balancing.
                     </p>
                   </>
                 ),
@@ -497,9 +510,9 @@ export default function SdLessonThreeOnePage() {
                 a: (
                   <>
                     <p>
-                      Without one, a call can wait forever and tie up resources upstream. A deadline sets a total time
-                      budget that is passed downstream, so every service knows how long is left and all of them cancel
-                      work once the caller has given up.
+                      Without a deadline, a call can wait forever and hold resources in the services that called it. A
+                      deadline sets a total time limit that is passed downstream. Every service knows how much time is
+                      left, and all of them stop work once the caller has given up.
                     </p>
                   </>
                 ),
@@ -509,9 +522,9 @@ export default function SdLessonThreeOnePage() {
                 a: (
                   <>
                     <p>
-                      Not native gRPC, because browsers don't expose the HTTP/2 control it needs. Use gRPC-Web through a
-                      proxy like Envoy, the Connect protocol, or — most often — REST or GraphQL at the edge and gRPC
-                      internally.
+                      Not native gRPC, because browsers do not give the HTTP/2 control it needs. You can use gRPC-Web
+                      through a proxy like Envoy, or the Connect protocol. Most often, teams use REST or GraphQL at the
+                      edge and gRPC inside.
                     </p>
                   </>
                 ),

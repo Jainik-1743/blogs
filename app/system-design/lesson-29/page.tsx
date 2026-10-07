@@ -32,25 +32,26 @@ export default function SdLessonTwoNinePage() {
       <div className="lesson">
         <Section id="the-problem" title="The Problem" kind="problem">
           <p>
-            There are hundreds of databases, and each one's website says it's fast, scalable and easy. Teams often
-            choose based on hype, on what a big company uses, or on what one engineer likes. Two years later they're
-            stuck:
+            There are hundreds of databases, and each website says its database is fast, scalable and easy. Teams often
+            choose because of hype, because a big company uses it, or because one engineer likes it. Two years later,
+            they are stuck:
           </p>
           <ul>
-            <li>the database can't answer a query the business now needs,</li>
-            <li>it's expensive to run,</li>
+            <li>the database cannot answer a query (a question about the data) that the business now needs,</li>
+            <li>it is expensive to run,</li>
             <li>or nobody knows how to fix it at 3 AM.</li>
           </ul>
           <p>
-            Over the last nine posts we've covered the building blocks: data models, transactions, storage engines,
-            normalisation, replication, sharding, consistent hashing, CAP and consistency models. This post turns them
-            into a <strong>practical decision process</strong>.
+            In the last nine lessons we learned the building blocks: data models, transactions, storage engines,
+            normalisation, replication, sharding, consistent hashing, CAP and consistency models. This lesson turns
+            them into a <strong>practical decision process</strong>.
           </p>
         </Section>
 
         <Section id="the-core-idea" title="The Core Idea" kind="idea">
           <p>
-            Choosing a database is like choosing a <strong>vehicle</strong>.
+            A database is a program that stores data and lets you read and change it safely. Choosing one is like
+            choosing a <strong>vehicle</strong>.
           </p>
           <ul>
             <li>
@@ -59,20 +60,20 @@ export default function SdLessonTwoNinePage() {
             </li>
             <li>
               A <strong>delivery truck</strong> (Cassandra/ScyllaDB) carries enormous loads on fixed routes, but it's
-              awkward for a quick trip to the shops.
+              awkward for a quick trip to the shops. (It is great for lots of simple writes, but weak for ad-hoc queries.)
             </li>
             <li>
-              A <strong>motorbike</strong> (Redis) is extremely fast for short trips, but can't carry much and isn't
-              where you keep valuables.
+              A <strong>motorbike</strong> (Redis) is extremely fast for short trips. But it cannot carry much, and it is
+              not where you keep valuables. (Redis keeps data in memory, which is fast but small and costly.)
             </li>
             <li>
-              A <strong>bus</strong> (a data warehouse like BigQuery) moves huge numbers of passengers (rows) together,
-              but you wouldn't take it to pop out for milk (single-row lookups).
+              A <strong>bus</strong> (a data warehouse like BigQuery, a database built for big reports) moves huge
+              numbers of passengers (rows) together. But you would not take it to buy milk (look up one row).
             </li>
           </ul>
           <p>
-            You don't pick the "best vehicle". You pick the one that fits <strong>your trips</strong>, and many
-            households have more than one.
+            There is no "best vehicle". Pick the one that fits <strong>your trips</strong>. Many households
+            have more than one.
           </p>
         </Section>
 
@@ -83,37 +84,68 @@ export default function SdLessonTwoNinePage() {
           </p>
           <ol>
             <li>
-              <strong>What shape is it?</strong> Structured records with relationships? Nested documents? Time-ordered
-              events? A graph of connections? Large files?
+              <strong>What shape is it?</strong> Structured records with relationships (tables)? Nested documents?
+              Time-ordered events? A graph of connections? Large files?
             </li>
             <li>
               <strong>How big is it now, and in 2–3 years?</strong> Gigabytes, terabytes or petabytes? (Estimate as in
-              post 10.)
+              lesson 10.)
             </li>
             <li>
               <strong>How important is correctness?</strong> Money and inventory need <strong>ACID transactions</strong>{" "}
-              and <strong>strong consistency</strong>. Likes and views don't.
+              and <strong>strong consistency</strong>. Likes and views do not. A transaction is a group of changes that
+              succeed or fail together. ACID is the set of four promises a transaction makes: Atomicity (all or
+              nothing), Consistency (rules stay true), Isolation (parallel transactions do not disturb each other)
+              and Durability (saved data survives a crash). Strong consistency means every read sees the latest write.
             </li>
           </ol>
           <p>
-            <strong>About the access patterns:</strong>
-            4. <strong>What are the main queries?</strong> Look-ups by key, by ranges, rich filters and joins, full-text
-            search, aggregations over millions of rows? 5. <strong>What's the read/write ratio?</strong> Read-heavy
-            (catalogues, profiles) or write-heavy (events, logs, messages, IoT)? 6.{" "}
-            <strong>What latency and throughput do you need?</strong> Milliseconds per request? Thousands or millions of
-            operations per second? 7. <strong>Will new, unplanned queries appear?</strong> If so, favour flexible
-            (relational) models over access-pattern-first designs.
+            <strong>About the access patterns</strong> (how your app reads and writes data):
           </p>
+          <ol start={4}>
+            <li>
+              <strong>What are the main queries?</strong> Look-ups by key, by ranges, rich filters and joins, full-text
+              search, or aggregations (sums and counts) over millions of rows?
+            </li>
+            <li>
+              <strong>What is the read/write ratio?</strong> Read-heavy (catalogues, profiles) or write-heavy (events,
+              logs, messages, IoT sensor data)?
+            </li>
+            <li>
+              <strong>What latency and throughput do you need?</strong> Latency is the time one request takes.
+              Throughput is how many operations happen per second. Do you need milliseconds per request? Thousands or
+              millions of operations per second?
+            </li>
+            <li>
+              <strong>Will new, unplanned queries appear?</strong> If so, prefer flexible (relational) models over
+              designs built around fixed access patterns.
+            </li>
+          </ol>
           <p>
             <strong>About operations and people:</strong>
-            8. <strong>Where are users?</strong> One region or global? Any data residency rules? 9.{" "}
-            <strong>Managed or self-hosted?</strong> A managed service (RDS, Cloud SQL, Atlas, DynamoDB) costs more per
-            GB but saves huge operational effort. 10. <strong>What does your team know?</strong> A database your team
-            understands well usually beats a "better" one nobody can operate. 11. <strong>Cost:</strong> licences,
-            hardware, storage, backups, data transfer, and <strong>people's time</strong>. 12.{" "}
-            <strong>Ecosystem:</strong> drivers for your language, ORMs, backup tools, monitoring, hosting options,
-            community and hiring.
           </p>
+          <ol start={8}>
+            <li>
+              <strong>Where are users?</strong> One region or worldwide? Are there data residency rules (laws that say
+              where data must be stored)?
+            </li>
+            <li>
+              <strong>Managed or self-hosted?</strong> A managed service (RDS, Cloud SQL, Atlas, DynamoDB) is run for you
+              by a cloud company. It costs more per GB but saves a lot of work.
+            </li>
+            <li>
+              <strong>What does your team know?</strong> A database your team understands well usually beats a "better"
+              one nobody can run.
+            </li>
+            <li>
+              <strong>Cost:</strong> licences, hardware, storage, backups, data transfer, and{" "}
+              <strong>people's time</strong>.
+            </li>
+            <li>
+              <strong>Ecosystem:</strong> drivers for your language, ORMs (tools that map database rows to objects in
+              code), backup tools, monitoring, hosting options, community and hiring.
+            </li>
+          </ol>
           <h3 id="step-2-start-from-a-sensible-default">Step 2: Start from a sensible default</h3>
           <p>For most new applications:</p>
           <blockquote>
@@ -125,23 +157,34 @@ export default function SdLessonTwoNinePage() {
           <ul>
             <li>
               It handles structured data, relationships, <strong>transactions</strong> and{" "}
-              <strong>flexible queries</strong>.
+              <strong>flexible queries</strong>. A relational database stores data in tables with rows and columns, and
+              you query it with SQL.
             </li>
-            <li>It's mature, well understood, and has excellent managed options.</li>
+            <li>It is mature, well understood, and has excellent managed options.</li>
             <li>
-              PostgreSQL alone covers a surprising amount: <strong>JSONB</strong> for documents,{" "}
-              <strong>full-text search</strong>, <strong>PostGIS</strong> for geospatial, <strong>extensions</strong>{" "}
-              for time-series and vector search.
+              PostgreSQL alone covers a surprising amount. <strong>JSONB</strong> is a column type that stores JSON
+              documents in a fast binary form. <strong>Full-text search</strong> finds words inside text.{" "}
+              <strong>PostGIS</strong> is an extension for maps and locations (geospatial data).{" "}
+              <strong>Extensions</strong> are add-on packages, and some add time-series and vector search.
             </li>
             <li>
-              A single well-tuned instance with replicas scales <strong>much further</strong> than most products ever
-              need.
+              One well-tuned server with replicas (extra copies that serve reads) scales{" "}
+              <strong>much further</strong> than most products ever need.
             </li>
           </ul>
           <p>
-            Then add specialised databases <strong>when a clear need appears</strong>, not before.
+            Redis is an in-memory data store. It keeps data in RAM, so it is very fast, and it is mostly used as a
+            cache (a quick copy of data you can get slowly elsewhere). Add specialised databases{" "}
+            <strong>when a clear need appears</strong>, not before.
           </p>
           <h3 id="step-3-recognise-the-signals-for-something-else">Step 3: Recognise the signals for something else</h3>
+          <p>
+            Each row below names a signal (a sign in your needs) and the kind of database that fits it. Terms: a
+            key-value store looks up a value by its key, like a dictionary. A time series is a list of values with
+            timestamps. A graph database stores things and the links between them. A vector database finds items that
+            are similar in meaning, using embeddings (lists of numbers that describe a text or image). Object storage
+            keeps whole files, like Amazon S3.
+          </p>
           <div className="table-wrap">
             <table>
               <thead>
@@ -161,7 +204,7 @@ export default function SdLessonTwoNinePage() {
                   </td>
                 </tr>
                 <tr>
-                  <td>Simple key-based access at huge, spiky scale, and you want zero servers to manage</td>
+                  <td>Simple key-based access at huge scale with sudden spikes, and you want no servers to manage</td>
                   <td>
                     <strong>DynamoDB</strong> (or similar managed key-value)
                   </td>
@@ -173,7 +216,7 @@ export default function SdLessonTwoNinePage() {
                   </td>
                 </tr>
                 <tr>
-                  <td>Varied, nested records where each item has different attributes; the team prefers documents</td>
+                  <td>Varied, nested records where each item has different attributes, and the team prefers documents</td>
                   <td>
                     <strong>MongoDB</strong> (or PostgreSQL JSONB)
                   </td>
@@ -181,11 +224,11 @@ export default function SdLessonTwoNinePage() {
                 <tr>
                   <td>Full-text search, typo tolerance, facets, relevance</td>
                   <td>
-                    <strong>Elasticsearch / OpenSearch</strong> (post 19)
+                    <strong>Elasticsearch / OpenSearch</strong> (lesson 19)
                   </td>
                 </tr>
                 <tr>
-                  <td>Aggregations over billions of rows: dashboards, BI, reports</td>
+                  <td>Aggregations over billions of rows: dashboards, business reports (BI)</td>
                   <td>
                     <strong>ClickHouse, BigQuery, Snowflake, Redshift</strong>
                   </td>
@@ -209,7 +252,7 @@ export default function SdLessonTwoNinePage() {
                   </td>
                 </tr>
                 <tr>
-                  <td>Relational + transactions + horizontal scale + multi-region</td>
+                  <td>Tables and transactions, plus spreading over many servers (horizontal scale) and many regions</td>
                   <td>
                     <strong>Distributed SQL: Spanner, CockroachDB, YugabyteDB, TiDB</strong>
                   </td>
@@ -217,7 +260,7 @@ export default function SdLessonTwoNinePage() {
                 <tr>
                   <td>Files, images, video, backups</td>
                   <td>
-                    <strong>Object storage</strong> (post 17), not a database
+                    <strong>Object storage</strong> (lesson 17), not a database
                   </td>
                 </tr>
               </tbody>
@@ -251,30 +294,30 @@ export default function SdLessonTwoNinePage() {
             ]}
           />
           <h3 id="step-4-check-the-hard-requirements">Step 4: Check the hard requirements</h3>
-          <p>Before committing, verify:</p>
+          <p>Before you commit, check these points:</p>
           <ul>
             <li>
               <strong>Transactions:</strong> does it support what you need (multi-row? multi-table? across partitions?)
-              at the isolation level you need (post 21)?
+              at the isolation level you need (lesson 21)? Isolation level means how much parallel transactions can see of each other.
             </li>
             <li>
-              <strong>Consistency:</strong> can you get strong reads where necessary (posts 27–28)?
+              <strong>Consistency:</strong> can you get strong reads where you need them (lessons 27–28)?
             </li>
             <li>
-              <strong>Scaling path:</strong> how will it grow: replicas, sharding, automatic partitioning (posts 24–25)?
+              <strong>Scaling path:</strong> how will it grow? Options are replicas, sharding (splitting data across servers) and automatic partitioning (lessons 24–25).
             </li>
             <li>
-              <strong>Failure behaviour:</strong> what happens when a node or zone fails? How is failover done?
+              <strong>Failure behaviour:</strong> what happens when a node (one server) or a zone (one data centre) fails? How is failover done? Failover means switching to a backup server.
             </li>
             <li>
-              <strong>Backups and recovery:</strong> point-in-time recovery? How long does a restore take?
+              <strong>Backups and recovery:</strong> can you do point-in-time recovery (restore the data to an exact moment)? How long does a restore take?
             </li>
             <li>
               <strong>Security and compliance:</strong> encryption, access control, audit logs, data residency.
             </li>
           </ul>
           <h3 id="step-5-prototype-with-your-real-workload">Step 5: Prototype with your real workload</h3>
-          <p>Vendor benchmarks are run on the vendor's chosen workload. Instead:</p>
+          <p>A benchmark is a test that measures speed. Vendor benchmarks use the vendor's own chosen workload, so do your own test instead:</p>
           <ul>
             <li>
               load <strong>realistic data volumes</strong> (or a scaled sample),
@@ -283,7 +326,7 @@ export default function SdLessonTwoNinePage() {
               run <strong>your actual queries</strong> at <strong>expected peak rates</strong>,
             </li>
             <li>
-              measure <strong>p99 latency</strong> (post 8), not just averages,
+              measure <strong>p99 latency</strong> (lesson 8), not just averages. p99 is the time that 99 out of 100 requests beat, so it shows the slow cases,
             </li>
             <li>
               test <strong>failure scenarios</strong>: kill a node, fill a disk, cause replication lag,
@@ -321,7 +364,7 @@ export default function SdLessonTwoNinePage() {
                   <td>Trip history for analytics and pricing models</td>
                   <td>Aggregations over billions of rows</td>
                   <td>
-                    <strong>Columnar warehouse</strong> (BigQuery / ClickHouse) fed by CDC or events
+                    <strong>Columnar warehouse</strong> (stores data by column, good for sums over many rows; BigQuery / ClickHouse) fed by CDC or events
                   </td>
                 </tr>
                 <tr>
@@ -340,7 +383,7 @@ export default function SdLessonTwoNinePage() {
                 </tr>
                 <tr>
                   <td>Rate limiting, OTP attempts, sessions</td>
-                  <td>Fast counters with TTLs</td>
+                  <td>Fast counters with a TTL (time to live: the data deletes itself after a set time)</td>
                   <td>
                     <strong>Redis</strong>
                   </td>
@@ -349,14 +392,16 @@ export default function SdLessonTwoNinePage() {
             </table>
           </div>
           <p>
-            Each database has <strong>one clear job</strong>, and PostgreSQL remains the{" "}
-            <strong>source of truth</strong> for core business data.
+            Each database has <strong>one clear job</strong>. PostgreSQL stays the <strong>source of truth</strong>,
+            which means it is the place whose data is treated as the real, final version for core business data.
+            CDC (change data capture) means reading the database's change log and sending each change to other
+            systems.
           </p>
           <h3 id="step-6-keep-the-number-of-databases-small">Step 6: Keep the number of databases small</h3>
           <p>Every extra database adds:</p>
           <ul>
             <li>another system to learn, monitor, back up, secure, upgrade and pay for,</li>
-            <li>another place for data to get out of sync (you'll need events or CDC between them),</li>
+            <li>another place for data to get out of sync (you will need events or CDC between them),</li>
             <li>another on-call skill set.</li>
           </ul>
           <p>
@@ -364,7 +409,12 @@ export default function SdLessonTwoNinePage() {
             <strong>derived</strong> from it and could be rebuilt.
           </p>
           <h3 id="step-7-if-you-must-migrate-do-it-safely">Step 7: If you must migrate, do it safely</h3>
-          <p>When a database no longer fits, migrations usually follow this pattern:</p>
+          <p>
+            A migration moves data and traffic from one database to another. When a database no longer fits, it
+            usually follows this pattern. Dual write means writing to both databases. Backfill means copying the old
+            data to the new one. Shadow reads mean reading from both and comparing, while users still get the old
+            answer.
+          </p>
           <Flow
             caption="A safe database migration. Every step can be paused or rolled back."
             nodes={[
@@ -382,8 +432,8 @@ export default function SdLessonTwoNinePage() {
             ]}
           />
           <p>
-            Big migrations often take <strong>months</strong>. That's why choosing well at the start matters, and why
-            choosing <strong>boring, flexible</strong> defaults is valuable.
+            Big migrations often take <strong>months</strong>. This is why a good first choice matters. It is also why{" "}
+            <strong>boring, flexible</strong> defaults are valuable.
           </p>
         </Section>
 
@@ -391,7 +441,7 @@ export default function SdLessonTwoNinePage() {
           <ul>
             <li>
               <strong>One general-purpose database:</strong> simple, consistent and cheap to operate, but it may be
-              suboptimal for some very specialised workloads at huge scale.
+              not the best fit for some very specialised workloads at huge scale.
             </li>
             <li>
               <strong>Many specialised databases:</strong> the best fit for each job, but more operations, cost, sync
@@ -399,11 +449,11 @@ export default function SdLessonTwoNinePage() {
             </li>
             <li>
               <strong>Managed services:</strong> less operational work and built-in high availability and backups, but
-              higher cost at scale, some lock-in and less control.
+              higher cost at scale, some lock-in (hard to leave the vendor) and less control.
             </li>
             <li>
               <strong>The newest, trendiest database:</strong> exciting features, but a smaller community, fewer
-              experts, and more unknown failure modes.
+              experts, and more unknown ways to fail.
             </li>
           </ul>
         </Section>
@@ -411,15 +461,15 @@ export default function SdLessonTwoNinePage() {
         <Section id="in-the-real-world" title="In the Real World" kind="real">
           <p>
             <strong>Discord's two migrations.</strong> Discord moved message storage from MongoDB to Cassandra when its
-            data outgrew one database, and years later from Cassandra to ScyllaDB when operational pain and latency
+            data outgrew one database, and years later from Cassandra to ScyllaDB when running it became hard and latency
             spikes grew with trillions of messages. Each time, the decision came from{" "}
             <strong>clear, measured problems</strong>, and each migration was carefully planned with dual reads and data
             validation.
           </p>
           <p>
             <strong>Uber's Postgres-to-MySQL move.</strong> In 2016, Uber published a detailed post explaining why it
-            moved some core systems from PostgreSQL to MySQL, citing specific issues with write amplification and
-            replication at its scale. The PostgreSQL community published thoughtful responses. Reading both is a great
+            moved some core systems from PostgreSQL to MySQL, citing specific issues with write amplification (one small change causing many extra writes) and
+            replication at its scale. The PostgreSQL community published careful replies. Reading both is a great
             lesson: <strong>database choices depend on specific workloads and versions</strong>, and "better" is always
             "better for <em>this</em>".
           </p>
@@ -431,13 +481,13 @@ export default function SdLessonTwoNinePage() {
           </p>
           <p>
             <strong>Stack Overflow</strong> has famously run on a relational database (SQL Server) with heavy caching,
-            scaling mostly vertically, and serves a huge audience. It proves that a "boring" choice done well can go a
+            scaling mostly vertically (using bigger servers instead of more servers), and serves a huge audience. It proves that a "boring" choice done well can go a
             very long way.
           </p>
           <p>
-            <strong>Polyglot at big companies.</strong> Netflix uses Cassandra for high-volume data,
-            MySQL/PostgreSQL-style databases for others, Elasticsearch for search and many analytics systems. Each is
-            chosen for a job, and backed by strong platform teams to operate them. Smaller teams usually can't afford
+            <strong>Polyglot at big companies.</strong> "Polyglot" means using many languages, here many database types. Netflix uses Cassandra for high-volume data,
+            relational databases for others, Elasticsearch for search and many analytics systems. Each is
+            chosen for a job, and backed by strong platform teams to operate them. Smaller teams usually cannot afford
             that many systems.
           </p>
         </Section>
@@ -463,9 +513,9 @@ export default function SdLessonTwoNinePage() {
                 a: (
                   <>
                     <p>
-                      For very high write volumes of simple, key-addressed data (messages, events, IoT readings), access
-                      patterns known up front, multi-region writes, and willingness to model tables per query and accept
-                      limited transactions and ad-hoc querying.
+                      When you have very high write volumes of simple data found by key (messages, events, IoT readings).
+                      You also need to know the access patterns up front, or need writes in many regions. And you must be
+                      willing to design one table per query and accept limited transactions and limited ad-hoc queries.
                     </p>
                   </>
                 ),
@@ -487,9 +537,9 @@ export default function SdLessonTwoNinePage() {
                 a: (
                   <>
                     <p>
-                      With realistic data volumes and your real queries at expected peak rates, measuring p99 rather
-                      than averages; then kill nodes, fill disks and create replication lag, and estimate monthly cost
-                      at target size. Vendor benchmarks measure the vendor's workload, not yours.
+                      Use realistic data volumes and your real queries at the peak rates you expect. Measure p99, not
+                      only the average. Then switch off nodes, fill disks and create replication lag, and estimate the
+                      monthly cost at the target size. Vendor benchmarks measure the vendor's workload, not yours.
                     </p>
                   </>
                 ),
@@ -499,9 +549,10 @@ export default function SdLessonTwoNinePage() {
                 a: (
                   <>
                     <p>
-                      Dual-write or CDC to both, backfill history, verify with counts and checksums, shadow-read and
-                      compare, move reads gradually, then writes, keep the old database read-only as a fallback, and
-                      retire it last.
+                      Write to both databases (dual write or CDC). Copy the old data (backfill). Check it with counts and
+                      checksums (a checksum is a short fingerprint of data). Read from both and compare (shadow reads).
+                      Move reads over slowly, then writes. Keep the old database read-only as a fallback, and retire it
+                      last.
                     </p>
                   </>
                 ),

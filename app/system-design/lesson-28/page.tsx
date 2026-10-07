@@ -32,7 +32,10 @@ export default function SdLessonTwoEightPage() {
 
       <div className="lesson">
         <Section id="the-problem" title="The Problem" kind="problem">
-          <p>"It's eventually consistent" sounds reassuring, until you see what it means in practice:</p>
+          <p>
+            Data is often stored in more than one place. Each stored copy is called a <strong>replica</strong>. When
+            someone says "it's eventually consistent", it sounds safe. Here is what it can mean in practice:
+          </p>
           <ul>
             <li>
               You post a comment, refresh, and it's <strong>gone</strong>. Refresh again and it's back.
@@ -44,10 +47,11 @@ export default function SdLessonTwoEightPage() {
             <li>You change your password, and the old one still works for a minute.</li>
           </ul>
           <p>
-            Some of these are fine; others are serious bugs. The difference is the <strong>consistency model</strong>:
-            the rules about <strong>what a reader is allowed to see</strong> when data has multiple copies. Last post
-            (CAP) said "consistent vs available". This post shows that consistency isn't on/off. It's a{" "}
-            <strong>spectrum</strong>, and there are useful stops between the two ends.
+            Some of these are fine. Others are serious bugs. What decides it is the <strong>consistency model</strong>.
+            A consistency model is a set of rules that says <strong>what a reader is allowed to see</strong> when data
+            has many copies. The last lesson (CAP) talked about "consistent or available". Here you will see that
+            consistency is not just on or off. It is a <strong>spectrum</strong> (a range), and there are useful
+            stops between the two ends.
           </p>
         </Section>
 
@@ -71,8 +75,9 @@ export default function SdLessonTwoEightPage() {
             </li>
           </ul>
           <p>
-            Stronger guarantees are easier to reason about but cost more: coordination, latency, and availability during
-            failures. Weaker ones are faster and more available, but put more work on developers and users.
+            Stronger guarantees are easier to think about, but they cost more. They need the servers to talk to each
+            other (coordination), they add delay (latency), and they can stop working during failures. Weaker
+            guarantees are faster and stay available, but developers and users must handle the odd results.
           </p>
         </Section>
 
@@ -102,8 +107,9 @@ export default function SdLessonTwoEightPage() {
           />
           <h3 id="1-linearizability-strong-consistency">1. Linearizability (strong consistency)</h3>
           <p>
-            The system behaves <strong>as if there were only one copy of the data</strong>, and every operation takes
-            effect <strong>instantly</strong> at some point between its start and its finish.
+            Linearizability is a rule that says the system must behave <strong>as if there were only one copy of the
+            data</strong>. Every operation seems to happen <strong>instantly</strong>, at one moment between its start
+            and its finish. Think of one shared notebook that everyone reads and writes in turn.
           </p>
           <ul>
             <li>
@@ -120,30 +126,36 @@ export default function SdLessonTwoEightPage() {
               <strong>uniqueness</strong> (usernames, one booking per seat),
             </li>
             <li>
-              <strong>locks and leader election</strong> (only one leader!),
+              <strong>locks and leader election</strong> (picking one server as the leader, and never two),
             </li>
             <li>
               <strong>account balances and money movement</strong>,
             </li>
             <li>
-              <strong>"compare-and-set" operations</strong> ("update only if the value is still 10").
+              <strong>"compare-and-set" operations</strong> (change a value only if it still has the value you
+              expect, for example "set to 11 only if it is still 10").
             </li>
           </ul>
           <p>
-            <strong>How it's achieved:</strong> single-leader systems reading from the leader, consensus protocols
-            (Raft/Paxos), and quorum techniques. <strong>Cost:</strong> coordination round trips, and unavailability for
-            part of the system during partitions (CAP).
+            <strong>How it is done:</strong> read from the single leader, or use a consensus protocol. A consensus
+            protocol (such as Raft or Paxos) is a set of steps that lets several servers agree on one value, even if
+            some servers fail. Some systems also use carefully designed quorums. A quorum is a majority of the copies
+            that must answer before an operation counts. <strong>Cost:</strong> extra messages between servers, and
+            part of the system can become unavailable during a network partition (a break in the network, see CAP).
           </p>
           <h3 id="2-sequential-consistency">2. Sequential consistency</h3>
           <p>
-            All nodes see operations in <strong>the same order</strong>, and each client's own operations appear in the
-            order they were made. But that shared order <strong>doesn't have to match real time</strong> exactly. It's
-            slightly weaker than linearizable, and mostly discussed in theory and CPU memory models.
+            Sequential consistency is a rule that says all nodes (servers) see the operations in{" "}
+            <strong>the same order</strong>, and each client's own operations stay in the order the client made them.
+            But the shared order <strong>does not have to match real time</strong>. It is a little weaker than
+            linearizable. You will mostly meet it in theory and in CPU memory models (the rules for how processor cores
+            see each other's writes).
           </p>
           <h3 id="3-causal-consistency">3. Causal consistency</h3>
           <p>
-            If one event <strong>caused</strong> or depends on another, everyone sees them{" "}
-            <strong>in that order</strong>. Unrelated events can appear in different orders to different people.
+            Causal consistency is a rule that says: if one event <strong>caused</strong> or depends on another, everyone
+            sees them <strong>in that order</strong>. Events that are not related can show up in different orders for
+            different people. Example: a reply must never appear before the question it answers.
           </p>
           <SequenceDiagram
             caption="Causal consistency. A reply is never visible without the message it answers; unrelated posts can arrive in any order."
@@ -162,13 +174,15 @@ export default function SdLessonTwoEightPage() {
             ]}
           />
           <p>
-            Causal consistency is a sweet spot: it prevents the most confusing anomalies (answers before questions,
-            comments on posts you can't see), while still allowing a lot of availability and speed.
+            Causal consistency is a good middle choice. It stops the most confusing problems (answers before
+            questions, comments on posts you cannot see). It still allows high availability and speed.
           </p>
           <h3 id="4-session-guarantees-per-client-rules">4. Session guarantees (per-client rules)</h3>
           <p>
-            These are practical, user-focused promises. They were described in early distributed-systems research, and
-            many databases and apps implement them.
+            Session guarantees are small promises made to one client (one user session). They are easy for users to
+            notice. They were described in early research on distributed systems, and many databases and apps use them.
+            Do not mix them up: causal consistency orders events for everyone, while a session guarantee only protects
+            one user's own view.
           </p>
           <ul>
             <li>
@@ -189,18 +203,19 @@ export default function SdLessonTwoEightPage() {
             </li>
           </ul>
           <p>
-            We saw how to implement the first two in post 24: read your own data from the leader, and stick each user to
+            Lesson 24 showed how to build the first two. Read a user's own data from the leader, and keep each user on
             the same replica.
           </p>
           <h3 id="5-eventual-consistency">5. Eventual consistency</h3>
           <p>
-            <strong>If no new writes happen, all copies will eventually converge to the same value.</strong> That's all
-            it promises. There's no promise about <strong>when</strong>, and no promise about what you see in the
-            meantime.
+            Eventual consistency is a rule with one promise:{" "}
+            <strong>if no new writes happen, all copies will end up with the same value.</strong> Ending up the same is
+            called "converging". The rule does not say <strong>when</strong> this happens. It also does not say what
+            you see before then.
           </p>
           <p>
-            In practice, "eventually" is usually <strong>milliseconds to seconds</strong>, but under failures or heavy
-            load it can be much longer.
+            In practice, "eventually" is usually <strong>milliseconds to seconds</strong>. During failures or heavy
+            load it can take much longer.
           </p>
           <p>
             <strong>Fine for:</strong>
@@ -216,11 +231,13 @@ export default function SdLessonTwoEightPage() {
           </ul>
           <h3 id="how-copies-converge-handling-conflicts">How copies converge: handling conflicts</h3>
           <p>
-            In multi-leader and leaderless systems (post 24), two copies can accept{" "}
-            <strong>different writes to the same data at the same time</strong>. Something must decide the final value.
+            In multi-leader and leaderless systems (lesson 24), two copies can accept{" "}
+            <strong>different writes to the same data at the same time</strong>. This is a conflict. Something must
+            decide the final value. There are four common ways.
           </p>
           <p>
-            <strong>Last-write-wins (LWW).</strong> Attach a timestamp to each write and keep the latest.
+            <strong>Last-write-wins (LWW).</strong> This is a rule that gives each write a timestamp and keeps only the
+            write with the latest one.
           </p>
           <ul>
             <li>✅ Simple, and used widely (Cassandra uses timestamps this way).</li>
@@ -232,23 +249,28 @@ export default function SdLessonTwoEightPage() {
             </li>
           </ul>
           <p>
-            <strong>Version vectors (vector clocks).</strong> Each write carries a small record of which versions it has
-            seen from each node. This lets the system tell whether one write <strong>came after</strong> another, or
-            whether they were truly <strong>concurrent</strong> (a real conflict). Concurrent versions can then be
-            merged or shown to the app. Amazon's Dynamo used vector clocks to detect conflicting cart versions.
+            <strong>Version vectors (vector clocks).</strong> A version vector is a small list of counters, one per
+            node. Each write carries the list, so it records which versions it has already seen. With this list the
+            system can tell if one write <strong>came after</strong> another, or if the two writes were truly{" "}
+            <strong>concurrent</strong> (made at the same time without seeing each other). Only concurrent writes are
+            real conflicts. They can then be merged, or shown to the app. Amazon's Dynamo used vector clocks to find
+            conflicting cart versions.
           </p>
           <p>
-            <strong>CRDTs (Conflict-free Replicated Data Types).</strong> These are data types designed so that{" "}
-            <strong>any two copies can always be merged automatically</strong>, giving the same result in any order:
+            <strong>CRDTs (Conflict-free Replicated Data Types).</strong> A CRDT is a data type built so that{" "}
+            <strong>any two copies can always be merged automatically</strong>. The result is the same whatever order
+            the merges happen in. Examples:
           </p>
           <ul>
             <li>
-              <strong>G-Counter / PN-Counter:</strong> each replica counts its own increments, and the total is the sum.
-              Two replicas both adding likes never lose any.
+              <strong>G-Counter / PN-Counter:</strong> a G-Counter only counts up. Each replica counts its own
+              increments, and the total is the sum. Two replicas that both add likes never lose any. A PN-Counter uses
+              two G-Counters (one for adds, one for removes) so it can also count down.
             </li>
             <li>
-              <strong>OR-Set (observed-remove set):</strong> add and remove items (like cart items) with sensible merge
-              rules.
+              <strong>OR-Set (observed-remove set):</strong> a set where you can add and remove items (like cart
+              items). A remove only deletes the adds that the remover had seen, so a new add made at the same time is
+              kept.
             </li>
             <li>
               <strong>Sequence CRDTs:</strong> for collaborative text editing.
@@ -259,8 +281,8 @@ export default function SdLessonTwoEightPage() {
             (for example, Riak, and Redis Enterprise's active-active mode).
           </p>
           <p>
-            <strong>Application-level merge.</strong> Keep both versions and let the app, or the user, decide: "This
-            document was edited on two devices. Which version do you want to keep?"
+            <strong>Application-level merge.</strong> Keep both versions and let the app, or the user, decide. For
+            example: "This document was edited on two devices. Which version do you want to keep?"
           </p>
           <h3 id="time-and-ordering-why-clocks-are-tricky">Time and ordering: why clocks are tricky</h3>
           <p>
@@ -268,30 +290,34 @@ export default function SdLessonTwoEightPage() {
           </p>
           <ul>
             <li>
-              <strong>Physical clocks drift.</strong> Servers sync their clocks using NTP, but can still be off by
-              milliseconds, sometimes much more. A write with a "later" timestamp might actually have happened{" "}
-              <strong>earlier</strong>.
+              <strong>Physical clocks drift.</strong> A physical clock is the normal wall clock on a machine. Servers
+              keep their clocks close using NTP (Network Time Protocol, which copies the time from a trusted server).
+              They can still be off by milliseconds, and sometimes much more. A write with a "later" timestamp might
+              really have happened <strong>earlier</strong>.
             </li>
             <li>
-              <strong>Leap seconds and clock jumps</strong> have caused real outages.
+              <strong>Leap seconds and clock jumps</strong> have caused real outages. A leap second is one extra second
+              that is added to the world clock now and then.
             </li>
           </ul>
           <p>Solutions:</p>
           <ul>
             <li>
-              <strong>Lamport clocks:</strong> a simple counter that increases with every event and every message
-              received. It gives an ordering that respects cause and effect, without relying on wall-clock time. (Leslie
-              Lamport's classic 1978 paper.)
+              <strong>Lamport clocks:</strong> a Lamport clock is a simple counter. It goes up with every event, and
+              it also jumps ahead when a message with a bigger number arrives. This gives an order that respects cause
+              and effect, and it does not use wall-clock time. (Leslie Lamport's classic 1978 paper.)
             </li>
             <li>
-              <strong>Hybrid Logical Clocks (HLC):</strong> combine physical time with a logical counter. They're used
-              by databases like CockroachDB.
+              <strong>Hybrid Logical Clocks (HLC):</strong> an HLC joins physical time with a logical counter, so
+              timestamps stay close to real time and still keep cause before effect. Databases like CockroachDB use
+              them.
             </li>
             <li>
-              <strong>TrueTime (Google Spanner):</strong> special time servers with GPS receivers and atomic clocks give
-              each machine the current time <strong>plus an uncertainty range</strong> (a few milliseconds). Spanner
-              deliberately <strong>waits out that uncertainty</strong> before completing a commit, so timestamps are
-              guaranteed to respect real-time order. That's how it offers global strong consistency.
+              <strong>TrueTime (Google Spanner):</strong> TrueTime is Google's clock service. Special time servers with
+              GPS receivers and atomic clocks give each machine the current time{" "}
+              <strong>plus an uncertainty range</strong> (a few milliseconds). Spanner deliberately{" "}
+              <strong>waits out that uncertainty</strong> before it finishes a commit. This way, timestamps always
+              match real-time order. That is how it offers strong consistency across the globe.
             </li>
           </ul>
           <h3 id="the-cost-of-strong-consistency">The cost of strong consistency</h3>
@@ -308,9 +334,9 @@ export default function SdLessonTwoEightPage() {
             ]}
           />
           <p>
-            Strong consistency across continents means waiting for messages to cross oceans. That's why global systems
-            often keep <strong>most</strong> data eventually consistent and make{" "}
-            <strong>only critical operations</strong> strongly consistent.
+            Strong consistency across continents means waiting for messages to cross oceans. So global systems often
+            keep <strong>most</strong> data eventually consistent. They make <strong>only the critical
+            operations</strong> strongly consistent. (These times are typical rough numbers, not fixed rules.)
           </p>
           <Compare
             caption="Ways to merge two copies that accepted different writes at the same time."
@@ -430,8 +456,8 @@ export default function SdLessonTwoEightPage() {
               actually notice, without paying for global strong consistency.
             </li>
             <li>
-              <strong>Clocks-based conflict resolution (LWW)</strong> is convenient, but can lose data silently. Use it
-              only where that's acceptable.
+              <strong>Conflict handling based on clocks (LWW)</strong> is easy, but it can lose data silently. Use it
+              only where losing an update is acceptable.
             </li>
           </ul>
         </Section>
@@ -439,9 +465,9 @@ export default function SdLessonTwoEightPage() {
         <Section id="in-the-real-world" title="In the Real World" kind="real">
           <p>
             <strong>Collaborative editing.</strong> Google Docs has long used a technique called{" "}
-            <em>operational transformation</em> to merge simultaneous edits. Figma has described its multiplayer system
-            as <strong>inspired by CRDTs</strong>, with a central server that orders changes. Both let many people edit
-            at once and still end up with the same document.
+            <em>operational transformation</em>, which changes each edit so that edits made at the same time still fit
+            together. Figma has described its multiplayer system as <strong>inspired by CRDTs</strong>, with a central
+            server that orders the changes. Both let many people edit at once and still end up with the same document.
           </p>
           <p>
             <strong>Amazon's cart and "resurrected" items.</strong> In the Dynamo paper, Amazon explains that merging
@@ -455,10 +481,10 @@ export default function SdLessonTwoEightPage() {
             features, speed and availability matter more than exactness.
           </p>
           <p>
-            <strong>Cloudflare's leap-second bug.</strong> On 1 January 2017, a leap second caused a piece of
-            Cloudflare's DNS software to calculate a <strong>negative time difference</strong>, which it never expected,
-            and it crashed, causing errors for some customers. It's a real example of why depending on wall-clock time
-            in distributed systems is risky.
+            <strong>Cloudflare's leap-second bug.</strong> On 1 January 2017, a leap second made part of Cloudflare's
+            DNS software calculate a <strong>negative time difference</strong>. The code did not expect this, so it
+            failed and some customers saw errors. It is a real example of why relying on wall-clock time in
+            distributed systems is risky.
           </p>
           <p>
             <strong>Google Spanner's TrueTime.</strong> Spanner is one of the few systems offering{" "}
@@ -504,9 +530,9 @@ export default function SdLessonTwoEightPage() {
                 a: (
                   <>
                     <p>
-                      It prevents the most confusing anomalies — replies before questions, comments on posts you can't
-                      see — without global coordination on every operation, so it stays fast and available under
-                      partitions.
+                      It stops the most confusing problems, such as replies before questions and comments on posts you
+                      cannot see. It does this without asking every server to agree on every operation, so it stays
+                      fast and available even during network partitions.
                     </p>
                   </>
                 ),
@@ -528,9 +554,10 @@ export default function SdLessonTwoEightPage() {
                 a: (
                   <>
                     <p>
-                      A replicated data type whose merge is commutative, associative and idempotent, so replicas can
-                      accept writes independently and always converge. A G-Counter keeps one count per replica and sums
-                      them, so concurrent likes are never lost.
+                      A CRDT is a replicated data type with a merge that gives the same result in any order and even if
+                      it runs twice. (In technical words: the merge is commutative, associative and idempotent.) So each
+                      replica can accept writes on its own and they still converge. A G-Counter keeps one count per
+                      replica and adds them up, so concurrent likes are never lost.
                     </p>
                   </>
                 ),
@@ -540,9 +567,9 @@ export default function SdLessonTwoEightPage() {
                 a: (
                   <>
                     <p>
-                      TrueTime gives each server the current time with a bounded uncertainty (GPS and atomic clocks).
-                      Spanner assigns commit timestamps and waits out that uncertainty before making commits visible, so
-                      timestamp order matches real-time order, combined with Paxos-replicated data.
+                      TrueTime gives each server the current time with a known uncertainty range (it uses GPS and atomic
+                      clocks). Spanner gives each commit a timestamp and waits out that uncertainty before the commit
+                      becomes visible. So timestamp order matches real-time order. The data is also copied with Paxos.
                     </p>
                   </>
                 ),

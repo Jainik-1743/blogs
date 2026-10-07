@@ -44,7 +44,10 @@ export default function SdLessonThreeFivePage() {
 
       <div className="lesson">
         <Section id="the-problem" title="The Problem" kind="problem">
-          <p>When an order is placed, your system publishes a message. Three teams care about it:</p>
+          <p>
+            When an order is placed, your system publishes a message. A message is a small piece of data that one
+            service sends to another. Three teams care about this message:
+          </p>
           <ul>
             <li>
               the <strong>email team</strong> wants to send a confirmation,
@@ -57,18 +60,19 @@ export default function SdLessonThreeFivePage() {
             </li>
           </ul>
           <p>
-            You put the message on a queue, and all three services read from it. Surprise:{" "}
-            <strong>each message is delivered to only one of them</strong>. The email goes out, but the warehouse never
+            You put the message on a queue (a waiting line for messages), and all three services read from it. Surprise:{" "}
+            <strong>each message goes to only one of them</strong>. The email goes out, but the warehouse never
             hears about the order. Or the warehouse packs it, but no email is sent.
           </p>
           <p>
-            Or the opposite mistake. You run five copies of the email service to handle load, all subscribed to a
-            broadcast topic, and <strong>every customer gets five confirmation emails</strong>.
+            Now the opposite mistake. You run five copies of the email service to handle the load. All five are
+            subscribed to a broadcast topic (a channel that sends each message to every subscriber). The result is that{" "}
+            <strong>every customer gets five confirmation emails</strong>.
           </p>
           <p>
             The difference between <strong>"one of you handles this"</strong> and{" "}
             <strong>"all of you get a copy"</strong> is the difference between a <strong>queue</strong> and{" "}
-            <strong>publish/subscribe</strong>. Mixing them up causes lost work or duplicated work.
+            <strong>publish/subscribe</strong> (pub/sub for short). Mixing them up causes lost work or repeated work.
           </p>
         </Section>
 
@@ -82,7 +86,7 @@ export default function SdLessonThreeFivePage() {
           <p>
             <strong>Pub/sub is a company announcement.</strong> The manager <strong>announces</strong> "Q3 results are
             out!" on the office speaker. <strong>Everyone</strong> who is subscribed hears it (sales, finance, HR), and
-            each reacts in their own way. The manager doesn't know or care who's listening.
+            each reacts in their own way. The manager does not know or care who is listening.
           </p>
           <Compare
             caption="The one distinction that matters."
@@ -113,13 +117,14 @@ export default function SdLessonThreeFivePage() {
           <ul>
             <li>
               Each message is processed by <strong>exactly one</strong> of the consumers. This is the{" "}
-              <strong>competing consumers</strong> pattern (post 18).
+              <strong>competing consumers</strong> pattern (lesson 18). A consumer is a program that reads messages. Here the
+              consumers compete for the next message.
             </li>
             <li>
-              Adding workers <strong>increases throughput</strong>.
+              Adding workers <strong>increases throughput</strong> (the amount of work done per second).
             </li>
             <li>
-              When a message is acknowledged, it's <strong>removed</strong> from the queue.
+              When a consumer acknowledges a message (tells the queue "I finished it"), the message is <strong>removed</strong> from the queue.
             </li>
           </ul>
           <p>
@@ -130,16 +135,16 @@ export default function SdLessonThreeFivePage() {
           <AsciiDiagram text={diagram2} />
           <ul>
             <li>
-              The publisher sends a message to a <strong>topic</strong>.
+              The publisher (the sender) sends a message to a <strong>topic</strong> (a named channel).
             </li>
             <li>
-              <strong>Every subscriber</strong> receives its <strong>own copy</strong>.
+              <strong>Every subscriber</strong> (a receiver that signed up to the topic) gets its <strong>own copy</strong>.
             </li>
             <li>
-              Subscribers are <strong>independent</strong>. A slow analytics service doesn't slow down emails.
+              Subscribers are <strong>independent</strong>. A slow analytics service does not slow down emails.
             </li>
             <li>
-              The publisher is <strong>decoupled</strong>: new subscribers can be added without changing it.
+              The publisher is <strong>decoupled</strong>, which means it does not depend on its subscribers. New subscribers can be added without changing it.
             </li>
           </ul>
           <p>
@@ -162,6 +167,10 @@ export default function SdLessonThreeFivePage() {
           </ul>
           <p>
             <strong>Pattern 1: Topic fan-out to queues (AWS SNS + SQS style)</strong>
+          </p>
+          <p>
+            Fan-out means one message is copied to many places. SNS is Amazon's pub/sub topic service. SQS is
+            Amazon's queue service.
           </p>
           <Flow
             caption="Topic fan-out to queues (SNS → SQS). Every service gets a copy; inside each service, workers compete."
@@ -186,7 +195,9 @@ export default function SdLessonThreeFivePage() {
             <strong>Pattern 2: Kafka consumer groups</strong>
           </p>
           <p>
-            Kafka (post 36) builds this in. Consumers join a <strong>consumer group</strong>:
+            Kafka (lesson 36) has this built in. Kafka is a system that stores messages in a log (an ordered list that
+            you only add to). Consumers join a <strong>consumer group</strong>, which is a named team of consumers
+            that share the work:
           </p>
           <ul>
             <li>
@@ -201,18 +212,20 @@ export default function SdLessonThreeFivePage() {
             <strong>Pattern 3: RabbitMQ exchanges</strong>
           </p>
           <p>
-            In RabbitMQ, producers send messages to an <strong>exchange</strong>, which routes them to queues by rules:
+            RabbitMQ is a popular message broker. A broker is a server that receives, stores and delivers messages. In
+            RabbitMQ, producers (senders) send messages to an <strong>exchange</strong>, which routes them to queues by
+            rules:
           </p>
           <ul>
             <li>
-              <strong>Direct exchange:</strong> route by an exact routing key (<code>order.created</code> → the order
+              <strong>Direct exchange:</strong> route by an exact routing key, a label on the message (<code>order.created</code> → the order
               queue).
             </li>
             <li>
               <strong>Fanout exchange:</strong> copy to <strong>all</strong> bound queues (pure pub/sub).
             </li>
             <li>
-              <strong>Topic exchange:</strong> route by patterns (<code>order.*.india</code> → the India team's queue).
+              <strong>Topic exchange:</strong> route by patterns, where <code>*</code> stands for exactly one word (<code>order.*.india</code> → the India team's queue).
             </li>
             <li>
               <strong>Headers exchange:</strong> route by message headers.
@@ -222,16 +235,18 @@ export default function SdLessonThreeFivePage() {
           <ul>
             <li>
               <strong>Push:</strong> the broker <strong>sends</strong> messages to consumers as they arrive (RabbitMQ by
-              default, SNS to HTTP endpoints, Google Pub/Sub push). It's low latency, but consumers need{" "}
-              <strong>flow control</strong> (for example, a "prefetch" limit) so they aren't overwhelmed.
+              default, SNS to HTTP endpoints, Google Pub/Sub push). It has low latency, but consumers need{" "}
+              <strong>flow control</strong> (for example, a "prefetch" limit, which caps how many unfinished messages a
+              consumer may hold) so they are not overwhelmed.
             </li>
             <li>
               <strong>Pull:</strong> consumers <strong>ask</strong> for messages when ready (SQS, Kafka, Google Pub/Sub
-              pull). Consumers control their own pace, which gives natural back pressure.
+              pull). Consumers control their own pace. This gives natural back pressure, which means a busy consumer simply
+              asks for fewer messages, so the system slows down safely.
             </li>
           </ul>
           <h3 id="ordering">Ordering</h3>
-          <p>"Messages arrive in the order they were sent" is harder than it sounds once you have many consumers:</p>
+          <p>"Messages arrive in the order they were sent" is harder than it sounds when you have many consumers:</p>
           <ul>
             <li>
               With competing consumers, message 1 might go to a slow worker and message 2 to a fast one, so{" "}
@@ -239,7 +254,7 @@ export default function SdLessonThreeFivePage() {
             </li>
             <li>
               <strong>Global ordering</strong> (everything in one strict order) limits you to{" "}
-              <strong>one consumer at a time</strong>, which kills throughput.
+              <strong>one consumer at a time</strong>, which greatly lowers throughput.
             </li>
             <li>
               The practical solution is <strong>per-key ordering</strong>: all messages for the{" "}
@@ -247,10 +262,10 @@ export default function SdLessonThreeFivePage() {
               processed in parallel.
               <ul>
                 <li>
-                  Kafka does this with <strong>partitions</strong> (same key → same partition).
+                  Kafka does this with <strong>partitions</strong> (a topic is split into partitions, and the same key always goes to the same partition).
                 </li>
                 <li>
-                  SQS FIFO queues do it with <strong>message group IDs</strong>.
+                  SQS FIFO queues (first in, first out) do it with <strong>message group IDs</strong>.
                 </li>
               </ul>
             </li>
@@ -264,14 +279,14 @@ export default function SdLessonThreeFivePage() {
             </li>
             <li>
               <strong>Log-based systems</strong> (Kafka, Pulsar, Kinesis, Redis Streams) <strong>keep</strong> messages
-              for a set time (days, or forever), even after they're read. Consumers track their{" "}
-              <strong>position</strong> (offset). The system is a <strong>history book</strong>, and a new consumer can{" "}
+              for a set time (days, or even forever in Kafka and Pulsar), even after they are read. Consumers track their{" "}
+              <strong>position</strong> in the log, called an offset. The system is a <strong>history book</strong>, and a new consumer can{" "}
               <strong>replay</strong> the past.
             </li>
           </ul>
           <p>
-            That replay ability is a big deal. You can add a new service and have it process last week's events, or fix
-            a bug and re-run.
+            Replay means reading old messages again. It is very useful. You can add a new service and let it process
+            last week's events. Or you can fix a bug and run the old events again.
           </p>
           <h3 id="popular-systems">Popular systems</h3>
           <div className="table-wrap">
@@ -289,14 +304,14 @@ export default function SdLessonThreeFivePage() {
                     <strong>RabbitMQ</strong>
                   </td>
                   <td>Queues + exchanges (routing)</td>
-                  <td>Flexible routing, mature, push-based</td>
+                  <td>Flexible routing, mature, push-based (it sends messages to consumers)</td>
                 </tr>
                 <tr>
                   <td>
                     <strong>Amazon SQS</strong>
                   </td>
                   <td>Queue</td>
-                  <td>Fully managed, simple; FIFO option</td>
+                  <td>Fully managed (run by AWS), simple; FIFO option</td>
                 </tr>
                 <tr>
                   <td>
@@ -337,7 +352,7 @@ export default function SdLessonThreeFivePage() {
                   <td>
                     <strong>Redis Pub/Sub / Streams</strong>
                   </td>
-                  <td>Fire-and-forget pub/sub / log-like streams</td>
+                  <td>Fire-and-forget pub/sub (no delivery guarantee) / log-like streams</td>
                   <td>
                     Pub/Sub has <strong>no storage</strong>: offline subscribers miss messages. Streams persist
                   </td>
@@ -350,29 +365,30 @@ export default function SdLessonThreeFivePage() {
         <Section id="trade-offs" title="Trade-offs" kind="tradeoffs">
           <ul>
             <li>
-              <strong>Queues:</strong> simple work distribution, and each task is handled once. But it's one "audience"
+              <strong>Queues:</strong> simple work distribution, and each task is handled once. But there is one "audience"
               per queue, and consumed messages are gone.
             </li>
             <li>
-              <strong>Pub/sub:</strong> loose coupling, and it's easy to add new reactions to events. But it's harder to
-              see "who does what", and every subscriber must handle duplicates and failures itself.
+              <strong>Pub/sub:</strong> loose coupling (services do not depend on each other), and it is easy to add new reactions to events. But it
+              is harder to see "who does what", and every subscriber must handle duplicates and failures itself.
             </li>
             <li>
-              <strong>Fan-out (topic → queues):</strong> the best of both, but more infrastructure (a topic plus a queue
+              <strong>Fan-out (topic → queues):</strong> the best of both, but it needs more parts (a topic plus a queue
               per service).
             </li>
             <li>
-              <strong>Log-based (Kafka):</strong> replay, history and very high throughput, but more concepts
-              (partitions, offsets, consumer groups) and more operational work.
+              <strong>Log-based (Kafka):</strong> replay, history and very high throughput, but there are more concepts
+              (partitions, offsets, consumer groups) and more work to run it.
             </li>
             <li>
-              <strong>Strict ordering:</strong> simpler reasoning, but less parallelism. Prefer{" "}
+              <strong>Strict ordering:</strong> easier to reason about, but less parallelism (less work done at the same time). Prefer{" "}
               <strong>per-key ordering</strong>.
             </li>
           </ul>
           <p>
             <strong>When not to use pub/sub:</strong> when exactly one service should act, or when the "event" is really
-            a <strong>command</strong> to a specific service ("charge this card"). Send commands to that service's queue
+            a <strong>command</strong> to a specific service ("charge this card"). An event says "something
+            happened". A command says "do this". Send commands to that service's queue
             or API directly.
           </p>
         </Section>
@@ -380,7 +396,7 @@ export default function SdLessonThreeFivePage() {
         <Section id="in-the-real-world" title="In the Real World" kind="real">
           <p>
             <strong>AWS SNS + SQS fan-out.</strong> This is one of the most common AWS patterns. An "order created" SNS
-            topic fans out to separate SQS queues for email, fulfilment, fraud checks and analytics. Each team scales
+            topic fans out to separate SQS queues for email, fulfilment (packing and shipping), fraud checks and analytics. Each team scales
             its own workers and handles its own failures without affecting the others.
           </p>
           <p>
@@ -390,13 +406,13 @@ export default function SdLessonThreeFivePage() {
           </p>
           <p>
             <strong>Google Cloud Pub/Sub.</strong> Each <strong>subscription</strong> on a topic gets every message, and
-            multiple workers pulling from the <strong>same</strong> subscription share the load. It's the
+            multiple workers pulling from the <strong>same</strong> subscription share the load. This is the
             queue-inside-pub/sub pattern, offered as a managed service.
           </p>
           <p>
             <strong>Redis Pub/Sub for live features.</strong> Chat and notification systems often use Redis Pub/Sub to
-            pass messages between WebSocket gateways (post 33), because it's fast. They also store messages durably
-            elsewhere, because Redis Pub/Sub doesn't keep messages for subscribers that are offline.
+            pass messages between WebSocket gateways (lesson 33), because it is fast. They also store messages safely
+            elsewhere (durably), because Redis Pub/Sub does not keep messages for subscribers that are offline.
           </p>
         </Section>
 
@@ -404,13 +420,13 @@ export default function SdLessonThreeFivePage() {
           <QA
             items={[
               {
-                q: <>What's the difference between a queue and pub/sub?</>,
+                q: <>What is the difference between a queue and pub/sub?</>,
                 a: (
                   <>
                     <p>
-                      A queue delivers each message to exactly one of the competing consumers, distributing work.
-                      Pub/sub delivers a copy of each message to every subscriber, broadcasting an event to independent
-                      services.
+                      A queue gives each message to exactly one of the competing consumers, so it shares out work.
+                      Pub/sub gives a copy of each message to every subscriber, so it broadcasts an event to
+                      independent services.
                     </p>
                   </>
                 ),
@@ -420,9 +436,9 @@ export default function SdLessonThreeFivePage() {
                 a: (
                   <>
                     <p>
-                      They subscribed to a broadcast topic individually, so each instance got its own copy. They should
-                      share one subscription — one SQS queue behind the topic, one Kafka consumer group, or one Pub/Sub
-                      subscription — so each message goes to only one instance.
+                      Each instance subscribed to the broadcast topic on its own, so each got its own copy. They
+                      should share one subscription instead. That means one SQS queue behind the topic, one Kafka
+                      consumer group, or one Pub/Sub subscription. Then each message goes to only one instance.
                     </p>
                   </>
                 ),
@@ -432,9 +448,9 @@ export default function SdLessonThreeFivePage() {
                 a: (
                   <>
                     <p>
-                      Use per-key ordering: route all messages with the same key (order ID, user ID) to the same
-                      partition or message group, which is processed in order, while different keys run in parallel.
-                      Global ordering allows only one consumer at a time.
+                      Use per-key ordering. Send all messages with the same key (order ID, user ID) to the same
+                      partition or message group. That group is processed in order, while different keys run in
+                      parallel. Global ordering allows only one consumer at a time.
                     </p>
                   </>
                 ),
@@ -444,9 +460,9 @@ export default function SdLessonThreeFivePage() {
                 a: (
                   <>
                     <p>
-                      Push gives low latency but needs flow control (prefetch limits) to avoid overwhelming consumers.
-                      Pull lets each consumer take work at its own pace, which gives natural back pressure and easy
-                      batching.
+                      Push gives low latency, but it needs flow control (prefetch limits) so consumers are not
+                      overwhelmed. Pull lets each consumer take work at its own pace. This gives natural back pressure
+                      and makes batching easy.
                     </p>
                   </>
                 ),
@@ -456,8 +472,8 @@ export default function SdLessonThreeFivePage() {
                 a: (
                   <>
                     <p>
-                      When exactly one service must act — that's a command (“charge this card”), not an event. Send
-                      commands to the owning service's queue or API so responsibility is explicit.
+                      When exactly one service must act. That is a command (“charge this card”), not an event. Send
+                      commands to the queue or API of the service that owns the job, so it is clear who is responsible.
                     </p>
                   </>
                 ),

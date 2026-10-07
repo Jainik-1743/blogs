@@ -52,7 +52,9 @@ export default function SdLessonThreeSixPage() {
 
       <div className="lesson">
         <Section id="the-problem" title="The Problem" kind="problem">
-          <p>A growing company has 30 services, and they all need to share data:</p>
+          <p>
+            A growing company has 30 services (small programs that each do one job), and they all need to share data:
+          </p>
           <ul>
             <li>
               the order service must tell billing, shipping, analytics, search and fraud detection about every order,
@@ -64,12 +66,15 @@ export default function SdLessonThreeSixPage() {
           </ul>
           <p>
             With point-to-point connections, every system talks to every other system. It becomes a tangled web of
-            integrations that nobody fully understands. Classic queues delete messages once they're read, so there's
-            nothing to replay. And at millions of events per second, many traditional brokers struggle.
+            integrations that nobody fully understands. Classic queues delete messages once they are read, so there is
+            nothing to replay. And at millions of events per second, many traditional brokers (servers that store and
+            deliver messages) struggle.
           </p>
           <p>
-            <strong>Apache Kafka</strong> solved this at LinkedIn, and it became the backbone of event streaming at
-            thousands of companies. Its secret is a surprisingly simple idea: <strong>the log</strong>.
+            <strong>Apache Kafka</strong> solved this at LinkedIn. It became the backbone of event streaming at
+            thousands of companies. An event is a record that something happened, such as "order placed". Event
+            streaming means sending a continuous flow of events between systems. Kafka's secret is a simple idea:{" "}
+            <strong>the log</strong>. A log is a list of records where you only add new ones at the end.
           </p>
         </Section>
 
@@ -82,7 +87,7 @@ export default function SdLessonThreeSixPage() {
               Entries are <strong>written in order</strong>, one after another.
             </li>
             <li>
-              You <strong>never erase or change</strong> an old entry; you only <strong>add</strong> new ones at the
+              You <strong>never erase or change</strong> an old entry. You only <strong>add</strong> new ones at the
               end.
             </li>
             <li>
@@ -90,18 +95,19 @@ export default function SdLessonThreeSixPage() {
               auditor goes back and reads from January.
             </li>
             <li>
-              Each reader keeps their <strong>own bookmark</strong>. One reader's position doesn't affect another's.
+              Each reader keeps their <strong>own bookmark</strong>. One reader's position does not affect another's.
             </li>
           </ul>
           <p>
-            Kafka is a <strong>huge, distributed, append-only logbook</strong> for events:
+            Kafka is a <strong>huge, distributed, append-only logbook</strong> for events. "Distributed" means it runs on
+            many servers. "Append-only" means you can only add to the end:
           </p>
           <ul>
             <li>
-              <strong>Producers</strong> append events to the end.
+              <strong>Producers</strong> (programs that send events) append events to the end.
             </li>
             <li>
-              <strong>Consumers</strong> read from wherever their <strong>bookmark (offset)</strong> is.
+              <strong>Consumers</strong> (programs that read events) read from wherever their <strong>bookmark (offset)</strong> is.
             </li>
             <li>
               Events stay for days or even forever, so <strong>anyone can re-read history</strong>.
@@ -136,23 +142,23 @@ export default function SdLessonThreeSixPage() {
         <Section id="how-it-works" title="How It Works" kind="how">
           <h3 id="topics-partitions-and-offsets">Topics, partitions and offsets</h3>
           <p>
-            A <strong>topic</strong> is a named stream of events, like <code>orders</code>, <code>payments</code> or{" "}
+            A <strong>topic</strong> is a named stream of events, like a folder for one kind of event. Examples: <code>orders</code>, <code>payments</code> or{" "}
             <code>page-views</code>.
           </p>
           <p>
-            Each topic is split into <strong>partitions</strong>. A partition is an{" "}
-            <strong>ordered, append-only log</strong>, and each event in it gets an increasing number, its{" "}
-            <strong>offset</strong>.
+            Each topic is split into <strong>partitions</strong>. A partition is one{" "}
+            <strong>ordered, append-only log</strong>. Each event in it gets a number that keeps growing, called its{" "}
+            <strong>offset</strong> (its position in the log).
           </p>
           <KafkaGroups caption="A topic with partitions and a consumer group. Change the counts and see how partitions are assigned — and when consumers go idle." />
           <p>Why partitions?</p>
           <ul>
             <li>
-              <strong>Scale.</strong> Partitions are spread across many servers, so a topic can handle far more data
-              than one machine.
+              <strong>Scale.</strong> Partitions are spread across many servers, so a topic can hold far more data
+              than one machine can.
             </li>
             <li>
-              <strong>Parallelism.</strong> Different consumers can read different partitions at the same time.
+              <strong>Parallelism.</strong> Different consumers can read different partitions at the same time. Parallelism means doing many things at once.
             </li>
             <li>
               <strong>Ordering.</strong> Kafka guarantees order <strong>within a partition</strong>, not across the
@@ -161,11 +167,11 @@ export default function SdLessonThreeSixPage() {
           </ul>
           <h3 id="keys-decide-the-partition">Keys decide the partition</h3>
           <p>
-            Every event can have a <strong>key</strong>. Kafka hashes the key to choose a partition, so{" "}
+            Every event can have a <strong>key</strong>, such as an order ID. A hash is a calculation that turns a key into a number. Kafka hashes the key to choose a partition, so{" "}
             <strong>all events with the same key go to the same partition</strong>, and stay <strong>in order</strong>:
           </p>
           <CodeBlock code={code1} />
-          <p>Choosing the key is like choosing a shard key (post 25):</p>
+          <p>Choosing the key is like choosing a shard key (lesson 25):</p>
           <ul>
             <li>
               <strong>User ID</strong> → all of one user's events in order.
@@ -177,7 +183,7 @@ export default function SdLessonThreeSixPage() {
               <strong>No key</strong> → events are spread evenly, with no ordering guarantee.
             </li>
             <li>
-              <strong>A hot key</strong> (one huge customer) → one overloaded partition.
+              <strong>A hot key</strong> (one very busy key, such as one huge customer) → one overloaded partition.
             </li>
           </ul>
           <h3 id="brokers-and-replication">Brokers and replication</h3>
@@ -198,17 +204,17 @@ export default function SdLessonThreeSixPage() {
             ]}
           />
           <p>
-            Kafka runs as a <strong>cluster</strong> of servers called <strong>brokers</strong>. Each partition is{" "}
-            <strong>replicated</strong> to several brokers (commonly 3):
+            Kafka runs as a <strong>cluster</strong> (a group of servers that work together). Each server is called a{" "}
+            <strong>broker</strong>. Each partition is <strong>replicated</strong> (copied) to several brokers, commonly 3:
           </p>
           <CodeBlock code={code2} />
           <ul>
             <li>
               The <strong>leader</strong> handles reads and writes for that partition. <strong>Followers</strong> copy
-              it (single-leader replication, post 24).
+              it (single-leader replication, lesson 24).
             </li>
             <li>
-              The <strong>ISR (In-Sync Replicas)</strong> are the followers that are fully caught up.
+              The <strong>ISR (In-Sync Replicas)</strong> are the followers that are caught up with the leader.
             </li>
             <li>If a leader's broker dies, an in-sync follower becomes the new leader.</li>
           </ul>
@@ -217,7 +223,7 @@ export default function SdLessonThreeSixPage() {
           </p>
           <ul>
             <li>
-              <code>acks=0</code>: the producer doesn't wait at all. Fastest, and messages can be lost.
+              <code>acks=0</code>: the producer does not wait at all. (<code>acks</code> is the setting for how many brokers must confirm a write.) Fastest, and messages can be lost.
             </li>
             <li>
               <code>acks=1</code>: wait for the leader only. The message is lost if the leader dies before followers
@@ -225,16 +231,17 @@ export default function SdLessonThreeSixPage() {
             </li>
             <li>
               <code>acks=all</code>: wait for <strong>all in-sync replicas</strong>. Combined with{" "}
-              <code>min.insync.replicas=2</code> (with a replication factor of 3), a write is confirmed only when at
+              <code>min.insync.replicas=2</code> (with a replication factor of 3, meaning 3 copies), a write is confirmed only when at
               least two brokers have it. <strong>This is the setting for important data.</strong>
             </li>
           </ul>
           <h3 id="metadata-from-zookeeper-to-kraft">Metadata: from ZooKeeper to KRaft</h3>
           <p>
             Kafka needs to track which brokers are alive, who leads each partition, and topic configurations. For years
-            this relied on <strong>Apache ZooKeeper</strong>, a separate system. Kafka then built its own Raft-based
-            system, <strong>KRaft</strong>, and <strong>Kafka 4.0 removed ZooKeeper completely</strong>. The result is
-            fewer moving parts and faster recovery.
+            this used <strong>Apache ZooKeeper</strong>, a separate system that stores shared settings and status. Kafka
+            then built its own system based on Raft (a way for servers to agree), called <strong>KRaft</strong>.{" "}
+            <strong>Kafka 4.0 removed ZooKeeper completely</strong>. The result is fewer parts to run and faster
+            recovery.
           </p>
           <h3 id="producers">Producers</h3>
           <p>Producers send events to topics. Features that matter:</p>
@@ -247,20 +254,21 @@ export default function SdLessonThreeSixPage() {
               <strong>Compression:</strong> compress batches (for example with lz4 or zstd) to save network and disk.
             </li>
             <li>
-              <strong>Idempotent producer:</strong> Kafka de-duplicates producer retries, so a network retry doesn't
-              write the same event twice. It's on by default in modern Kafka.
+              <strong>Idempotent producer:</strong> idempotent means repeating it has the same effect as doing it once.
+              Kafka removes duplicates caused by producer retries, so a network retry does not write the same event
+              twice. It is on by default in modern Kafka (since version 3.0).
             </li>
             <li>
-              <strong>Transactions:</strong> write to several partitions <strong>atomically</strong> (post 37).
+              <strong>Transactions:</strong> write to several partitions <strong>atomically</strong> (all succeed or none do; lesson 37).
             </li>
           </ul>
           <h3 id="consumers-and-consumer-groups">Consumers and consumer groups</h3>
           <p>
-            Consumers read events and track their <strong>offset</strong>, meaning "I've processed everything up to
+            Consumers read events and track their <strong>offset</strong>, meaning "I have processed everything up to
             here".
           </p>
           <p>
-            Consumers work in <strong>consumer groups</strong> (post 35):
+            Consumers work in <strong>consumer groups</strong> (lesson 35). A consumer group is a team of consumers that share the work of one topic:
           </p>
           <ul>
             <li>
@@ -278,12 +286,12 @@ export default function SdLessonThreeSixPage() {
             with future growth in mind. You can add partitions later, but that changes which partition each key maps to.
           </p>
           <p>
-            <strong>Rebalancing.</strong> When a consumer joins, leaves or crashes, Kafka <strong>redistributes</strong>{" "}
-            partitions among the group. During a rebalance, consumption can briefly pause. Modern Kafka offers smoother
-            "cooperative" rebalancing.
+            <strong>Rebalancing.</strong> When a consumer joins, leaves or crashes, Kafka <strong>shares the partitions
+            out again</strong> among the group. During a rebalance, reading can pause for a short time. Modern Kafka
+            offers a smoother "cooperative" rebalancing.
           </p>
           <p>
-            <strong>Committing offsets.</strong> Consumers periodically <strong>commit</strong> their offset back to
+            <strong>Committing offsets.</strong> Consumers periodically <strong>commit</strong> (save) their offset back to
             Kafka (stored in an internal topic). <em>When</em> you commit decides your delivery guarantee:
           </p>
           <ul>
@@ -294,15 +302,15 @@ export default function SdLessonThreeSixPage() {
               commit <strong>after</strong> processing → possible <strong>duplicates</strong> if you crash.
             </li>
           </ul>
-          <p>(Post 37 covers this in depth.)</p>
+          <p>(Lesson 37 covers this in depth.)</p>
           <p>
             <strong>Consumer lag</strong> is how far behind the newest event a consumer is.{" "}
-            <strong>It's the most important Kafka metric to monitor.</strong> Rising lag means consumers can't keep up:
+            <strong>It is the most important Kafka metric to watch.</strong> Rising lag means consumers cannot keep up:
             scale them, fix slow processing, or check for errors.
           </p>
           <h3 id="retention-and-log-compaction">Retention and log compaction</h3>
           <p>
-            Kafka <strong>keeps events after they're read</strong>. You choose how long:
+            Retention means how long data is kept. Kafka <strong>keeps events after they are read</strong>. You choose how long:
           </p>
           <ul>
             <li>
@@ -331,22 +339,22 @@ export default function SdLessonThreeSixPage() {
             ]}
           />
           <p>
-            Compaction turns a topic into a <strong>replayable table</strong> of current state. It's great for things
+            Compaction turns a topic into a <strong>replayable table</strong> of current state. It is great for things
             like "current profile of every user" or "current price of every product". A new service can read the whole
             compacted topic to build its own copy of that data.
           </p>
           <h3 id="why-kafka-is-so-fast">Why Kafka is so fast</h3>
           <ul>
             <li>
-              <strong>Sequential disk I/O.</strong> Appending to a log and reading it in order are both extremely
-              efficient (post 10).
+              <strong>Sequential disk I/O.</strong> Sequential means in order, one after another. Appending to a log and reading it in order are both very
+              fast on disks (lesson 10).
             </li>
             <li>
-              <strong>The operating system's page cache.</strong> Recent data is usually served from memory without
-              extra work from Kafka.
+              <strong>The operating system's page cache.</strong> This is memory that the operating system uses to keep
+              recent file data. Recent data is usually served from memory without extra work from Kafka.
             </li>
             <li>
-              <strong>Zero-copy transfer.</strong> Data goes from disk cache to the network socket without being copied
+              <strong>Zero-copy transfer.</strong> Data goes from the disk cache straight to the network connection without being copied
               through the application.
             </li>
             <li>
@@ -359,17 +367,17 @@ export default function SdLessonThreeSixPage() {
           <h3 id="the-kafka-ecosystem">The Kafka ecosystem</h3>
           <ul>
             <li>
-              <strong>Kafka Connect:</strong> ready-made connectors to move data <strong>into</strong> Kafka (from
-              databases via CDC tools like Debezium, from files and APIs) and <strong>out</strong> to other systems
+              <strong>Kafka Connect:</strong> a tool with ready-made connectors to move data <strong>into</strong> Kafka (from
+              databases via CDC (change data capture, which reads the database's change log) tools like Debezium, from files and APIs) and <strong>out</strong> to other systems
               (Elasticsearch, S3, data warehouses).
             </li>
             <li>
               <strong>Schema Registry:</strong> stores Avro, Protobuf or JSON schemas for events and enforces compatible
-              changes, much like the Protobuf rules in post 31.
+              changes, much like the Protobuf rules in lesson 31. A schema is a description of the fields in an event.
             </li>
             <li>
-              <strong>Kafka Streams / ksqlDB:</strong> process streams inside your app (filter, join, aggregate) with
-              local state.
+              <strong>Kafka Streams / ksqlDB:</strong> process streams inside your app (filter, join, aggregate) while keeping
+              state (remembered data) locally.
             </li>
             <li>
               <strong>Apache Flink:</strong> a powerful, separate stream-processing engine commonly paired with Kafka.
@@ -382,7 +390,7 @@ export default function SdLessonThreeSixPage() {
           <h3 id="when-kafka-is-a-good-fit">When Kafka is a good fit</h3>
           <ul>
             <li>
-              <strong>Event streaming between many services</strong> (post 39).
+              <strong>Event streaming between many services</strong> (lesson 39).
             </li>
             <li>
               <strong>High-volume data pipelines:</strong> clickstreams, logs, metrics, IoT.
@@ -391,7 +399,7 @@ export default function SdLessonThreeSixPage() {
               <strong>Change Data Capture:</strong> streaming every database change to search, caches and warehouses.
             </li>
             <li>
-              <strong>Event sourcing and audit logs:</strong> keeping the full history of changes.
+              <strong>Event sourcing and audit logs:</strong> keeping the full history of changes. (Event sourcing means storing every change as an event instead of only the latest state.)
             </li>
             <li>
               <strong>Stream processing:</strong> real-time analytics, fraud detection, alerting.
@@ -415,35 +423,35 @@ export default function SdLessonThreeSixPage() {
             <li>
               ❌ <strong>Not a job queue.</strong> No per-message acknowledgement, no built-in delayed messages or
               per-message retries. A single failing ("poison") message can block its partition. You must build retry
-              topics and DLQs (post 38).
+              topics and DLQs (dead-letter queues, where failed messages are parked; lesson 38).
             </li>
             <li>
               ❌ <strong>Partition count is a long-term decision.</strong> It limits parallelism, and changing it
               reshuffles keys.
             </li>
             <li>
-              ❌ <strong>Latency:</strong> it's usually low (milliseconds), but batching trades a little latency for
+              ❌ <strong>Latency:</strong> it is usually low (milliseconds), but batching gives up a little latency to gain
               throughput.
             </li>
           </ul>
           <p>
             <strong>When not to use Kafka:</strong> a small app with a few background jobs (use SQS, RabbitMQ, or a
-            Redis-based job queue), request/response communication (use HTTP or gRPC), or when your team can't operate
-            it and there's no managed option.
+            Redis-based job queue), request/response communication (use HTTP or gRPC), or when your team cannot run
+            it and there is no managed option.
           </p>
         </Section>
 
         <Section id="in-the-real-world" title="In the Real World" kind="real">
           <p>
             <strong>LinkedIn.</strong> Kafka was created at LinkedIn around 2010 by Jay Kreps, Neha Narkhede and Jun
-            Rao, to move activity data and system metrics between systems. It was open-sourced and became an Apache
+            Rao, to move activity data and system metrics between systems. It was released as open source and became an Apache
             project. LinkedIn has publicly described handling <strong>trillions of messages per day</strong> with Kafka.
             Jay Kreps' essay "The Log" explains the thinking behind it and is one of the most influential pieces of
             writing on data systems.
           </p>
           <p>
             <strong>Uber</strong> uses Kafka as a central pipeline for trip events, driver locations, logs and more, and
-            has written about building reliable retry and dead-letter handling on top of it (post 38).
+            has written about building reliable retry and dead-letter handling on top of it (lesson 38).
           </p>
           <p>
             <strong>Netflix</strong> uses Kafka in its data pipeline to move huge volumes of events (like playback and
@@ -451,14 +459,14 @@ export default function SdLessonThreeSixPage() {
           </p>
           <p>
             <strong>The New York Times</strong> described storing{" "}
-            <strong>every piece of content it has ever published</strong> in a Kafka topic with log compaction, and
-            using it as the source of truth to feed its search and content services. It's a great example of Kafka as a
-            replayable <strong>history</strong>, not just a message bus.
+            <strong>every piece of content it has ever published</strong> in a Kafka topic, and
+            using it as the source of truth (the main, trusted copy) to feed its search and content services. It is a
+            good example of Kafka as a replayable <strong>history</strong>, not just a message bus.
           </p>
           <p>
             <strong>Change Data Capture.</strong> Many companies use <strong>Debezium + Kafka Connect</strong> to stream
             every change in their PostgreSQL or MySQL databases into Kafka. Search indexes, caches and data warehouses
-            then stay in sync automatically, without the dual-write problems described in post 19.
+            then stay in sync automatically, without the dual-write problems (writing to two systems and one write failing) described in lesson 19.
           </p>
         </Section>
 
@@ -470,10 +478,9 @@ export default function SdLessonThreeSixPage() {
                 a: (
                   <>
                     <p>
-                      Kafka is a durable, partitioned log. Messages aren't deleted when read; they're retained by time,
-                      size or compaction, and each consumer group tracks its own offset. That allows replay, many
-                      independent consumers and very high throughput — but there's no per-message ack, delay or retry
-                      built in.
+                      Kafka is a durable, partitioned log. Messages are not deleted when read. They are kept by time, size or compaction, and each
+                      consumer group tracks its own offset. This allows replay, many independent consumers and very high
+                      throughput. But there is no built-in per-message acknowledgement, delay or retry.
                     </p>
                   </>
                 ),
@@ -484,7 +491,7 @@ export default function SdLessonThreeSixPage() {
                   <>
                     <p>
                       Only within a partition. Producers send events with a key, and all events with the same key hash
-                      to the same partition, so each key's events are consumed in order. There's no ordering across
+                      to the same partition, so each key's events are read in order. There is no ordering across
                       partitions.
                     </p>
                   </>
@@ -508,8 +515,8 @@ export default function SdLessonThreeSixPage() {
                   <>
                     <p>
                       The difference between the latest offset in a partition and the consumer group's committed offset
-                      — how far behind processing is. Rising lag means consumers can't keep up: scale out, speed up
-                      processing, or look for a stuck poison message.
+                      — how far behind processing is. Rising lag means consumers cannot keep up. Add consumers, speed up
+                      processing, or look for a stuck poison message (a bad message that always fails).
                     </p>
                   </>
                 ),
@@ -521,7 +528,7 @@ export default function SdLessonThreeSixPage() {
                     <p>
                       Replication factor 3, producers with acks=all, min.insync.replicas=2, and the idempotent producer
                       enabled. A write is acknowledged only when at least two in-sync replicas have it, and a leader
-                      failover can't lose it.
+                      failover cannot lose it.
                     </p>
                   </>
                 ),
@@ -531,8 +538,8 @@ export default function SdLessonThreeSixPage() {
                 a: (
                   <>
                     <p>
-                      Keeping only the latest record per key, so a topic becomes a replayable snapshot of current state
-                      — for example every user's current profile. New services bootstrap by reading the compacted topic
+                      It keeps only the latest record for each key, so a topic becomes a replayable snapshot of current
+                      state, for example every user's current profile. New services bootstrap by reading the compacted topic
                       from the start.
                     </p>
                   </>
@@ -566,7 +573,7 @@ export default function SdLessonThreeSixPage() {
             </li>
             <li>
               <strong>Retention</strong> and <strong>log compaction</strong> make Kafka both a message bus and a
-              replayable history. It's powerful, but <strong>not</strong> a simple job queue.
+              replayable history. It is powerful, but <strong>not</strong> a simple job queue.
             </li>
           </ul>
         </Section>

@@ -63,9 +63,9 @@ export default function SdLessonThreeThreePage() {
       <div className="lesson">
         <Section id="the-problem" title="The Problem" kind="problem">
           <p>
-            HTTP works like this: <strong>the client asks, the server answers</strong>. The server can't start a
+            HTTP works like this: <strong>the client asks, the server answers</strong>. The server cannot start a
             conversation. But many features need the <strong>server to tell the client</strong> something the moment it
-            happens:
+            happens. This is called a "push" (the server pushes data to the client). Examples:
           </p>
           <ul>
             <li>"You have a new message."</li>
@@ -75,21 +75,21 @@ export default function SdLessonThreeThreePage() {
             <li>"The AI is still writing its answer…"</li>
           </ul>
           <p>
-            How do you get updates from server to client in real time, for millions of users, without melting your
+            How do you send updates from server to client in real time, for millions of users, without overloading your
             servers? There are four main techniques:{" "}
-            <strong>short polling, long polling, Server-Sent Events (SSE) and WebSockets</strong>. Each suits different
-            situations.
+            <strong>short polling, long polling, Server-Sent Events (SSE) and WebSockets</strong>. Each one fits
+            different situations. "Real time" here means the update arrives within a moment, not minutes later.
           </p>
         </Section>
 
         <Section id="the-core-idea" title="The Core Idea" kind="idea">
           <p>
-            Imagine you're waiting for a <strong>parcel delivery</strong>.
+            Imagine you are waiting for a <strong>parcel delivery</strong>.
           </p>
           <ul>
             <li>
               <strong>Short polling:</strong> you open the door <strong>every 5 minutes</strong> to check if it has
-              arrived. It's simple, but it's mostly wasted trips, and you might see it up to 5 minutes late.
+              arrived. It is simple, but most trips are wasted, and you might see the parcel up to 5 minutes late.
             </li>
             <li>
               <strong>Long polling:</strong> you call the courier and say "
@@ -98,7 +98,7 @@ export default function SdLessonThreeThreePage() {
             </li>
             <li>
               <strong>Server-Sent Events (SSE):</strong> you subscribe to <strong>SMS updates</strong> from the courier.
-              They message you every time something changes. It's one-way: you can't reply by SMS.
+              They message you every time something changes. It is one-way: you cannot reply by SMS.
             </li>
             <li>
               <strong>WebSockets:</strong> you and the courier keep a <strong>phone call open</strong> the whole time,
@@ -109,7 +109,10 @@ export default function SdLessonThreeThreePage() {
 
         <Section id="how-it-works" title="How It Works" kind="how">
           <h3 id="1-short-polling">1. Short polling</h3>
-          <p>The client asks for updates every N seconds:</p>
+          <p>
+            Short polling means the client sends a normal request again and again, every N seconds, to ask "anything
+            new?":
+          </p>
           <SequenceDiagram
             caption="Short polling. Most requests come back empty, and updates arrive up to one interval late."
             actors={["Client", "Server"]}
@@ -135,9 +138,9 @@ export default function SdLessonThreeThreePage() {
             </li>
           </ul>
           <p>
-            Quick maths (post 10):{" "}
+            Quick maths (lesson 10):{" "}
             <strong>1 million users polling every 5 seconds = 200,000 requests per second</strong>, mostly returning
-            "nothing new". That's a lot of servers doing almost nothing useful.
+            "nothing new". That is a lot of server work that gives almost no value.
           </p>
           <p>
             <strong>Good for:</strong> low-frequency updates, a small number of users, checking a background job's
@@ -145,11 +148,12 @@ export default function SdLessonThreeThreePage() {
           </p>
           <h3 id="2-long-polling">2. Long polling</h3>
           <p>
-            The client sends a request, and the server <strong>holds it open</strong> until there's news or a timeout
-            (say 30 seconds). Then the client <strong>immediately</strong> sends another request.
+            With long polling, the client sends a request, and the server <strong>holds it open</strong> until there is
+            news or a timeout (say 30 seconds). A timeout is a set time limit after which the server stops waiting.
+            Then the client <strong>immediately</strong> sends another request.
           </p>
           <SequenceDiagram
-            caption="Long polling. The server holds each request until there's news or a timeout, then the client asks again at once."
+            caption="Long polling. The server holds each request until there is news or a timeout, then the client asks again at once."
             actors={["Client", "Server"]}
             messages={[
               { from: 0, to: 1, label: <>GET /updates</> },
@@ -170,30 +174,31 @@ export default function SdLessonThreeThreePage() {
             </li>
             <li>
               ❌ <strong>Each waiting client holds a request open</strong> on the server. With thread-per-request
-              servers (post 4), that's a thread per user. Event-loop servers (Node.js, Go, NGINX) handle this much
-              better.
+              servers (lesson 4), this means one thread per waiting user, which is costly. Event-loop servers (Node.js,
+              NGINX) and servers with very light threads (Go) handle this much better.
             </li>
             <li>
-              ❌ There's still overhead from <strong>reconnecting</strong> after every message, and message ordering and
-              gaps need care.
+              ❌ There is still extra work from <strong>reconnecting</strong> after every message. You also need care so that
+              messages stay in order and none are missed.
             </li>
           </ul>
           <p>
-            <strong>Good for:</strong> a fallback when WebSockets aren't possible, and moderate real-time needs. Early
+            <strong>Good for:</strong> a fallback when WebSockets are not possible, and moderate real-time needs. Early
             versions of many chat apps used long polling.
           </p>
           <h3 id="3-server-sent-events-sse">3. Server-Sent Events (SSE)</h3>
           <p>
-            The client opens <strong>one long-lived HTTP connection</strong>, and the server{" "}
-            <strong>streams events</strong> down it whenever it likes. It's <strong>one-way</strong>: server to client.
+            SSE is a standard way for a server to send a stream of events to a browser. The client opens{" "}
+            <strong>one long-lived HTTP connection</strong>, and the server <strong>streams events</strong> down it
+            whenever it wants. It is <strong>one-way</strong>: server to client.
           </p>
           <CodeBlock lang="http" code={code2} />
-          <p>In the browser, it's just a few lines:</p>
+          <p>In the browser, you only need a few lines. <code>EventSource</code> is the built-in browser class for SSE:</p>
           <CodeBlock lang="js" code={code3} />
           <ul>
             <li>
-              ✅ <strong>Simple.</strong> It's plain HTTP with a text format, and it works with normal load balancers,
-              auth cookies and HTTP/2.
+              ✅ <strong>Simple.</strong> It is plain HTTP with a text format. It works with normal load balancers, auth
+              cookies and HTTP/2.
             </li>
             <li>
               ✅ <strong>Automatic reconnect built in.</strong> The browser reconnects and sends{" "}
@@ -207,11 +212,15 @@ export default function SdLessonThreeThreePage() {
               often perfectly fine).
             </li>
             <li>
-              ❌ <strong>Text only</strong> (binary data must be encoded).
+              ❌ <strong>Text only</strong> (binary data must be encoded as text).
+            </li>
+            <li>
+              ❌ The browser's <code>EventSource</code> can only use GET and cannot set custom headers (such as{" "}
+              <code>Authorization</code>). Cookies work. Libraries that use <code>fetch</code> can remove this limit.
             </li>
             <li>
               ❌ With <strong>HTTP/1.1</strong>, browsers allow only about <strong>6 connections per domain</strong>,
-              and each SSE stream uses one. HTTP/2 multiplexing removes this problem.
+              and each SSE stream uses one. HTTP/2 multiplexing (many streams over one connection) removes this problem.
             </li>
           </ul>
           <p>
@@ -220,8 +229,9 @@ export default function SdLessonThreeThreePage() {
           </p>
           <h3 id="4-websockets">4. WebSockets</h3>
           <p>
-            A WebSocket starts as an HTTP request that asks to <strong>upgrade</strong> the connection, and then becomes
-            a <strong>persistent, two-way channel</strong>:
+            A WebSocket is a connection that stays open and lets both sides send messages at any time. It starts as an
+            HTTP request that asks to <strong>upgrade</strong> the connection (switch to another protocol). Then it
+            becomes a <strong>persistent, two-way channel</strong>:
           </p>
           <SequenceDiagram
             caption="A WebSocket starts as one HTTP request, then becomes a two-way channel."
@@ -229,7 +239,7 @@ export default function SdLessonThreeThreePage() {
             messages={[
               { from: 0, to: 1, label: <>GET /chat · Upgrade: websocket</> },
               { from: 1, to: 0, label: <>101 Switching Protocols</>, reply: true },
-              { from: 0, to: 0, label: <>Full duplex — either side may send a frame at any time</>, divider: true },
+              { from: 0, to: 0, label: <>Full duplex — either side may send a frame (one message unit) at any time</>, divider: true },
               { from: 0, to: 1, label: <>&#123;type: message, to: ravi, text: hi&#125;</> },
               { from: 1, to: 0, label: <>&#123;type: typing, from: ravi&#125;</>, reply: true },
               { from: 1, to: 0, label: <>&#123;type: message, from: ravi, text: hello!&#125;</>, reply: true },
@@ -247,16 +257,16 @@ export default function SdLessonThreeThreePage() {
               ✅ Supports <strong>binary</strong> data (games, audio).
             </li>
             <li>
-              ❌ <strong>Stateful connections.</strong> Each server holds many open connections, which makes scaling,
-              deploys and load balancing harder (see below).
+              ❌ <strong>Stateful connections.</strong> "Stateful" means the server must remember each open connection. This
+              makes scaling, deploys and load balancing harder (see below).
             </li>
             <li>
               ❌ <strong>Some proxies and corporate firewalls</strong> interfere with long-lived connections. Use{" "}
-              <code>wss://</code> (TLS), which usually gets through.
+              <code>wss://</code> (WebSocket over TLS, the encrypted version), which usually gets through.
             </li>
             <li>
               ❌ <strong>No built-in reconnect or resume.</strong> You must build heartbeats, reconnection and message
-              recovery yourself (or use a library such as Socket.IO).
+              recovery yourself (or use a library such as Socket.IO, which adds these features).
             </li>
           </ul>
           <p>
@@ -336,17 +346,18 @@ export default function SdLessonThreeThreePage() {
           </div>
           <h3 id="scaling-persistent-connections">Scaling persistent connections</h3>
           <p>
-            With SSE and WebSockets, each user keeps a connection open <strong>to one specific server</strong>. That
+            With SSE and WebSockets, each user keeps a connection open <strong>to one specific server</strong>. This
             creates new design problems.
           </p>
           <p>
             <strong>1. Connection capacity.</strong> A well-tuned server can hold tens or even hundreds of thousands of
-            mostly-idle connections, but you must tune file-descriptor limits, memory per connection and timeouts.
+            mostly idle connections. But you must tune the file-descriptor limit (the number of open connections and
+            files the operating system allows), the memory per connection, and the timeouts.
             Estimate it: <strong>10 million online users ÷ 100k connections per server = 100 gateway servers</strong>.
           </p>
           <p>
             <strong>2. Routing messages to the right server.</strong> User A is connected to <strong>gateway 1</strong>.
-            User B is connected to <strong>gateway 7</strong>. When A sends B a message, how does it reach gateway 7?
+            User B is connected to <strong>gateway 7</strong>. A gateway is a server that holds the open connections. When A sends B a message, how does it reach gateway 7?
           </p>
           <Flow
             caption="Delivering a message between users connected to different gateway servers."
@@ -369,30 +380,33 @@ export default function SdLessonThreeThreePage() {
               <strong>Gateways</strong> only manage connections.
             </li>
             <li>
-              A <strong>pub/sub system</strong> (Redis Pub/Sub, NATS, Kafka) passes messages between gateways.
+              A <strong>pub/sub system</strong> (publish/subscribe: senders publish messages and subscribers receive them; for example Redis Pub/Sub, NATS, Kafka) passes messages between gateways.
             </li>
             <li>
               A <strong>presence registry</strong> records which user is connected to which gateway.
             </li>
           </ul>
-          <p>We'll design this fully in the chat-system case study (post 63).</p>
+          <p>We'll design this fully in the chat-system case study (lesson 63).</p>
           <p>
             <strong>3. Load balancing.</strong> Balancing <strong>connections</strong> evenly matters more than
-            balancing requests. Use least-connections balancing, and remember that a new server starts empty. Long-lived
-            connections don't rebalance on their own.
+            balancing requests. Use least-connections balancing (send new connections to the server with the fewest). Remember that a
+            new server starts empty. Long-lived connections do not move to it on their own.
           </p>
           <p>
             <strong>4. Deploys and restarts.</strong> Restarting a gateway drops every connection on it. Clients must{" "}
-            <strong>reconnect with backoff and random jitter</strong>, or thousands reconnecting at the same instant
-            will create a stampede (Part 7). Drain connections gradually during deploys.
+            <strong>reconnect with backoff and random jitter</strong>. Backoff means waiting longer after each failed
+            try. Jitter means adding a random delay. Without them, thousands of clients reconnecting at the same
+            instant will create a stampede (Part 7). Drain connections gradually during deploys, which means closing
+            them a few at a time.
           </p>
           <p>
-            <strong>5. Heartbeats.</strong> Send <strong>ping/pong</strong> messages every 20–60 seconds. They detect
+            <strong>5. Heartbeats.</strong> A heartbeat is a small message sent again and again to show the connection is
+            alive. Send <strong>ping/pong</strong> messages every 20–60 seconds. They detect
             dead connections (like a phone that went into a tunnel), and they stop proxies from closing "idle"
             connections.
           </p>
           <p>
-            <strong>6. Don't lose messages.</strong> Connections will drop. So:
+            <strong>6. Do not lose messages.</strong> Connections will drop. So:
           </p>
           <ul>
             <li>
@@ -410,21 +424,22 @@ export default function SdLessonThreeThreePage() {
           <h3 id="beyond-these-four">Beyond these four</h3>
           <ul>
             <li>
-              <strong>Webhooks:</strong> server-to-<strong>server</strong> push. "Call my URL when a payment succeeds"
-              (post 34 covers making them reliable).
+              <strong>Webhooks:</strong> server-to-<strong>server</strong> push. You give another service a URL, and it
+              calls that URL when something happens, for example "when a payment succeeds" (lesson 34 covers making
+              them reliable).
             </li>
             <li>
-              <strong>Mobile push notifications</strong> (APNs, FCM): reach phones even when the app is closed (post
+              <strong>Mobile push notifications</strong> (APNs for Apple, FCM for Android): reach phones even when the app is closed (lesson
               62).
             </li>
             <li>
-              <strong>WebRTC:</strong> peer-to-peer audio and video (post 2).
+              <strong>WebRTC:</strong> a browser technology for peer-to-peer audio and video, where users connect directly (lesson 2 explains UDP, which it often uses).
             </li>
             <li>
-              <strong>MQTT:</strong> a lightweight publish/subscribe protocol for IoT devices.
+              <strong>MQTT:</strong> a lightweight publish/subscribe protocol for IoT (Internet of Things) devices such as sensors.
             </li>
             <li>
-              <strong>WebTransport:</strong> a newer, QUIC-based option for low-latency, two-way communication.
+              <strong>WebTransport:</strong> a newer option for low-latency, two-way communication. It is built on HTTP/3, which runs on QUIC (a modern transport protocol).
             </li>
           </ul>
           <h3 id="choosing">Choosing</h3>
@@ -458,7 +473,7 @@ export default function SdLessonThreeThreePage() {
         <Section id="trade-offs" title="Trade-offs" kind="tradeoffs">
           <ul>
             <li>
-              <strong>Polling:</strong> simplest, and stateless on the server, but wasteful and delayed.
+              <strong>Polling:</strong> simplest, and stateless on the server (the server remembers nothing between requests), but wasteful and delayed.
             </li>
             <li>
               <strong>SSE:</strong> simple, HTTP-friendly and auto-reconnecting, but one-way and text-only.
@@ -468,7 +483,7 @@ export default function SdLessonThreeThreePage() {
               must handle scaling, routing, reconnection and message recovery yourself.
             </li>
             <li>
-              <strong>All persistent approaches</strong> make servers <strong>stateful</strong> (post 7), which
+              <strong>All persistent approaches</strong> make servers <strong>stateful</strong> (lesson 7), which
               complicates deployments, auto-scaling and load balancing.
             </li>
           </ul>
@@ -477,13 +492,13 @@ export default function SdLessonThreeThreePage() {
         <Section id="in-the-real-world" title="In the Real World" kind="real">
           <p>
             <strong>Slack and Discord</strong> use WebSockets to push messages, typing indicators and presence to
-            clients in real time. Discord's "gateway" handles a huge number of concurrent WebSocket connections, with
-            backend systems routing events to the right gateway servers.
+            clients in real time. Discord's "gateway" handles a huge number of WebSocket connections at the same time. Backend systems
+            send events to the right gateway servers.
           </p>
           <p>
             <strong>AI chat assistants.</strong> When an AI assistant shows its answer word by word, that streaming is
-            commonly done with <strong>Server-Sent Events</strong>. Major AI APIs stream generated text to developers as
-            SSE events, which shows that SSE is ideal for one-way, incremental text.
+            commonly done with <strong>Server-Sent Events</strong>. Major AI APIs send generated text to developers as
+            SSE events. This shows that SSE fits one-way text that arrives piece by piece.
           </p>
           <p>
             <strong>Food delivery and ride tracking.</strong> Seeing your rider move on the map combines techniques: the
@@ -498,7 +513,7 @@ export default function SdLessonThreeThreePage() {
           <p>
             <strong>Status checks.</strong> Many "your export is being prepared" features simply{" "}
             <strong>short-poll</strong> a job-status endpoint every few seconds. When updates are rare and users are
-            few, it's the simplest reliable choice.
+            few, it is the simplest reliable choice.
           </p>
         </Section>
 
@@ -510,11 +525,11 @@ export default function SdLessonThreeThreePage() {
                 a: (
                   <>
                     <p>
-                      Short polling asks on a timer: simple but wasteful and delayed. Long polling holds each request
-                      until there's news: near real-time over plain HTTP, but it reconnects constantly. SSE streams
-                      server-to-client events over one HTTP connection with built-in reconnect and resume. WebSockets
-                      upgrade to a persistent two-way channel with the lowest latency, but you handle reconnects and
-                      state yourself.
+                      Short polling asks on a timer. It is simple but wasteful and delayed. Long polling holds each
+                      request until there is news. It is near real-time over plain HTTP, but it reconnects all the time.
+                      SSE streams events from server to client over one HTTP connection, with reconnect and resume
+                      built in. WebSockets upgrade to a two-way channel that stays open. They have the lowest latency,
+                      but you handle reconnects and state yourself.
                     </p>
                   </>
                 ),
@@ -537,8 +552,8 @@ export default function SdLessonThreeThreePage() {
                   <>
                     <p>
                       Keep a presence registry of which gateway holds each user's connection, and connect gateways
-                      through a pub/sub backplane like Redis, NATS or Kafka. The sender's gateway publishes; the
-                      recipient's gateway receives and pushes down the socket.
+                      through a pub/sub backplane like Redis, NATS or Kafka. The sender's gateway publishes the
+                      message. The recipient's gateway receives it and pushes it down the socket.
                     </p>
                   </>
                 ),
@@ -548,9 +563,9 @@ export default function SdLessonThreeThreePage() {
                 a: (
                   <>
                     <p>
-                      Persist messages before pushing and treat the push as a notification. Give messages sequence
-                      numbers; on reconnect the client sends the last one it saw and the server replays the rest. Use
-                      heartbeats to detect dead connections.
+                      Save messages before pushing them, and treat the push as only a notification. Give messages
+                      sequence numbers. On reconnect, the client sends the last number it saw, and the server replays
+                      the rest. Use heartbeats to detect dead connections.
                     </p>
                   </>
                 ),
@@ -561,8 +576,8 @@ export default function SdLessonThreeThreePage() {
                   <>
                     <p>
                       Every connection on it drops. Drain gateways gradually, and make clients reconnect with
-                      exponential backoff plus random jitter so thousands don't reconnect at the same instant and
-                      stampede the remaining servers.
+                      exponential backoff plus random jitter so thousands of clients do not reconnect at the same instant and
+                      overload the remaining servers.
                     </p>
                   </>
                 ),

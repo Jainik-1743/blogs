@@ -97,14 +97,15 @@ const code6 = `const resolvers = {
   },
   User: {
     orders: (user, { last }) => db.orders.findRecent(user.id, last),
-    loyaltyPoints: (user) => loyaltyService.getPoints(user.id),  // could be another service!
+    loyaltyPoints: (user) => loyaltyService.getPoints(user.id),  // this can call another service!
   },
   OrderItem: {
     product: (item) => db.products.findById(item.productId),
   },
 };`;
 
-const code7 = `const productLoader = new DataLoader(ids => db.products.findByIds(ids)); // 1 query for all
+const code7 = `// One query for all ids. The function must return the results in the same order as the ids.
+const productLoader = new DataLoader(ids => db.products.findByIds(ids));
 
 OrderItem: {
   product: (item) => productLoader.load(item.productId),
@@ -121,7 +122,8 @@ export default function SdLessonThreeTwoPage() {
         <Section id="the-problem" title="The Problem" kind="problem">
           <p>
             Your mobile app's profile screen shows a user's name and photo, their last 3 orders with product thumbnails,
-            and their loyalty points. With your REST API, that takes:
+            and their loyalty points. A REST API gives one fixed answer for each URL. To fill this screen, the app
+            must make several calls:
           </p>
           <SequenceDiagram
             caption="The profile screen over REST. Six round trips on a slow mobile network, most fields discarded."
@@ -142,18 +144,19 @@ export default function SdLessonThreeTwoPage() {
             ]}
           />
           <p>
-            That's <strong>six round trips</strong> on a slow mobile network, and most of the data downloaded is{" "}
-            <strong>thrown away</strong>. Meanwhile, the web team wants a <em>different</em> set of fields for the same
-            screen. The backend team is tired of adding new endpoints for every screen.
+            That is <strong>six round trips</strong> (six requests, each waiting for its answer) on a slow mobile
+            network. Most of the data downloaded is <strong>thrown away</strong>. Meanwhile, the web team wants a <em>different</em> set of fields for the same
+            screen. The backend team is tired of adding a new endpoint for every screen.
           </p>
           <p>
-            <strong>GraphQL</strong> was created to solve this:{" "}
-            <strong>let the client ask for exactly the data it needs, in one request.</strong>
+            <strong>GraphQL</strong> was created to solve this. GraphQL is a query language for APIs. The client sends
+            a query that lists the fields it wants, and the server returns only those fields.{" "}
+            <strong>The client asks for exactly the data it needs, in one request.</strong>
           </p>
         </Section>
 
         <Section id="the-core-idea" title="The Core Idea" kind="idea">
-          <p>Think about ordering food.</p>
+          <p>Think about ordering food. (A set meal is a fixed plate. A buffet lets you pick.)</p>
           <p>
             <strong>REST is like set meals.</strong> "Meal #3" always comes with rice, dal, sabzi, roti and a sweet. If
             you only want dal and roti, you still get the whole plate. If you want dal from Meal #3 and paneer from Meal
@@ -163,21 +166,24 @@ export default function SdLessonThreeTwoPage() {
             <strong>GraphQL is like a buffet counter where you write your exact order.</strong> "Dal, 2 rotis, and the
             paneer from the other counter, please." You get <strong>exactly that, on one plate, in one trip</strong>.
           </p>
-          <p>The kitchen (the server) needs to be smarter to handle any combination. That's the trade-off.</p>
+          <p>The kitchen (the server) needs to be smarter to handle any combination. This is the trade-off.</p>
         </Section>
 
         <Section id="how-it-works" title="How It Works" kind="how">
           <h3 id="the-schema-a-typed-menu">The schema: a typed menu</h3>
           <p>
-            A GraphQL server publishes a <strong>schema</strong> describing every type and how they connect:
+            A GraphQL server publishes a <strong>schema</strong>. A schema is a written description of every type of data
+            and how the types connect, like a menu:
           </p>
           <CodeBlock lang="graphql" code={code1} />
           <p>
-            (<code>!</code> means "never null".)
+            (<code>!</code> means "never null", so the value is always there. <code>[Order!]!</code> means a list that
+            is never null and has no null items. <code>ID</code> is a unique identifier.)
           </p>
           <h3 id="queries-ask-for-exactly-what-you-need">Queries: ask for exactly what you need</h3>
           <p>
-            One request to a <strong>single endpoint</strong> (usually <code>POST /graphql</code>):
+            A query reads data. You send one request to a <strong>single endpoint</strong> (usually{" "}
+            <code>POST /graphql</code>):
           </p>
           <CodeBlock lang="graphql" code={code2} />
           <p>
@@ -185,31 +191,36 @@ export default function SdLessonThreeTwoPage() {
           </p>
           <CodeBlock lang="json" code={code3} />
           <p>
-            That's six REST calls turned into <strong>one request</strong>, with <strong>no wasted fields</strong>.
+            Six REST calls became <strong>one request</strong>, with <strong>no wasted fields</strong>.
           </p>
           <h3 id="mutations-and-subscriptions">Mutations and subscriptions</h3>
           <ul>
             <li>
-              <strong>Mutations</strong> change data (like POST, PUT and DELETE in REST):
+              <strong>Mutations</strong> are operations that change data (like POST, PUT and DELETE in REST):
               <CodeBlock lang="graphql" code={code4} />
             </li>
             <li>
-              <strong>Subscriptions</strong> get real-time updates, usually over WebSockets:
+              <strong>Subscriptions</strong> are long-lived requests that push new data to the client when something
+              changes. They usually run over WebSockets (a two-way connection that stays open):
               <CodeBlock lang="graphql" code={code5} />
             </li>
           </ul>
           <h3 id="resolvers-how-the-server-fills-in-the-data">Resolvers: how the server fills in the data</h3>
           <p>
-            On the server, each field has a <strong>resolver</strong>, a function that knows how to fetch that piece of
-            data:
+            On the server, each field has a <strong>resolver</strong>. A resolver is a function that knows how to get the value of
+            that one field:
           </p>
           <CodeBlock lang="js" code={code6} />
           <p>
-            The GraphQL engine walks the query and calls the resolvers it needs. Resolvers can fetch from databases,
-            REST APIs, gRPC services or caches. GraphQL is a <strong>layer in front of</strong> your data sources, not a
-            database.
+            The GraphQL engine reads the query and calls the resolvers it needs. A resolver can get data from a
+            database, a REST API, a gRPC service or a cache. GraphQL is a <strong>layer in front of</strong> your data
+            sources. It is not a database.
           </p>
           <h3 id="the-n-1-problem-again">The N+1 problem (again!)</h3>
+          <p>
+            The N+1 problem means running one query to get a list, then one more query for each item in the list. For
+            N items that is N+1 queries, which is slow.
+          </p>
           <Stats
             caption="Three orders with four items each, resolving OrderItem.product."
             stats={[
@@ -220,53 +231,56 @@ export default function SdLessonThreeTwoPage() {
           />
           <p>
             Look at <code>OrderItem.product</code> above. If the query returns 3 orders with 4 items each, that resolver
-            runs <strong>12 times</strong>, which is 12 separate database queries. It's the same N+1 problem as in post
-            5, and it's easy to create by accident in GraphQL.
+            runs <strong>12 times</strong>, which is 12 separate database queries. This is the same N+1 problem as in lesson
+            5, and it is easy to create by accident in GraphQL.
           </p>
           <p>
-            <strong>The fix: DataLoader (batching and caching per request).</strong> Collect all the product IDs
-            requested during one tick, then fetch them in <strong>one query</strong>:
+            <strong>The fix: DataLoader.</strong> DataLoader is a small library that batches (groups) many small
+            lookups into one. It also caches results for the length of one request. It collects all the product IDs
+            asked for during one tick (one turn of the JavaScript event loop), then fetches them in{" "}
+            <strong>one query</strong>:
           </p>
           <CodeBlock lang="js" code={code7} />
           <p>
-            That's 12 queries turned into <strong>1</strong>. Every serious GraphQL server uses this pattern.
+            Twelve queries became <strong>1</strong>. Almost every serious GraphQL server uses this pattern.
           </p>
           <h3 id="the-caching-challenge">The caching challenge</h3>
           <p>
-            REST GETs are easy to cache: each URL is a resource, and CDNs understand <code>Cache-Control</code> (post
-            14). GraphQL usually sends <strong>POST requests to one URL</strong> with different queries in the body, so
-            HTTP and CDN caching doesn't work out of the box.
+            REST GETs are easy to cache. Each URL is a resource, and CDNs (networks that keep copies of content near users)
+            understand <code>Cache-Control</code> (lesson 14). GraphQL usually sends <strong>POST requests to one URL</strong> with different queries in the body, so
+            HTTP and CDN caching does not work by default.
           </p>
           <p>Solutions:</p>
           <ul>
             <li>
-              <strong>Persisted queries:</strong> clients send a <strong>hash or ID</strong> of a pre-registered query
-              (and can use GET), which makes responses cacheable and also blocks arbitrary queries.
+              <strong>Persisted queries:</strong> the server stores approved queries in advance. The client sends only a{" "}
+              <strong>hash or ID</strong> of the query (a hash is a short fingerprint), and it can use GET. This makes
+              responses cacheable and also blocks queries that nobody approved.
             </li>
             <li>
-              <strong>Client-side normalised caches</strong> (Apollo Client, Relay) store objects by ID, so the same{" "}
-              <code>User:42</code> is reused across screens.
+              <strong>Client-side normalised caches</strong> (Apollo Client, Relay) store each object once, under its ID,
+              so the same <code>User:42</code> is reused on every screen.
             </li>
             <li>
-              <strong>Server-side caching</strong> in resolvers or DataLoaders, plus Redis (posts 15–16).
+              <strong>Server-side caching</strong> in resolvers or DataLoaders, plus Redis, a fast in-memory cache (lessons 15–16).
             </li>
           </ul>
           <h3 id="security-and-performance-risks">Security and performance risks</h3>
           <p>
-            Because clients can write <strong>any</strong> query, a malicious or careless client can send something
-            enormous:
+            Because clients can write <strong>any</strong> query, a harmful or careless client can send a huge one.
+            This example goes deeper and deeper through friends of friends:
           </p>
           <CodeBlock lang="graphql" code={code8} />
           <p>Protections:</p>
           <ul>
             <li>
-              <strong>Query depth limits:</strong> for example, a maximum depth of 7.
+              <strong>Query depth limits:</strong> refuse queries that nest too deep, for example more than 7 levels.
             </li>
             <li>
-              <strong>Query cost/complexity analysis:</strong> give each field a cost and reject queries over a budget.
+              <strong>Query cost analysis:</strong> give each field a cost and reject queries whose total is over a budget.
             </li>
             <li>
-              <strong>Pagination required on lists</strong> (post 34).
+              <strong>Pagination required on lists</strong> (lesson 34).
             </li>
             <li>
               <strong>Timeouts and rate limits</strong> based on query cost, not just request count.
@@ -275,25 +289,26 @@ export default function SdLessonThreeTwoPage() {
               <strong>Persisted queries only</strong> for your own apps (no arbitrary queries in production).
             </li>
             <li>
-              <strong>Authorisation in resolvers.</strong> Check permissions per field and object, not just at the
-              endpoint.
+              <strong>Authorisation in resolvers.</strong> Authorisation means checking what a user may see or do. Check
+              it for each field and object, not only at the endpoint.
             </li>
             <li>
-              Consider <strong>disabling introspection</strong> (schema discovery) in production for private APIs.
+              Consider <strong>turning off introspection</strong> in production for private APIs. Introspection lets any
+              client ask the server to describe its whole schema.
             </li>
           </ul>
           <h3 id="errors-are-different">Errors are different</h3>
           <p>
             GraphQL often returns <strong>HTTP 200 even when parts of the query fail</strong>, with an{" "}
-            <code>errors</code> array next to partial <code>data</code>. That's useful (you get the parts that worked),
-            but monitoring tools that only look at HTTP status codes will miss failures. Track GraphQL errors
-            explicitly.
+            <code>errors</code> array next to partial <code>data</code>. This is useful, because you still get the parts that worked. But monitoring tools that only look at HTTP
+            status codes will miss these failures. Track GraphQL errors on purpose.
           </p>
           <h3 id="federation-one-graph-many-teams">Federation: one graph, many teams</h3>
           <p>
             In large companies, many teams own different parts of the data. <strong>GraphQL Federation</strong> (for
-            example, Apollo Federation) lets each team run its <strong>own subgraph</strong> (users, orders, products),
-            and a <strong>gateway</strong> combines them into <strong>one unified schema</strong> for clients:
+            example, Apollo Federation) lets each team run its <strong>own subgraph</strong> (a small GraphQL API for
+            users, orders or products). A <strong>gateway</strong> (also called a router) then combines them into{" "}
+            <strong>one unified schema</strong> for clients:
           </p>
           <Flow
             caption="Federation. Each team owns a subgraph; clients see one schema."
@@ -336,7 +351,7 @@ export default function SdLessonThreeTwoPage() {
                 <tr>
                   <td>Internal high-performance service-to-service calls</td>
                   <td>
-                    <strong>gRPC</strong> (post 31)
+                    <strong>gRPC</strong> (lesson 31)
                   </td>
                 </tr>
                 <tr>
@@ -353,7 +368,7 @@ export default function SdLessonThreeTwoPage() {
                 </tr>
                 <tr>
                   <td>Real-time updates</td>
-                  <td>WebSockets/SSE (post 33), or GraphQL subscriptions</td>
+                  <td>WebSockets/SSE (lesson 33), or GraphQL subscriptions</td>
                 </tr>
               </tbody>
             </table>
@@ -363,7 +378,7 @@ export default function SdLessonThreeTwoPage() {
             between services.
           </p>
           <Compare
-            caption="Three API styles, three sweet spots. Many companies run all three."
+            caption="Three API styles, three best uses. Many companies run all three."
             columns={[
               {
                 title: <>REST</>,
@@ -404,7 +419,7 @@ export default function SdLessonThreeTwoPage() {
               and great tools (auto-complete, docs, code generation).
             </li>
             <li>
-              ✅ <strong>Frontend teams move faster</strong> without waiting for new endpoints. It also works as a{" "}
+              ✅ <strong>Frontend teams move faster</strong> because they do not wait for new endpoints. It also works as a{" "}
               <strong>single front door</strong> over many services.
             </li>
             <li>
@@ -432,23 +447,23 @@ export default function SdLessonThreeTwoPage() {
         <Section id="in-the-real-world" title="In the Real World" kind="real">
           <p>
             <strong>Facebook</strong> created GraphQL in 2012 to power its mobile News Feed, because its REST-style APIs
-            were making the native apps slow and hard to evolve. It was open-sourced in 2015 and moved to the
+            made the native apps slow and hard to change. It was released as open source in 2015 and moved to the
             independent GraphQL Foundation in 2018.
           </p>
           <p>
             <strong>GitHub</strong> launched a public GraphQL API (v4) alongside its REST API, explaining that
             integrators often needed many REST calls to get what one GraphQL query could fetch. Both APIs are still
-            offered, which is a nice example of using both styles.
+            offered, which is a good example of using both styles.
           </p>
           <p>
             <strong>Shopify</strong> offers GraphQL APIs for building storefronts and apps, and applies{" "}
-            <strong>cost-based rate limiting</strong>: each query has a calculated cost, and apps get a budget. That's
-            exactly the protection described above.
+            <strong>cost-based rate limiting</strong>: each query has a calculated cost, and apps get a budget. This is
+            the protection described above.
           </p>
           <p>
             <strong>Netflix</strong> has written about moving to a <strong>federated GraphQL</strong> architecture, so
-            that many backend teams contribute to one graph used by Netflix's apps, instead of maintaining one giant API
-            layer.
+            that many backend teams add to one graph used by Netflix's apps. This replaces one giant API layer that a
+            single team would maintain.
           </p>
         </Section>
 
@@ -460,9 +475,10 @@ export default function SdLessonThreeTwoPage() {
                 a: (
                   <>
                     <p>
-                      Over-fetching (fixed responses with fields you don't need), under-fetching (several round trips to
-                      build one screen), and endpoint sprawl as each client wants a different shape. Clients declare
-                      exactly the fields they need against a typed schema and get them in one request.
+                      Over-fetching means a fixed response has fields you do not need. Under-fetching means you need
+                      several round trips to build one screen. Endpoint sprawl means more and more endpoints, because
+                      each client wants a different shape. In GraphQL, the client lists exactly the fields it needs,
+                      checked against a typed schema, and gets them in one request.
                     </p>
                   </>
                 ),
@@ -472,9 +488,9 @@ export default function SdLessonThreeTwoPage() {
                 a: (
                   <>
                     <p>
-                      Field resolvers run once per parent object, so resolving product for 12 order items fires 12
-                      queries. DataLoader collects the keys requested within one tick and fetches them in a single
-                      batched query, with a per-request cache.
+                      A field resolver runs once for each parent object. So resolving the product of 12 order items
+                      sends 12 queries. DataLoader collects the keys asked for in one tick and fetches them in a single
+                      batched query. It also keeps a cache for that request.
                     </p>
                   </>
                 ),
@@ -484,9 +500,9 @@ export default function SdLessonThreeTwoPage() {
                 a: (
                   <>
                     <p>
-                      Requests are usually POSTs to one URL with the query in the body, so URL-based HTTP and CDN
-                      caching doesn't apply. Use persisted queries (sent by ID, even via GET), normalised client caches
-                      keyed by object ID, and caching inside resolvers.
+                      Requests are usually POSTs to one URL with the query in the body, so caching by URL, in HTTP
+                      or a CDN, does not work. Use persisted queries (sent by ID, even with GET), normalised client
+                      caches that store objects by ID, and caching inside resolvers.
                     </p>
                   </>
                 ),
@@ -496,9 +512,9 @@ export default function SdLessonThreeTwoPage() {
                 a: (
                   <>
                     <p>
-                      Limit query depth, compute a cost for each query and reject or rate-limit by cost, require
-                      pagination on lists, set timeouts, allow only persisted queries for first-party apps, and enforce
-                      authorisation per field and object in resolvers.
+                      Limit query depth. Work out a cost for each query, and reject or rate-limit by cost. Require
+                      pagination on lists and set timeouts. Allow only persisted queries for your own apps. Check
+                      authorisation for each field and object in the resolvers.
                     </p>
                   </>
                 ),
@@ -523,7 +539,7 @@ export default function SdLessonThreeTwoPage() {
             <li>
               <strong>GraphQL</strong> lets clients request{" "}
               <strong>exactly the fields they need, in one request</strong>, based on a <strong>typed schema</strong>.
-              It's a layer in front of your data sources.
+              It is a layer in front of your data sources.
             </li>
             <li>
               <strong>Resolvers</strong> fetch each field. Use <strong>DataLoader</strong> to batch and avoid{" "}

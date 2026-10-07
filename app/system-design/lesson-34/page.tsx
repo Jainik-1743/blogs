@@ -67,7 +67,7 @@ export default function SdLessonThreeFourPage() {
 
       <div className="lesson">
         <Section id="the-problem" title="The Problem" kind="problem">
-          <p>Three small details decide whether an API survives the real world.</p>
+          <p>Three details decide whether an API works well in the real world.</p>
           <ol>
             <li>
               <strong>A customer taps "Pay ₹2,499".</strong> The request reaches your server and the card is charged,
@@ -81,29 +81,31 @@ export default function SdLessonThreeFourPage() {
             </li>
             <li>
               <strong>You rename a field</strong> from <code>name</code> to <code>full_name</code>. Thousands of
-              installed mobile apps, which users haven't updated, <strong>crash on launch</strong>.
+              installed mobile apps, which users have not updated, <strong>crash on launch</strong>.
             </li>
           </ol>
           <p>
             <strong>Idempotency</strong>, <strong>pagination</strong> and <strong>versioning</strong> are the fixes.
-            They don't look exciting, but they're the difference between a demo API and a production API.
+            They are not exciting, but they separate a demo API from a production API (an API used by real users).
           </p>
         </Section>
 
         <Section id="the-core-idea" title="The Core Idea" kind="idea">
           <ul>
             <li>
-              <strong>Idempotency</strong> is like a <strong>lift button</strong>. Pressing it once or ten times still
-              calls <strong>one</strong> lift. A good API makes "do it again" safe.
+              <strong>Idempotency</strong> means that doing the same request many times has the same effect as doing
+              it once. It is like a <strong>lift button</strong>. Pressing it once or ten times still calls{" "}
+              <strong>one</strong> lift. A good API makes "do it again" safe.
             </li>
             <li>
-              <strong>Pagination</strong> is like a <strong>book</strong>. You don't read all 900 pages at once. You
-              read a page at a time, with a <strong>bookmark</strong> so you can continue exactly where you stopped,
+              <strong>Pagination</strong> means returning a long list in small parts (pages). It is like a{" "}
+              <strong>book</strong>. You do not read all 900 pages at once. You read one page at a time, with a <strong>bookmark</strong> so you can continue exactly where you stopped,
               even if someone inserts new pages.
             </li>
             <li>
-              <strong>Versioning</strong> is like <strong>electrical sockets</strong>. A new appliance design must still
-              fit existing sockets, or come with an adapter. You don't rewire everyone's house overnight.
+              <strong>Versioning</strong> means giving each form of your API a version label, so old clients keep working
+              when you change it. It is like <strong>electrical sockets</strong>. A new appliance must still fit
+              existing sockets, or come with an adapter. You do not rewire everyone's house overnight.
             </li>
           </ul>
         </Section>
@@ -113,11 +115,11 @@ export default function SdLessonThreeFourPage() {
           <h3 id="part-1-idempotency">Part 1: Idempotency</h3>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Why retries are unavoidable</h4>
           <p>
-            Networks fail in an annoying way: <strong>the client often can't tell whether the request succeeded</strong>
-            .
+            Networks fail in a tricky way: <strong>the client often cannot tell whether the request succeeded</strong>
+            . A retry means sending the same request again.
           </p>
           <SequenceDiagram
-            caption="Why retries are unavoidable. The client can't tell “failed” from “succeeded, but the reply was lost”."
+            caption="Why retries are unavoidable. The client cannot tell “failed” from “succeeded, but the reply was lost”."
             actors={["Phone", "Payments API", "Card network"]}
             messages={[
               { from: 0, to: 1, label: <>POST /payments ₹2,499</> },
@@ -130,29 +132,30 @@ export default function SdLessonThreeFourPage() {
             ]}
           />
           <p>
-            Retries happen everywhere: mobile apps, SDKs, load balancers, queues (post 18) and users tapping twice. So{" "}
+            Retries happen everywhere: mobile apps, SDKs, load balancers, queues (lesson 18) and users tapping twice. So{" "}
             <strong>every operation that changes something should be safe to repeat</strong>.
           </p>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Naturally idempotent vs not</h4>
           <ul>
             <li>
-              <strong>GET, PUT, DELETE</strong> are idempotent by design (post 3). "Set the name to Asha" twice gives
+              <strong>GET, PUT, DELETE</strong> are idempotent by design (lesson 3). "Set the name to Asha" twice gives
               the same result. "Delete order 7" twice leaves it deleted.
             </li>
             <li>
-              <strong>POST</strong> usually isn't. "Create a payment" twice creates <strong>two</strong> payments.
+              <strong>POST</strong> usually is not. "Create a payment" twice creates <strong>two</strong> payments.
             </li>
             <li>
-              <strong>Relative updates</strong> aren't either. "Add ₹100 to the balance" twice adds ₹200.
+              <strong>Relative updates</strong> are not either. "Add ₹100 to the balance" twice adds ₹200.
             </li>
           </ul>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Idempotency keys</h4>
           <p>
-            The standard fix, made popular by Stripe: the <strong>client generates a unique key</strong> (such as a
-            UUID) for each logical operation, and sends it in a header. <strong>Retries reuse the same key.</strong>
+            The standard fix, made popular by Stripe, is an idempotency key. The <strong>client creates a unique
+            key</strong> (such as a UUID, a random unique ID) for each logical operation, and sends it in a header. A
+            logical operation is one real action, like one payment, even if it is sent many times. <strong>Retries reuse the same key.</strong>
           </p>
           <CodeBlock lang="http" code={code1} />
-          <p>The server's logic:</p>
+          <p>The server's steps:</p>
           <Flow
             caption="Server-side handling of an idempotency key."
             nodes={[
@@ -182,21 +185,21 @@ export default function SdLessonThreeFourPage() {
           <p>Important details:</p>
           <ul>
             <li>
-              <strong>A unique constraint on the key</strong> makes the "check then insert" step race-free (post 21).
-              Two simultaneous retries can't both win.
+              <strong>A unique constraint on the key</strong> makes the "check then insert" step race-free (lesson 21).
+              A race happens when two requests run at the same time and clash. Two simultaneous retries cannot both win.
             </li>
             <li>
-              <strong>Store a hash of the request body.</strong> If the same key arrives with a <em>different</em> body,
-              it's a client bug, so reject it (for example with 422).
+              <strong>Store a hash of the request body.</strong> A hash is a short fingerprint of data. If the same key arrives with a <em>different</em> body,
+              it is a client bug, so reject it (for example with 422).
             </li>
             <li>
-              <strong>Scope keys per client or account</strong>, so different customers' keys can't collide.
+              <strong>Scope keys per client or account</strong>, so different customers' keys cannot clash.
             </li>
             <li>
               <strong>Expire keys</strong> after a reasonable window (for example, 24 hours).
             </li>
             <li>
-              <strong>Save the result in the same transaction as the work</strong> where possible. If the work involves
+              <strong>Save the result in the same transaction as the work</strong> where possible. A transaction is a group of database changes that all succeed or all fail together. If the work involves
               an external system (a card network), pass the idempotency key <strong>downstream</strong> too.
             </li>
           </ul>
@@ -207,40 +210,45 @@ export default function SdLessonThreeFourPage() {
               means "one payment per order", however many retries arrive.
             </li>
             <li>
-              <strong>Upserts:</strong> <code>INSERT ... ON CONFLICT DO NOTHING</code> / <code>DO UPDATE</code>.
+              <strong>Upserts:</strong> "update or insert" in one step, for example <code>INSERT ... ON CONFLICT DO NOTHING</code> / <code>DO UPDATE</code> (PostgreSQL).
             </li>
             <li>
               <strong>Conditional updates:</strong> <code>UPDATE ... WHERE version = 7</code> or <code>If-Match</code>{" "}
-              ETags (post 30).
+              ETags (lesson 30).
             </li>
             <li>
-              <strong>Deduplicating consumers:</strong> queue workers record processed message IDs (Part 6).
+              <strong>Deduplicating consumers:</strong> queue workers write down the IDs of messages they already handled, and skip repeats (Part 6).
             </li>
           </ul>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Webhooks need it too</h4>
           <p>
-            When your API sends <strong>webhooks</strong> ("payment succeeded") to other systems, you'll retry on
-            failure, so receivers may get <strong>the same event twice</strong>. Good webhook design:
+            A webhook is a call that your server makes to another system's URL when something happens. When your API
+            sends <strong>webhooks</strong> ("payment succeeded"), you retry on failure, so receivers may get{" "}
+            <strong>the same event twice</strong>. Good webhook design:
           </p>
           <ul>
             <li>
               include a unique <strong>event ID</strong> so receivers can deduplicate,
             </li>
             <li>
-              <strong>sign</strong> each payload with an HMAC signature so receivers can verify it's really from you,
+              <strong>sign</strong> each payload with an HMAC signature (a code made with a shared secret key) so receivers can check it is really from you,
             </li>
             <li>
-              <strong>retry with backoff</strong> for hours or days, and
+              <strong>retry with backoff</strong> (wait longer after each failure) for hours or days, and
             </li>
-            <li>expect receivers to respond quickly, doing heavy processing asynchronously.</li>
+            <li>expect receivers to reply quickly and do heavy work later, in the background (asynchronously).</li>
           </ul>
           <hr />
           <h3 id="part-2-pagination">Part 2: Pagination</h3>
           <p>
-            Never return unbounded lists. Always paginate, with a <strong>default page size</strong> (for example 20)
+            Never return a list with no limit. Always paginate, with a <strong>default page size</strong> (for example 20)
             and a <strong>maximum</strong> (for example 100).
           </p>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Offset pagination</h4>
+          <p>
+            Offset pagination says "skip this many items, then give me the next few". <code>limit</code> is the page
+            size, and <code>offset</code> is how many items to skip.
+          </p>
           <CodeBlock lang="http" code={code2} />
           <CodeBlock lang="sql" code={code3} />
           <ul>
@@ -251,7 +259,7 @@ export default function SdLessonThreeFourPage() {
             </li>
             <li>
               ❌ <strong>Unstable when data changes.</strong> If a new order is inserted while you page, everything
-              shifts by one: you'll see an item <strong>twice</strong>. If one is deleted, you'll <strong>skip</strong>{" "}
+              shifts by one, and you see an item <strong>twice</strong>. If one is deleted, you <strong>skip</strong>{" "}
               one.
             </li>
           </ul>
@@ -274,33 +282,35 @@ export default function SdLessonThreeFourPage() {
           />
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Cursor (keyset) pagination</h4>
           <p>
-            Instead of "skip N rows", say <strong>"give me the next 20 after this item"</strong>:
+            Cursor pagination (also called keyset pagination) uses a cursor. A cursor is a marker that points to the
+            last item you received. Instead of "skip N rows", you say{" "}
+            <strong>"give me the next 20 after this item"</strong>:
           </p>
           <CodeBlock lang="http" code={code4} />
           <p>
-            Behind the scenes, the cursor encodes the <strong>last item's sort values</strong> (for example{" "}
-            <code>created_at</code> + <code>id</code>):
+            Inside, the cursor holds the <strong>last item's sort values</strong> (for example{" "}
+            <code>created_at</code> + <code>id</code>). The server turns them into a query like this:
           </p>
           <CodeBlock lang="sql" code={code5} />
           <ul>
             <li>
-              ✅ <strong>Fast at any depth</strong>, because it uses an index to jump straight to the position (post
+              ✅ <strong>Fast at any depth</strong>, because it uses an index (a sorted lookup structure) to jump straight to the position (lesson
               22).
             </li>
             <li>
-              ✅ <strong>Stable.</strong> Inserts and deletes don't cause duplicates or gaps.
+              ✅ <strong>Stable.</strong> Inserts and deletes do not cause duplicates or gaps.
             </li>
             <li>
-              ❌ You can't jump to an arbitrary "page 537". Navigation is next and previous (fine for feeds and infinite
+              ❌ You cannot jump to an arbitrary "page 537". You can only go next and previous (fine for feeds and infinite
               scroll).
             </li>
             <li>
               Include a <strong>unique tie-breaker</strong> (like <code>id</code>) in the sort, so items with the same
-              timestamp aren't skipped.
+              timestamp are not skipped. A tie-breaker is a second sort field that makes every position unique.
             </li>
             <li>
-              Make cursors <strong>opaque</strong> (for example, base64-encoded JSON). Clients shouldn't parse or build
-              them, so you can change the format later.
+              Make cursors <strong>opaque</strong> (for example, base64-encoded JSON). Opaque means clients cannot read the inside. They should not parse or build
+              cursors, so you can change the format later.
             </li>
           </ul>
           <p>
@@ -322,11 +332,15 @@ export default function SdLessonThreeFourPage() {
             </li>
           </ul>
           <p>
-            <strong>Avoid exact total counts on huge lists.</strong> <code>COUNT(*)</code> over millions of rows is
+            <strong>Avoid exact total counts on huge lists.</strong> <code>COUNT(*)</code> (count all rows) over millions of rows is
             slow. Show "has more", or an approximate count, instead.
           </p>
           <hr />
           <h3 id="part-3-api-versioning">Part 3: API versioning</h3>
+          <p>
+            A breaking change is a change that makes existing clients fail. Versioning lets you make such changes
+            without hurting clients that still use the old form.
+          </p>
           <Compare
             caption="What you can change freely, and what breaks clients."
             columns={[
@@ -360,7 +374,7 @@ export default function SdLessonThreeFourPage() {
               adding a new <strong>optional</strong> request field,
             </li>
             <li>
-              adding a new response field (clients should ignore fields they don't know, the{" "}
+              adding a new response field (clients should ignore fields they do not know. This is the{" "}
               <strong>"tolerant reader"</strong> rule),
             </li>
             <li>
@@ -380,8 +394,9 @@ export default function SdLessonThreeFourPage() {
             <li>changing default behaviour (sort order, page size).</li>
           </ul>
           <p>
-            <strong>The best strategy is to avoid breaking changes.</strong> Add new fields next to old ones, keep old
-            ones working, and only remove them after a long deprecation period.
+            <strong>The best strategy is to avoid breaking changes.</strong> Add new fields next to old ones and keep
+            the old ones working. Remove them only after a long deprecation period. Deprecation means announcing that
+            something will be removed later.
           </p>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Ways to version</h4>
           <div className="table-wrap">
@@ -401,7 +416,7 @@ export default function SdLessonThreeFourPage() {
                   <td>
                     <code>/v1/orders</code>, <code>/v2/orders</code>
                   </td>
-                  <td>Most common; very visible and easy to route and cache</td>
+                  <td>Most common. It is easy to see, route and cache</td>
                 </tr>
                 <tr>
                   <td>
@@ -428,7 +443,7 @@ export default function SdLessonThreeFourPage() {
                   <td>
                     <code>/orders?version=2</code>
                   </td>
-                  <td>Easy, but easy to forget</td>
+                  <td>Easy, but also easy to forget</td>
                 </tr>
               </tbody>
             </table>
@@ -441,13 +456,13 @@ export default function SdLessonThreeFourPage() {
               each account or client is <strong>pinned</strong> to the API version that existed when it started
               integrating,
             </li>
-            <li>when a breaking change ships, it's a new dated version,</li>
+            <li>when a breaking change is released, it becomes a new dated version,</li>
             <li>
               clients <strong>upgrade when they choose</strong>,
             </li>
             <li>
-              internally, the server translates between versions with small "version change" layers, so old versions
-              keep working without copying all the code.
+              inside, the server uses small "version change" layers that translate between versions. Old versions keep
+              working, and the code is not copied.
             </li>
           </ul>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Deprecation done well</h4>
@@ -456,8 +471,8 @@ export default function SdLessonThreeFourPage() {
               <strong>Announce early</strong>, with a clear timeline (for example, 6–12 months).
             </li>
             <li>
-              <strong>Mark it in responses.</strong> The <code>Sunset</code> HTTP header (RFC 8594) gives the date an
-              endpoint will stop working, and a deprecation notice points to the migration guide.
+              <strong>Mark it in responses.</strong> The <code>Sunset</code> HTTP header (RFC 8594) tells clients the date when an
+              endpoint will stop working. A deprecation notice can point to the migration guide.
             </li>
             <li>
               <strong>Monitor usage.</strong> See which clients still call the old version, and contact them directly.
@@ -466,14 +481,14 @@ export default function SdLessonThreeFourPage() {
               <strong>Provide migration guides</strong> and, where possible, tools.
             </li>
             <li>
-              <strong>Only then</strong> switch it off, perhaps with short "brownouts" (planned temporary shutdowns)
-              first, so stragglers notice.
+              <strong>Only then</strong> switch it off. You can first run short "brownouts" (planned, temporary
+              shutdowns) so that clients who missed the news notice.
             </li>
           </ol>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Mobile apps make this harder</h4>
           <p>
-            Web frontends update instantly, but <strong>mobile apps stay installed for months or years</strong>. Many
-            users never update. So:
+            A web frontend updates as soon as you deploy it. But <strong>mobile apps stay installed for months or
+            years</strong>, and many users never update. So:
           </p>
           <ul>
             <li>keep old API versions alive longer for mobile clients,</li>
@@ -481,8 +496,7 @@ export default function SdLessonThreeFourPage() {
               have the app send its <strong>app version</strong> so the server can adapt,
             </li>
             <li>
-              build a <strong>"minimum supported version" / force-update</strong> mechanism for truly unavoidable
-              breaking changes.
+              build a <strong>"minimum supported version" / force-update</strong> mechanism for breaking changes that cannot be avoided.
             </li>
           </ul>
           <Timeline
@@ -491,7 +505,7 @@ export default function SdLessonThreeFourPage() {
               { time: <>Month 0</>, text: <>announce, with a timeline and a migration guide</> },
               { time: <>Months 0–6</>, text: <>Sunset and deprecation headers on every response</> },
               { time: <>Months 3–9</>, text: <>monitor who still calls it; contact them directly</> },
-              { time: <>Month 10</>, text: <>short planned “brownouts” so stragglers notice</>, tone: "warn" },
+              { time: <>Month 10</>, text: <>short planned “brownouts” so late clients notice</>, tone: "warn" },
               { time: <>Month 12</>, text: <>switch it off</>, tone: "muted" },
             ]}
           />
@@ -501,21 +515,21 @@ export default function SdLessonThreeFourPage() {
           <ul>
             <li>
               <strong>Idempotency keys:</strong> safe retries and no duplicate side effects, at the cost of extra
-              storage, lookups and implementation care (races, expiry, request hashing).
+              storage, lookups and careful building (races, expiry, request hashing).
             </li>
             <li>
               <strong>Offset pagination:</strong> simple, with page numbers, but slow deep pages and unstable results.
             </li>
             <li>
-              <strong>Cursor pagination:</strong> fast and stable, but no random page access, and cursor design needs
-              thought.
+              <strong>Cursor pagination:</strong> fast and stable, but no random page access, and the cursor design needs
+              care.
             </li>
             <li>
-              <strong>URI versioning:</strong> clear and easy to route, but encourages big "v2 rewrites".
+              <strong>URI versioning:</strong> clear and easy to route, but it can tempt teams into big "v2 rewrites".
             </li>
             <li>
-              <strong>Date-based header versioning:</strong> fine-grained and smooth upgrades, but more complex
-              server-side version translation.
+              <strong>Date-based header versioning:</strong> small steps and smooth upgrades, but the server-side
+              version translation is more complex.
             </li>
             <li>
               <strong>Supporting old versions:</strong> happy clients, but ongoing maintenance and testing cost.
@@ -527,7 +541,7 @@ export default function SdLessonThreeFourPage() {
           <p>
             <strong>Stripe's idempotency keys.</strong> Stripe lets clients send an <code>Idempotency-Key</code> header
             on POST requests. Retries with the same key return the original result instead of creating a second charge.
-            Stripe keeps keys for a limited time (around 24 hours). Its engineering blog post on idempotency explains
+            Stripe keeps keys for a limited time (at least 24 hours). Its engineering blog post on idempotency explains
             the design and is one of the best practical references on the topic.
           </p>
           <p>
@@ -542,13 +556,13 @@ export default function SdLessonThreeFourPage() {
             and consistency.
           </p>
           <p>
-            <strong>Payment gateways and UPI apps.</strong> Payment flows everywhere depend on idempotent APIs and
+            <strong>Payment gateways and UPI apps.</strong> UPI is India's instant payment system. Payment flows everywhere depend on idempotent APIs and
             unique transaction references. When a payment "times out", systems check the transaction status using its
             reference rather than blindly retrying, because a duplicate debit is one of the worst possible bugs.
           </p>
           <p>
             <strong>Infinite scroll feeds.</strong> Social apps and e-commerce "load more" lists use cursor pagination.
-            It's why new posts appearing at the top don't make you see the same post twice as you scroll.
+            This is why new posts at the top do not make you see the same post twice as you scroll.
           </p>
         </Section>
 
@@ -560,11 +574,11 @@ export default function SdLessonThreeFourPage() {
                 a: (
                   <>
                     <p>
-                      The client sends a unique Idempotency-Key per logical payment and reuses it on retries. The server
-                      records the key under a unique constraint before doing the work, stores the response with it, and
-                      on a repeat returns the stored response instead of charging again. Scope keys per account, store a
-                      request hash to reject mismatched bodies, expire them after a day or so, and pass the key to
-                      downstream processors.
+                      The client sends a unique Idempotency-Key for each payment and reuses it on retries. The server
+                      saves the key under a unique constraint before doing the work, and stores the response with it.
+                      On a repeat, it returns the stored response instead of charging again. Scope keys per account,
+                      store a request hash to reject a different body with the same key, expire keys after a day or
+                      so, and pass the key to downstream processors.
                     </p>
                   </>
                 ),
@@ -574,10 +588,10 @@ export default function SdLessonThreeFourPage() {
                 a: (
                   <>
                     <p>
-                      OFFSET N makes the database read and discard N rows, so deep pages get slower and slower, and
-                      inserts or deletes between requests shift everything, causing duplicates and skipped items. Cursor
-                      pagination seeks by the last item's sort key through an index, so it's fast at any depth and
-                      stable.
+                      OFFSET N makes the database read and throw away N rows, so deep pages get slower and slower.
+                      Inserts or deletes between requests shift everything, which causes duplicates and skipped items.
+                      Cursor pagination finds the position by the last item's sort key, using an index, so it is fast
+                      at any depth and stable.
                     </p>
                   </>
                 ),
@@ -587,20 +601,20 @@ export default function SdLessonThreeFourPage() {
                 a: (
                   <>
                     <p>
-                      Sort values like created_at aren't unique. Without a unique tie-breaker, items sharing the
+                      Sort values like created_at are not unique. Without a unique tie-breaker, items that share the
                       boundary timestamp can be skipped or repeated. Sort and seek by (created_at, id).
                     </p>
                   </>
                 ),
               },
               {
-                q: <>What's a breaking API change? Give examples.</>,
+                q: <>What is a breaking API change? Give examples.</>,
                 a: (
                   <>
                     <p>
                       Anything that makes existing correct clients fail or misbehave: removing or renaming fields,
                       changing types or units, making optional inputs required, or changing status codes or defaults.
-                      Adding optional fields and endpoints is safe if clients ignore what they don't recognise.
+                      Adding optional fields and endpoints is safe if clients ignore what they do not recognise.
                     </p>
                   </>
                 ),
@@ -610,10 +624,10 @@ export default function SdLessonThreeFourPage() {
                 a: (
                   <>
                     <p>
-                      Avoid breaking changes as long as possible; when you must, publish a new version (URI or
-                      date-based header) and keep the old one alive for a long time, because installed apps update
-                      slowly. Send the app version with requests, and keep a minimum-supported-version / force-update
-                      mechanism for emergencies.
+                      Avoid breaking changes as long as you can. When you must, publish a new version (URI or
+                      date-based header) and keep the old one running for a long time, because installed apps update
+                      slowly. Send the app version with requests, and keep a minimum-supported-version or force-update
+                      option for emergencies.
                     </p>
                   </>
                 ),
@@ -623,9 +637,9 @@ export default function SdLessonThreeFourPage() {
                 a: (
                   <>
                     <p>
-                      Give each event a unique ID so receivers can deduplicate, sign payloads with HMAC so receivers can
-                      verify them, retry with backoff for hours or days, and expect receivers to acknowledge quickly and
-                      process asynchronously.
+                      Give each event a unique ID so receivers can remove duplicates. Sign payloads with HMAC so
+                      receivers can check them. Retry with backoff for hours or days. Expect receivers to reply quickly
+                      and do the work later in the background.
                     </p>
                   </>
                 ),
@@ -649,7 +663,7 @@ export default function SdLessonThreeFourPage() {
               tie-breaker and opaque cursors for large or changing lists. Use offset only for small lists.
             </li>
             <li>
-              <strong>Avoid breaking changes</strong>: add, don't rename or remove. Clients should be{" "}
+              <strong>Avoid breaking changes</strong>: add, do not rename or remove. Clients should be{" "}
               <strong>tolerant readers</strong>.
             </li>
             <li>

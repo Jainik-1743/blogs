@@ -90,7 +90,11 @@ export default function SdLessonThreeZeroPage() {
 
       <div className="lesson">
         <Section id="the-problem" title="The Problem" kind="problem">
-          <p>Here are two APIs for the same feature.</p>
+          <p>
+            An API (Application Programming Interface) is a set of rules that lets one program ask another program for
+            data or actions. A web API works over HTTP, so a browser or phone app can call a server. Here are two web
+            APIs for the same feature.
+          </p>
           <p>
             <strong>API A:</strong>
           </p>
@@ -100,21 +104,23 @@ export default function SdLessonThreeZeroPage() {
           </p>
           <CodeBlock lang="http" code={code2} />
           <p>
-            Both "work". But API B is <strong>predictable</strong>: a developer who has used any good API can guess how
+            Both "work". But API B is <strong>predictable</strong>. A developer who has used any good API can guess how
             it behaves. Caches, load balancers and monitoring tools understand it. Clients can retry safely.
           </p>
           <p>
-            API A forces everyone to read the docs for every endpoint, and it hides failures from every tool in between.
+            API A forces everyone to read the docs for every endpoint. It also hides failures from every tool in
+            between. (An endpoint is one URL plus method that the API offers.)
           </p>
           <p>
             An API is a <strong>contract</strong> that other teams, mobile apps and partners depend on for years. Good
-            design saves everyone time; bad design is very hard to fix later.
+            design saves everyone time. Bad design is very hard to fix later.
           </p>
         </Section>
 
         <Section id="the-core-idea" title="The Core Idea" kind="idea">
           <p>
-            Think of a <strong>well-organised library</strong>.
+            Think of a <strong>well-organised library</strong>. HTTP methods are the standard actions of the web, such
+            as GET to read and POST to create.
           </p>
           <ul>
             <li>
@@ -131,33 +137,34 @@ export default function SdLessonThreeZeroPage() {
             </li>
           </ul>
           <p>
-            <strong>REST</strong> (Representational State Transfer) is a style of designing APIs around{" "}
-            <strong>resources</strong> (nouns) and <strong>standard HTTP methods</strong> (verbs), using HTTP the way it
-            was designed.
+            <strong>REST</strong> (Representational State Transfer) is a style for designing APIs. You build the API
+            around <strong>resources</strong> (things, named with nouns) and use <strong>standard HTTP methods</strong>{" "}
+            (actions, the verbs). You use HTTP the way it was designed to be used.
           </p>
         </Section>
 
         <Section id="how-it-works" title="How It Works" kind="how">
           <h3 id="rest-s-core-principles-in-plain-words">REST's core principles (in plain words)</h3>
-          <p>Roy Fielding described REST in his 2000 PhD dissertation. The main ideas:</p>
+          <p>Roy Fielding described REST in his 2000 PhD dissertation. REST is a set of design rules, not a product. The main ideas:</p>
           <ul>
             <li>
-              <strong>Client–server:</strong> the frontend and backend are separate and evolve independently.
+              <strong>Client–server:</strong> the client (frontend) and the server (backend) are separate. Each can change on its own.
             </li>
             <li>
-              <strong>Stateless:</strong> each request contains everything needed to handle it (like an auth token). The
-              server doesn't remember previous requests. This is what makes horizontal scaling easy (post 7).
+              <strong>Stateless:</strong> each request carries everything the server needs (like an auth token). The
+              server does not remember earlier requests. This makes horizontal scaling easy, because any server can
+              answer any request (lesson 7).
             </li>
             <li>
-              <strong>Cacheable:</strong> responses say whether they can be cached (post 14).
+              <strong>Cacheable:</strong> responses say whether a copy can be saved and reused (a cache). See lessons 14 to 16.
             </li>
             <li>
-              <strong>Uniform interface:</strong> resources with URLs, standard methods, and standard representations
-              (usually JSON).
+              <strong>Uniform interface:</strong> every API looks alike. Resources have URLs, you use standard methods, and
+              data comes in a standard format (usually JSON, a text format for data).
             </li>
             <li>
-              <strong>Layered system:</strong> clients don't care whether there are proxies, gateways or CDNs in between
-              (post 13).
+              <strong>Layered system:</strong> the client does not need to know if there are proxies, gateways or CDNs in
+              between (lesson 13).
             </li>
           </ul>
           <h3 id="1-model-resources-with-nouns">1. Model resources with nouns</h3>
@@ -195,19 +202,24 @@ export default function SdLessonThreeZeroPage() {
             </li>
             <li>
               <strong>Nest</strong> to show ownership, but only one or two levels: <code>/users/42/orders</code> ✅.{" "}
-              <code>/users/42/orders/5521/items/3/reviews</code> ❌ is too deep. Prefer{" "}
-              <code>/order-items/3/reviews</code>, or a filter.
+              <code>/users/42/orders/5521/items/3/reviews</code> ❌ is too deep. Use{" "}
+              <code>/order-items/3/reviews</code> or a filter instead.
             </li>
             <li>
               Use <strong>lowercase, hyphen-separated</strong> paths: <code>/shipping-addresses</code>.
             </li>
           </ul>
           <p>
-            <strong>What about actions that aren't CRUD?</strong> "Cancel an order" or "send a password reset" don't map
-            neatly onto methods. Two common approaches:
+            <strong>What about actions that are not CRUD?</strong> CRUD means Create, Read, Update, Delete. "Cancel an
+            order" or "send a password reset" do not fit these methods well. Two common approaches:
           </p>
           <CodeBlock lang="http" code={code3} />
           <h3 id="2-use-http-methods-correctly">2. Use HTTP methods correctly</h3>
+          <p>
+            Idempotent means that doing the same request many times has the same effect as doing it once. It matters
+            because a client can safely retry an idempotent request after a network error. Example: deleting order 7
+            twice still leaves order 7 deleted.
+          </p>
           <div className="table-wrap">
             <table>
               <thead>
@@ -257,62 +269,74 @@ export default function SdLessonThreeZeroPage() {
             it at any time.
           </p>
           <h3 id="3-return-meaningful-status-codes">3. Return meaningful status codes</h3>
-          <p>(See post 3 for the full list.) The ones every API should use correctly:</p>
+          <p>
+            A status code is a number in the HTTP response that tells the client what happened. (See lesson 3 for the
+            full list.) These are the ones every API should use correctly:
+          </p>
           <CodeBlock lang="http" code={code4} />
           <h3 id="4-consistent-error-responses">4. Consistent error responses</h3>
           <p>
-            Every error should have the <strong>same shape</strong>, with a machine-readable code and a human-readable
-            message. There's a standard for this, <strong>Problem Details</strong> (RFC 9457):
+            Every error should have the <strong>same shape</strong>, with a code that programs can read and a message
+            that people can read. There is a standard for this called <strong>Problem Details</strong> (RFC 9457, a
+            document that defines an error format for HTTP APIs):
           </p>
           <CodeBlock lang="json" code={code5} />
           <ul>
             <li>
-              <strong>Clients</strong> can branch on the <code>type</code> (or on a <code>code</code> field).
+              <strong>Clients</strong> (the programs that call the API) can choose what to do based on the <code>type</code> (or a <code>code</code> field).
             </li>
             <li>
               <strong>Humans</strong> can read <code>detail</code>.
             </li>
             <li>
-              <strong>Never</strong> leak stack traces or internal details in production errors.
+              <strong>Never</strong> show stack traces (the list of code lines where an error happened) or other internal details in production errors.
             </li>
           </ul>
           <h3 id="5-filtering-sorting-searching-and-field-selection">
             5. Filtering, sorting, searching and field selection
           </h3>
           <p>
-            Use <strong>query parameters</strong> on collections:
+            A query parameter is a <code>name=value</code> pair after the <code>?</code> in a URL. Use query
+            parameters on collections:
           </p>
           <CodeBlock lang="http" code={code6} />
           <p>
-            Lists should <strong>always be paginated</strong>. Never return "all orders" (covered in post 34).
+            Lists should <strong>always be paginated</strong>. Pagination means sending the data in small pages. Never
+            return "all orders" at once (covered in lesson 34).
           </p>
           <h3 id="6-design-request-and-response-bodies-well">6. Design request and response bodies well</h3>
           <ul>
             <li>
-              Use <strong>JSON</strong> with consistent naming, either <code>snake_case</code> or <code>camelCase</code>
-              . Pick one and stick to it.
+              Use <strong>JSON</strong> with consistent names, either <code>snake_case</code> or <code>camelCase</code>
+              . Pick one and keep to it.
             </li>
             <li>
-              Use <strong>ISO 8601</strong> dates with time zones: <code>"2027-01-11T09:30:00Z"</code>.
+              Use <strong>ISO 8601</strong> (the international date and time format) with a time zone: <code>"2027-01-11T09:30:00Z"</code>.
             </li>
             <li>
               Represent <strong>money</strong> as integers in the smallest unit (<code>129900</code> paise) or as
-              decimal strings (<code>"1299.00"</code>), plus a currency. <strong>Never use floats for money.</strong>
+              decimal strings (<code>"1299.00"</code>), plus a currency. <strong>Never use floats for money.</strong> A float is a number type that cannot store many decimals exactly (for example 0.1 + 0.2 is not exactly 0.3).
             </li>
             <li>
-              Use <strong>stable string IDs</strong> for resources.
+              Use <strong>stable string IDs</strong> for resources. Stable means the ID never changes.
             </li>
             <li>
-              Use <strong>enums as strings</strong> (<code>"status": "shipped"</code>) rather than magic numbers.
+              Use <strong>enums as strings</strong> (<code>"status": "shipped"</code>) rather than magic numbers. An enum is a fixed list of allowed values.
             </li>
             <li>
-              Don't expose <strong>database internals</strong> (like column names such as <code>usr_tbl_fk</code>) in
-              the API. The API is a contract, not a mirror of your tables.
+              Do not show <strong>database internals</strong> (like column names such as <code>usr_tbl_fk</code>) in
+              the API. The API is a contract, not a copy of your tables.
             </li>
           </ul>
           <h3 id="7-use-http-features-you-get-for-free">7. Use HTTP features you get for free</h3>
+          <p>
+            An ETag is a response header that holds a version label for a resource. A client can send it back later to
+            ask "has this changed?" or "update only if it is still this version". The diagram shows optimistic
+            concurrency: you do not lock the data. Instead you check the version when you save, and you reject the
+            save if someone else changed it first.
+          </p>
           <SequenceDiagram
-            caption="Optimistic concurrency over HTTP with ETag and If-Match. The second editor can't silently overwrite the first."
+            caption="Optimistic concurrency over HTTP with ETag and If-Match. The second editor cannot silently overwrite the first."
             actors={["Editor A", "API", "Editor B"]}
             messages={[
               { from: 0, to: 1, label: <>GET /products/991</> },
@@ -327,65 +351,66 @@ export default function SdLessonThreeZeroPage() {
           />
           <ul>
             <li>
-              <strong>Caching:</strong> <code>Cache-Control</code> and <code>ETag</code> on GET responses (posts 3 and
+              <strong>Caching:</strong> add <code>Cache-Control</code> (how long a copy may be reused) and <code>ETag</code> to GET responses (lessons 3 and
               14).
             </li>
             <li>
               <strong>Conditional updates:</strong> clients send <code>If-Match: "&lt;etag&gt;"</code> on PUT or PATCH.
               If someone else changed the resource first, return <strong>412 Precondition Failed</strong>. This is
-              optimistic concurrency (post 21) over HTTP.
+              optimistic concurrency (lesson 21) over HTTP.
             </li>
             <li>
-              <strong>Compression:</strong> gzip or Brotli.
+              <strong>Compression:</strong> gzip or Brotli make responses smaller, so they travel faster.
             </li>
             <li>
-              <strong>Content negotiation:</strong> <code>Accept</code> / <code>Content-Type</code>.
+              <strong>Content negotiation:</strong> the client says which format it wants with <code>Accept</code>, and the server says which one it sends with <code>Content-Type</code>.
             </li>
           </ul>
           <h3 id="8-security-basics">8. Security basics</h3>
           <ul>
             <li>
-              <strong>Always HTTPS.</strong>
+              <strong>Always use HTTPS</strong> (HTTP with encryption, so others cannot read or change the data on the way).
             </li>
             <li>
               Put tokens in the{" "}
               <strong>
                 <code>Authorization</code> header
               </strong>
-              , never in URLs. URLs end up in logs and browser history.
+              , never in URLs. URLs are saved in logs and browser history.
             </li>
             <li>
-              Check <strong>authorisation for every object</strong>. Just because a user is logged in doesn't mean they
-              can read <code>/orders/5521</code>. (This is the top API vulnerability, often called IDOR or broken
-              object-level authorisation. More in Part 9.)
+              Check <strong>authorisation for every object</strong>. Authorisation means checking what a user is allowed
+              to do. A user who is logged in (authenticated) may still not be allowed to read <code>/orders/5521</code>.
+              This is the top API vulnerability in the OWASP API Security list. It is called IDOR (insecure direct
+              object reference) or broken object-level authorisation. More in Part 9.
             </li>
             <li>
-              <strong>Validate all input</strong>, and limit request sizes.
+              <strong>Validate all input</strong> (check it is the right type and size), and limit request sizes.
             </li>
             <li>
-              Apply <strong>rate limits</strong>, returning 429 with <code>Retry-After</code> (Part 7).
+              Apply <strong>rate limits</strong> (a cap on how many requests a client can make), returning 429 with <code>Retry-After</code> (Part 7).
             </li>
             <li>
-              Configure <strong>CORS</strong> carefully for browser clients (post 3).
+              Configure <strong>CORS</strong> (Cross-Origin Resource Sharing, the browser rule about which websites may call your API) carefully for browser clients (lesson 3).
             </li>
           </ul>
           <h3 id="9-document-and-design-the-contract-first">9. Document and design the contract first</h3>
           <p>
-            <strong>OpenAPI</strong> (formerly called Swagger) is the standard way to describe REST APIs in a YAML or
-            JSON file:
+            <strong>OpenAPI</strong> (formerly called Swagger) is a standard file format that describes a REST API: its
+            URLs, inputs and outputs. You write it in YAML or JSON:
           </p>
           <CodeBlock lang="yaml" code={code7} />
           <p>From one OpenAPI file you can generate:</p>
           <ul>
             <li>interactive documentation,</li>
-            <li>client SDKs,</li>
-            <li>server stubs,</li>
-            <li>mock servers,</li>
-            <li>contract tests.</li>
+            <li>client SDKs (ready-made code libraries for calling the API),</li>
+            <li>server stubs (empty server code with the right shape),</li>
+            <li>mock servers (fake servers that return sample answers),</li>
+            <li>contract tests (tests that check the API follows the spec).</li>
           </ul>
           <p>
-            Many teams write the spec <strong>before</strong> the code ("design-first"), so frontend and backend can
-            work in parallel.
+            Many teams write the spec <strong>before</strong> the code. This is called "design-first". It lets the
+            frontend and backend teams work at the same time.
           </p>
           <h3 id="10-rest-maturity-how-restful-do-you-need-to-be">
             10. REST maturity: how "RESTful" do you need to be?
@@ -395,7 +420,7 @@ export default function SdLessonThreeZeroPage() {
           </p>
           <ul>
             <li>
-              <strong>Level 0:</strong> one endpoint, everything is POST (like old SOAP or RPC over HTTP).
+              <strong>Level 0:</strong> one endpoint, and everything is POST (like old SOAP or RPC over HTTP). RPC means calling a remote function by name.
             </li>
             <li>
               <strong>Level 1:</strong> separate resources (URLs).
@@ -405,13 +430,13 @@ export default function SdLessonThreeZeroPage() {
               <strong>← most good real-world APIs are here.</strong>
             </li>
             <li>
-              <strong>Level 3:</strong> <strong>HATEOAS</strong>: responses include links to related actions (
+              <strong>Level 3:</strong> <strong>HATEOAS</strong>: responses include links to the next possible actions (
               <code>"cancel": &#123;"href": "/orders/5521/cancel"&#125;</code>), so clients can discover what to do
               next.
             </li>
           </ul>
           <p>
-            Level 3 is elegant, but rarely used fully in practice.{" "}
+            Level 3 is elegant, but few APIs use it fully.{" "}
             <strong>Level 2, done consistently, is the practical goal.</strong>
           </p>
           <Layers
@@ -440,46 +465,47 @@ export default function SdLessonThreeZeroPage() {
               proxy and tool.
             </li>
             <li>
-              ✅ It's easy to debug with <code>curl</code> and browser DevTools.
+              ✅ It is easy to debug with <code>curl</code> (a command-line tool that sends HTTP requests) and browser DevTools.
             </li>
             <li>
-              ❌ <strong>Over-fetching and under-fetching:</strong> fixed responses may include too much data, or need
-              several calls to build one screen (GraphQL, post 32, targets this).
+              ❌ <strong>Over-fetching and under-fetching:</strong> a fixed response may contain too much data
+              (over-fetching), or you may need several calls to build one screen (under-fetching). GraphQL (lesson 32)
+              tries to solve this.
             </li>
             <li>
-              ❌ <strong>Chatty</strong> for complex screens: many round trips on mobile networks.
+              ❌ <strong>Chatty</strong> for complex screens: many round trips (request and response pairs), which is slow on mobile networks.
             </li>
             <li>
               ❌ <strong>Text-based JSON</strong> is bigger and slower to parse than binary formats, which matters for
-              high-volume internal calls (gRPC, post 31).
+              high-volume internal calls (see gRPC, lesson 31).
             </li>
             <li>
-              ❌ <strong>Not great for streaming</strong> or real-time updates (post 33).
+              ❌ <strong>Not great for streaming</strong> or real-time updates (lesson 33).
             </li>
           </ul>
           <p>
             <strong>When not to use plain REST:</strong> high-performance internal service-to-service calls (consider
-            gRPC), clients with very varied data needs (consider GraphQL), and real-time push (use WebSockets or SSE).
+            gRPC), clients with very varied data needs (consider GraphQL), and real-time push, where the server sends data without being asked (use WebSockets or SSE).
           </p>
         </Section>
 
         <Section id="in-the-real-world" title="In the Real World" kind="real">
           <p>
-            <strong>Stripe</strong> is often called the gold standard of REST API design:
+            <strong>Stripe</strong> (a payments company) is often called the best example of REST API design:
           </p>
           <ul>
             <li>
               clean resource URLs (<code>/v1/customers</code>, <code>/v1/payment_intents</code>),
             </li>
             <li>consistent error objects with clear types and codes,</li>
-            <li>cursor-based pagination,</li>
-            <li>idempotency keys for safe retries,</li>
+            <li>cursor-based pagination (a marker tells the server where the next page starts),</li>
+            <li>idempotency keys (a unique value per request, so a retry does not repeat the action),</li>
             <li>and excellent documentation.</li>
           </ul>
           <p>Many companies copy its patterns.</p>
           <p>
             <strong>GitHub's REST API</strong> uses standard methods, status codes, <code>ETag</code>-based conditional
-            requests (which don't count against rate limits when nothing has changed), pagination via <code>Link</code>{" "}
+            requests (which do not count against the rate limit when nothing has changed and the server answers 304 Not Modified), pagination via <code>Link</code>{" "}
             headers, and clear rate-limit headers. It's a good reference for large public APIs.
           </p>
           <p>
@@ -502,9 +528,10 @@ export default function SdLessonThreeZeroPage() {
                 a: (
                   <>
                     <p>
-                      Resources identified by URLs, manipulated through standard HTTP methods with correct semantics
-                      (safe GETs, idempotent PUT and DELETE), stateless requests carrying their own auth, cacheable
-                      responses, meaningful status codes and standard representations like JSON.
+                      An API is RESTful when resources have URLs and you work on them with standard HTTP methods that
+                      keep their meaning (GET is safe, PUT and DELETE are idempotent). Requests are stateless, so each
+                      one carries its own auth. Responses can be cached. Status codes are meaningful, and data uses a
+                      standard format like JSON.
                     </p>
                   </>
                 ),
@@ -514,9 +541,8 @@ export default function SdLessonThreeZeroPage() {
                 a: (
                   <>
                     <p>
-                      Either as an action sub-resource (POST /orders/5521/cancel), which is pragmatic and common, or as
-                      creating a resource (POST /order-cancellations). Never as GET, and not by overloading PATCH with
-                      hidden side effects.
+                      Use an action sub-resource (POST /orders/5521/cancel), which is practical and common. Or create a
+                      resource (POST /order-cancellations). Never use GET, and do not hide side effects inside PATCH.
                     </p>
                   </>
                 ),
@@ -526,9 +552,9 @@ export default function SdLessonThreeZeroPage() {
                 a: (
                   <>
                     <p>
-                      Monitoring, caches, load balancers, retries and client libraries all branch on status codes. A 200
-                      error looks like success to every tool in between, hides outages and can get cached. Return the
-                      right 4xx or 5xx with a consistent Problem Details body.
+                      Monitoring, caches, load balancers, retries and client libraries all act on status codes. A 200
+                      with an error inside looks like success to every tool in between. It hides outages and can even
+                      be cached. Return the right 4xx or 5xx code with a consistent Problem Details body.
                     </p>
                   </>
                 ),
@@ -539,7 +565,7 @@ export default function SdLessonThreeZeroPage() {
                   <>
                     <p>
                       As integers in the smallest currency unit (129900 paise) or as decimal strings, always with an
-                      explicit currency code. Never as floats, which can't represent many decimal values exactly.
+                      explicit currency code. Never as floats, because floats cannot store many decimal values exactly.
                     </p>
                   </>
                 ),
@@ -549,9 +575,9 @@ export default function SdLessonThreeZeroPage() {
                 a: (
                   <>
                     <p>
-                      Broken object-level authorisation (IDOR): checking that a user is logged in but not that they may
-                      access this specific object, so changing /orders/5521 to /orders/5522 returns someone else's
-                      order. Check ownership or permission on every object access.
+                      Broken object-level authorisation (IDOR). The server checks that the user is logged in, but not that
+                      the user may see this specific object. So changing /orders/5521 to /orders/5522 returns someone
+                      else's order. Check ownership or permission on every object access.
                     </p>
                   </>
                 ),
@@ -561,8 +587,9 @@ export default function SdLessonThreeZeroPage() {
                 a: (
                   <>
                     <p>
-                      A machine-readable contract for a REST API, from which you generate docs, client SDKs, server
-                      stubs, mocks and contract tests. Writing it first lets frontend and backend work in parallel.
+                      A contract file, readable by programs, that describes a REST API. From it you can generate docs,
+                      client SDKs, server stubs, mocks and contract tests. If you write it first, frontend and backend
+                      can work at the same time.
                     </p>
                   </>
                 ),
