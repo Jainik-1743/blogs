@@ -46,6 +46,12 @@ export default function SdLessonOneSixPage() {
             <strong>50,000 requests hit the database in the same second</strong>, and the site goes down.
           </p>
           <p>
+            Quick reminder: a <strong>cache</strong> is a fast store that keeps copies of data. A{" "}
+            <strong>cache key</strong> is the name of one cached item. <strong>TTL</strong> (time to live) is how many
+            seconds an item may stay in the cache before it expires. <strong>Stale</strong> data is old data that is
+            no longer correct.
+          </p>
+          <p>
             Adding a cache is easy. <strong>Keeping it correct and safe</strong> is the hard part. This post covers the
             three big questions:
           </p>
@@ -84,7 +90,9 @@ export default function SdLessonOneSixPage() {
           <h3 id="part-a-caching-strategies">Part A: Caching strategies</h3>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">1. Cache-aside (lazy loading), the most common</h4>
           <p>
-            The <strong>application</strong> manages the cache directly:
+            Cache-aside means the <strong>application</strong> manages the cache directly. It reads the cache first. On a
+            miss, it reads the database and then saves the result in the cache. This is also called "lazy loading",
+            because data is only loaded when someone asks for it:
           </p>
           <SequenceDiagram
             caption="Cache-aside with delete-on-write — the safe default."
@@ -114,7 +122,8 @@ export default function SdLessonOneSixPage() {
           </p>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">3. Write-through</h4>
           <p>
-            Every write goes to the <strong>cache and the database together</strong>, before the write is confirmed:
+            Write-through means every write goes to the <strong>cache and the database together</strong>, before the
+            write is confirmed to the user:
           </p>
           <Flow
             caption="Write-through: confirmed only after both copies are written."
@@ -132,8 +141,8 @@ export default function SdLessonOneSixPage() {
           </ul>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">4. Write-behind (write-back)</h4>
           <p>
-            Writes go to the <strong>cache first</strong> and are confirmed immediately. The cache writes them to the
-            database <strong>later</strong>, often in batches.
+            Write-behind means writes go to the <strong>cache first</strong> and are confirmed immediately. The cache
+            writes them to the database <strong>later</strong>, often in batches (many writes at once).
           </p>
           <Flow
             caption="Write-behind: confirmed by the cache now, written to the database later — possibly in batches."
@@ -162,18 +171,19 @@ export default function SdLessonOneSixPage() {
           </ul>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">5. Write-around</h4>
           <p>
-            Writes go <strong>straight to the database</strong>, skipping the cache. The cache is only filled when the
+            Write-around means writes go <strong>straight to the database</strong>, skipping the cache. The cache is only filled when the
             data is read. This is useful for data that's written often but rarely read soon after, like logs or bulk
             imports.
           </p>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">6. Refresh-ahead</h4>
           <p>
-            The cache <strong>refreshes popular keys before they expire</strong>. If a key is read often and its TTL is
+            Refresh-ahead means the cache <strong>refreshes popular keys before they expire</strong>. If a key is read often and its TTL is
             nearly up, reload it in the background. Popular items never have a slow miss. The downside is extra work if
             you guess wrong about what's popular.
           </p>
           <p>
-            <strong>Summary:</strong>
+            <strong>Summary</strong> (a "strategy" is a rule for how reads and writes move between the cache and the
+            database):
           </p>
           <div className="table-wrap">
             <table>
@@ -269,8 +279,8 @@ export default function SdLessonOneSixPage() {
             the database.
           </p>
           <p>
-            There's still a smaller race, where a slow read puts old data back just after a delete. That's why teams
-            add:
+            There's still a smaller race. A race (or race condition) is a bug where the result depends on which request
+            finishes first. Here, a slow read can put old data back just after a delete. That's why teams add:
           </p>
           <ul>
             <li>
@@ -284,8 +294,9 @@ export default function SdLessonOneSixPage() {
           <h3 id="part-b-eviction-when-the-cache-is-full">Part B: Eviction, when the cache is full</h3>
           <LruCache caption="A 4-slot cache. Request keys by hand and compare which one each policy throws away." />
           <p>
-            Memory is limited. When the cache is full and a new item arrives, something must be removed. The rule for
-            choosing is the <strong>eviction policy</strong>:
+            Memory is limited. When the cache is full and a new item arrives, something must be removed. This removal is
+            called <strong>eviction</strong>. The rule for choosing what to remove is the{" "}
+            <strong>eviction policy</strong>:
           </p>
           <ul>
             <li>
@@ -317,8 +328,8 @@ export default function SdLessonOneSixPage() {
               <code>volatile-lru</code> / <code>volatile-ttl</code> only evict keys that have a TTL.
             </li>
             <li>
-              <code>noeviction</code> returns errors when memory is full. That's right for Redis used as a primary
-              store, and wrong for a cache.
+              <code>noeviction</code> makes write commands fail with an error when memory is full. That's right for Redis
+              used as a primary store (where losing data is bad), and wrong for a cache.
             </li>
           </ul>
           <p>
@@ -326,12 +337,13 @@ export default function SdLessonOneSixPage() {
             them, which is much cheaper than tracking exact order.
           </p>
           <p>
-            <strong>Watch the eviction rate.</strong> If popular items are constantly being evicted, the cache is too
+            <strong>Watch the eviction rate</strong> (how many items are evicted each second). If popular items are constantly being evicted, the cache is too
             small, and your hit ratio suffers.
           </p>
           <h3 id="part-c-invalidation-keeping-data-fresh">Part C: Invalidation, keeping data fresh</h3>
           <p>There's no perfect answer. You choose based on how stale each piece of data is allowed to be.</p>
           <p>
+            Invalidation means removing or replacing cached data that is no longer correct.{" "}
             <strong>1. TTL only.</strong> Let entries expire. Simple, and good when "a bit stale" is fine, like a view
             count or a trending list.
           </p>
@@ -341,8 +353,9 @@ export default function SdLessonOneSixPage() {
           </p>
           <p>
             <strong>3. Event-driven invalidation.</strong> When data changes in the database, an <strong>event</strong>{" "}
-            is published, for example through a queue or <strong>Change Data Capture (CDC)</strong> that reads the
-            database's change log. A separate process listens and deletes the matching cache keys. This is reliable even
+            (a small message that says "this changed") is published. This can use a queue (a list of messages waiting to
+            be processed) or <strong>Change Data Capture (CDC)</strong>, a tool that reads the database's change log
+            (the record of every change). A separate process listens and deletes the matching cache keys. This is reliable even
             when many services write to the same data (Part 6).
           </p>
           <p>
@@ -398,8 +411,8 @@ export default function SdLessonOneSixPage() {
           <h3 id="part-d-when-caches-cause-outages">Part D: When caches cause outages</h3>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">1. Cache stampede (thundering herd)</h4>
           <p>
-            A very popular key expires. Thousands of requests miss <strong>at the same moment</strong>, and all of them
-            query the database for the same data:
+            A stampede (also called a thundering herd) happens when a very popular key expires. Thousands of requests
+            miss <strong>at the same moment</strong>, and all of them query the database for the same data:
           </p>
           <Timeline
             caption="A cache stampede, second by second."
@@ -426,7 +439,8 @@ export default function SdLessonOneSixPage() {
           <ul>
             <li>
               <strong>Locking / request coalescing.</strong> The first request to miss takes a short lock (for example,
-              a Redis <code>SET key NX</code>) and rebuilds the value. Others wait briefly, or get the old value.
+              a Redis <code>SET key NX</code>, which sets a key only if it does not exist yet) and rebuilds the value.
+              Others wait briefly, or get the old value. "Coalescing" means joining many identical requests into one.
             </li>
             <li>
               <strong>Serve stale while refreshing.</strong> Keep the old value a bit longer, return it, and refresh in
@@ -442,32 +456,35 @@ export default function SdLessonOneSixPage() {
           </ul>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">2. Cache avalanche</h4>
           <p>
-            <strong>Many keys expire at the same time</strong>, for example because they were all loaded with a 1-hour
-            TTL right after a deploy. The database suddenly gets a flood of misses.
+            An avalanche happens when <strong>many keys expire at the same time</strong>, for example because they were
+            all loaded with a 1-hour TTL right after a deploy (a release of new code). The database suddenly gets a
+            flood of misses.
           </p>
           <p>
-            The fix is to <strong>add jitter to TTLs</strong>: instead of exactly 3600 seconds, use 3600 plus a random
-            0–300 seconds, so expirations are spread out.
+            The fix is to <strong>add jitter to TTLs</strong>. Jitter means a small random amount. Instead of exactly 3600
+            seconds, use 3600 plus a random 0–300 seconds, so expirations are spread out.
           </p>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">3. Cache penetration</h4>
           <p>
-            Requests for data that <strong>doesn't exist</strong> (like <code>product:99999999</code>) always miss the
-            cache and always hit the database. Attackers can abuse this. Fixes:
+            Penetration means requests for data that <strong>doesn't exist</strong> (like{" "}
+            <code>product:99999999</code>) always miss the cache and always hit the database. Attackers can abuse this.
+            Fixes:
           </p>
           <ul>
             <li>
               <strong>Cache "not found" results</strong> too, with a short TTL.
             </li>
             <li>
-              Use a <strong>Bloom filter</strong>, a compact structure that can quickly answer "this ID definitely
-              doesn't exist", in front of the database.
+              Use a <strong>Bloom filter</strong> in front of the database. A Bloom filter is a compact structure that
+              can quickly answer "this ID definitely doesn't exist" or "this ID might exist". It never wrongly says
+              "doesn't exist" for an ID that does exist.
             </li>
             <li>Validate input (reject IDs that are obviously invalid).</li>
           </ul>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">4. Hot keys</h4>
           <p>
-            One key gets a huge share of traffic, such as a celebrity's profile or a viral post. Even Redis can struggle
-            if one node is handling one key.
+            A hot key is one key that gets a huge share of traffic, such as a celebrity's profile or a viral post. Even
+            Redis can struggle, because one key lives on one node (one cache server).
           </p>
           <p>Fixes:</p>
           <ul>
@@ -486,16 +503,19 @@ export default function SdLessonOneSixPage() {
           </p>
           <ul>
             <li>
-              run the cache with <strong>replicas</strong> (Redis replication, Redis Cluster),
+              run the cache with <strong>replicas</strong> (extra copies of the cache that can take over; Redis offers
+              replication and Redis Cluster),
             </li>
             <li>
-              <strong>limit database concurrency</strong>, so it degrades rather than dies,
+              <strong>limit database concurrency</strong> (how many queries run at once), so it slows down rather than
+              dies,
             </li>
             <li>
-              consider <strong>warming</strong> a new cache before sending traffic to it,
+              consider <strong>warming</strong> a new cache (filling it with popular data) before sending traffic to it,
             </li>
             <li>
-              use <strong>circuit breakers and load shedding</strong> (Part 7).
+              use <strong>circuit breakers and load shedding</strong> (Part 7). A circuit breaker stops calling a
+              failing system for a while. Load shedding means refusing some requests on purpose to protect the system.
             </li>
           </ul>
           <Compare
@@ -541,10 +561,10 @@ export default function SdLessonOneSixPage() {
               <strong>evictions per second</strong>,
             </li>
             <li>
-              <strong>memory usage</strong> (and fragmentation, in Redis),
+              <strong>memory usage</strong> (and fragmentation in Redis: memory that is reserved but wasted in small gaps),
             </li>
             <li>
-              <strong>p99 latency</strong> of cache calls,
+              <strong>p99 latency</strong> of cache calls (the time that 99 out of 100 calls beat; it shows the slow cases),
             </li>
             <li>
               <strong>database load</strong>, which should drop when you add caching and spike when the cache has
@@ -581,7 +601,8 @@ export default function SdLessonOneSixPage() {
           <p>
             <strong>Facebook's leases.</strong> In its memcache paper, Facebook describes <strong>leases</strong>, a
             mechanism where the cache gives one client permission to refill a missing key and tells others to wait
-            briefly. It solves both stale sets (the update race above) and thundering herds, at enormous scale.
+            briefly. It solves both stale sets (when a slow client saves old data into the cache, like the update race
+            above) and thundering herds, at enormous scale.
           </p>
           <p>
             <strong>Facebook's 2010 outage.</strong> In September 2010, Facebook went down for around two and a half
@@ -708,7 +729,7 @@ export default function SdLessonOneSixPage() {
             </li>
             <li>
               Defend against <strong>stampedes</strong> (locks, stale-while-revalidate), <strong>avalanches</strong>{" "}
-              (TTL jitter), <strong>penetration</strong> (cache misses, Bloom filters), <strong>hot keys</strong> and{" "}
+              (TTL jitter), <strong>penetration</strong> (cache "not found" results, Bloom filters), <strong>hot keys</strong> and{" "}
               <strong>cache failure</strong>.
             </li>
           </ul>

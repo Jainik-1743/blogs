@@ -64,6 +64,12 @@ export default function SdLessonOneEightPage() {
             <strong>Message queues</strong> solve this. They let you do the essential work now and everything else{" "}
             <strong>reliably, a moment later</strong>.
           </p>
+          <p>
+            A <strong>message queue</strong> is a service that holds messages (small pieces of data that describe a job)
+            in order, until another program is ready to take and process them. An <strong>API</strong> is the set of
+            web addresses that clients call to use your app. <strong>Downstream</strong> means the other systems that
+            your service calls, such as the email service.
+          </p>
         </Section>
 
         <Section id="the-core-idea" title="The Core Idea" kind="idea">
@@ -86,10 +92,12 @@ export default function SdLessonOneEightPage() {
           </p>
           <ul>
             <li>
-              <strong>Producers</strong> (the waiter) put <strong>messages</strong> (tickets) on the queue.
+              <strong>Producers</strong> (the waiter) are programs that put <strong>messages</strong> (tickets) on the
+              queue.
             </li>
             <li>
-              <strong>Consumers</strong> or <strong>workers</strong> (the cooks) take messages off and process them.
+              <strong>Consumers</strong> or <strong>workers</strong> (the cooks) are programs that take messages off and
+              process them.
             </li>
             <li>
               The queue <strong>holds messages safely</strong> until they're processed.
@@ -115,13 +123,18 @@ export default function SdLessonOneEightPage() {
               { from: 3, to: 2, label: <>ack → message deleted</>, reply: true },
             ]}
           />
-          <p>The user gets a fast response, and the slow or unreliable tasks happen in the background.</p>
+          <p>
+            The user gets a fast response, and the slow or unreliable tasks happen in the background. "Publish" means
+            "put a message on the queue". "Ack" is short for acknowledgement, a note from the worker that says "I
+            finished this message".
+          </p>
           <h3 id="why-queues-help">Why queues help</h3>
           <p>
             <strong>1. Faster responses.</strong> The user only waits for the essential work.
           </p>
           <p>
-            <strong>2. Decoupling.</strong> The API doesn't need to know about the email service, the SMS service or the
+            <strong>2. Decoupling.</strong> Decoupling means that parts of the system do not depend on each other
+            directly. The API doesn't need to know about the email service, the SMS service or the
             warehouse system. It just publishes "order placed". You can add a new consumer (say, a fraud-check service){" "}
             <strong>without changing the API</strong>.
           </p>
@@ -131,7 +144,7 @@ export default function SdLessonOneEightPage() {
             emails would simply fail.
           </p>
           <p>
-            <strong>4. Smoothing traffic spikes (load levelling).</strong> During a flash sale, orders arrive at 20,000
+            <strong>4. Smoothing traffic spikes (load levelling).</strong> A spike is a sudden burst of traffic. During a flash sale, orders arrive at 20,000
             per minute, but the warehouse system can only handle 2,000 per minute. The queue{" "}
             <strong>absorbs the spike</strong>, and workers process at a steady, safe rate. The queue grows during the
             rush and drains afterwards.
@@ -139,7 +152,8 @@ export default function SdLessonOneEightPage() {
           <AsciiDiagram caption="Load levelling — the queue absorbs the spike" text={diagram2} />
           <p>
             <strong>5. Easy scaling.</strong> Queue getting long? Add more workers. Many workers taking from the same
-            queue is called the <strong>competing consumers</strong> pattern. Each message goes to just one of them.
+            queue is called the <strong>competing consumers</strong> pattern (the workers compete for messages). Each
+            message goes to just one of them.
           </p>
           <h3 id="acknowledgements-not-losing-messages">Acknowledgements: not losing messages</h3>
           <p>
@@ -160,14 +174,16 @@ export default function SdLessonOneEightPage() {
             ]}
           />
           <p>
-            In Amazon SQS, this timeout is called the <strong>visibility timeout</strong>. In RabbitMQ, if a consumer
-            disconnects without acking, the message is redelivered.
+            In Amazon SQS (Simple Queue Service, a queue run by AWS), this timeout is called the{" "}
+            <strong>visibility timeout</strong>. In RabbitMQ (a popular open-source message broker, which is a server
+            that routes messages), if a consumer disconnects without acking, the message is redelivered.
           </p>
           <p>
             There's an important consequence: <strong>a message might be processed more than once</strong>. For example,
             the worker sent the email, then crashed before acking. So{" "}
             <strong>consumers should be safe to run twice</strong> (idempotent). For example, record "email sent for
-            order 5521" and skip it if it's already done. Part 6 goes deep on this.
+            order 5521" and skip it if it's already done. Idempotent means that doing the same thing twice gives the
+            same result as doing it once. Part 6 goes deep on this.
           </p>
           <h3 id="when-things-keep-failing">When things keep failing</h3>
           <p>
@@ -180,7 +196,8 @@ export default function SdLessonOneEightPage() {
             </li>
             <li>
               Then move the message to a <strong>dead-letter queue (DLQ)</strong>, a separate queue for "problem"
-              messages, which engineers can inspect and fix.
+              messages, which engineers can inspect and fix. "Dead letter" is an old post-office term for a letter that
+              cannot be delivered.
             </li>
           </ul>
           <p>(More in Part 6.)</p>
@@ -199,7 +216,8 @@ export default function SdLessonOneEightPage() {
           <h3 id="back-pressure">Back pressure</h3>
           <p>
             If producers keep adding messages faster than consumers can <strong>ever</strong> process them, the queue
-            grows without limit. Messages get old and useless (an OTP that arrives 20 minutes late), and memory or disk
+            grows without limit. Messages get old and useless (an OTP, or one-time password, that arrives 20 minutes
+            late), and memory or disk
             fills up. You need to:
           </p>
           <ul>
@@ -207,7 +225,8 @@ export default function SdLessonOneEightPage() {
               <strong>Monitor queue length and message age.</strong>
             </li>
             <li>
-              <strong>Auto-scale workers</strong> based on queue length.
+              <strong>Auto-scale workers</strong> based on queue length (start more workers when the queue grows, and
+              stop them when it shrinks).
             </li>
             <li>
               If needed, <strong>push back on producers</strong> (slow them down, or reject non-essential work). This is
@@ -220,9 +239,11 @@ export default function SdLessonOneEightPage() {
           </p>
           <ul>
             <li>Sending emails, SMS and push notifications.</li>
-            <li>Image and video processing (resizing, transcoding).</li>
+            <li>Image and video processing (resizing, transcoding: converting video to other formats and sizes).</li>
             <li>Generating reports, invoices and PDFs.</li>
-            <li>Syncing data to search indexes, analytics and data warehouses.</li>
+            <li>
+              Syncing data to search indexes, analytics and data warehouses (large databases built for reports).
+            </li>
             <li>Calling slow or unreliable third-party APIs.</li>
             <li>
               Anything the user doesn't need to see <strong>immediately</strong>.
@@ -252,7 +273,7 @@ export default function SdLessonOneEightPage() {
                   <td>
                     <strong>RabbitMQ</strong>
                   </td>
-                  <td>A classic, flexible message broker with rich routing options</td>
+                  <td>A classic, flexible message broker (a server that receives and routes messages) with rich routing options</td>
                 </tr>
                 <tr>
                   <td>
@@ -277,8 +298,9 @@ export default function SdLessonOneEightPage() {
                     <strong>Apache Kafka</strong>
                   </td>
                   <td>
-                    Not a classic queue but a <strong>distributed log</strong>: messages are kept for days and can be
-                    re-read. Very high throughput (Part 6)
+                    Not a classic queue but a <strong>distributed log</strong> (an append-only list of messages spread over
+                    many servers): messages are kept for days and can be re-read. Very high throughput, which means it
+                    handles a very large number of messages per second (Part 6)
                   </td>
                 </tr>
               </tbody>
@@ -291,14 +313,16 @@ export default function SdLessonOneEightPage() {
               <strong>Just tell them:</strong> "We'll email your invoice shortly."
             </li>
             <li>
-              <strong>Polling:</strong> the app checks <code>GET /jobs/123</code> every few seconds ("Processing…
-              Done!").
+              <strong>Polling:</strong> the app asks again and again. It checks <code>GET /jobs/123</code> every few
+              seconds ("Processing… Done!").
             </li>
             <li>
-              <strong>Push:</strong> WebSockets or push notifications when the job finishes (Part 5).
+              <strong>Push:</strong> the server sends the news to the client. It uses WebSockets (a connection that stays
+              open so the server can send data at any time) or push notifications when the job finishes (Part 5).
             </li>
             <li>
-              <strong>Webhooks:</strong> for other systems, "we'll call your URL when it's done".
+              <strong>Webhooks:</strong> for other systems, "we'll call your URL when it's done". A webhook is a web
+              address that you give us, and we send a request to it when something happens.
             </li>
           </ul>
         </Section>
@@ -310,7 +334,8 @@ export default function SdLessonOneEightPage() {
               downstream failures, and <strong>smoother load</strong>.
             </li>
             <li>
-              ❌ <strong>Eventual results.</strong> Work happens "soon", not "now". The UX has to handle this.
+              ❌ <strong>Eventual results.</strong> Work happens "soon", not "now". The UX (user experience) has to
+              handle this.
             </li>
             <li>
               ❌ <strong>Duplicates and ordering.</strong> Messages may be delivered more than once or out of order, so
@@ -335,7 +360,8 @@ export default function SdLessonOneEightPage() {
           <p>
             <strong>Amazon SQS</strong> is one of the oldest AWS services. It was publicly announced in 2004, before S3
             and EC2. That says a lot about how central queues were to how Amazon built its own systems: services talk
-            through queues so a problem in one doesn't bring down the others.
+            through queues so a problem in one doesn't bring down the others. (S3 is Amazon's file storage service and
+            EC2 is its virtual server service.)
           </p>
           <p>
             <strong>Food delivery and ride-hailing apps.</strong> When you place an order or book a ride, the core

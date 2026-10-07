@@ -69,13 +69,18 @@ export default function SdLessonOneSevenPage() {
             <li>The disk fills up.</li>
             <li>A server dies and takes a year of uploads with it.</li>
             <li>
-              Someone suggests "just put the images in the database as BLOBs", and your database backups go from 5 GB to
-              500 GB.
+              Someone suggests "just put the images in the database as BLOBs" (a BLOB, or binary large object, is a column
+              that holds raw file bytes), and your database backups go from 5 GB to 500 GB.
             </li>
           </ul>
           <p>
             Images, videos, PDFs, backups and logs need a different kind of storage: <strong>object storage</strong>,
             the kind made famous by Amazon S3.
+          </p>
+          <p>
+            <strong>Object storage</strong> is a service that stores whole files as separate objects, each found by a
+            name, and that grows to almost any size. You use it over HTTP (the protocol of the web). Amazon S3 (Simple
+            Storage Service) is the best-known example.
           </p>
         </Section>
 
@@ -98,12 +103,22 @@ export default function SdLessonOneSevenPage() {
               <strong>bucket</strong>.
             </li>
             <li>You get it back later by its key, over HTTP.</li>
-            <li>The service handles where it lives, copying it for safety, and growing without limit.</li>
+            <li>
+              The service handles where it lives, copying it for safety, and growing without limit. A{" "}
+              <strong>bucket</strong> is like a top-level folder that holds your objects. A <strong>key</strong> is the
+              unique name of one object inside it.
+            </li>
           </ul>
         </Section>
 
         <Section id="how-it-works" title="How It Works" kind="how">
           <h3 id="three-kinds-of-storage">Three kinds of storage</h3>
+          <p>
+            Block storage works like a disk that one server reads and writes in small blocks. File storage works like a
+            shared folder. Object storage works like a huge key-to-file store. In the table, EBS, NFS and EFS are
+            block and file services (Amazon Elastic Block Store, the Network File System, and Amazon Elastic File
+            System). A data lake is a large store of raw data kept for later analysis.
+          </p>
           <div className="table-wrap">
             <table>
               <thead>
@@ -152,14 +167,18 @@ export default function SdLessonOneSevenPage() {
             </li>
             <li>
               <strong>Object:</strong> the data (from a few bytes up to many terabytes) plus <strong>metadata</strong>{" "}
-              (content type, size, custom tags).
+              (information about the data, such as content type, size and custom tags).
             </li>
           </ul>
           <p>
             There are <strong>no real folders</strong>. <code>users/42/avatar.jpg</code> is just a key that happens to
-            contain slashes. Tools <em>show</em> it like folders by grouping keys with the same <strong>prefix</strong>.
+            contain slashes. Tools <em>show</em> it like folders by grouping keys with the same <strong>prefix</strong>{" "}
+            (the first part of the key, such as <code>users/42/</code>).
           </p>
-          <p>You work with objects through a simple HTTP API:</p>
+          <p>
+            You work with objects through a simple HTTP API (a set of web requests). PUT means save, GET means read and
+            DELETE means remove:
+          </p>
           <CodeBlock lang="http" code={code1} />
           <p>
             Objects are usually <strong>replaced whole</strong>, not edited in place. To change one byte of a video, you
@@ -167,11 +186,13 @@ export default function SdLessonOneSevenPage() {
           </p>
           <h3 id="why-it-s-so-durable">Why it's so durable</h3>
           <p>
-            Object stores are designed so data is <strong>almost never lost</strong>:
+            <strong>Durability</strong> is the chance that your data is not lost over time. Object stores are designed so
+            data is <strong>almost never lost</strong>:
           </p>
           <ul>
             <li>
-              Each object is stored on <strong>many disks, in multiple data centres</strong> (availability zones).
+              Each object is stored on <strong>many disks, in multiple data centres</strong>. An availability zone is
+              one separate data centre (or group of them) inside a cloud region, with its own power and network.
             </li>
             <li>
               Many systems use <strong>erasure coding</strong>: data is split into pieces plus extra "parity" pieces, so
@@ -187,7 +208,8 @@ export default function SdLessonOneSevenPage() {
           </p>
           <h3 id="consistency">Consistency</h3>
           <p>
-            Since December 2020, Amazon S3 provides <strong>strong read-after-write consistency</strong>: after a
+            <strong>Consistency</strong> describes whether every reader sees the latest data. Since December 2020,
+            Amazon S3 provides <strong>strong read-after-write consistency</strong>: after a
             successful upload or overwrite, any read gets the new version. Before that, you could sometimes read an old
             version shortly after updating. Other providers offer similar guarantees today, but check the documentation
             of the one you use.
@@ -195,8 +217,8 @@ export default function SdLessonOneSevenPage() {
           <h3 id="uploads-and-downloads-without-your-servers">Uploads and downloads without your servers</h3>
           <p>
             A key pattern: <strong>don't send file bytes through your app servers.</strong> Instead, use{" "}
-            <strong>pre-signed URLs</strong>, which are temporary, signed links that let a client upload or download one
-            specific object directly.
+            <strong>pre-signed URLs</strong>. A pre-signed URL is a temporary web link, signed by your server, that lets
+            a client upload or download one specific object directly. The signature proves your server allowed it.
           </p>
           <SequenceDiagram
             caption="Direct upload with a pre-signed URL. The file bytes never pass through your servers."
@@ -221,12 +243,14 @@ export default function SdLessonOneSevenPage() {
           </ul>
           <p>
             For <strong>large files</strong>, use <strong>multipart upload</strong>: split the file into parts (say 10
-            MB each), upload them in parallel, and retry only failed parts. For <strong>video playback</strong>, clients
-            can use <strong>range requests</strong> to download just the part they need.
+            MB each), upload them in parallel (at the same time), and retry only failed parts. For{" "}
+            <strong>video playback</strong>, clients can use <strong>range requests</strong> (HTTP requests that ask for
+            only a byte range of a file) to download just the part they need.
           </p>
           <h3 id="serving-files-to-users">Serving files to users</h3>
           <p>
-            For public content (product images, avatars), put a <strong>CDN</strong> in front of the bucket (post 14).
+            For public content (product images, avatars), put a <strong>CDN</strong> in front of the bucket (post 14). A
+            CDN is a group of servers around the world that keep copies of files close to users.
             Users get fast, nearby copies, and you pay less for bandwidth. For private content, give out pre-signed
             download URLs, or have the CDN check access.
           </p>
@@ -247,7 +271,8 @@ export default function SdLessonOneSevenPage() {
           <ul>
             <li>They make the database huge, backups slow, and replicas expensive.</li>
             <li>
-              They waste the database's precious memory and I/O on data that doesn't need queries or transactions.
+              They waste the database's precious memory and I/O (reading and writing the disk) on data that doesn't need
+              queries or transactions (groups of changes that succeed or fail together).
             </li>
             <li>
               Object storage is <strong>much cheaper per GB</strong> and built for exactly this.
@@ -265,11 +290,12 @@ export default function SdLessonOneSevenPage() {
               <strong>Infrequent access:</strong> cheaper storage, but a fee each time you read.
             </li>
             <li>
-              <strong>Archive (like S3 Glacier):</strong> very cheap storage, but retrieval can take minutes to hours.
+              <strong>Archive (like S3 Glacier):</strong> very cheap storage, but retrieval can take minutes to hours
+              (some archive classes are faster).
             </li>
           </ul>
           <p>
-            <strong>Lifecycle rules</strong> move or delete objects automatically. For example: "move logs to infrequent
+            <strong>Lifecycle rules</strong> are rules you set that move or delete objects automatically. For example: "move logs to infrequent
             access after 30 days, to archive after 90 days, and delete after 7 years". This can cut storage bills a lot.
           </p>
           <h3 id="other-useful-features">Other useful features</h3>
@@ -279,11 +305,13 @@ export default function SdLessonOneSevenPage() {
               against accidents.
             </li>
             <li>
-              <strong>Event notifications:</strong> "a new object was uploaded", which triggers a function or queue to
-              create thumbnails, scan for viruses or transcode videos.
+              <strong>Event notifications:</strong> a message such as "a new object was uploaded", which triggers a
+              function or queue to create thumbnails, scan for viruses or transcode videos (convert them to other
+              formats and sizes).
             </li>
             <li>
-              <strong>Encryption at rest:</strong> usually on by default.
+              <strong>Encryption at rest:</strong> the stored data is scrambled so it is unreadable without a key. This is
+              usually on by default.
             </li>
             <li>
               <strong>Access policies:</strong> control who can read and write each bucket.
@@ -293,7 +321,8 @@ export default function SdLessonOneSevenPage() {
           <AsciiDiagram text={diagram2} />
           <ul>
             <li>
-              The <strong>metadata service</strong> is like a giant index: "<code>users/42/avatar.jpg</code> is stored
+              The <strong>metadata service</strong> (the part that stores information about objects) is like a giant
+              index: "<code>users/42/avatar.jpg</code> is stored
               as pieces on nodes 17, 203 and 881".
             </li>
             <li>
@@ -330,7 +359,7 @@ export default function SdLessonOneSevenPage() {
                 items: [
                   { sign: "·", text: <>Key → object over HTTP</> },
                   { sign: "+", text: <>Unlimited scale, 11 nines durability, cheap per GB</> },
-                  { sign: "-", text: <>Tens of ms per request; replace whole objects</> },
+                  { sign: "-", text: <>Tens to hundreds of ms per request; replace whole objects</> },
                 ],
                 verdict: <>Images, video, backups, logs, data lakes (S3)</>,
               },
@@ -355,8 +384,8 @@ export default function SdLessonOneSevenPage() {
             </li>
             <li>✅ A simple HTTP API, and it works well with CDNs.</li>
             <li>
-              ❌ <strong>Higher latency</strong> than a local disk (tens of milliseconds per request), so it's not for
-              database files.
+              ❌ <strong>Higher latency</strong> than a local disk (tens to a few hundred milliseconds per request), so
+              it's not for database files.
             </li>
             <li>
               ❌ <strong>No partial updates.</strong> You replace objects whole.
@@ -365,7 +394,7 @@ export default function SdLessonOneSevenPage() {
               ❌ <strong>Not a file system.</strong> Listing millions of keys or renaming "folders" is slow and awkward.
             </li>
             <li>
-              ❌ <strong>Costs can surprise you:</strong> data transfer out (egress), per-request charges, and retrieval
+              ❌ <strong>Costs can surprise you:</strong> data transfer out (egress: data leaving the provider's network), per-request charges, and retrieval
               fees for archive classes.
             </li>
             <li>
@@ -382,8 +411,8 @@ export default function SdLessonOneSevenPage() {
             others) offer S3-compatible APIs, so the same code works with them.
           </p>
           <p>
-            <strong>Dropbox's Magic Pocket.</strong> Dropbox originally stored users' files on Amazon S3. Around 2016 it
-            moved most of that data to its own custom storage system, Magic Pocket, to save costs and gain control at
+            <strong>Dropbox's Magic Pocket.</strong> Dropbox originally stored users' files on Amazon S3. Around
+            2015 to 2016 it moved most of that data to its own custom storage system, Magic Pocket, to save costs and gain control at
             its scale. It's a good example of "build vs buy" changing as a company grows.
           </p>
           <p>

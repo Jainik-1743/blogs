@@ -74,6 +74,11 @@ export default function SdLessonOneOnePage() {
             <em>system</em>, the set of building blocks a real company runs. Think of it as a map. Every other post in
             this series zooms into one box on it.
           </p>
+          <p>
+            A <strong>building block</strong> is one part of the system that does one job. A{" "}
+            <strong>request</strong> is a message from a user's phone or browser asking the system to do something. A{" "}
+            <strong>response</strong> is the answer the system sends back.
+          </p>
         </Section>
 
         <Section id="the-core-idea" title="The Core Idea" kind="idea">
@@ -118,6 +123,47 @@ export default function SdLessonOneOnePage() {
             Each role exists to solve a specific problem: speed, load, safety or reliability. Small restaurants skip
             most of them. Big chains need all of them.
           </p>
+          <p>
+            Here is each block in one line.
+          </p>
+          <ul>
+            <li>
+              <strong>DNS</strong> (Domain Name System) is a service that turns a name like <code>api.shop.com</code>{" "}
+              into an IP address (the number address of a server).
+            </li>
+            <li>
+              <strong>CDN</strong> (content delivery network) is a group of servers around the world that keep copies of
+              files, so users download them from a server close by.
+            </li>
+            <li>
+              <strong>Load balancer</strong> is a server that receives requests and shares them between several app
+              servers.
+            </li>
+            <li>
+              <strong>API gateway</strong> is a server at the front door of your backend. It checks who you are, limits
+              how many requests you can send (rate limiting) and sends each request to the right service.
+            </li>
+            <li>
+              <strong>App server</strong> is a server that runs your business code. It is <em>stateless</em> when it
+              keeps no user data between requests, so any copy of it can answer any request.
+            </li>
+            <li>
+              <strong>Cache</strong> is a fast store (often in memory) that keeps copies of data you read often.{" "}
+              <strong>Redis</strong> is a popular in-memory store used for this.
+            </li>
+            <li>
+              <strong>Database</strong> is the main place where data is stored for the long term.
+            </li>
+            <li>
+              <strong>Object storage</strong> is a service for big files such as images and videos (for example Amazon
+              S3).
+            </li>
+            <li>
+              <strong>Message queue</strong> is a list of jobs waiting to be done. One part of the system adds a job.
+              Another part, called a <strong>worker</strong>, takes it later and does it. Kafka and SQS are two popular
+              queues.
+            </li>
+          </ul>
         </Section>
 
         <Section id="how-it-works" title="How It Works" kind="how">
@@ -145,7 +191,8 @@ export default function SdLessonOneOnePage() {
           </p>
           <p>
             <strong>Step 1: DNS.</strong> The app looks up <code>api.shop.com</code>. DNS in system design is more than
-            a phone book, as we'll see below. It can send you to the <strong>nearest</strong> data centre.
+            a phone book, as we'll see below. It can send you to the <strong>nearest</strong> data centre (a building
+            full of servers).
           </p>
           <p>
             <strong>Step 2: CDN for static files.</strong> The page's JavaScript, CSS, logos and product images come
@@ -155,10 +202,11 @@ export default function SdLessonOneOnePage() {
           <p>
             <strong>Step 3: Load balancer.</strong> The API request (<code>GET /orders</code>) reaches a load balancer,
             which picks a healthy app server. If one server has crashed, the load balancer simply stops sending traffic
-            to it.
+            to it. It does this with <strong>health checks</strong>: small test requests that show if a server is alive.
           </p>
           <p>
-            <strong>Step 4: API gateway.</strong> It checks your login token, makes sure you're not sending too many
+            <strong>Step 4: API gateway.</strong> It checks your login token (a small secret that proves who you are),
+            makes sure you're not sending too many
             requests, and routes <code>/orders</code> to the order service.
           </p>
           <p>
@@ -170,22 +218,28 @@ export default function SdLessonOneOnePage() {
             database.
           </p>
           <p>
-            <strong>Step 7: Database.</strong> The query runs, ideally using an index (post 5). Reads might go to a{" "}
-            <strong>read replica</strong> so the main database isn't overloaded. The result is stored in the cache for
+            <strong>Step 7: Database.</strong> The query runs, ideally using an index (post 5). An{" "}
+            <strong>index</strong> is a sorted lookup list that lets the database find rows without reading the whole
+            table. Reads might go to a <strong>read replica</strong> (a copy of the database that only answers reads) so
+            the main database isn't overloaded. The result is stored in the cache for
             next time.
           </p>
           <p>
-            <strong>Step 8: Response.</strong> JSON goes back through the gateway and load balancer to your phone.
+            <strong>Step 8: Response.</strong> JSON (a simple text format for data) goes back through the gateway and load balancer to your phone.
             Product thumbnails in the response are CDN URLs pointing at object storage.
           </p>
           <p>
-            <strong>Step 9: Async work (for writes).</strong> If you had <em>placed</em> an order instead, the app would
+            <strong>Step 9: Async work (for writes).</strong> Async means "not at the same time": the work happens later,
+            and the user does not wait for it. If you had <em>placed</em> an order instead, the app would
             save it, reply quickly with "Order placed!", and put a message on a <strong>queue</strong>. Workers then
             send the confirmation email, update the search index, notify the warehouse and so on, without making you
             wait.
           </p>
           <h3 id="where-the-time-goes-a-latency-budget">Where the time goes: a latency budget</h3>
-          <p>Suppose the target is "order history loads in under 300 ms". A rough budget:</p>
+          <p>
+            A <strong>latency budget</strong> is a plan for how many milliseconds (ms) each step may use. Suppose the
+            target is "order history loads in under 300 ms". A rough budget:
+          </p>
           <div className="table-wrap">
             <table>
               <thead>
@@ -227,8 +281,9 @@ export default function SdLessonOneOnePage() {
             </table>
           </div>
           <p>
-            The biggest items are usually <strong>network distance</strong> and <strong>database queries</strong>, not
-            your code. That's why CDNs, regions close to users, connection reuse and caching matter so much.
+            TCP is the protocol that opens a reliable connection. TLS is the layer that encrypts it. Both need a few
+            round trips to set up, so apps reuse the connection. The biggest items are usually{" "}
+            <strong>network distance</strong> and <strong>database queries</strong>, not your code. That's why CDNs, regions close to users, connection reuse and caching matter so much.
           </p>
           <Stats
             caption="Where the ~300 ms budget goes. Your code is rarely the biggest line."
@@ -296,7 +351,8 @@ export default function SdLessonOneOnePage() {
           <h3 id="dns-as-a-system-design-tool">DNS as a system-design tool</h3>
           <p>
             In post 1, DNS turned names into IP addresses. In system design, DNS is also a{" "}
-            <strong>traffic director</strong>:
+            <strong>traffic director</strong>. A <strong>region</strong> is a part of the world where a cloud provider has
+            data centres, such as Mumbai or Frankfurt:
           </p>
           <ul>
             <li>
@@ -308,7 +364,8 @@ export default function SdLessonOneOnePage() {
             </li>
             <li>
               <strong>Weighted routing:</strong> send 95% of traffic to the old version and 5% to a new version, for
-              safe testing (a canary release).
+              safe testing. This is called a <strong>canary release</strong>: you show a new version to a few users
+              first, to catch problems early.
             </li>
             <li>
               <strong>Failover routing:</strong> if health checks show the main region is down, answer with the backup
@@ -317,13 +374,15 @@ export default function SdLessonOneOnePage() {
           </ul>
           <p>
             <strong>The limitation: caching.</strong> DNS answers are cached by browsers, operating systems and internet
-            providers, sometimes for longer than the TTL you set. So DNS failover isn't instant. Some users keep going
+            providers, sometimes for longer than the TTL you set. TTL (time to live) is the number of seconds an answer
+            may be kept before it must be asked for again. So DNS failover isn't instant. Some users keep going
             to the dead region for minutes. That's why DNS is often combined with other techniques.
           </p>
           <p>
             <strong>Anycast</strong> is another approach. The <strong>same IP address</strong> is announced from many
-            locations worldwide, and internet routing (BGP, from post 1) naturally delivers each user to the nearest
-            one. Cloudflare and Google's public DNS (<code>8.8.8.8</code>) work this way. There's no DNS trickery; the
+            locations worldwide, and internet routing naturally delivers each user to the nearest one. BGP (Border
+            Gateway Protocol, from post 1) is the system that routers use to tell each other which IP addresses they can
+            reach. Cloudflare and Google's public DNS (<code>8.8.8.8</code>) work this way. There's no DNS trickery; the
             network itself finds the closest site.
           </p>
           <div className="table-wrap">
@@ -360,7 +419,7 @@ export default function SdLessonOneOnePage() {
             </table>
           </div>
           <p>
-            <strong>DNS is also a single point of failure.</strong> If your DNS provider goes down, nobody can find you.
+            <strong>DNS is also a single point of failure</strong> (one part that, if it breaks, stops everything). If your DNS provider goes down, nobody can find you.
             Large companies often use <strong>two DNS providers</strong>.
           </p>
           <Compare
@@ -431,7 +490,8 @@ export default function SdLessonOneOnePage() {
               and more operational work.
             </li>
             <li>
-              <strong>Caching and CDNs</strong> make things fast, but add the risk of showing stale data.
+              <strong>Caching and CDNs</strong> make things fast, but add the risk of showing stale data (old data that
+              is no longer correct).
             </li>
             <li>
               <strong>Async processing</strong> makes responses fast and resilient, but results appear "a bit later",
@@ -463,7 +523,7 @@ export default function SdLessonOneOnePage() {
             nearby machines.
           </p>
           <p>
-            <strong>AWS Route 53</strong> is a managed DNS service that offers weighted, latency-based, geolocation and
+            <strong>AWS Route 53</strong> is a managed DNS service (Amazon runs it for you) that offers weighted, latency-based, geolocation and
             failover routing. Many companies use it to shift traffic between regions or to roll out new versions
             gradually.
           </p>

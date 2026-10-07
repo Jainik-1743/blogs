@@ -47,6 +47,12 @@ export default function SdLessonOneTwoPage() {
             The <strong>load balancer</strong> solves both problems. It's the piece that makes horizontal scaling and
             high availability actually work.
           </p>
+          <p>
+            A <strong>load balancer</strong> is a server (or a service) that receives all incoming requests and shares
+            them between several servers behind it. <strong>Horizontal scaling</strong> means adding more servers
+            instead of buying one bigger server. <strong>High availability</strong> means the system keeps working even
+            when some parts fail.
+          </p>
         </Section>
 
         <Section id="the-core-idea" title="The Core Idea" kind="idea">
@@ -67,7 +73,8 @@ export default function SdLessonOneTwoPage() {
               It spreads the work so <strong>no single server is overloaded</strong>.
             </li>
             <li>
-              It <strong>stops sending traffic</strong> to servers that fail health checks.
+              It <strong>stops sending traffic</strong> to servers that fail health checks. A health check is a small test
+              request that shows if a server is alive.
             </li>
           </ul>
           <AsciiDiagram text={diagram1} />
@@ -86,16 +93,21 @@ export default function SdLessonOneTwoPage() {
               <strong>Hides your internal setup.</strong> Users see one address, not 50 servers.
             </li>
             <li>
-              <strong>Enables zero-downtime deploys.</strong> Take servers out one at a time, update them, put them
-              back.
+              <strong>Enables zero-downtime deploys.</strong> A deploy is the act of releasing a new version. Take servers
+              out one at a time, update them, put them back, and users never see a break.
             </li>
             <li>
-              <strong>Often terminates TLS</strong> (HTTPS), so app servers don't have to (post 3).
+              <strong>Often terminates TLS</strong> (HTTPS), so app servers don't have to (post 3). TLS is the
+              encryption layer, and "terminate" means the load balancer decrypts the data and sends plain requests on
+              to the servers.
             </li>
           </ol>
           <h3 id="layer-4-vs-layer-7">Layer 4 vs Layer 7</h3>
           <p>
             Remember the network layers from post 1: Layer 4 is transport (TCP/UDP) and Layer 7 is application (HTTP).
+            TCP and UDP are two ways to send data across a network. TCP is reliable and UDP is faster but does not
+            promise delivery. A <strong>port</strong> is a number that tells the computer which program should get the
+            data.
           </p>
           <p>
             <strong>L4 load balancer.</strong> It looks only at <strong>IP addresses and ports</strong>. It doesn't read
@@ -193,6 +205,7 @@ export default function SdLessonOneTwoPage() {
           </p>
           <h3 id="balancing-algorithms">Balancing algorithms</h3>
           <p>
+            An <strong>algorithm</strong> here is a rule for choosing which server gets the next request.{" "}
             <strong>Round robin.</strong> Send requests in turn: 1, 2, 3, 1, 2, 3…
           </p>
           <ul>
@@ -202,7 +215,7 @@ export default function SdLessonOneTwoPage() {
           <p>
             <strong>Weighted round robin.</strong> Bigger servers get a bigger share. A server with weight 3 gets three
             requests for every one sent to a server with weight 1. Useful when machines differ, or to send a small share
-            to a new version (canary).
+            to a new version (a canary release: a few users try the new version first).
           </p>
           <p>
             <strong>Least connections.</strong> Send to the server with the <strong>fewest active connections</strong>.
@@ -215,18 +228,21 @@ export default function SdLessonOneTwoPage() {
             latency, but more complex.
           </p>
           <p>
-            <strong>IP hash / consistent hashing.</strong> Hash the client's IP (or a user ID, or a URL) to pick a
-            server, so the <strong>same key always goes to the same server</strong>.
+            <strong>IP hash / consistent hashing.</strong> A hash function turns any input (like an IP address) into a
+            number. Use that number to pick a server, so the <strong>same key always goes to the same server</strong>.
           </p>
           <ul>
             <li>Useful when a server keeps a local cache per user or per item, which improves cache hit rates.</li>
-            <li>Consistent hashing (Part 4) means adding or removing a server only moves a small share of keys.</li>
+            <li>
+              Consistent hashing (Part 4) is a way of hashing where adding or removing a server only moves a small share
+              of keys.
+            </li>
           </ul>
           <p>
             <strong>Power of two random choices.</strong> Pick <strong>two servers at random</strong>, then send the
             request to the less busy one. It sounds too simple, but it works remarkably well at large scale. It avoids
             everyone rushing to the same "least busy" server at once, a problem called herding, and it needs little
-            coordination. It's used in several modern proxies.
+            coordination. It's used in several modern proxies (a proxy is a server that passes requests on for others).
           </p>
           <p>
             <strong>Quick guide:</strong>
@@ -279,7 +295,8 @@ export default function SdLessonOneTwoPage() {
             rule: if every server looks unhealthy, keep sending traffic anyway.
           </p>
           <p>
-            In Kubernetes you'll see the same ideas as <strong>liveness</strong> probes ("should I restart this?") and{" "}
+            Kubernetes is a system that runs and manages many app containers for you. There you'll see the same ideas as{" "}
+            <strong>liveness</strong> probes ("should I restart this?") and{" "}
             <strong>readiness</strong> probes ("should I send it traffic?").
           </p>
           <h3 id="connection-draining">Connection draining</h3>
@@ -299,7 +316,9 @@ export default function SdLessonOneTwoPage() {
           </p>
           <h3 id="sticky-sessions">Sticky sessions</h3>
           <p>
-            As in post 7, the LB can pin a user to one server using a cookie. This helps with legacy stateful apps, but
+            <strong>Sticky sessions</strong> mean the load balancer keeps sending the same user to the same server. As in
+            post 7, the LB can do this with a cookie (a small piece of data the browser sends with each request). This
+            helps with legacy stateful apps, but
             it causes uneven load and lost sessions when that server dies. Prefer stateless apps.
           </p>
           <h3 id="isn-t-the-load-balancer-a-single-point-of-failure">
@@ -337,8 +356,9 @@ export default function SdLessonOneTwoPage() {
               L7.
             </li>
             <li>
-              <strong>Envoy:</strong> a modern L7 proxy with advanced balancing, retries and observability. It's the
-              base of many service meshes.
+              <strong>Envoy:</strong> a modern L7 proxy with advanced balancing, retries and observability (tools to see
+              what the system is doing). It's the base of many service meshes (a layer that manages how services talk to
+              each other).
             </li>
             <li>
               <strong>Cloud:</strong> AWS ALB (L7) and NLB (L4), Google Cloud Load Balancing, Azure Load Balancer and

@@ -51,6 +51,11 @@ export default function SdLessonOneFourPage() {
             A <strong>CDN (Content Delivery Network)</strong> solves both problems. It brings content{" "}
             <strong>close to users</strong>, and it takes <strong>most of the load</strong> off your servers.
           </p>
+          <p>
+            In one sentence: a CDN is a group of servers spread around the world that keep copies of your files, so each
+            user downloads them from a server nearby. <strong>Latency</strong> is the time a request takes to get an
+            answer. <strong>Origin</strong> is your own server, where the original files live.
+          </p>
         </Section>
 
         <Section id="the-core-idea" title="The Core Idea" kind="idea">
@@ -100,13 +105,14 @@ export default function SdLessonOneFourPage() {
               <strong>DNS</strong> (post 11).
             </li>
             <li>
-              The edge checks its cache.
+              The edge checks its cache. A <strong>cache</strong> is a place that keeps copies of files so they can be
+              served again quickly.
               <ul>
                 <li>
-                  <strong>Cache hit:</strong> return the file immediately.
+                  <strong>Cache hit:</strong> the edge has the file, so it returns it immediately.
                 </li>
                 <li>
-                  <strong>Cache miss:</strong> fetch it from the origin, return it to the user, and{" "}
+                  <strong>Cache miss:</strong> the edge does not have the file, so it fetches it from the origin, return it to the user, and{" "}
                   <strong>keep a copy</strong> for next time.
                 </li>
               </ul>
@@ -114,8 +120,8 @@ export default function SdLessonOneFourPage() {
             <li>Later users near that edge get the fast cached copy.</li>
           </ol>
           <p>
-            The key metric is the <strong>cache hit ratio</strong>. If it's 95%, only 5% of requests ever reach your
-            servers.
+            The key metric is the <strong>cache hit ratio</strong>: the share of requests answered from the cache. If
+            it's 95%, only 5% of requests ever reach your servers.
           </p>
           <h3 id="pull-cdn-vs-push-cdn">Pull CDN vs push CDN</h3>
           <Compare
@@ -190,7 +196,11 @@ export default function SdLessonOneFourPage() {
             responses that must always be up to the second, unless you're very careful with cache rules.
           </p>
           <h3 id="how-the-cdn-knows-what-to-cache-http-headers">How the CDN knows what to cache: HTTP headers</h3>
-          <p>CDNs follow standard HTTP caching headers from your origin:</p>
+          <p>
+            An HTTP <strong>header</strong> is a line of extra information sent with a request or response. CDNs follow
+            the standard HTTP caching headers from your origin. <code>max-age</code> is the number of seconds a copy may
+            be reused. <code>immutable</code> means the file will never change.
+          </p>
           <CodeBlock lang="http" code={code1} />
           <p>
             means "anyone may cache this for a year; it will never change". It's perfect for versioned files like{" "}
@@ -199,10 +209,14 @@ export default function SdLessonOneFourPage() {
           <CodeBlock lang="http" code={code2} />
           <p>
             means "cache for 60 seconds. After that, you may serve the old copy for up to 5 more minutes while fetching
-            a fresh one in the background". This is great for pages that change occasionally.
+            a fresh one in the background". The word "stale" means old. This is great for pages that change
+            occasionally.
           </p>
           <CodeBlock lang="http" code={code3} />
-          <p>means "never cache this in a shared cache". Use it for account pages and anything personal.</p>
+          <p>
+            means "do not store this at all, and only the user's own browser may use it". A shared cache is a cache used
+            by many people, such as a CDN. Use this for account pages and anything personal.
+          </p>
           <p>Other headers you'll use:</p>
           <ul>
             <li>
@@ -215,7 +229,8 @@ export default function SdLessonOneFourPage() {
               <strong>
                 <code>ETag</code> / <code>Last-Modified</code>:
               </strong>{" "}
-              let the CDN ask the origin "has this changed?" and get a small <code>304 Not Modified</code> back.
+              let the CDN ask the origin "has this changed?" and get a small <code>304 Not Modified</code> back. An ETag
+              is a label (like a fingerprint) for one version of a file. Last-Modified is the time the file last changed.
             </li>
             <li>
               <strong>
@@ -227,7 +242,7 @@ export default function SdLessonOneFourPage() {
           </ul>
           <p>
             The <strong>cache key</strong> is what the CDN uses to decide whether two requests are "the same". By
-            default it's the URL. If your URLs include random tracking parameters (<code>?utm_source=...</code>), you
+            default it's the URL. A query parameter is the part of a URL after the <code>?</code>. If your URLs include random tracking parameters (<code>?utm_source=...</code>), you
             may want the CDN to ignore them, or every link becomes a separate cache entry.
           </p>
           <h3 id="invalidation-updating-cached-content">Invalidation: updating cached content</h3>
@@ -287,7 +302,8 @@ export default function SdLessonOneFourPage() {
           <h3 id="video-delivery">Video delivery</h3>
           <p>
             Streaming services cut videos into <strong>small segments</strong> (a few seconds each) at several quality
-            levels, using formats like <strong>HLS</strong> or <strong>DASH</strong>. Each segment is just a small
+            levels, using formats like <strong>HLS</strong> or <strong>DASH</strong> (two standard ways to stream
+            video over normal HTTP). Each segment is just a small
             static file, which is perfect for CDNs. The player picks the quality level that matches your connection,
             switching up or down as your network changes. That's why a video goes blurry for a moment and then sharpens.
           </p>
@@ -295,21 +311,24 @@ export default function SdLessonOneFourPage() {
           <p>Modern CDNs also provide:</p>
           <ul>
             <li>
-              <strong>DDoS protection:</strong> absorbing huge attack traffic across their global network.
+              <strong>DDoS protection:</strong> a DDoS attack sends huge fake traffic to knock a site offline. A CDN
+              absorbs this traffic across its global network.
             </li>
             <li>
-              <strong>Web Application Firewall (WAF):</strong> blocking common attacks.
+              <strong>Web Application Firewall (WAF):</strong> a filter that blocks common attacks such as SQL
+              injection.
             </li>
             <li>
-              <strong>TLS at the edge:</strong> faster HTTPS setup, because the handshake happens nearby.
+              <strong>TLS at the edge:</strong> TLS is the encryption used by HTTPS. The handshake (the first
+              exchange that sets up encryption) happens nearby, so HTTPS starts faster.
             </li>
             <li>
               <strong>Image optimisation:</strong> automatically resizing images and converting them to modern formats
               (WebP/AVIF).
             </li>
             <li>
-              <strong>Edge compute:</strong> running small pieces of code at the edge for redirects, A/B tests, auth
-              checks or personalisation (for example, Cloudflare Workers or Lambda@Edge).
+              <strong>Edge compute:</strong> running small pieces of code at the edge for redirects, A/B tests (showing
+              two versions to compare them), auth checks or personalisation (for example, Cloudflare Workers or Lambda@Edge).
             </li>
           </ul>
         </Section>
@@ -317,7 +336,7 @@ export default function SdLessonOneFourPage() {
         <Section id="trade-offs" title="Trade-offs" kind="tradeoffs">
           <ul>
             <li>
-              <strong>Stale content.</strong> Cached content may be out of date until it expires or is purged. Choose
+              <strong>Stale content.</strong> A cached copy may be old until it expires or is purged. Choose
               TTLs per content type.
             </li>
             <li>
@@ -352,7 +371,7 @@ export default function SdLessonOneFourPage() {
           </p>
           <p>
             <strong>The Fastly outage (June 2021).</strong> A single customer's valid configuration change triggered a
-            hidden bug in Fastly's software. For about an hour, many major websites (news sites, e-commerce sites and
+            hidden bug in Fastly's software. For under an hour (95% of the network was back after 49 minutes), many major websites (news sites, e-commerce sites and
             government websites) showed errors worldwide. The origins were fine; the layer in front of them failed. It's
             a clear lesson that a CDN is part of your critical path.
           </p>

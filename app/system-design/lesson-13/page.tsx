@@ -37,9 +37,17 @@ export default function SdLessonOneThreePage() {
             Architecture diagrams show one, two or all three boxes.
           </p>
           <p>
+            First, the plain definitions. A <strong>proxy</strong> is a server that sits in the middle and passes
+            requests from one side to the other. A <strong>reverse proxy</strong> is a proxy in front of your servers.
+            A <strong>load balancer</strong> is a server that shares requests between many copies of one service. An{" "}
+            <strong>API gateway</strong> is a reverse proxy for APIs that also checks identity and limits, and routes
+            each request to the right service. An <strong>API</strong> (application programming interface) is a set of
+            URLs that programs call to get data or do actions.
+          </p>
+          <p>
             This confusion matters. If you don't know what each one is <em>for</em>, you might put authentication in
             five different places, or none. You might add a gateway you don't need, or miss the one feature (like rate
-            limiting) that would have prevented an outage.
+            limiting, which means refusing clients that send too many requests) that would have prevented an outage.
           </p>
         </Section>
 
@@ -111,17 +119,20 @@ export default function SdLessonOneThreePage() {
           </p>
           <ul>
             <li>
-              <strong>TLS termination.</strong> Handles HTTPS certificates and encryption (post 3).
+              <strong>TLS termination.</strong> TLS is the encryption used by HTTPS. The proxy handles the certificate
+              (the proof of identity for your site) and the encryption (post 3), so your app gets plain requests.
             </li>
             <li>
-              <strong>Compression.</strong> Gzip or Brotli responses to save bandwidth.
+              <strong>Compression.</strong> Makes responses smaller with Gzip or Brotli (two compression formats), to
+              save bandwidth (the amount of data sent).
             </li>
             <li>
               <strong>Serving static files.</strong> Sends <code>/static/app.js</code> straight from disk, very fast,
               without touching your app.
             </li>
             <li>
-              <strong>Caching.</strong> Keeps copies of responses so repeated requests are answered instantly.
+              <strong>Caching.</strong> Keeps copies of responses so repeated requests are answered quickly, without
+              asking the app again.
             </li>
             <li>
               <strong>Request buffering.</strong> Absorbs slow clients (someone on a weak mobile connection), so your
@@ -129,7 +140,7 @@ export default function SdLessonOneThreePage() {
             </li>
             <li>
               <strong>Security.</strong> Hides server IPs and versions, blocks bad requests, limits request sizes, and
-              can add a web application firewall (WAF).
+              can add a web application firewall (WAF), which is a filter that blocks known attack patterns.
             </li>
             <li>
               <strong>Routing.</strong> <code>/blog</code> → the blog server, <code>/app</code> → the app server.
@@ -138,7 +149,9 @@ export default function SdLessonOneThreePage() {
               <strong>Load balancing</strong> across several backends.
             </li>
           </ul>
-          <p>A typical setup for a Node.js or Python app:</p>
+          <p>
+            A typical setup for a Node.js or Python app (NGINX is a popular reverse proxy and web server):
+          </p>
           <Flow
             caption="Even with one app server, a reverse proxy takes the chores off your code."
             nodes={[
@@ -185,24 +198,28 @@ export default function SdLessonOneThreePage() {
           <h3 id="what-an-api-gateway-does">What an API gateway does</h3>
           <p>
             An <strong>API gateway</strong> is a reverse proxy specialised for <strong>APIs</strong>, especially when
-            there are <strong>many backend services</strong> (microservices). On top of reverse-proxy features, it
-            usually adds:
+            there are <strong>many backend services</strong> (microservices). A <strong>microservice</strong> is a
+            small service that does one job, such as users or payments, and runs on its own. On top of reverse-proxy
+            features, a gateway usually adds:
           </p>
           <ul>
             <li>
-              <strong>Authentication and authorisation.</strong> Validates API keys, JWTs or OAuth tokens once, at the
-              front door.
+              <strong>Authentication and authorisation.</strong> Authentication means checking who you are.
+              Authorisation means checking what you are allowed to do. The gateway validates API keys, JWTs or OAuth
+              tokens once, at the front door. (A JWT is a signed token that carries your identity. OAuth is a standard
+              way to give an app limited access to an account.)
             </li>
             <li>
-              <strong>Rate limiting and quotas.</strong> "Free plan: 100 requests per minute".
+              <strong>Rate limiting and quotas.</strong> A rate limit caps how fast a client can call you. A quota caps
+              the total use in a period. For example: "Free plan: 100 requests per minute".
             </li>
             <li>
               <strong>Routing to many services.</strong> <code>/users</code> → user service, <code>/orders</code> →
               order service, <code>/payments</code> → payment service.
             </li>
             <li>
-              <strong>Request and response transformation.</strong> Rename fields, convert protocols (REST to gRPC),
-              combine responses.
+              <strong>Request and response transformation.</strong> Rename fields, convert protocols (for example REST,
+              the common style of HTTP APIs, to gRPC, a faster binary protocol), and combine responses.
             </li>
             <li>
               <strong>API versioning.</strong> <code>/v1/*</code> → the old service, <code>/v2/*</code> → the new one.
@@ -240,7 +257,8 @@ export default function SdLessonOneThreePage() {
             <li>a smart TV app wants something else again.</li>
           </ul>
           <p>
-            The <strong>BFF pattern</strong> gives each client type its <strong>own small gateway/API layer</strong>:
+            The <strong>BFF pattern</strong> (Backend for Frontend) gives each client type its{" "}
+            <strong>own small gateway/API layer</strong>:
           </p>
           <Flow
             caption="Backend for Frontend — each client type gets its own thin API layer."
@@ -259,12 +277,15 @@ export default function SdLessonOneThreePage() {
           </p>
           <h3 id="service-mesh-the-internal-version">Service mesh: the internal version</h3>
           <p>
-            Gateways handle traffic <strong>coming into</strong> your system (called north-south traffic). Inside a
-            large microservices system, services also call each other constantly (east-west traffic).
+            Gateways handle traffic <strong>coming into</strong> your system (called north-south traffic, like a vertical
+            line from the outside world down to your servers). Inside a large microservices system, services also call
+            each other constantly (east-west traffic, a sideways line between services).
           </p>
           <p>
-            A <strong>service mesh</strong> (like Istio or Linkerd) puts a small proxy, a <strong>sidecar</strong>, next
-            to every service. These sidecars handle retries, timeouts, encryption (mTLS) and metrics for
+            A <strong>service mesh</strong> (like Istio or Linkerd) is a layer that manages how services talk to each
+            other. It puts a small proxy, a <strong>sidecar</strong> (a helper program that runs beside the main
+            program), next to every service. These sidecars handle retries, timeouts, encryption (mTLS, where both
+            sides prove their identity with certificates) and metrics (numbers that show how the system behaves) for
             service-to-service calls. It's the same idea as a reverse proxy, spread across the whole system. We'll
             revisit this in Part 10.
           </p>
@@ -326,7 +347,7 @@ export default function SdLessonOneThreePage() {
             <li>rate limiting,</li>
             <li>routing,</li>
             <li>logging,</li>
-            <li>CORS headers.</li>
+            <li>CORS headers (HTTP headers that tell browsers which websites may call your API).</li>
           </ul>
           <p>
             Keep <strong>business logic</strong> in the services:
@@ -337,7 +358,8 @@ export default function SdLessonOneThreePage() {
             <li>validation specific to a feature.</li>
           </ul>
           <p>
-            A gateway full of business rules becomes a <strong>bottleneck that every team must change</strong>, the
+            A gateway full of business rules becomes a <strong>bottleneck</strong> (a single place that slows everyone
+            down) <strong>that every team must change</strong>, the
             opposite of what microservices are meant to achieve.
           </p>
           <Compare
@@ -372,7 +394,8 @@ export default function SdLessonOneThreePage() {
               two).
             </li>
             <li>
-              <strong>A single point of failure</strong> if it isn't run as several redundant instances.
+              <strong>A single point of failure</strong> (one part that, if it breaks, stops everything) if it isn't run
+              as several redundant copies.
             </li>
             <li>
               <strong>Centralised power.</strong> A misconfiguration in the gateway can break <em>every</em> API at
@@ -387,7 +410,7 @@ export default function SdLessonOneThreePage() {
             </li>
           </ul>
           <p>
-            <strong>When not to use an API gateway:</strong> a monolith with one client, or an internal tool with a few
+            <strong>When not to use an API gateway:</strong> a monolith (one single app that holds all the code) with one client, or an internal tool with a few
             users. A simple reverse proxy covers TLS, compression and routing. Add a gateway when you have{" "}
             <strong>multiple services, multiple clients, or external developers</strong> who need keys and quotas.
           </p>
@@ -400,7 +423,7 @@ export default function SdLessonOneThreePage() {
             one of the best-known examples of an API gateway in a large microservices system.
           </p>
           <p>
-            <strong>Lyft and Envoy.</strong> Envoy was created at Lyft to handle both edge traffic and
+            <strong>Lyft and Envoy.</strong> Envoy (an open-source proxy) was created at Lyft to handle both edge traffic and
             service-to-service traffic as the company moved to microservices. It was later donated to the Cloud Native
             Computing Foundation and now powers many gateways and service meshes, including Istio.
           </p>

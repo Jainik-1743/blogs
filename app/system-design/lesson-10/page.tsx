@@ -75,7 +75,14 @@ export default function SdLessonOneZeroPage() {
           <p>
             That's <strong>back-of-the-envelope estimation</strong>: quick, rough calculations (the kind you could do on
             the back of an envelope) that tell you the <strong>size</strong> of a problem. It's used in real design
-            reviews, in capacity planning, and in almost every system-design interview.
+            reviews, in capacity planning (working out how much hardware you will need), and in almost every
+            system-design interview.
+          </p>
+          <p>
+            Three short terms come up all the time. <strong>QPS</strong> means "queries per second": how many requests
+            hit your system each second. <strong>DAU</strong> means "daily active users": how many different people use
+            the app on one day. <strong>Order of magnitude</strong> means the size of a number in powers of ten, such
+            as 10, 1,000 or 1,000,000.
           </p>
         </Section>
 
@@ -206,8 +213,8 @@ export default function SdLessonOneZeroPage() {
                 </tr>
                 <tr>
                   <td>Read 1 MB sequentially from RAM</td>
-                  <td>a few µs</td>
-                  <td>about an hour</td>
+                  <td>~50–100 µs</td>
+                  <td>about 14 hours to 1 day</td>
                 </tr>
                 <tr>
                   <td>Random read from SSD</td>
@@ -238,11 +245,16 @@ export default function SdLessonOneZeroPage() {
             </table>
           </div>
           <p>
-            Exact numbers change with hardware. What matters are the <strong>big lessons</strong>:
+            <strong>Latency</strong> is the time one operation takes, from start to finish. ns means nanosecond (one
+            billionth of a second), µs means microsecond (one millionth) and ms means millisecond (one thousandth). A{" "}
+            <strong>data centre</strong> is a building full of servers. Exact numbers change with hardware. What
+            matters are the <strong>big lessons</strong>:
           </p>
           <ul>
             <li>
-              <strong>Memory is much faster than disk.</strong> That's why caches exist.
+              <strong>Memory is much faster than disk.</strong> That's why caches exist. A <strong>cache</strong> is a
+              small, fast store that keeps a copy of data you read often, so you do not fetch it from the slow place
+              each time.
             </li>
             <li>
               <strong>SSDs are much faster than spinning disks</strong>, especially for random reads.
@@ -252,7 +264,8 @@ export default function SdLessonOneZeroPage() {
               light won't improve.
             </li>
             <li>
-              <strong>Reading data sequentially is much faster than jumping around.</strong>
+              <strong>Reading data sequentially is much faster than jumping around.</strong> Sequential means one
+              piece after the next, in order. Random means jumping to different places.
             </li>
             <li>
               <strong>Avoid unnecessary network round trips</strong>, especially long-distance ones.
@@ -266,11 +279,12 @@ export default function SdLessonOneZeroPage() {
               One well-tuned app server: roughly <strong>hundreds to a few thousand simple requests per second</strong>.
             </li>
             <li>
-              One relational database (PostgreSQL/MySQL) on good hardware: often{" "}
-              <strong>thousands to tens of thousands of simple queries per second</strong>.
+              One relational database (a database that stores data in tables, such as PostgreSQL or MySQL) on good
+              hardware: often <strong>thousands to tens of thousands of simple queries per second</strong>.
             </li>
             <li>
-              One Redis instance: often <strong>tens of thousands to 100,000+ simple operations per second</strong>.
+              One Redis instance (Redis is a very fast database that keeps its data in memory; people often use it as a
+              cache): often <strong>tens of thousands to 100,000+ simple operations per second</strong>.
             </li>
           </ul>
           <p>
@@ -291,7 +305,10 @@ export default function SdLessonOneZeroPage() {
               { title: <>Servers</>, desc: <>peak QPS ÷ what one server handles, plus headroom</>, tone: "good" },
             ]}
           />
-          <p>Two formulas do most of the work:</p>
+          <p>
+            <strong>Average QPS</strong> is the number of requests per second over a whole day.{" "}
+            <strong>Peak QPS</strong> is the number in the busiest moment. Two formulas do most of the work:
+          </p>
           <CodeBlock code={code1} />
           <p>
             A social app with an evening rush might use ×3. A ticket sale that opens at exactly 10:00 AM might need ×50
@@ -337,7 +354,10 @@ export default function SdLessonOneZeroPage() {
           <CodeBlock code={code3} />
           <p>
             <strong>Insight:</strong> the ratio is <strong>250 reads for every write</strong>. This is a{" "}
-            <strong>very read-heavy</strong> system, so we should design for fast reads: caching, CDNs, read replicas.
+            <strong>very read-heavy</strong> system, so we should design for fast reads. We use caching, CDNs and read
+            replicas. A <strong>CDN</strong> (content delivery network) is a group of servers around the world that keep
+            copies of files close to users. A <strong>read replica</strong> is a copy of a database that only answers
+            read requests.
           </p>
           <p>
             <strong>Step 2: Storage</strong>
@@ -350,19 +370,24 @@ export default function SdLessonOneZeroPage() {
           </p>
           <p>
             <strong>Insight:</strong> this is far too much for database servers, so photos go in{" "}
-            <strong>object storage</strong> (like Amazon S3). Object storage handles copying data for durability for
-            you, so we don't need to multiply by the replication factor ourselves here.
+            <strong>object storage</strong>. Object storage (like Amazon S3) is a service that stores files as separate
+            objects and scales to huge sizes. It also keeps several copies of your data so it is not lost (this is
+            called durability). So we don't need to multiply by the replication factor ourselves here.
           </p>
           <p>Metadata:</p>
           <CodeBlock code={code5} />
           <p>
             <strong>Insight:</strong> metadata is small. A single well-configured relational database with replicas can
-            hold this for years. We don't need to shard on day one, but we should plan for it.
+            hold this for years. To <strong>shard</strong> means to split one big database into smaller parts, each on
+            its own server. We don't need to shard on day one, but we should plan for it.
           </p>
           <p>
             <strong>Step 3: Bandwidth</strong>
           </p>
-          <p>Outgoing (serving feed photos):</p>
+          <p>
+            <strong>Bandwidth</strong> is how much data moves through a network link each second. Gbps means gigabits
+            per second. Outgoing data is also called <strong>egress</strong>. Outgoing (serving feed photos):
+          </p>
           <CodeBlock code={code6} />
           <p>Incoming (uploads):</p>
           <CodeBlock code={code7} />
@@ -392,8 +417,10 @@ export default function SdLessonOneZeroPage() {
           </p>
           <CodeBlock code={code9} />
           <p>
-            <strong>Insight:</strong> this is a <strong>horizontally scaled, stateless app tier</strong> (post 7). Tens
-            of servers is very manageable, so we don't need anything exotic.
+            <strong>Insight:</strong> this is a <strong>horizontally scaled, stateless app tier</strong> (post 7).
+            "Horizontally scaled" means we add more servers instead of buying a bigger one. "Stateless" means a server
+            keeps no user data between requests, so any server can answer any request. Tens of servers is very
+            manageable, so we don't need anything unusual.
           </p>
           <p>
             <strong>The summary you'd write on a whiteboard:</strong>
@@ -466,7 +493,7 @@ export default function SdLessonOneZeroPage() {
             </li>
             <li>
               <strong>Keep units attached.</strong> Mixing up bits and bytes (Gbps vs GB/s) is a common 8× mistake: 1
-              GB/s ≈ 8 Gbps.
+              byte is 8 bits, so 1 GB/s ≈ 8 Gbps.
             </li>
             <li>
               <strong>Sanity-check the result.</strong> "10 PB for a small startup?" If it looks odd, recheck your
@@ -513,7 +540,7 @@ export default function SdLessonOneZeroPage() {
           <ul>
             <li>
               <strong>Estimates are rough by design.</strong> They're great for choosing an architecture, but not for
-              final hardware orders or budgets. For those, <strong>load-test</strong> the real system.
+              final hardware orders or budgets. For those, <strong>load-test</strong> the real system (send it fake traffic and watch how it copes).
             </li>
             <li>
               <strong>Over-estimating</strong> leads to over-engineering and wasted money.{" "}
@@ -535,10 +562,9 @@ export default function SdLessonOneZeroPage() {
             recipe, just done with real historical data.
           </p>
           <p>
-            <strong>Jeff Dean's latency numbers.</strong> Google engineer Jeff Dean popularised a list of "latency
-            numbers every programmer should know" in talks about building large systems at Google. Versions of that list
-            are still shared widely today, and some interactive versions show how the numbers have changed over the
-            years.
+            <strong>Jeff Dean's latency numbers.</strong> Jeff Dean is a Google engineer. In talks about building large
+            systems at Google, he shared a list of "latency numbers every programmer should know". People still share
+            versions of that list today. Some interactive versions show how the numbers have changed over the years.
           </p>
           <p>
             <strong>Cloud bills.</strong> Many startups have been surprised by large{" "}

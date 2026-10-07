@@ -63,6 +63,11 @@ export default function SdLessonOneFivePage() {
             Why ask the database the same question 10,000 times a second? That's the question <strong>caching</strong>{" "}
             answers. It's the single most powerful performance tool in system design.
           </p>
+          <p>
+            <strong>Caching</strong> means keeping a copy of data in a place that is faster to reach, so you can reuse
+            it instead of working it out or fetching it again. Latency is the time one request takes. A database{" "}
+            <strong>query</strong> is one request to the database to read or change data.
+          </p>
         </Section>
 
         <Section id="the-core-idea" title="The Core Idea" kind="idea">
@@ -96,11 +101,15 @@ export default function SdLessonOneFivePage() {
           <p>Two words you'll use constantly:</p>
           <ul>
             <li>
-              <strong>Cache hit:</strong> the data was in the cache. Fast! 🎉
+              <strong>Cache hit:</strong> the data was in the cache. Fast!
             </li>
             <li>
               <strong>Cache miss:</strong> it wasn't, so we go to the source, then (usually) save the result in the
               cache.
+            </li>
+            <li>
+              <strong>Hit ratio:</strong> the share of requests that are hits. If 95 of 100 requests are hits, the hit
+              ratio is 95%.
             </li>
           </ul>
         </Section>
@@ -119,8 +128,9 @@ export default function SdLessonOneFivePage() {
             <li>Popular data is requested again and again within seconds.</li>
           </ul>
           <p>
-            This is often called the <strong>80/20 rule</strong>: roughly 20% of the data gets 80% of the requests. Keep
-            that 20% in a fast cache and you handle most traffic cheaply.
+            This is often called the <strong>80/20 rule</strong>: roughly 20% of the data gets 80% of the requests. It
+            is a rough rule of thumb, not an exact law. Keep that 20% in a fast cache and you handle most traffic
+            cheaply.
           </p>
           <h3 id="hit-ratio-the-number-that-matters">Hit ratio: the number that matters</h3>
           <Stats
@@ -132,7 +142,8 @@ export default function SdLessonOneFivePage() {
             ]}
           />
           <p>
-            Say a cache hit takes <strong>1 ms</strong> and a database query takes <strong>50 ms</strong>:
+            Say a cache hit takes <strong>1 ms</strong> (one millisecond, a thousandth of a second) and a database query
+            takes <strong>50 ms</strong>. The average latency is hits × 1 ms plus misses × 50 ms:
           </p>
           <div className="table-wrap">
             <table>
@@ -210,12 +221,13 @@ export default function SdLessonOneFivePage() {
             <strong>2. CDN cache.</strong> Covered in post 14. Best for static files and public content.
           </p>
           <p>
-            <strong>3. Reverse-proxy cache.</strong> NGINX or Varnish in front of your app can cache whole HTTP
-            responses. It's good for public pages that are expensive to build.
+            <strong>3. Reverse-proxy cache.</strong> A reverse proxy is a server in front of your app that passes requests
+            on. NGINX or Varnish in this role can cache whole HTTP responses. It's good for public pages that are expensive to build.
           </p>
           <p>
             <strong>4. In-process (local) cache.</strong> A map or LRU cache{" "}
-            <strong>inside your application's memory</strong>.
+            <strong>inside your application's memory</strong>. LRU (least recently used) means that when the cache is
+            full, it removes the item that was used longest ago.
           </p>
           <ul>
             <li>✅ Extremely fast (nanoseconds to microseconds), with no network hop.</li>
@@ -227,8 +239,8 @@ export default function SdLessonOneFivePage() {
             <li>Good for: configuration, feature flags, small lookup tables, and very hot keys.</li>
           </ul>
           <p>
-            <strong>5. Distributed cache (Redis, Memcached).</strong> A separate cache server, or cluster,{" "}
-            <strong>shared by all app servers</strong>.
+            <strong>5. Distributed cache (Redis, Memcached).</strong> A separate cache server, or cluster (a group of
+            servers that work as one), <strong>shared by all app servers</strong>.
           </p>
           <ul>
             <li>✅ One shared copy, so all servers see the same cached data.</li>
@@ -238,8 +250,8 @@ export default function SdLessonOneFivePage() {
             <li>This is what people usually mean by "add a cache".</li>
           </ul>
           <p>
-            <strong>6. Database cache.</strong> Databases keep recently used data pages in memory (the{" "}
-            <strong>buffer pool</strong> in PostgreSQL and MySQL). That's why a query is often faster the second time.
+            <strong>6. Database cache.</strong> Databases keep recently used data pages in memory (called{" "}
+            <strong>shared buffers</strong> in PostgreSQL and the <strong>buffer pool</strong> in MySQL). That's why a query is often faster the second time.
             You get this for free, but it can't save you from running expensive queries at huge volume.
           </p>
           <h3 id="what-should-you-cache">What should you cache?</h3>
@@ -259,7 +271,7 @@ export default function SdLessonOneFivePage() {
               <strong>Results from slow or rate-limited external APIs:</strong> currency exchange rates, weather, maps.
             </li>
             <li>
-              <strong>Session data</strong> (post 7), for fast lookups on every request.
+              <strong>Session data</strong> (post 7: the record of who is logged in), for fast lookups on every request.
             </li>
           </ul>
           <p>
@@ -289,11 +301,12 @@ export default function SdLessonOneFivePage() {
           <p>Object-level caching is usually cleaner and easier to keep correct.</p>
           <h3 id="cache-keys-and-ttls">Cache keys and TTLs</h3>
           <p>
-            <strong>Keys</strong> should be clear and structured:
+            A cache works like a big dictionary. Each item has a <strong>key</strong> (its name) and a{" "}
+            <strong>value</strong> (the data). Keys should be clear and structured:
           </p>
           <CodeBlock code={code1} />
           <p>
-            <strong>TTL (time to live)</strong> is how long an entry stays before it expires:
+            <strong>TTL (time to live)</strong> is how long an entry stays before it expires and is removed:
           </p>
           <ul>
             <li>short (seconds) for fast-changing data like prices or scores,</li>
@@ -301,7 +314,10 @@ export default function SdLessonOneFivePage() {
             <li>a TTL on everything as a safety net, so mistakes eventually fix themselves.</li>
           </ul>
           <h3 id="redis-vs-memcached">Redis vs Memcached</h3>
-          <p>Both are in-memory key-value stores used as distributed caches.</p>
+          <p>
+            Both are in-memory key-value stores (databases that keep data in RAM and look it up by key) used as
+            distributed caches.
+          </p>
           <div className="table-wrap">
             <table>
               <thead>
@@ -347,11 +363,16 @@ export default function SdLessonOneFivePage() {
           </div>
           <p>
             Most new projects choose <strong>Redis</strong> (or a compatible alternative like Valkey) because it does
-            much more than caching: rate limiters, leaderboards with sorted sets, and simple queues. Memcached is still
+            much more than caching: rate limiters (which refuse clients that send too many requests), leaderboards with
+            sorted sets, and simple queues. Memcached is still
             great for huge, simple cache fleets.
           </p>
           <h3 id="a-simple-cache-in-code-cache-aside">A simple cache in code (cache-aside)</h3>
-          <p>This is the most common pattern. We'll cover all the strategies in Part 2.</p>
+          <p>
+            <strong>Cache-aside</strong> means the application code manages the cache itself: it checks the cache
+            first, and on a miss it reads the database and then fills the cache. This is the most common pattern. We'll
+            cover all the strategies in Part 2.
+          </p>
           <CodeBlock lang="js" code={code2} />
           <SequenceDiagram
             caption="Cache-aside, the most common pattern. The app owns the logic; the cache is just fast storage."
@@ -377,7 +398,8 @@ export default function SdLessonOneFivePage() {
               <strong>latency</strong> (cache vs database),
             </li>
             <li>
-              <strong>memory usage and evictions</strong> (is the cache too small?),
+              <strong>memory usage and evictions</strong> (an eviction is when the cache removes an item to make space; many
+              evictions mean the cache is too small),
             </li>
             <li>
               <strong>database load</strong> before and after.
@@ -419,7 +441,7 @@ export default function SdLessonOneFivePage() {
               ✅ <strong>Absorbs traffic spikes</strong> that would otherwise take down the database.
             </li>
             <li>
-              ❌ <strong>Stale data.</strong> The cache can be out of date. You must decide how stale is acceptable.
+              ❌ <strong>Stale data.</strong> Stale means old. The cache can be out of date. You must decide how stale is acceptable.
             </li>
             <li>
               ❌ <strong>More complexity:</strong> another system to run, plus invalidation logic.
@@ -434,7 +456,7 @@ export default function SdLessonOneFivePage() {
           </ul>
           <p>
             <strong>When not to cache:</strong> before you've fixed obvious problems like missing indexes or N+1 queries
-            (post 5). A cache on top of a slow query hides the problem, until the cache misses.
+            (post 5). An N+1 problem is when code runs one query for a list and then one more query for each item. A cache on top of a slow query hides the problem, until the cache misses.
           </p>
         </Section>
 
