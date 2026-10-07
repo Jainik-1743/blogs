@@ -70,9 +70,9 @@ const mergeCode = `function merge(intervals) {
   for (let i = 1; i < sorted.length; i++) {
     const last = merged[merged.length - 1];
     if (sorted[i][0] <= last[1]) {
-      last[1] = Math.max(last[1], sorted[i][1]);   // overlap: stretch the last interval
+      last[1] = Math.max(last[1], sorted[i][1]);   // overlap: make the last interval longer
     } else {
-      merged.push([...sorted[i]]);                  // gap: start a new one
+      merged.push([...sorted[i]]);                  // gap: start a new interval
     }
   }
   return merged;
@@ -97,25 +97,25 @@ console.log(merged);`;
 function mergeTrace() {
   const t = tracer();
   const intervals = [[1, 3], [8, 10], [2, 6], [15, 18]].map((p) => [...p]);
-  t.step(1, "start", "intervals as given", "The intervals arrive in any order, so neighbours in the list are not necessarily neighbours on the number line.", { intervals });
+  t.step(1, "start", "intervals as given", "The intervals come in any order. So two intervals that are next to each other in the list may not be next to each other on the number line.", { intervals });
   intervals.sort((a, b) => a[0] - b[0]);
-  t.step(1, "run", "sort by start", "Now any interval that could overlap an earlier one sits right after it.", { intervals }, "intervals");
+  t.step(1, "run", "sort by start", "Now any interval that could overlap an earlier one is right after it.", { intervals }, "intervals");
   const merged = [[...intervals[0]]];
-  t.step(2, "run", "merged = [first interval]", "The first interval is our current candidate.", { intervals, merged }, "merged");
+  t.step(2, "run", "merged = [first interval]", "The first interval is our current choice.", { intervals, merged }, "merged");
   for (let i = 1; i < intervals.length; i++) {
     const last = merged[merged.length - 1];
     const overlap = intervals[i][0] <= last[1];
-    t.step(5, "check", `[${intervals[i]}] starts at ${intervals[i][0]}; last ends at ${last[1]}`, overlap ? `${intervals[i][0]} <= ${last[1]}: the new interval starts before (or when) the last one ends, so they overlap.` : `${intervals[i][0]} > ${last[1]}: there is a gap, so no overlap.`, { i, intervals, merged }, "i");
+    t.step(5, "check", `[${intervals[i]}] starts at ${intervals[i][0]}; last ends at ${last[1]}`, overlap ? `${intervals[i][0]} <= ${last[1]}: the new interval starts before (or when) the last one ends, so they overlap.` : `${intervals[i][0]} > ${last[1]}: there is a gap, so they do not overlap.`, { i, intervals, merged }, "i");
     if (overlap) {
       last[1] = Math.max(last[1], intervals[i][1]);
-      t.step(6, "update", `stretch last to end at ${last[1]}`, `The merged end is the larger of the two ends, in case the new interval sits inside the last one.`, { i, intervals, merged }, "merged");
+      t.step(6, "update", `stretch last to end at ${last[1]}`, `The merged end is the larger of the two ends. This is in case the new interval sits inside the last one.`, { i, intervals, merged }, "merged");
     } else {
       merged.push([...intervals[i]]);
-      t.step(8, "update", `push [${intervals[i]}]`, "Start a new candidate; the earlier ones are final.", { i, intervals, merged }, "merged");
+      t.step(8, "update", `push [${intervals[i]}]`, "Start a new interval. The earlier ones are final.", { i, intervals, merged }, "merged");
     }
   }
   t.print(merged);
-  t.step(11, "print", "print merged", "Three separate stretches remain.", { merged });
+  t.step(11, "print", "print merged", "Three separate intervals are left.", { merged });
   return t.steps;
 }
 
@@ -123,9 +123,9 @@ const insertCode = `function insert(intervals, newInterval) {
   const result = [];
   let i = 0;
   const n = intervals.length;
-  // 1. everything that ends before the new interval starts
+  // 1. copy everything that ends before the new interval starts
   while (i < n && intervals[i][1] < newInterval[0]) result.push(intervals[i++]);
-  // 2. everything that overlaps: absorb it into the new interval
+  // 2. everything that overlaps: take it into the new interval
   let [start, end] = newInterval;
   while (i < n && intervals[i][0] <= end) {
     start = Math.min(start, intervals[i][0]);
@@ -133,7 +133,7 @@ const insertCode = `function insert(intervals, newInterval) {
     i++;
   }
   result.push([start, end]);
-  // 3. everything that starts after the new interval ends
+  // 3. copy everything that starts after the new interval ends
   while (i < n) result.push(intervals[i++]);
   return result;
 }
@@ -143,13 +143,13 @@ console.log(insert([[1, 2], [3, 5], [6, 7], [8, 10], [12, 16]], [4, 8]));    // 
 console.log(insert([], [5, 7]));                                            // [[5, 7]]`;
 
 const eraseCode = `// Fewest intervals to remove so the rest do not overlap.
-// Same as: keep as many as possible (activity selection), then subtract from the total.
+// Same as: keep as many as possible (activity selection), then take that away from the total.
 function eraseOverlapIntervals(intervals) {
   const sorted = [...intervals].sort((a, b) => a[1] - b[1]);   // by END
   let kept = 0;
   let lastEnd = -Infinity;
   for (const [start, end] of sorted) {
-    if (start >= lastEnd) {          // touching is fine: [1,2] and [2,3] do not overlap here
+    if (start >= lastEnd) {          // touching is fine here: [1,2] and [2,3] do not overlap
       kept++;
       lastEnd = end;
     }
@@ -167,9 +167,9 @@ function findMinArrowShots(points) {
   let arrows = 0;
   let arrowAt = -Infinity;
   for (const [start, end] of sorted) {
-    if (start > arrowAt) {           // this balloon is not hit by the last arrow
+    if (start > arrowAt) {           // the last arrow does not hit this balloon
       arrows++;
-      arrowAt = end;                 // shoot as far right as possible while still hitting it
+      arrowAt = end;                 // shoot as far right as possible and still hit it
     }
   }
   return arrows;
@@ -183,7 +183,7 @@ const roomsCode = `// Meeting rooms I: can one person attend all meetings?
 function canAttendMeetings(meetings) {
   const sorted = [...meetings].sort((a, b) => a[0] - b[0]);
   for (let i = 1; i < sorted.length; i++) {
-    if (sorted[i][0] < sorted[i - 1][1]) return false;   // starts before the previous one ends
+    if (sorted[i][0] < sorted[i - 1][1]) return false;   // it starts before the previous one ends
   }
   return true;
 }
@@ -193,10 +193,10 @@ function minMeetingRooms(meetings) {
   const starts = meetings.map((m) => m[0]).sort((a, b) => a - b);
   const ends = meetings.map((m) => m[1]).sort((a, b) => a - b);
   let rooms = 0;
-  let e = 0;                                // the earliest meeting that has not yet ended
+  let e = 0;                                // the earliest meeting that has not ended yet
   for (let s = 0; s < starts.length; s++) {
-    if (starts[s] < ends[e]) rooms++;       // nobody has left yet: we need one more room
-    else e++;                               // someone just left: reuse their room
+    if (starts[s] < ends[e]) rooms++;       // nobody has left yet, so we need one more room
+    else e++;                               // someone just left, so reuse their room
   }
   return rooms;
 }
@@ -214,8 +214,8 @@ function intervalIntersection(A, B) {
   while (i < A.length && j < B.length) {
     const lo = Math.max(A[i][0], B[j][0]);       // the later start
     const hi = Math.min(A[i][1], B[j][1]);       // the earlier end
-    if (lo <= hi) result.push([lo, hi]);         // a real overlap exists
-    if (A[i][1] < B[j][1]) i++; else j++;        // drop the one that ends first: it cannot overlap anything later
+    if (lo <= hi) result.push([lo, hi]);         // there is a real overlap
+    if (A[i][1] < B[j][1]) i++; else j++;        // move past the one that ends first, because it cannot overlap anything later
   }
   return result;
 }
@@ -229,19 +229,19 @@ export default function DsaLessonFortyEightPage() {
     <DsaLessonPage lesson={lesson} outline={outline}>
       <h2 id="what">What is an interval?</h2>
       <p>
-        An <strong>interval</strong> is a stretch of a number line with a start and an end: a meeting from 9 to 10, a balloon
-        spanning 3 to 7 on a wall, a booking from day 5 to day 8. In code we store one as a two-item array{" "}
-        <code>[start, end]</code>, and a problem hands us a list of them: <code>[[1, 3], [2, 6], [8, 10]]</code>.
+        An <strong>interval</strong> is a part of a number line with a start and an end. Examples: a meeting from 9 to 10, a balloon
+        spanning 3 to 7 on a wall, or a booking from day 5 to day 8. In code, we store one as an array with two items:{" "}
+        <code>[start, end]</code>. A problem gives us a list of them: <code>[[1, 3], [2, 6], [8, 10]]</code>.
       </p>
       <p>
-        Interval problems ask things like: &quot;which of these overlap?&quot;, &quot;combine the overlapping ones&quot;,
-        &quot;how many can I keep without any overlap?&quot;, &quot;how many things happen at the same time?&quot;. They all use the
-        last lesson&apos;s trick: <strong>sort by the right key, then scan once</strong>.
+        Interval problems ask questions like these. Which of them overlap (share some of the same space)? Combine the overlapping
+        ones. How many can I keep without any overlap? How many things happen at the same time? They all use the trick from the last
+        lesson: <strong>sort by the right key, then scan once</strong>.
       </p>
 
       <h2 id="overlap">When do two intervals overlap?</h2>
       <p>
-        Draw two intervals on a line. They overlap when neither one is completely to the left of the other. Put differently:{" "}
+        Draw two intervals on a line. They overlap when neither one is completely to the left of the other. Another way to say it:{" "}
         <em>each one starts before the other one ends</em>. For <code>a = [s1, e1]</code> and <code>b = [s2, e2]</code>:
       </p>
       <CodeBlock lang="js" code={overlapCode} />
@@ -249,26 +249,27 @@ export default function DsaLessonFortyEightPage() {
         title="intervals drawn on a line (positions 0 to 9, # = covered)"
         cols={["Case", "a", "b", "Overlap?"]}
         rows={overlapRows}
-        note="Each row shows the two intervals stacked. When you find yourself guessing at conditions, draw the two extremes: fully apart, and one inside the other."
+        note="Each row shows the two intervals one above the other. When you are not sure about a condition, draw the two extreme cases: fully apart, and one inside the other."
       />
       <Callout kind="warn" label="Touching: is it an overlap?">
-        Whether <code>[1, 4]</code> and <code>[4, 8]</code> overlap depends on the problem. When merging ranges they share the point
-        4, so they merge (use <code>&lt;=</code>). For meetings, one ending at 4 and the next starting at 4 is fine, so they
-        do <em>not</em> clash (use <code>&lt;</code>). Read the statement and test the touching case.
+        Whether <code>[1, 4]</code> and <code>[4, 8]</code> overlap depends on the problem. When you merge ranges, they share the point
+        4, so they merge (use <code>&lt;=</code>). For meetings, one that ends at 4 and the next that starts at 4 do <em>not</em>{" "}
+        clash (use <code>&lt;</code>). Read the problem carefully and test the touching case.
       </Callout>
 
       <h2 id="sort">Sort first</h2>
       <p>
-        If intervals are in random order, any one of them could overlap any other, which needs n² comparisons. After{" "}
-        <strong>sorting by start</strong>, an interval can only overlap the ones right before it, so a single left-to-right pass
+        If the intervals are in random order, any one of them could overlap any other. That needs n² comparisons (about n times n).
+        After <strong>sorting by start</strong>, an interval can only overlap the ones right before it. So one pass from left to right
         is enough. Sorting costs O(n log n), and that is the cost of the whole solution.
       </p>
 
       <h2 id="merge">Merge intervals</h2>
       <p>
-        <em>Merge</em>: combine all overlapping intervals into as few intervals as possible. Sort by start; keep a list of merged
-        results. For each interval, if it starts at or before the end of the last merged one, stretch that one (its new end is the{" "}
-        <em>larger</em> of the two ends, since the newcomer may sit entirely inside). Otherwise there is a gap, so start a new one.
+        <em>Merge</em> means: combine all overlapping intervals, so that you have as few intervals as possible. Sort by start, and
+        keep a list of merged results. Look at each interval. If it starts at or before the end of the last merged interval, stretch
+        that one. Its new end is the <em>larger</em> of the two ends, because the new interval may sit completely inside the old
+        one. Otherwise there is a gap, so start a new interval.
       </p>
       <CodeBlock lang="js" code={mergeCode} />
 
@@ -279,88 +280,89 @@ export default function DsaLessonFortyEightPage() {
         caption="After sorting, [1,3] and [2,6] overlap and become [1,6]. [8,10] and [15,18] each start after the previous end, so they stay separate."
       />
       <p>
-        Time O(n log n) for the sort plus O(n) for the scan; space O(n) for the result.
+        The time is O(n log n) for the sort, plus O(n) for the scan. The space is O(n) for the result.
       </p>
 
       <h2 id="insert">Insert an interval</h2>
       <p>
-        You are given a list that is already sorted and has no overlaps, plus one new interval. Insert it and merge whatever it
-        touches. Because the list is sorted, there is no need to sort again: the new interval meets the list in three phases.
+        You get a list that is already sorted and has no overlaps. You also get one new interval. Put it in, and merge whatever it
+        touches. The list is already sorted, so you do not need to sort again. The new interval meets the list in three phases.
       </p>
       <ol>
         <li>Copy every interval that ends <em>before</em> the new one starts.</li>
-        <li>Absorb every interval that starts at or before the new one&apos;s end (stretch the new one to cover them).</li>
+        <li>Take in every interval that starts at or before the end of the new one. Stretch the new one to cover them.</li>
         <li>Copy the rest.</li>
       </ol>
       <CodeBlock lang="js" code={insertCode} />
-      <p>That is O(n), because each interval is handled exactly once.</p>
+      <p>This is O(n), because each interval is handled exactly once.</p>
 
       <h2 id="erase">Remove the fewest: sort by end</h2>
       <p>
-        <em>Non-overlapping intervals</em>: remove the fewest intervals so that the rest do not overlap. Flip it around: keep as
-        many as possible. That is the activity selection problem from lesson 47, so the rule is the same: sort by{" "}
-        <strong>end</strong> and keep an interval whenever it starts at or after the end of the last kept one. The earliest-ending
-        interval leaves the most room, which is what the exchange argument needs. Sorting by start would fail on{" "}
-        <code>[[1, 100], [2, 3], [4, 5]]</code>: it would keep the long one first and lose two.
+        <em>Non-overlapping intervals</em>: remove as few intervals as you can, so that the rest do not overlap. Turn it around: keep
+        as many as you can. That is the activity selection problem from lesson 47, so the rule is the same. Sort by{" "}
+        <strong>end</strong>. Keep an interval whenever it starts at or after the end of the last one you kept. The interval that
+        ends first leaves the most room, and that is what the exchange argument needs. Sorting by start would fail on{" "}
+        <code>[[1, 100], [2, 3], [4, 5]]</code>. It would keep the long one first and lose the other two.
       </p>
       <CodeBlock lang="js" code={eraseCode} />
 
       <h2 id="arrows">Minimum arrows</h2>
       <p>
-        Balloons are intervals along the x-axis. An arrow shot straight up at position <code>x</code> bursts every balloon with{" "}
-        <code>start &lt;= x &lt;= end</code>. Find the fewest arrows. This is the same sweep again: sort by end, shoot the first
-        balloon at its <em>end</em> (as far right as possible while still hitting it, so it catches the most later balloons), then
-        skip every balloon that arrow also hits, and shoot again at the first one it misses. The test is{" "}
-        <code>start &gt; arrowAt</code> (strict: balloons that only touch share an arrow position).
+        Balloons are intervals along the x-axis (the line going left to right). An arrow shot straight up at position <code>x</code>{" "}
+        bursts every balloon with <code>start &lt;= x &lt;= end</code>. Find the fewest arrows. It is the same sweep again. Sort by
+        end. Shoot at the <em>end</em> of the first balloon. This is as far right as possible while still hitting it, so it catches
+        the most later balloons. Skip every balloon that this arrow also hits. Then shoot again at the first balloon it misses. The
+        test is <code>start &gt; arrowAt</code>. It is strict, because balloons that only touch can share one arrow.
       </p>
       <CodeBlock lang="js" code={arrowsCode} />
 
       <h2 id="rooms">Meeting rooms I and II</h2>
       <p>
-        <strong>Meeting rooms I:</strong> can one person attend every meeting? Sort by start; if any meeting starts before the
+        <strong>Meeting rooms I:</strong> can one person attend every meeting? Sort by start. If any meeting starts before the
         previous one has ended, the answer is no.
       </p>
       <p>
-        <strong>Meeting rooms II:</strong> what is the fewest number of rooms needed? Equivalently, what is the largest number of
-        meetings happening at the same moment? A classic answer uses a min-heap of end times, but JavaScript has no built-in heap, so
-        here is a neat trick that needs only sorting. Sort the <em>starts</em> and the <em>ends</em> as two separate lists. Walk
-        through the starts in order. If a meeting starts before the earliest unfinished end, nobody has left yet, so a new room is
-        needed. Otherwise somebody just left, and we reuse their room by moving past that end.
+        <strong>Meeting rooms II:</strong> what is the fewest rooms you need? Another way to ask: what is the largest number of
+        meetings at the same moment? A classic answer uses a min-heap of end times. But JavaScript has no built-in heap, so here is a
+        neat trick that needs only sorting. Sort the <em>starts</em> and the <em>ends</em> as two separate lists. Walk through the
+        starts in order. If a meeting starts before the earliest end that is still waiting, nobody has left yet, so you need a new
+        room. Otherwise someone just left. Reuse their room by moving past that end.
       </p>
       <CodeBlock lang="js" code={roomsCode} />
       <Callout kind="note" label="Premium questions">
-        On LeetCode, Meeting Rooms (252) and Meeting Rooms II (253) are premium-only problems. The practice section below states
-        them in full, so you can solve them without an account.
+        On LeetCode, Meeting Rooms (252) and Meeting Rooms II (253) are only for paying members. The practice section below writes
+        them out in full, so you can solve them without an account.
       </Callout>
 
       <h2 id="intersect">Intersections of two lists</h2>
       <p>
-        Given two lists of intervals, each sorted and each free of overlaps, list the places where an interval from one list
-        overlaps an interval from the other. Use two pointers. The overlap of the pair under the pointers, if any, runs from the
-        later start to the earlier end. Then advance the pointer whose interval ends first: it can overlap nothing later in the
-        other list.
+        You get two lists of intervals. Each list is sorted and has no overlaps inside it. List the places where an interval from one
+        list overlaps an interval from the other. Use two pointers (two markers that move along the lists). The overlap of the pair
+        under the pointers, if there is one, goes from the later start to the earlier end. Then move the pointer whose interval ends
+        first. That interval cannot overlap anything later in the other list.
       </p>
       <CodeBlock lang="js" code={intersectCode} />
 
       <h2 id="practice">Practice questions</h2>
-      <p>Before coding, decide: what to sort by, and whether touching intervals count as overlapping.</p>
+      <p>Before you write code, decide two things. What will you sort by? Do touching intervals count as overlapping?</p>
 
       <Questions />
 
       <h2 id="recall">Make it stick</h2>
       <Recall
         items={[
-          <>Write the overlap test for two intervals and explain when you use &lt; and when &lt;=.</>,
-          <>Explain why merge sorts by start but &quot;remove the fewest&quot; sorts by end.</>,
+          <>Write the overlap test for two intervals, and explain when you use &lt; and when you use &lt;=.</>,
+          <>Explain why merge sorts by start, but &quot;remove the fewest&quot; sorts by end.</>,
           <>Describe the three phases of insert interval.</>,
-          <>Explain why meeting rooms II works with separately sorted starts and ends.</>,
+          <>Explain why meeting rooms II works with starts and ends sorted separately.</>,
         ]}
       />
 
       <h2 id="next">What&apos;s next</h2>
       <p>
-        That finishes this part on heaps, greedy choices and intervals. <strong>Lesson 49</strong> begins the next one with{" "}
-        <strong>graphs</strong>: a collection of nodes joined by edges, and the way to represent and search them.
+        That finishes this part on heaps, greedy choices and intervals. <strong>Lesson 49</strong> starts the next part with{" "}
+        <strong>graphs</strong>. A graph is a set of nodes joined by edges (think of cities joined by roads). You will learn how to
+        store graphs and how to search them.
       </p>
     </DsaLessonPage>
   );
