@@ -95,11 +95,19 @@ const ENTRIES: GlossaryEntry[] = [
   { term: "lower bound", aliases: ["Lower bound"], full: "Lower bound", desc: "The first index whose value is ≥ the target — also where the target would be inserted to keep the array sorted.", lesson: 28, group: "Hashing and binary search" },
   { term: "upper bound", aliases: ["Upper bound"], full: "Upper bound", desc: "The first index whose value is > the target. upper bound − lower bound = how many times the target appears.", lesson: 28, group: "Hashing and binary search" },
   { term: "monotonic", full: "Monotonic", desc: "Only ever moving one way: a yes/no condition that is false…false then true…true. Binary search needs this property.", lesson: 29, group: "Hashing and binary search" },
+  // ── Strings, recursion and backtracking ───────────────────────────────
+  { term: "recursion tree", aliases: ["Recursion tree", "recursion trees"], full: "Recursion tree", desc: "A drawing of every call a recursive function makes, with each call as a node. Count the nodes for time and measure the height for stack space.", lesson: 32, group: "Strings, recursion and backtracking" },
+  { term: "memoisation", aliases: ["Memoisation", "memoization", "memoize"], full: "Memoisation", desc: "Saving each answer in a Map the first time it is computed so the same call is never worked out twice. Turns naive Fibonacci from exponential into linear.", lesson: 32, group: "Strings, recursion and backtracking" },
+  { term: "subset", aliases: ["subsets"], full: "Subset", desc: "A selection of items from a set, in any amount including none. A set of n items has 2ⁿ subsets.", lesson: 33, group: "Strings, recursion and backtracking" },
+  { term: "permutation", aliases: ["permutations", "Permutation"], full: "Permutation", desc: "One ordering of all the items. n items have n! permutations.", lesson: 33, group: "Strings, recursion and backtracking" },
+  { term: "combination", aliases: ["combinations", "Combination"], full: "Combination", desc: "A choice of k items where order does not matter. There are C(n, k) of them.", lesson: 33, group: "Strings, recursion and backtracking" },
+  { term: "backtracking", aliases: ["Backtracking", "backtrack"], full: "Backtracking", desc: "Building an answer one choice at a time, undoing the choice afterwards, and abandoning a partial answer as soon as it cannot succeed.", lesson: 34, group: "Strings, recursion and backtracking" },
+  { term: "pruning", aliases: ["prune", "Pruning"], full: "Pruning", desc: "Cutting off a branch of the search early because it can never lead to a valid answer. It does not change the worst case, but it can shrink the real work enormously.", lesson: 34, group: "Strings, recursion and backtracking" },
 ];
 
 export const DSA_GLOSSARY: Glossary = {
   series: "dsa",
   seriesTitle: "DSA for Interviews, From Zero",
-  groups: ["Basics", "Loops", "Functions", "Collections", "Problem solving", "Maths", "Recursion and hashing", "Sorting", "Array patterns", "Hashing and binary search"],
+  groups: ["Basics", "Loops", "Functions", "Collections", "Problem solving", "Maths", "Recursion and hashing", "Sorting", "Array patterns", "Hashing and binary search", "Strings, recursion and backtracking"],
   entries: ENTRIES,
 };
