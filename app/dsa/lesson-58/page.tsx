@@ -20,13 +20,13 @@ const outline = [
   { id: "why", label: "Why a trie?" },
   { id: "trie", label: "Building a trie" },
   { id: "trace", label: "Traced: insert and search" },
-  { id: "wild", label: "Wildcard search with DFS" },
+  { id: "wild", label: "Wildcard search (depth-first search)" },
   { id: "bits", label: "Bits and operators in JavaScript" },
   { id: "int32", label: "The 32-bit rule" },
-  { id: "tricks", label: "Check, set, clear, toggle" },
+  { id: "tricks", label: "Check, set, clear and flip a bit" },
   { id: "count", label: "Counting set bits" },
   { id: "xor", label: "Power of two, XOR and the single number" },
-  { id: "masks", label: "Subsets with bitmasks" },
+  { id: "masks", label: "Subsets with bit masks" },
   { id: "practice", label: "Practice questions (7)" },
   { id: "recall", label: "Make it stick" },
   { id: "next", label: "What's next" },
@@ -275,51 +275,51 @@ function trieSummary(root: TNode): string {
 function trieTrace() {
   const t = tracer();
   const root: TNode = { children: new Map(), isEnd: false };
-  t.step(1, "start", "an empty trie", "Only the root exists. It represents the empty prefix. In the variable panel, a trailing * marks a node where a word ends.", { trie: trieSummary(root) }, "trie");
+  t.step(1, "start", "an empty trie", "Only the root exists. It stands for the empty prefix (nothing typed yet). In the variable panel, a * at the end marks a node where a word ends.", { trie: trieSummary(root) }, "trie");
   for (const word of ["cat", "car"]) {
     let node = root;
-    t.step(2, "update", `insert "${word}": start at the root`, `Every insertion starts at the root and walks down one character at a time.`, { word, trie: trieSummary(root) }, "word");
+    t.step(2, "update", `insert "${word}": start at the root`, `Every insert starts at the root and goes down one character at a time.`, { word, trie: trieSummary(root) }, "word");
     let built = "";
     for (const ch of word) {
       built += ch;
       if (!node.children.has(ch)) {
         node.children.set(ch, { children: new Map(), isEnd: false });
-        t.step(4, "update", `no "${built}" yet: create it`, `The node for "${ch}" does not exist under this prefix, so create it.`, { word, ch, trie: trieSummary(root) }, "trie");
+        t.step(4, "update", `no "${built}" yet: create it`, `There is no node for "${ch}" under this prefix, so make one.`, { word, ch, trie: trieSummary(root) }, "trie");
       } else {
-        t.step(4, "check", `"${built}" already exists: reuse it`, `"cat" and "car" share the prefix "ca", so the second word walks over nodes the first one built. That sharing is what makes a trie compact.`, { word, ch, trie: trieSummary(root) }, "ch");
+        t.step(4, "check", `"${built}" already exists: reuse it`, `"cat" and "car" share the start "ca", so the second word uses nodes the first word already made. This sharing keeps a trie small.`, { word, ch, trie: trieSummary(root) }, "ch");
       }
       node = node.children.get(ch)!;
-      t.step(5, "update", `move down to "${built}"`, `node now stands for the prefix "${built}".`, { word, ch, trie: trieSummary(root) }, "node");
+      t.step(5, "update", `move down to "${built}"`, `node now stands for the start of the word "${built}".`, { word, ch, trie: trieSummary(root) }, "node");
     }
     node.isEnd = true;
-    t.step(7, "update", `mark "${word}" as a word`, `Only the last node gets isEnd = true. Without this flag we could not tell "ca" (just a prefix) from "cat" (a stored word).`, { word, trie: trieSummary(root) }, "trie");
+    t.step(7, "update", `mark "${word}" as a word`, `Only the last node gets isEnd = true. Without this flag we could not tell "ca" (only the start of a word) from "cat" (a stored word).`, { word, trie: trieSummary(root) }, "trie");
   }
   let node = root;
-  t.step(10, "update", `search("ca"): back to the root`, `Searching follows the same path without creating anything.`, { trie: trieSummary(root) }, "node");
+  t.step(10, "update", `search("ca"): back to the root`, `Searching follows the same path but does not create anything.`, { trie: trieSummary(root) }, "node");
   for (const ch of "ca") {
     node = node.children.get(ch)!;
-    t.step(11, "update", `follow "${ch}"`, `The path exists, so keep going.`, { ch, trie: trieSummary(root) }, "ch");
+    t.step(11, "update", `follow "${ch}"`, `The path is there, so keep going.`, { ch, trie: trieSummary(root) }, "ch");
   }
   t.print(node.isEnd);
-  t.step(12, "done", `isEnd is ${node.isEnd}`, `The path "ca" exists (startsWith("ca") would be true) but no word ends there, so search("ca") is false.`, { trie: trieSummary(root) }, "node");
+  t.step(12, "done", `isEnd is ${node.isEnd}`, `The path "ca" is there (startsWith("ca") would be true), but no word ends there. So search("ca") is false.`, { trie: trieSummary(root) }, "node");
   return t.steps;
 }
 
 const kernighanRows: string[][] = [
   ["start", "101100  (44)", "0", "three 1-bits to remove"],
-  ["n & (n - 1)", "101100 & 101011 = 101000  (40)", "1", "the lowest 1 (value 4) is gone"],
-  ["n & (n - 1)", "101000 & 100111 = 100000  (32)", "2", "the next lowest 1 (value 8) is gone"],
-  ["n & (n - 1)", "100000 & 011111 = 000000  (0)", "3", "n is 0: stop. The answer is 3"],
+  ["n & (n - 1)", "101100 & 101011 = 101000  (40)", "1", "the lowest 1 (value 4) is removed"],
+  ["n & (n - 1)", "101000 & 100111 = 100000  (32)", "2", "the next lowest 1 (value 8) is removed"],
+  ["n & (n - 1)", "100000 & 011111 = 000000  (0)", "3", "n is 0, so stop. The answer is 3"],
 ];
 
 const opRows: string[][] = [
-  ["&", "AND", "1 if both bits are 1", "check or keep bits (masking)"],
+  ["&", "AND", "1 if both bits are 1", "check bits or keep only some bits (masking)"],
   ["|", "OR", "1 if either bit is 1", "set bits"],
-  ["^", "XOR", "1 if the bits differ", "toggle bits; cancel pairs"],
-  ["~", "NOT", "flip all 32 bits (~n = -n - 1)", "build masks such as ~(1 << i)"],
-  ["<<", "shift left", "move bits up, fill with 0", "1 << i makes a single-bit mask"],
-  [">>", "signed shift right", "move bits down, copy the sign bit in", "halve a number, rounding down"],
-  [">>>", "unsigned shift right", "move bits down, fill with 0", "treat 32 bits as unsigned (n >>> 0)"],
+  ["^", "XOR", "1 if the bits differ", "flip bits; cancel pairs"],
+  ["~", "NOT", "flip all 32 bits (~n = -n - 1)", "make masks such as ~(1 << i)"],
+  ["<<", "shift left", "move bits up, fill with 0", "1 << i makes a mask with one bit on"],
+  [">>", "signed shift right", "move bits down, copy the sign bit into the gap", "halve a number, rounding down"],
+  [">>>", "unsigned shift right", "move bits down, fill with 0", "read 32 bits as a positive number (n >>> 0)"],
 ];
 
 export default function DsaLessonFiftyEightPage() {
@@ -327,55 +327,60 @@ export default function DsaLessonFiftyEightPage() {
     <DsaLessonPage lesson={lesson} outline={outline}>
       <h2 id="why">Why a trie?</h2>
       <p>
-        Imagine a dictionary of 100,000 words and the question &quot;does any word start with <code>pre</code>?&quot; Scanning
-        every word costs O(number of words). A <strong>trie</strong> (say &quot;try&quot;; also called a <strong>prefix tree</strong>) stores words
-        as paths through a tree where each edge is one character, and words that share a beginning share the path. Answering the
-        question now costs O(length of the prefix), no matter how many words are stored. Autocomplete, spell checkers and word-game
-        solvers use exactly this.
+        Imagine a dictionary of 100,000 words. You ask: &quot;does any word start with <code>pre</code>?&quot; (A prefix is the
+        beginning of a word.) Checking every word takes O(number of words) time. A <strong>trie</strong> (say &quot;try&quot;; it is
+        also called a <strong>prefix tree</strong>) is a better way. It stores words as paths through a tree, where each step is one
+        character. Words that start the same way share the same path. Think of a phone book where all the names starting with
+        &ldquo;Sm&rdquo; sit together. Now the question costs only O(length of the prefix), however many words are stored.
+        Autocomplete, spell checkers and word-game solvers use this idea.
       </p>
 
       <h2 id="trie">Building a trie</h2>
       <p>
-        Each node holds its <strong>children</strong>, a <code>Map</code> from a character to the next node, plus a flag{" "}
-        <code>isEnd</code> saying whether a stored word finishes at that node. The flag is essential: after inserting
-        &quot;apple&quot; the nodes for &quot;a&quot;, &quot;ap&quot;, &quot;app&quot; and &quot;appl&quot; all exist, yet only &quot;apple&quot; is a word.
+        Each node holds its <strong>children</strong>. This is a <code>Map</code> (a list of pairs) that links a character to the next
+        node. Each node also has a flag called <code>isEnd</code>. It says if a stored word finishes at that node. The flag is needed.
+        After you insert &quot;apple&quot;, the nodes for &quot;a&quot;, &quot;ap&quot;, &quot;app&quot; and &quot;appl&quot; all exist.
+        But only &quot;apple&quot; is a word.
       </p>
       <p>
-        All three operations walk down from the root, one character per step, so each takes <strong>O(L)</strong> time for a word
-        of length L. Space is O(total characters stored) in the worst case, less when words share prefixes.
+        All three operations (insert, search and startsWith) walk down from the root, one character at a time. So each takes{" "}
+        <strong>O(L)</strong> time for a word with L letters. Memory is O(total characters stored) in the worst case. It is less when
+        words share the same start.
       </p>
       <CodeBlock lang="js" code={trieCode} />
       <Callout kind="note" label="Map or array of 26?">
-        A <code>Map</code> works for any alphabet and only stores letters that occur. When the input is strictly lowercase English, an
-        array of 26 slots (<code>children[ch.charCodeAt(0) - 97]</code>) is a common, slightly faster alternative. The logic is
-        identical.
+        A <code>Map</code> works for any alphabet and stores only the letters that appear. If the input is only lowercase English
+        letters, you can use an array with 26 slots instead (<code>children[ch.charCodeAt(0) - 97]</code>). This is common and a little
+        faster. The logic is the same.
       </Callout>
 
       <h2 id="trace">Traced: insert and search</h2>
       <CodeTrace
         code={traceSrc}
         steps={trieTrace()}
-        caption="Inserting cat then car: the second word reuses c and a, and adds only one new node. Searching ca ends on a node whose isEnd is false."
+        caption="We insert cat, then car. The second word reuses c and a, and adds only one new node. Searching ca ends on a node where isEnd is false."
       />
 
       <h2 id="wild">Wildcard search with DFS</h2>
       <p>
-        Now let a search pattern contain <code>.</code>, meaning &quot;any one letter&quot;. A normal letter has exactly one place to go, but a dot
-        could be any child, so we must try them all. That is a <strong>depth-first search</strong> (DFS) over the trie: follow a
-        branch as deep as it goes, and back up to try the next one if it fails. The recursion tracks the node and the position in
-        the pattern.
+        Now let the search pattern contain <code>.</code>, which means &quot;any one letter&quot;. A normal letter has exactly one way to
+        go. A dot could be any child, so we must try all of them. This is a <strong>depth-first search</strong> (DFS). You follow one
+        branch as deep as it goes. If it fails, you go back up and try the next branch. It is like exploring a maze: walk down one
+        corridor until it ends, then return and try another. The recursion (a function that calls itself) keeps track of the node and
+        the position in the pattern.
       </p>
       <CodeBlock lang="js" code={wildCode} />
       <p>
-        Without dots a search is O(L). With dots it can visit many branches: in the worst case, a pattern of all dots explores the
-        whole trie, which is O(total characters stored).
+        Without dots, a search takes O(L). With dots it can visit many branches. In the worst case, a pattern of only dots explores the
+        whole trie. That takes O(total characters stored).
       </p>
 
       <h2 id="bits">Bits and operators in JavaScript</h2>
       <p>
-        Computers store integers as <strong>bits</strong> (binary digits, 0 or 1). The number 5 is <code>101</code>: one 4, no 2, one
-        1. Bit positions are counted from the right starting at 0, so in <code>101</code> bits 0 and 2 are set. JavaScript gives you
-        these <strong>bitwise operators</strong>:
+        Computers store whole numbers as <strong>bits</strong> (binary digits, each one a 0 or a 1). Think of a row of light switches
+        that are either off (0) or on (1). The number 5 is <code>101</code>: one 4, no 2, and one 1. We count bit positions from the
+        right, starting at 0. So in <code>101</code>, bits 0 and 2 are set (on). JavaScript has these <strong>bitwise operators</strong>
+        (operators that work on each bit):
       </p>
       <DryRun
         title="the bitwise operators"
@@ -386,48 +391,50 @@ export default function DsaLessonFiftyEightPage() {
 
       <h2 id="int32">The 32-bit rule</h2>
       <p>
-        Here is the detail that surprises people. A JavaScript number is a 64-bit floating-point value, but{" "}
-        <strong>every bitwise operator first converts its operands to a 32-bit signed integer</strong>, in two&apos;s complement form (the
-        usual way computers store negative numbers: the top bit, bit 31, is the sign, and a set sign bit means negative). The result
-        is also a 32-bit signed integer, in the range <code>-2147483648</code> to <code>2147483647</code>. Three consequences:
+        This detail surprises many people. A JavaScript number is normally a 64-bit decimal-style value (floating point). But{" "}
+        <strong>every bitwise operator first turns its inputs into 32-bit signed integers</strong>. &ldquo;Signed&rdquo; means the
+        number can be negative. The form used is called two&apos;s complement, which is the usual way computers store negative numbers.
+        In it, the top bit (bit 31) is the sign. If that bit is on, the number is negative. The result is also a 32-bit signed
+        integer, from <code>-2147483648</code> to <code>2147483647</code>. This has three effects:
       </p>
       <ul>
         <li>
-          <strong>Overflow turns negative:</strong> <code>1 &lt;&lt; 31</code> is <code>-2147483648</code>, not 2147483648.
+          <strong>Too-big numbers turn negative:</strong> <code>1 &lt;&lt; 31</code> is <code>-2147483648</code>, not 2147483648.
         </li>
         <li>
-          <strong>Large values are truncated:</strong> only the low 32 bits are kept, so <code>2 ** 32 + 5 | 0</code> is{" "}
-          <code>5</code>. Numbers beyond 2<sup>32</sup> silently lose their high bits. Anything above 2<sup>53</sup> is not even exact
-          as a plain number.
+          <strong>Big values are cut off:</strong> only the lowest 32 bits are kept, so <code>2 ** 32 + 5 | 0</code> is{" "}
+          <code>5</code>. Numbers beyond 2<sup>32</sup> lose their high bits, and there is no warning. Anything above 2<sup>53</sup> is
+          not even exact as a normal number.
         </li>
         <li>
-          <strong>Shift counts wrap:</strong> the count is taken modulo 32, so <code>1 &lt;&lt; 32</code> equals{" "}
-          <code>1 &lt;&lt; 0</code>, which is 1.
+          <strong>Shift counts wrap around:</strong> the count is taken modulo 32 (the remainder after dividing by 32). So{" "}
+          <code>1 &lt;&lt; 32</code> equals <code>1 &lt;&lt; 0</code>, which is 1.
         </li>
       </ul>
       <p>
-        <code>&gt;&gt;</code> (signed) copies the sign bit into the vacated places, so negatives stay negative.{" "}
-        <code>&gt;&gt;&gt;</code> (unsigned) fills with zeros and returns a result from 0 to 4294967295. The idiom{" "}
-        <code>n &gt;&gt;&gt; 0</code> converts a 32-bit pattern to its unsigned value.
+        <code>&gt;&gt;</code> (signed shift) copies the sign bit into the empty places, so negative numbers stay negative.{" "}
+        <code>&gt;&gt;&gt;</code> (unsigned shift) fills the empty places with zeros and gives a result from 0 to 4294967295. The
+        common trick <code>n &gt;&gt;&gt; 0</code> turns a 32-bit pattern into a positive number.
       </p>
       <CodeBlock lang="js" code={int32Code} />
       <p>
-        If you truly need more than 32 bits, use <code>BigInt</code>, whose operators have no 32-bit limit:
+        If you really need more than 32 bits, use <code>BigInt</code> (a number type for very big whole numbers). Its operators have no 32-bit limit:
       </p>
       <CodeBlock lang="js" code={bigCode} />
 
       <h2 id="tricks">Check, set, clear, toggle</h2>
       <p>
-        Four operations cover most needs. The key object is a <strong>mask</strong>: a number built to touch only some bits.{" "}
-        <code>1 &lt;&lt; i</code> is the mask with only bit <code>i</code> switched on.
+        Four operations cover most needs: check a bit, set it (turn it on), clear it (turn it off), and toggle it (flip it). The key tool
+        is a <strong>mask</strong>. A mask is a number made to touch only some bits, like a stencil that lets paint through only in
+        some places. <code>1 &lt;&lt; i</code> is the mask with only bit <code>i</code> switched on.
       </p>
       <CodeBlock lang="js" code={tricksCode} />
 
       <h2 id="count">Counting set bits</h2>
       <p>
-        A bit that equals 1 is a <strong>set bit</strong>. The expression <code>n &amp; (n - 1)</code> removes the lowest set bit:
-        subtracting 1 turns that bit into 0 and every zero below it into 1, so the AND wipes out exactly that stretch. Looping
-        until <code>n</code> is 0 therefore runs once per set bit.
+        A bit that equals 1 is called a <strong>set bit</strong>. The expression <code>n &amp; (n - 1)</code> removes the lowest set
+        bit. Here is why. Subtracting 1 turns that bit into 0, and turns every zero below it into 1. Then the AND wipes out exactly
+        that part. So if you loop until <code>n</code> is 0, the loop runs once for each set bit.
       </p>
       <CodeBlock lang="js" code={popCode} />
       <DryRun
@@ -435,41 +442,41 @@ export default function DsaLessonFiftyEightPage() {
         cols={["Step", "n & (n - 1)", "count", "Meaning"]}
         rows={kernighanRows}
         highlight={3}
-        note="Each loop removes the lowest 1 and nothing else. 44 has three 1-bits, so exactly three loops."
+        note="Each loop removes the lowest 1 and nothing else. 44 has three 1-bits, so there are exactly three loops."
       />
-      <p>The plain alternative checks every position. Note the unsigned shift, so a negative input still ends:</p>
+      <p>The simple way checks every bit position. Notice the unsigned shift. It makes sure the loop still ends for a negative input:</p>
       <CodeBlock lang="js" code={shiftCountCode} />
 
       <h2 id="xor">Power of two, XOR and the single number</h2>
       <p>
-        A power of two has exactly one set bit (<code>1000</code>), so <code>n &amp; (n - 1)</code> clears it and leaves 0. Add{" "}
-        <code>n &gt; 0</code> to rule out zero and negatives.
+        A power of two (1, 2, 4, 8, 16 and so on) has exactly one set bit, like <code>1000</code>. So <code>n &amp; (n - 1)</code>{" "}
+        clears it and leaves 0. Add <code>n &gt; 0</code> to rule out zero and negative numbers.
       </p>
       <CodeBlock lang="js" code={powerCode} />
       <Callout kind="warn" label="Stay inside 32 bits">
-        Because <code>&amp;</code> sees only the low 32 bits, this trick is trustworthy for inputs up to 2<sup>31</sup> - 1, which is
-        what interview problems promise. A value such as <code>2 ** 32 + 1</code> has <code>n - 1 = 2 ** 32</code>, and both are
-        truncated before the AND, so the test would wrongly return true. Beyond 32 bits, use BigInt or a different method.
+        <code>&amp;</code> sees only the lowest 32 bits. So this trick is safe for inputs up to 2<sup>31</sup> - 1, which is what
+        interview problems promise. Take a value like <code>2 ** 32 + 1</code>. Here <code>n - 1 = 2 ** 32</code>. Both numbers are
+        cut to 32 bits before the AND, so the test would wrongly return true. For more than 32 bits, use BigInt or a different method.
       </Callout>
       <p>
-        XOR (<code>^</code>) has three properties worth memorising: <code>a ^ a = 0</code>, <code>a ^ 0 = a</code>, and the order
-        does not matter. XOR a whole array in which every value appears twice except one, and all the pairs cancel, leaving the odd
-        one out, in O(n) time and O(1) space:
+        XOR (<code>^</code>) has three properties worth remembering: <code>a ^ a = 0</code>, <code>a ^ 0 = a</code>, and the order
+        does not matter. Now take an array where every value appears twice, except one. XOR all the values together. The pairs cancel
+        each other, and only the odd one out is left. This takes O(n) time and O(1) memory:
       </p>
       <CodeBlock lang="js" code={xorCode} />
 
       <h2 id="masks">Subsets with bitmasks</h2>
       <p>
-        You met subsets in lesson 33 with backtracking. Bits give a loop-only alternative: with n items there are 2<sup>n</sup> subsets,
-        and each number from 0 to 2<sup>n</sup> - 1 written in binary says which items to take (bit i set means item i is in). It
-        is practical only for small n (up to about 20, since 1 &lt;&lt; n must also stay within 32 bits).
+        You met subsets in lesson 33, where we used backtracking. Bits give another way that needs only a loop. With n items there are
+        2<sup>n</sup> subsets. Each number from 0 to 2<sup>n</sup> - 1, written in binary, tells you which items to take. If bit i is
+        set, item i is in the subset. This works only for small n (up to about 20), because 1 &lt;&lt; n must also fit in 32 bits.
       </p>
       <CodeBlock lang="js" code={maskCode} />
 
       <h2 id="practice">Practice questions</h2>
       <p>
-        For the trie questions, draw the tree for two or three words first. For the bit questions, write the numbers in binary on
-        paper before you code.
+        For the trie questions, first draw the tree for two or three words. For the bit questions, first write the numbers in binary on
+        paper. Then write the code.
       </p>
 
       <Questions />
@@ -477,19 +484,20 @@ export default function DsaLessonFiftyEightPage() {
       <h2 id="recall">Make it stick</h2>
       <Recall
         items={[
-          <>Write a Trie class with insert, search and startsWith from memory, and say what <code>isEnd</code> is for.</>,
-          <>Explain how a <code>.</code> in a pattern turns the search into a DFS over children.</>,
-          <>State the 32-bit rule: what happens to <code>1 &lt;&lt; 31</code>, to <code>2 ** 32 + 5 | 0</code>, and what <code>n &gt;&gt;&gt; 0</code> does.</>,
-          <>Write the four mask operations: check, set, clear and toggle bit i.</>,
-          <>Explain why <code>n &amp; (n - 1)</code> clears the lowest set bit, and use it to count bits and test powers of two.</>,
-          <>Explain why XOR finds the single number.</>,
+          <>Write a Trie class with insert, search and startsWith from memory. Say what <code>isEnd</code> is for.</>,
+          <>Explain how a <code>.</code> in a pattern turns the search into a depth-first search over the children.</>,
+          <>State the 32-bit rule. Say what happens to <code>1 &lt;&lt; 31</code> and to <code>2 ** 32 + 5 | 0</code>, and what <code>n &gt;&gt;&gt; 0</code> does.</>,
+          <>Write the four mask operations: check, set, clear and toggle (flip) bit i.</>,
+          <>Explain why <code>n &amp; (n - 1)</code> clears the lowest set bit. Use it to count bits and to test for powers of two.</>,
+          <>Explain why XOR finds the number that appears only once.</>,
         ]}
       />
 
       <h2 id="next">What&apos;s next</h2>
       <p>
-        You now have every technique in this series. <strong>Lesson 59</strong>, The Interview Playbook, is about using them under
-        pressure: what to ask, how to talk through a brute force, how to code cleanly and test with a dry run, and how to use hints.
+        You now have every technique in this series. <strong>Lesson 59</strong>, The Interview Playbook, is about using them when you
+        feel pressure. It covers what to ask, how to explain a brute-force (try everything) answer, how to write clean code and test it
+        with a dry run, and how to use hints.
       </p>
     </DsaLessonPage>
   );

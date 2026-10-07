@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 
 const outline = [
   { id: "how", label: "How to use this lesson" },
-  { id: "limits", label: "Constraints tell you the target speed" },
+  { id: "limits", label: "The input limits tell you how fast you need to be" },
   { id: "cheat", label: "The pattern cheat sheet" },
   { id: "plan", label: "An eight-week practice plan" },
   { id: "spaced", label: "Spaced repetition: 1, 3, 7 and 21 days" },
@@ -51,11 +51,11 @@ const Ls = (...ns: number[]): ReactNode => (
 const cols = ["The wording says…", "Technique", "Lesson", "Time / space"];
 
 const limitRows: string[][] = [
-  ["n up to about 20", "Try everything: subsets, permutations, backtracking", "O(2ⁿ) or O(n!)"],
-  ["n up to about 500", "Three nested loops are still fine", "O(n³)"],
-  ["n up to about 5,000", "Two nested loops are fine", "O(n²)"],
-  ["n up to 100,000 or 1,000,000", "Sort, heap, binary search, or one pass with a map", "O(n log n) or O(n)"],
-  ["n up to 10¹⁸ or \"very large number\"", "Maths or binary search on the answer: the loop cannot run n times", "O(log n) or O(√n)"],
+  ["n up to about 20", "Try every possibility: subsets, permutations, backtracking (try, undo, try again)", "O(2ⁿ) or O(n!)"],
+  ["n up to about 500", "Three loops inside each other are still fine", "O(n³)"],
+  ["n up to about 5,000", "Two loops inside each other are fine", "O(n²)"],
+  ["n up to 100,000 or 1,000,000", "Sort, heap, binary search, or one pass with a Map", "O(n log n) or O(n)"],
+  ["n up to 10¹⁸ or \"very large number\"", "Maths, or binary search on the answer. A loop that runs n times is too slow", "O(log n) or O(√n)"],
 ];
 
 const foundationRows: ReactNode[][] = [
@@ -165,26 +165,26 @@ const planRows: ReactNode[][] = [
 ];
 
 const spacedRows: string[][] = [
-  ["Day 0 (Monday)", "Solve it, with the solution closed if you can.", "Write one line in the mistake log: pattern and the key idea."],
-  ["Day 1 (Tuesday)", "First review: solve it again from a blank page, 10 minutes.", "Memory fades fastest in the first day; this catches it."],
-  ["Day 3 (Thursday)", "Second review: solve again, then say the complexity aloud.", "If you stumble, the problem goes back to day 1."],
-  ["Day 7 (next Monday)", "Third review: solve it in half the time, narrating as in lesson 59.", "Now it should feel like a routine you own."],
-  ["Day 21 (three weeks later)", "Final review: fresh-eyed, as if it were an interview question.", "Pass this and the problem is retired. Fail it and restart the ladder."],
+  ["Day 0 (Monday)", "Solve it. Keep the solution closed if you can.", "Write one line in the mistake log: the pattern and the key idea."],
+  ["Day 1 (Tuesday)", "First review: solve it again from a blank page, 10 minutes.", "Memory fades fastest in the first day. This review catches it."],
+  ["Day 3 (Thursday)", "Second review: solve it again, then say the complexity out loud.", "If you get stuck, the problem goes back to day 1."],
+  ["Day 7 (next Monday)", "Third review: solve it in half the time, and explain it out loud as in lesson 59.", "Now it should feel like a habit you own."],
+  ["Day 21 (three weeks later)", "Final review: treat it as a new interview question.", "If you pass, you are finished with this problem. If you fail, start the steps again."],
 ];
 
 const logRows: string[][] = [
-  ["10-05", "560 Subarray Sum Equals K", "Prefix sum + Map", "Started with an empty map, so subarrays starting at index 0 were missed", "Edge case", "Seed the map with {0: 1} before the loop", "10-06"],
-  ["10-06", "33 Search in Rotated Sorted Array", "Binary search", "Used < where <= was needed when comparing with the left end", "Off-by-one", "Write the sorted half's range on paper and test with two elements", "10-07"],
-  ["10-07", "347 Top K Frequent Elements", "Map + bucket", "Reached for sort and said O(n); it is O(n log n)", "Complexity", "Name the dominant step aloud before stating a total", "10-08"],
+  ["10-05", "560 Subarray Sum Equals K", "Prefix sum + Map", "Started with an empty map, so subarrays that start at index 0 were missed", "Edge case", "Seed the map with {0: 1} before the loop", "10-06"],
+  ["10-06", "33 Search in Rotated Sorted Array", "Binary search", "Used < where <= was needed when comparing with the left end", "Off-by-one", "Write the range of the sorted half on paper and test with two elements", "10-07"],
+  ["10-07", "347 Top K Frequent Elements", "Map + bucket", "Used a sort and said O(n), but it is O(n log n)", "Complexity", "Say the slowest step out loud before giving the total", "10-08"],
 ];
 
 const mistakeCategoryRows: string[][] = [
-  ["Pattern", "Did not recognise the technique from the wording.", "Add the wording to the cheat sheet in your own words."],
-  ["Edge case", "Empty input, one element, duplicates, negatives, zero.", "Add it to your personal edge-case list."],
-  ["Off-by-one", "<, <= or index ± 1 wrong; loop bounds.", "Dry run the smallest input (size 0, 1, 2)."],
-  ["Complexity", "Misjudged time or space, or forgot the recursion stack.", "Redo the analysis in the shape from lesson 59."],
-  ["JavaScript", "sort() default order, shared fill arrays, -0, NaN, shift().", "Add the trap to a short list and re-read it weekly."],
-  ["Communication", "Went silent, skipped clarifying, did not test.", "Record yourself on the next mock and listen back."],
+  ["Pattern", "Did not see which technique the words pointed to.", "Add the words to the cheat sheet, in your own words."],
+  ["Edge case", "Empty input, one element, duplicates, negatives, zero.", "Add it to your own list of edge cases."],
+  ["Off-by-one", "Wrong use of < or <=, an index that is 1 too big or too small, or wrong loop limits.", "Do a dry run on the smallest inputs (size 0, 1, 2)."],
+  ["Complexity", "Got the time or memory wrong, or forgot the memory that recursion uses.", "Do the analysis again, using the steps from lesson 59."],
+  ["JavaScript", "sort() default order, rows shared by fill, -0, NaN, shift().", "Add the trap to a short list and read the list again every week."],
+  ["Communication", "Went quiet, skipped the clarifying questions, did not test.", "Record yourself in the next mock interview and listen to it."],
 ];
 
 const reviewCode = `// Given the day you solved a problem, when should you look at it again? Dates are plain "YYYY-MM-DD" text.
@@ -234,32 +234,35 @@ export default function DsaLessonSixtyPage() {
     <DsaLessonPage lesson={lesson} outline={outline}>
       <h2 id="how">How to use this lesson</h2>
       <p>
-        You have 59 lessons behind you. The risk now is not missing knowledge; it is that the knowledge is spread across many pages and, under
-        pressure, you cannot find the right drawer. This lesson is the index of the drawers, plus a schedule to keep them open.
+        You have 59 lessons behind you. The risk now is not that you lack knowledge. The risk is that the knowledge is spread over many
+        pages, and when you feel pressure you cannot find the right one. Think of a cupboard with many drawers. This lesson is the label
+        on each drawer, plus a schedule that helps you keep using them.
       </p>
       <p>
-        Read the <a href="#cheat">cheat sheet</a> once now, then use it the way it is built: <strong>start from the words of a problem</strong>, find
-        the row that sounds like it, and jump to the lesson. The last section of this page gives five mock interviews where you must name the
-        pattern <em>before</em> you see any code. That skill, recognising the pattern, is most of what an interview measures.
+        Read the <a href="#cheat">cheat sheet</a> once now. Then use it the way it was made: <strong>start from the words of a problem</strong>,
+        find the row that sounds like it, and go to that lesson. The last part of this page has five mock interviews. In each one you must
+        name the pattern <em>before</em> you see any code. Seeing the pattern is most of what an interview tests.
       </p>
 
       <h2 id="limits">Constraints tell you the target speed</h2>
       <p>
-        Before any pattern, look at the size limits in the statement (lesson 12). A common rule of thumb is that a computer does on the order of
-        10⁸ simple steps per second, so the biggest allowed input suggests how much work per element you can afford. Treat it as a hint, not a law.
+        Before you choose a pattern, look at the size limits in the problem (lesson 12). A simple rule of thumb says a computer does about
+        10⁸ (100 million) simple steps in one second. So the biggest allowed input tells you how much work you can afford for each element.
+        Use it as a hint, not as a strict law.
       </p>
       <DryRun
         title="size limit → algorithm family"
         cols={["Constraint", "What is probably expected", "Target"]}
         rows={limitRows}
-        note="Example: “n ≤ 100,000, find a pair with a given sum” rules out two nested loops (10 billion steps) and points to a Map or sorting."
+        note="Example: “n ≤ 100,000, find a pair with a given sum” rules out two loops inside each other (10 billion steps). It points to a Map or to sorting."
       />
 
       <h2 id="cheat">The pattern cheat sheet</h2>
       <p>
-        Every table has the same four columns: the <strong>wording</strong> you will see, the <strong>technique</strong> it points to, the{" "}
-        <strong>lesson</strong> (click the number) and the usual <strong>time and space</strong>. V is vertices and E is edges in a graph;
-        R × C is a grid; h is the height of a tree. Together the tables cover every lesson from 1 to 60.
+        Every table has the same four columns. The first is the <strong>wording</strong> you will see. The second is the{" "}
+        <strong>technique</strong> it points to. The third is the <strong>lesson</strong> (click the number). The fourth is the usual{" "}
+        <strong>time and memory</strong>. In a graph, V is the number of vertices (points) and E is the number of edges (links). R × C is a
+        grid with R rows and C columns. h is the height of a tree. Together, the tables cover every lesson from 1 to 60.
       </p>
       <DryRun title="Foundations: lessons 1–15" cols={cols} rows={foundationRows} />
       <DryRun title="Sorting: lessons 16–18" cols={cols} rows={sortRows} />
@@ -273,65 +276,70 @@ export default function DsaLessonSixtyPage() {
       <DryRun title="Dynamic programming: lessons 54–57" cols={cols} rows={dpRows} />
       <DryRun title="Extras and the interview: lessons 58–60" cols={cols} rows={extraRows} />
       <Callout kind="note" label="When two rows fit">
-        Many questions combine patterns. “Longest subarray with sum k” sounds like a window (lesson 23) but with negatives it is a prefix sum with a Map
-        (lesson 20). “Top k frequent” is a frequency map (lesson 27) feeding a heap or buckets (lesson 46). When two rows fit, ask which one the{" "}
-        <em>constraints</em> allow and which one survives your edge cases.
+        Many questions mix patterns. “Longest subarray with sum k” sounds like a window (lesson 23). But if there are negative numbers, it
+        is a prefix sum with a Map (lesson 20). “Top k frequent” uses a frequency map (lesson 27) and then a heap or buckets (lesson 46).
+        When two rows fit, ask which one the <em>input limits</em> allow, and which one still works on your edge cases.
       </Callout>
 
       <h2 id="plan">An eight-week practice plan</h2>
       <p>
-        The plan assumes about 90 minutes on five days a week, plus a longer session at the weekend: read a lesson, redo its examples without looking,
-        then solve a few problems. It totals about <strong>100 LeetCode problems</strong>, which is realistic, and enough to see every pattern in this series more than
-        once. You do not need 500; you need the same few patterns practised until they are automatic.
+        The plan assumes about 90 minutes on five days a week, plus a longer session at the weekend. Read a lesson, redo its examples without
+        looking, then solve a few problems. The total is about <strong>100 LeetCode problems</strong>. This is realistic, and it lets you see
+        every pattern in this series more than once. You do not need 500 problems. You need to practise the same few patterns until they feel
+        automatic.
       </p>
       <DryRun
         title="eight weeks, week by week"
         cols={["Week", "Lessons", "Focus", "Problems", "Suggested LeetCode numbers (all appear in the lessons)"]}
         rows={planRows}
-        note="Total: 10 + 14 + 14 + 12 + 14 + 14 + 14 + 10 = 102 problems. Mix easy and medium problems; if a hard one steals an hour, mark it for later and move on."
+        note="Total: 10 + 14 + 14 + 12 + 14 + 14 + 14 + 10 = 102 problems. Mix easy and medium problems. If a hard one takes a whole hour, mark it for later and move on."
       />
       <Callout kind="warn" label="Weeks 5, 6 and 7 are heavy">
-        These weeks cover 8, 8 and 5 lessons. If you work full time, give each of them two weeks and halve the daily load; a 12-week plan done steadily beats an 8-week plan
-        abandoned in week 5. Never skip the review day in the plan below; it is where most of the learning happens.
+        These weeks cover 8, 8 and 5 lessons. If you work full time, give each of them two weeks and do half the work each day. A 12-week plan
+        that you keep doing beats an 8-week plan that you stop in week 5. Never skip the review day in the plan below. Most of the learning
+        happens there.
       </Callout>
       <p>
-        <strong>A weekly rhythm that works:</strong> Monday to Wednesday, read a lesson and solve its easier problems. Thursday, solve a medium problem with a 30-minute
-        timer and narrate it aloud as in <Link href="/dsa/lesson-59">lesson 59</Link>. Friday, review the log (next section). Weekend, one longer session: the harder
-        problem of the week, plus a cold re-solve of two problems from earlier weeks.
+        <strong>A weekly routine that works:</strong> Monday to Wednesday, read a lesson and solve its easier problems. Thursday, solve a medium
+        problem with a 30-minute timer and explain it out loud as in <Link href="/dsa/lesson-59">lesson 59</Link>. Friday, look at your log
+        (next section). Weekend, do one longer session: the harder problem of the week, plus a fresh re-solve of two problems from earlier weeks.
       </p>
 
       <h2 id="spaced">Spaced repetition: 1, 3, 7 and 21 days</h2>
       <p>
-        You forget most of what you learn within days unless you retrieve it again. The trick is to retrieve it <em>just as it starts to fade</em>: soon at first,
-        then with growing gaps. A schedule of <strong>1, 3, 7 and 21 days</strong> after solving a problem is simple to remember and works well:
+        You forget most of what you learn within a few days, unless you pull it out of memory again. The trick is to do this <em>just as the
+        memory starts to fade</em>. Do it soon at first, then with longer and longer gaps. This is called spaced repetition. A good schedule is{" "}
+        <strong>1, 3, 7 and 21 days</strong> after you solve a problem. It is easy to remember and it works well:
       </p>
       <ul>
-        <li><strong>1 day:</strong> the first night&apos;s sleep has already blurred the details. A short re-solve now makes the memory sturdy.</li>
-        <li><strong>3 days:</strong> by now you may have forgotten the trick but remember that there is one: exactly the right difficulty.</li>
-        <li><strong>7 days:</strong> the week-old problem should return quickly, and the time you spend shows what truly stuck.</li>
-        <li><strong>21 days:</strong> a long gap proves it is in long-term memory. Passing means the problem is retired.</li>
+        <li><strong>1 day:</strong> after one night&apos;s sleep the details are already blurry. A short re-solve now makes the memory strong.</li>
+        <li><strong>3 days:</strong> by now you may have forgotten the trick, but you remember that there is one. That is the right level of difficulty.</li>
+        <li><strong>7 days:</strong> a problem from a week ago should come back quickly. The time it takes shows what you really remember.</li>
+        <li><strong>21 days:</strong> after a long gap, solving it shows that it is in your long-term memory. If you pass, you are finished with this problem.</li>
       </ul>
       <p>
-        If you fail a review, do not despair; put the problem back on the 1-day step. A review means solving again <strong>from a blank page</strong>, not re-reading the
-        solution; the effort of retrieving is what builds the memory.
+        If you fail a review, do not worry. Put the problem back on the 1-day step. A review means solving the problem again{" "}
+        <strong>from a blank page</strong>. It does not mean reading the solution again. The effort of remembering is what builds the memory.
       </p>
       <DryRun
         title="one problem solved on a Monday"
         cols={["When", "What you do", "Why"]}
         rows={spacedRows}
       />
-      <p>The schedule is simple enough to put in code. This function turns a solve date into its four review dates:</p>
+      <p>The schedule is simple, so you can write it as code. This function turns the date you solved a problem into its four review dates:</p>
       <CodeBlock lang="js" code={reviewCode} />
       <p>
-        With a few lines more you have a tiny review queue: record each problem with the day you solved it and how many reviews you have passed, and ask which are due today.
-        A paper notebook or spreadsheet works equally well; the point is that something tells you what to review, so you never have to decide.
+        With a few more lines you get a small review list. Record each problem with the day you solved it and how many reviews you passed.
+        Then ask which problems are due today. A paper notebook or a spreadsheet works just as well. What matters is that something tells you
+        what to review, so you never have to decide.
       </p>
       <CodeBlock lang="js" code={logCode} />
 
       <h2 id="log">Keep a mistake log</h2>
       <p>
-        Do not log the problems you solved easily. Log the ones that went wrong, and <em>why</em>. Each entry takes under a minute and has seven fields:
-        the date, the problem, the pattern, what went wrong, the category of mistake, the fix in one sentence, and the next review date. Here are three example rows:
+        Do not log the problems you solved easily. Log the ones that went wrong, and write <em>why</em>. Each entry takes less than a minute.
+        It has seven fields: the date, the problem, the pattern, what went wrong, the type of mistake, the fix in one sentence, and the next
+        review date. Here are three example rows:
       </p>
       <DryRun
         title="a mistake log"
@@ -339,8 +347,8 @@ export default function DsaLessonSixtyPage() {
         rows={logRows}
       />
       <p>
-        The category column is the valuable one. After a few weeks, count each category: your top two are your real weaknesses, and they are rarely the algorithms you feared.
-        Use these categories:
+        The category column is the most useful one. After a few weeks, count each category. Your top two are your real weak spots, and they
+        are rarely the algorithms you were afraid of. Use these categories:
       </p>
       <DryRun
         title="categories of mistakes"
@@ -350,81 +358,84 @@ export default function DsaLessonSixtyPage() {
 
       <h2 id="mock">Mock interviews</h2>
       <p>
-        Solving alone and solving while someone watches are different skills. Start mock interviews in week 5 (one a week), and do two in week 8.
+        Solving alone and solving while someone watches are two different skills. A mock interview is a practice interview. Start them in
+        week 5 (one each week), and do two in week 8.
       </p>
       <ol>
-        <li><strong>Pick a problem you have not seen</strong>, ideally one a friend picks, or a random one from a list sorted by difficulty. Choose one Medium, or an Easy as a warm-up followed by a Medium.</li>
-        <li><strong>Set a 45-minute timer</strong> and use the phases from <Link href="/dsa/lesson-59">lesson 59</Link>: clarify, examples, brute force, code, test, complexity.</li>
-        <li><strong>Talk aloud the whole time.</strong> With no partner, speak to a rubber duck or record yourself, then listen back for silences and filler words.</li>
-        <li><strong>Write in a plain editor</strong>, with no autocomplete or running, the way many interviews are done. Dry-run instead of running.</li>
-        <li><strong>Score yourself on four things:</strong> did I clarify? did I state a brute force? did I test with an edge case? did I give complexities unprompted?</li>
-        <li><strong>Afterwards</strong>, add anything that went wrong to the mistake log, and re-solve the problem the next day.</li>
+        <li><strong>Pick a problem you have not seen.</strong> Best is one that a friend picks, or a random one from a list sorted by difficulty. Choose one Medium problem, or an Easy one as a warm-up followed by a Medium one.</li>
+        <li><strong>Set a 45-minute timer</strong> and follow the steps from <Link href="/dsa/lesson-59">lesson 59</Link>: clarify, examples, brute force, code, test, complexity.</li>
+        <li><strong>Talk out loud the whole time.</strong> If you have no partner, speak to a rubber duck (a toy you explain things to) or record yourself. Then listen for silences and filler words like &ldquo;um&rdquo;.</li>
+        <li><strong>Write in a plain editor</strong> with no autocomplete and no running, the way many interviews are done. Do a dry run by hand instead of running the code.</li>
+        <li><strong>Score yourself on four things:</strong> Did I ask clarifying questions? Did I say a brute force? Did I test with an edge case? Did I give the complexities without being asked?</li>
+        <li><strong>Afterwards</strong>, add anything that went wrong to the mistake log. Solve the problem again the next day.</li>
       </ol>
       <Callout kind="ok" label="Practise being stuck">
-        Choose a problem that you suspect is too hard once in a while. The skill under test is what you do at minute 12 when you have no idea: say what you tried, ask a
-        clarifying question, try a smaller input, and take the hint gracefully.
+        Once in a while, choose a problem that you think is too hard. The skill you are testing is what you do at minute 12 when you have no
+        idea. Say what you tried, ask a clarifying question, try a smaller input, and accept the hint in a friendly way.
       </Callout>
 
       <h2 id="practice">Mock interviews: spot the pattern first</h2>
       <p>
-        These five break the usual order. For each one, read <em>only the problem statement</em> and write down the pattern, the target complexity and the first
-        question you would ask. Then open the solutions. The green box at the end of each is a script of what to <strong>say</strong>, beginning with the moment of
-        recognition, followed by the plan, the code, the test and the complexity.
+        These five use a different order from the usual one. For each one, read <em>only the problem</em> and write down the pattern, the
+        complexity you are aiming for, and the first question you would ask. Then open the solutions. The green box at the end of each one is a
+        script of what to <strong>say</strong>. It starts with the moment you see the pattern, and then goes through the plan, the code, the
+        test and the complexity.
       </p>
       <Questions />
 
       <h2 id="checklist">The final checklist</h2>
-      <p>The night before an interview, and the minute before it starts, go through this list:</p>
+      <p>Read this list the night before an interview, and again just before it starts:</p>
       <ul>
-        <li>I can write from memory: binary search, BFS with a queue, DFS recursively, a sliding window, a Map counter, merge of two sorted arrays.</li>
-        <li>I know the time of the main structures: Map and Set lookups, sort, heap push and pop, BFS and DFS, binary search.</li>
-        <li>For every problem I will <strong>clarify, give examples, say the brute force, then optimise</strong>.</li>
-        <li>I will write clear names, handle the special cases first and keep the code short.</li>
-        <li>I will <strong>dry-run</strong> one normal and one edge case before saying I am done.</li>
-        <li>I will state time and space with what n is, without being asked.</li>
-        <li>I know the JavaScript traps: sort() with a comparator, shared fill arrays, -0, NaN, 2^53, recursion depth, shift().</li>
-        <li>If I am stuck for five minutes I will say what I tried and ask for a hint.</li>
-        <li>I have slept, eaten, and tested my setup (editor, camera, microphone, internet).</li>
+        <li>I can write these from memory: binary search, BFS with a queue, DFS with recursion, a sliding window, a Map counter, and the merge of two sorted arrays.</li>
+        <li>I know the time cost of the main tools: Map and Set lookups, sort, heap push and pop, BFS and DFS, binary search.</li>
+        <li>For every problem I will <strong>clarify, give examples, say the brute force, then make it faster</strong>.</li>
+        <li>I will use clear names, handle the special cases first, and keep the code short.</li>
+        <li>I will do a <strong>dry run</strong> of one normal case and one edge case before I say I am done.</li>
+        <li>I will say the time and memory cost, and what n is, without being asked.</li>
+        <li>I know the JavaScript traps: sort() with a comparator, rows shared by fill, -0, NaN, 2^53, recursion depth, shift().</li>
+        <li>If I am stuck for five minutes, I will say what I tried and ask for a hint.</li>
+        <li>I have slept, I have eaten, and I have tested my setup (editor, camera, microphone, internet).</li>
         <li>I have two questions ready for the end.</li>
       </ul>
 
       <h2 id="recall">Make it stick</h2>
       <Recall
         items={[
-          <>Without looking, say which technique each of these suggests: “contiguous, with negatives, sums to k”, “minimum such that it still works”, “prerequisites”, “fewest coins”.</>,
-          <>Write the constraint → algorithm table from memory (n ≤ 20, 5,000, 100,000, 10¹⁸).</>,
-          <>Explain what 1, 3, 7 and 21 mean in your spaced repetition schedule and what to do when a review fails.</>,
+          <>Without looking, say which technique each of these points to: “contiguous, with negatives, sums to k”, “minimum such that it still works”, “prerequisites”, “fewest coins”.</>,
+          <>Write the table “input limit → algorithm” from memory (n ≤ 20, 5,000, 100,000, 10¹⁸).</>,
+          <>Explain what 1, 3, 7 and 21 mean in your spaced repetition schedule. Say what to do when a review fails.</>,
           <>Write the first entry of your mistake log, using the seven fields.</>,
-          <>Pick three problems from the cheat sheet that you have never seen and name their patterns.</>,
-          <>Book your first mock interview with a friend (or a timer) in the calendar now.</>,
+          <>Pick three problems that you have never seen, and name their patterns using the cheat sheet.</>,
+          <>Put your first mock interview in your calendar now, with a friend or with a timer.</>,
         ]}
       />
 
       <h2 id="next">What&apos;s next</h2>
       <p>
-        This is the last lesson of the series, and the work from here is practice rather than reading. Three places to go next:
+        This is the last lesson of the series. From here, the work is practice, not reading. Here are three places to go next:
       </p>
       <ul>
         <li>
-          <strong>The practice plan.</strong> Start again at <a href="#plan">week 1</a>, today, and put the first review dates in your calendar. Use{" "}
-          <Link href="/dsa/glossary">the glossary</Link> whenever a term slips, and the <a href="#cheat">cheat sheet</a> whenever a problem looks unfamiliar.
+          <strong>The practice plan.</strong> Start at <a href="#plan">week 1</a> today, and put the first review dates in your calendar. Use{" "}
+          <Link href="/dsa/glossary">the glossary</Link> when you forget a word, and the <a href="#cheat">cheat sheet</a> when a problem looks new.
         </li>
         <li>
-          <strong>The other interview series on this site.</strong> Round out your preparation with <Link href="/system-design">System Design, Step by Step</Link>,{" "}
+          <strong>The other interview series on this site.</strong> Add to your preparation with <Link href="/system-design">System Design, Step by Step</Link>,{" "}
           <Link href="/javascript">JavaScript Core Mastery</Link> (the language behind every sample here), and the senior-engineer interview series:{" "}
           <Link href="/browser">The Browser Contract</Link>, <Link href="/backend">Backend in Depth</Link>, <Link href="/debugging">Scenario Debugging</Link>,{" "}
-          <Link href="/design-problems">Practical Design Problems</Link> and <Link href="/frontend-depth">Senior Frontend Depth</Link>. When you are ready to ship
-          what you build, <Link href="/devops">DevOps, From Zero</Link> follows the code into production.
+          <Link href="/design-problems">Practical Design Problems</Link> and <Link href="/frontend-depth">Senior Frontend Depth</Link>. When you are ready to put
+          what you build online for real users, <Link href="/devops">DevOps, From Zero</Link> follows the code into production (the live system).
         </li>
         <li>
-          <strong>Real problems.</strong> The lessons&apos; LeetCode lists are your first source of problems; after them, pick a topic from the cheat sheet where your mistake
-          log says you are weakest.
+          <strong>Real problems.</strong> The LeetCode lists in the lessons are your first source of problems. After them, pick a topic from the
+          cheat sheet where your mistake log says you are weakest.
         </li>
       </ul>
       <Callout kind="ok" label="A last word">
-        You began this series with a program that printed a line of text. You can now read a problem, choose a data structure, reason about speed, and explain your thinking to
-        another person. The feeling of not being ready never fully goes away, even for engineers who interview well; what changes is that you know what to do with it. Take the
-        first step of the routine, keep a small amount of practice every day, and trust the process. You are more prepared than you think. Good luck.
+        You began this series with a program that printed one line of text. Now you can read a problem, choose a data structure, think about
+        speed, and explain your thinking to another person. The feeling of not being ready never goes away completely, even for engineers who
+        interview well. What changes is that you know what to do about it. Take the first step of the routine, practise a little every day,
+        and trust the process. You are more prepared than you think. Good luck.
       </Callout>
     </DsaLessonPage>
   );

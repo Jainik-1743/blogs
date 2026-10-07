@@ -14,14 +14,14 @@ export default function Questions() {
           { input: 'text1 = "abc", text2 = "def"', output: "0", why: "No character is shared." },
         ]}
         hints={[
-          <>Let <code>dp[i][j]</code> be the answer for the first i characters of one string and the first j of the other.</>,
-          <>Look at the last characters of the two prefixes. What if they are equal? What if they differ?</>,
-          <>Equal: 1 + the answer without both. Different: the better of dropping one or the other.</>,
+          <>Let <code>dp[i][j]</code> be the answer for the first i characters of one string and the first j characters of the other.</>,
+          <>Look at the last characters of the two prefixes (the starts of the strings). What if they are equal? What if they are different?</>,
+          <>Equal: 1 + the answer without both characters. Different: the bigger answer from dropping one character or the other.</>,
         ]}
         approaches={[
           {
             name: "Top-down recursion with memoisation",
-            idea: <p>Define <code>solve(i, j)</code> on the first i and j characters and cache each pair. Without the cache the recursion branches twice at every mismatch and is exponential.</p>,
+            idea: <p>Define <code>solve(i, j)</code> for the first i and first j characters. Memoisation means saving each answer so you never work it out twice. Save the answer for each pair. Without the saved answers, the recursion splits in two at every mismatch. That is exponential, which means the work doubles again and again.</p>,
             code: `function longestCommonSubsequence(text1, text2) {
   const memo = new Map();
   function solve(i, j) {
@@ -40,11 +40,11 @@ export default function Questions() {
 console.log(longestCommonSubsequence("abcde", "ace")); // 3
 console.log(longestCommonSubsequence("abc", "abc"));   // 3
 console.log(longestCommonSubsequence("abc", "def"));   // 0`,
-            explain: <p>There are m × n distinct pairs and each is computed once, so O(m × n) time and space. The recursion depth can reach m + n, which is fine for the usual limit of 1000 characters each.</p>,
+            explain: <p>There are m × n different pairs and each is worked out once, so O(m × n) time and memory. The recursion can go m + n calls deep. That is fine for the usual limit of 1000 characters each.</p>,
           },
           {
             name: "Bottom-up table",
-            idea: <p>Fill an (m+1) × (n+1) table row by row, with zeros for the empty prefixes.</p>,
+            idea: <p>Fill an (m+1) × (n+1) table row by row. Use zeros for the empty prefixes.</p>,
             code: `function longestCommonSubsequence(text1, text2) {
   const m = text1.length, n = text2.length;
   const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
@@ -61,11 +61,11 @@ console.log(longestCommonSubsequence("abc", "def"));   // 0`,
 console.log(longestCommonSubsequence("abcde", "ace")); // 3
 console.log(longestCommonSubsequence("abc", "abc"));   // 3
 console.log(longestCommonSubsequence("abc", "def"));   // 0`,
-            explain: <p>The same O(m × n) with no recursion, and the table is what you walk back through if asked for the string itself.</p>,
+            explain: <p>The time is the same O(m × n), with no recursion. If you are asked for the string itself, you walk back through this table.</p>,
           },
           {
             name: "Two rows only",
-            idea: <p>Row i reads only row i-1 and the cell to its own left, so keep a <code>prev</code> and a <code>curr</code> row and swap them.</p>,
+            idea: <p>Row i reads only row i-1 and the cell to its own left. So keep two rows, <code>prev</code> (the old row) and <code>curr</code> (the new row), and swap them.</p>,
             code: `function longestCommonSubsequence(text1, text2) {
   const n = text2.length;
   let prev = new Array(n + 1).fill(0);
@@ -84,14 +84,14 @@ console.log(longestCommonSubsequence("abc", "def"));   // 0`,
 console.log(longestCommonSubsequence("abcde", "ace")); // 3
 console.log(longestCommonSubsequence("abc", "abc"));   // 3
 console.log(longestCommonSubsequence("abc", "def"));   // 0`,
-            explain: <p>Time is still O(m × n) but space drops to O(n). For the best saving make the second string the shorter one.</p>,
+            explain: <p>Time is still O(m × n), but memory drops to O(n). To save the most, make the second string the shorter one.</p>,
           },
         ]}
-        compare={<p>Start with the table: it is the version everybody expects, and the other two are tweaks of it. Mention the two-row optimisation if space comes up. (LeetCode 1143.)</p>}
+        compare={<p>Start with the table. It is the version everybody expects, and the other two are small changes to it. Mention the two-row trick if memory comes up. (LeetCode 1143.)</p>}
       >
         <p>
           Given two strings <code>text1</code> and <code>text2</code>, return the length of their longest common subsequence, or 0 if
-          there is none. A subsequence keeps the original order but may skip characters.
+          there is none. A subsequence keeps the original order, but it may skip characters.
         </p>
       </Problem>
 
@@ -104,14 +104,14 @@ console.log(longestCommonSubsequence("abc", "def"));   // 0`,
           { input: 'word1 = "intention", word2 = "execution"', output: "5", why: "Delete t, replace i with e, replace n with x, replace n with c, insert u." },
         ]}
         hints={[
-          <><code>dp[i][j]</code> = fewest edits to turn the first i characters of word1 into the first j of word2.</>,
-          <>If the last characters match, nothing is spent on them. If not, you have three choices of operation.</>,
-          <>What do an empty prefix and a non-empty one cost? Those are your border values.</>,
+          <><code>dp[i][j]</code> = the fewest edits to turn the first i characters of word1 into the first j characters of word2.</>,
+          <>If the last characters match, they cost nothing. If not, you have three choices: replace, delete or insert.</>,
+          <>What does it cost to turn an empty string into a longer one, or a longer one into an empty string? Those are your border values.</>,
         ]}
         approaches={[
           {
             name: "Top-down recursion with memoisation",
-            idea: <p>Compare the last characters of the two prefixes. If equal, drop both for free; otherwise try replace, delete and insert, and take 1 + the cheapest. Cache every (i, j).</p>,
+            idea: <p>Compare the last characters of the two prefixes. If they are equal, drop both for free. If not, try replace, delete and insert, and take 1 + the cheapest. Save every answer (i, j) so you never repeat work.</p>,
             code: `function minDistance(word1, word2) {
   const memo = new Map();
   function solve(i, j) {
@@ -134,11 +134,11 @@ console.log(longestCommonSubsequence("abc", "def"));   // 0`,
 console.log(minDistance("horse", "ros"));           // 3
 console.log(minDistance("intention", "execution")); // 5
 console.log(minDistance("", "a"));                  // 1`,
-            explain: <p>Without the memo each mismatch branches three ways, which is exponential. With it, there are m × n states of O(1) work each.</p>,
+            explain: <p>Without the saved answers, each mismatch splits three ways. That is exponential. With them, there are m × n states and each takes O(1) work.</p>,
           },
           {
             name: "Bottom-up table",
-            idea: <p>Fill the table with the border 0..m down the first column and 0..n along the first row, then each cell from its left, upper and diagonal neighbours.</p>,
+            idea: <p>Fill the border first: 0..m down the first column and 0..n along the first row. Then fill each cell from its left, upper and diagonal neighbours.</p>,
             code: `function minDistance(word1, word2) {
   const m = word1.length, n = word2.length;
   const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
@@ -156,7 +156,7 @@ console.log(minDistance("", "a"));                  // 1`,
 console.log(minDistance("horse", "ros"));           // 3
 console.log(minDistance("intention", "execution")); // 5
 console.log(minDistance("", "a"));                  // 1`,
-            explain: <p>O(m × n) time and space. The diagonal move is replace, the upward move is delete, the leftward move is insert.</p>,
+            explain: <p>O(m × n) time and memory. The diagonal move is replace. The move from above is delete. The move from the left is insert.</p>,
           },
           {
             name: "Two rows",
@@ -180,14 +180,14 @@ console.log(minDistance("", "a"));                  // 1`,
 console.log(minDistance("horse", "ros"));           // 3
 console.log(minDistance("intention", "execution")); // 5
 console.log(minDistance("", "a"));                  // 1`,
-            explain: <p>The same O(m × n) time with O(n) space.</p>,
+            explain: <p>The time is the same O(m × n), and the memory is O(n).</p>,
           },
         ]}
-        compare={<p>The full table is the clearest to explain because you can point at the three neighbours and name the operation each one stands for. Offer the two-row version as the space improvement. (LeetCode 72.)</p>}
+        compare={<p>The full table is the easiest to explain. You can point at the three neighbours and name the change each one stands for. Offer the two-row version as the way to save memory. (LeetCode 72.)</p>}
       >
         <p>
-          Given two strings <code>word1</code> and <code>word2</code>, return the minimum number of operations to convert{" "}
-          <code>word1</code> into <code>word2</code>. The allowed operations are insert a character, delete a character and replace a
+          Given two strings <code>word1</code> and <code>word2</code>, return the smallest number of operations to turn{" "}
+          <code>word1</code> into <code>word2</code>. The allowed operations are: insert a character, delete a character, and replace a
           character.
         </p>
       </Problem>
@@ -201,13 +201,13 @@ console.log(minDistance("", "a"));                  // 1`,
           { input: 's = "cbbd"', output: "2", why: 'One longest palindromic subsequence is "bb".' },
         ]}
         hints={[
-          <>A palindrome is its own reverse. What known problem compares a string with another string?</>,
-          <>Or try the slice <code>s[i..j]</code>: what do the two end characters tell you if they are equal? If they differ?</>,
+          <>A palindrome is the same as its own reverse. Which problem you know compares one string with another string?</>,
+          <>Or look at the slice <code>s[i..j]</code>. What do the two end characters tell you if they are equal? What if they are different?</>,
         ]}
         approaches={[
           {
             name: "LCS of the string and its reverse",
-            idea: <p>A subsequence of s that is also a subsequence of reverse(s) reads the same in both directions, so run the LCS table on the two strings.</p>,
+            idea: <p>A subsequence of s that is also a subsequence of reverse(s) reads the same in both directions. So run the LCS table on the string and its reverse.</p>,
             code: `function longestPalindromeSubseq(s) {
   const t = s.split("").reverse().join("");
   const n = s.length;
@@ -225,11 +225,11 @@ console.log(minDistance("", "a"));                  // 1`,
 console.log(longestPalindromeSubseq("bbbab")); // 4
 console.log(longestPalindromeSubseq("cbbd"));  // 2
 console.log(longestPalindromeSubseq("a"));     // 1`,
-            explain: <p>O(n²) time and space. It reuses the previous problem and is hard to get wrong, which makes it a good first answer under pressure.</p>,
+            explain: <p>O(n²) time and memory. It reuses the last problem and is hard to get wrong. That makes it a good first answer when you feel nervous.</p>,
           },
           {
             name: "Interval DP",
-            idea: <p><code>dp[i][j]</code> is the answer for <code>s[i..j]</code>. Equal ends add 2 to the answer for the inside; unequal ends drop one end. Loop <code>i</code> downward so <code>dp[i+1]</code> is ready.</p>,
+            idea: <p><code>dp[i][j]</code> is the answer for the slice <code>s[i..j]</code>. If the ends are equal, add 2 to the answer for the inside. If they are different, drop one end. Loop <code>i</code> downwards, so <code>dp[i+1]</code> is ready when you need it.</p>,
             code: `function longestPalindromeSubseq(s) {
   const n = s.length;
   const dp = Array.from({ length: n }, () => new Array(n).fill(0));
@@ -246,14 +246,14 @@ console.log(longestPalindromeSubseq("a"));     // 1`,
 console.log(longestPalindromeSubseq("bbbab")); // 4
 console.log(longestPalindromeSubseq("cbbd"));  // 2
 console.log(longestPalindromeSubseq("a"));     // 1`,
-            explain: <p>When j = i + 1 and the characters match, <code>dp[i+1][j-1]</code> is <code>dp[i+1][i]</code>, an empty slice, which is still 0 because the table was filled with zeros. O(n²) time and space.</p>,
+            explain: <p>When j = i + 1 and the characters match, <code>dp[i+1][j-1]</code> is <code>dp[i+1][i]</code>. That is an empty slice, and it is still 0 because the table started full of zeros. O(n²) time and memory.</p>,
           },
         ]}
-        compare={<p>Both are O(n²). The reverse trick is quicker to write; the interval version shows you recognise a pattern that reappears in many other problems. (LeetCode 516.)</p>}
+        compare={<p>Both take O(n²). The reverse trick is quicker to write. The interval version shows that you know a pattern that appears in many other problems. (LeetCode 516.)</p>}
       >
         <p>
-          Given a string <code>s</code>, return the length of its longest palindromic <em>subsequence</em> (characters in order, gaps
-          allowed).
+          Given a string <code>s</code>, return the length of its longest palindromic <em>subsequence</em> (the characters stay in order, and gaps
+          are allowed).
         </p>
       </Problem>
 
@@ -267,14 +267,14 @@ console.log(longestPalindromeSubseq("a"));     // 1`,
           { input: "nums = [7,7,7,7]", output: "1", why: "The subsequence must be strictly increasing, so equal values do not count." },
         ]}
         hints={[
-          <>The O(n²) DP asks, for each element, which earlier smaller element to extend. Can you make that choice faster?</>,
-          <>Keep <code>tails[k]</code>: the smallest last value of any increasing subsequence of length k + 1. Is that array sorted?</>,
-          <>For a new number, binary search the first tail that is <code>&gt;=</code> it and overwrite that slot (or append).</>,
+          <>The O(n²) DP asks, for each element, which earlier smaller element to build on. Can you make that choice faster?</>,
+          <>Keep <code>tails[k]</code>: the smallest last value of any increasing subsequence with length k + 1. Is that array sorted?</>,
+          <>For a new number, use binary search to find the first tail that is <code>&gt;=</code> it, and replace that slot. If there is none, add the number at the end.</>,
         ]}
         approaches={[
           {
             name: "DP in O(n²)",
-            idea: <p><code>best[i]</code> is the longest increasing subsequence ending at index i: 1 plus the best of all earlier smaller values.</p>,
+            idea: <p><code>best[i]</code> is the length of the longest increasing subsequence that ends at index i. It is 1 plus the best value among all earlier smaller numbers.</p>,
             code: `function lengthOfLIS(nums) {
   const best = new Array(nums.length).fill(1);
   let answer = 0;
@@ -290,11 +290,11 @@ console.log(longestPalindromeSubseq("a"));     // 1`,
 console.log(lengthOfLIS([10, 9, 2, 5, 3, 7, 101, 18])); // 4
 console.log(lengthOfLIS([0, 1, 0, 3, 2, 3]));            // 4
 console.log(lengthOfLIS([7, 7, 7, 7]));                  // 1`,
-            explain: <p>Two nested loops over n elements give O(n²) time and O(n) space. Fine for n up to a couple of thousand, too slow beyond that.</p>,
+            explain: <p>Two loops inside each other over n elements give O(n²) time and O(n) memory. This is fine for n up to a couple of thousand, but too slow for more.</p>,
           },
           {
             name: "Tails array with binary search",
-            idea: <p>Keep a sorted <code>tails</code>. For each number, binary search for the first tail that is at least as large and replace it; if none is, append. The final length is the answer.</p>,
+            idea: <p>Keep a sorted <code>tails</code> array. For each number, use binary search (check the middle again and again) to find the first tail that is at least as large, and replace it. If there is none, add the number at the end. The final length is the answer.</p>,
             code: `function lengthOfLIS(nums) {
   const tails = [];
   for (const x of nums) {
@@ -312,13 +312,13 @@ console.log(lengthOfLIS([7, 7, 7, 7]));                  // 1`,
 console.log(lengthOfLIS([10, 9, 2, 5, 3, 7, 101, 18])); // 4
 console.log(lengthOfLIS([0, 1, 0, 3, 2, 3]));            // 4
 console.log(lengthOfLIS([7, 7, 7, 7]));                  // 1`,
-            explain: <p>Replacing a tail never changes how long the subsequences are, it only makes it easier to extend them later. Each number costs one O(log n) binary search, so O(n log n) time and O(n) space. Remember <code>tails</code> is not itself a valid subsequence; only its length is the answer.</p>,
+            explain: <p>Replacing a tail never changes how long the subsequences are. It only makes them easier to extend later. Each number costs one O(log n) binary search, so the total is O(n log n) time and O(n) memory. Remember that <code>tails</code> is not itself a valid subsequence. Only its length is the answer.</p>,
           },
         ]}
-        compare={<p>Give the O(n²) DP first if you are unsure, then offer the tails method as the optimisation. If the interviewer asks for the subsequence itself, the quadratic DP with parent pointers is simpler to explain. (LeetCode 300.)</p>}
+        compare={<p>If you are unsure, give the O(n²) DP first. Then offer the tails method as the faster version. If the interviewer asks for the subsequence itself, the O(n²) DP is simpler to explain. It remembers which earlier element each one came from. (LeetCode 300.)</p>}
       >
         <p>
-          Given an integer array <code>nums</code>, return the length of the longest strictly increasing subsequence. Aim for O(n log n).
+          Given an integer array <code>nums</code>, return the length of the longest strictly increasing subsequence (each number is bigger than the one before). Aim for O(n log n).
         </p>
       </Problem>
 
@@ -327,17 +327,17 @@ console.log(lengthOfLIS([7, 7, 7, 7]));                  // 1`,
         title="Delete operation for two strings"
         level="Medium"
         examples={[
-          { input: 'word1 = "sea", word2 = "eat"', output: "2", why: 'Delete "s" from "sea" and "t" from "eat"; both become "ea".' },
-          { input: 'word1 = "leetcode", word2 = "etco"', output: "4", why: 'The common subsequence "etco" has length 4, so delete the other 4 characters of "leetcode" and nothing from "etco".' },
+          { input: 'word1 = "sea", word2 = "eat"', output: "2", why: 'Delete "s" from "sea" and "t" from "eat". Both become "ea".' },
+          { input: 'word1 = "leetcode", word2 = "etco"', output: "4", why: 'The common subsequence "etco" has length 4. So delete the other 4 characters of "leetcode" and nothing from "etco".' },
         ]}
         hints={[
-          <>Only deletions are allowed. What is left in each string when you finish? It must be the same string, and it is a subsequence of both.</>,
-          <>To delete as little as possible, keep as much as possible. Which problem is that?</>,
+          <>Only deletions are allowed. What is left in each string when you finish? It must be the same string, and it is a subsequence of both strings.</>,
+          <>To delete as little as possible, keep as much as possible. Which problem have you seen like that?</>,
         ]}
         approaches={[
           {
             name: "Through the LCS length",
-            idea: <p>Whatever survives must be a common subsequence. Keep the longest one, delete everything else from both strings: <code>m + n - 2 × LCS</code>.</p>,
+            idea: <p>Whatever is left must be a common subsequence. Keep the longest one and delete everything else from both strings: <code>m + n - 2 × LCS</code>.</p>,
             code: `function minDistance(word1, word2) {
   const m = word1.length, n = word2.length;
   const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
@@ -354,11 +354,11 @@ console.log(lengthOfLIS([7, 7, 7, 7]));                  // 1`,
 console.log(minDistance("sea", "eat"));          // 2
 console.log(minDistance("leetcode", "etco"));    // 4
 console.log(minDistance("abc", "abc"));          // 0`,
-            explain: <p>O(m × n) time and space. Each deleted character is in one of the strings but not in the kept subsequence, so the total deletions are (m - L) + (n - L).</p>,
+            explain: <p>O(m × n) time and memory. Each deleted character is in one of the strings but not in the kept subsequence. So the total number of deletions is (m - L) + (n - L), where L is the LCS length.</p>,
           },
           {
             name: "Direct DP on deletions",
-            idea: <p>Same table shape as edit distance, but only deletions: a match is free, a mismatch costs one deletion from either side. Borders are i and j.</p>,
+            idea: <p>The table has the same shape as edit distance, but only deletions are allowed. A match is free. A mismatch costs one deletion from either side. The borders are i and j.</p>,
             code: `function minDistance(word1, word2) {
   const m = word1.length, n = word2.length;
   const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
@@ -376,14 +376,14 @@ console.log(minDistance("abc", "abc"));          // 0`,
 console.log(minDistance("sea", "eat"));          // 2
 console.log(minDistance("leetcode", "etco"));    // 4
 console.log(minDistance("abc", "abc"));          // 0`,
-            explain: <p>This is edit distance without the replace move. It gives the same answers as the LCS formula, in the same O(m × n).</p>,
+            explain: <p>This is edit distance without the replace move. It gives the same answers as the LCS formula, in the same O(m × n) time.</p>,
           },
         ]}
-        compare={<p>The LCS formula is one line once you spot it, and spotting it is the point of the question. The direct DP is a good fallback if the link does not come to you. (LeetCode 583.)</p>}
+        compare={<p>The LCS formula is one line once you see it. Seeing the link is the point of the question. The direct DP is a good back-up if you do not see the link. (LeetCode 583.)</p>}
       >
         <p>
-          Given two strings <code>word1</code> and <code>word2</code>, return the minimum number of single-character deletions (from
-          either string) needed to make them equal.
+          Given two strings <code>word1</code> and <code>word2</code>, return the smallest number of one-character deletions (from
+          either string) needed to make the two strings equal.
         </p>
       </Problem>
 
@@ -392,18 +392,18 @@ console.log(minDistance("abc", "abc"));          // 0`,
         title="Longest palindromic substring"
         level="Medium"
         examples={[
-          { input: 's = "babad"', output: '"bab"', why: '"aba" is also a valid answer.' },
-          { input: 's = "cbbd"', output: '"bb"', why: "The longest palindrome is the even-length run in the middle." },
+          { input: 's = "babad"', output: '"bab"', why: '"aba" is also a correct answer.' },
+          { input: 's = "cbbd"', output: '"bb"', why: "The longest palindrome is the even-length piece in the middle." },
         ]}
         hints={[
-          <>This time the characters must be contiguous. Every palindrome has a centre.</>,
-          <>From each possible centre, grow outward while the two sides match. How many centres are there (think of even-length palindromes too)?</>,
-          <>Alternatively, <code>dp[i][j]</code> = &quot;is <code>s[i..j]</code> a palindrome?&quot; depends on the ends and on <code>dp[i+1][j-1]</code>.</>,
+          <>This time the characters must be together with no gaps (contiguous). Every palindrome has a centre.</>,
+          <>From each possible centre, grow outwards while the two sides match. How many centres are there? Remember even-length palindromes too.</>,
+          <>Or let <code>dp[i][j]</code> = &quot;is <code>s[i..j]</code> a palindrome?&quot; The answer depends on the two ends and on <code>dp[i+1][j-1]</code>.</>,
         ]}
         approaches={[
           {
             name: "Brute force: check every substring",
-            idea: <p>Try all start and end pairs, test each for being a palindrome, keep the longest.</p>,
+            idea: <p>Try every pair of start and end positions. Check if each piece is a palindrome. Keep the longest one.</p>,
             code: `function longestPalindrome(s) {
   let best = "";
   for (let i = 0; i < s.length; i++) {
@@ -421,11 +421,11 @@ console.log(minDistance("abc", "abc"));          // 0`,
 
 console.log(longestPalindrome("babad")); // bab
 console.log(longestPalindrome("cbbd"));  // bb`,
-            explain: <p>There are O(n²) substrings and each check costs O(n): O(n³) in total. Mention it to show you have a baseline, then improve.</p>,
+            explain: <p>There are O(n²) substrings and each check costs O(n), so the total is O(n³). Mention it to show you have a starting point, then improve it.</p>,
           },
           {
             name: "Expand around each centre",
-            idea: <p>A palindrome mirrors around its centre: one character for odd length, or the gap between two characters for even length. That is 2n - 1 centres. Grow outward from each while both sides match.</p>,
+            idea: <p>A palindrome is a mirror around its centre. The centre is one character for odd length, or the gap between two characters for even length. That gives 2n - 1 centres. Grow outwards from each centre while both sides match.</p>,
             code: `function longestPalindrome(s) {
   let start = 0, bestLen = 0;
   function expand(l, r) {
@@ -443,11 +443,11 @@ console.log(longestPalindrome("cbbd"));  // bb`,
 console.log(longestPalindrome("babad")); // bab
 console.log(longestPalindrome("cbbd"));  // bb
 console.log(longestPalindrome("a"));     // a`,
-            explain: <p>Each expansion is O(n) in the worst case (a string like &quot;aaaa…&quot;), and there are 2n - 1 of them, so O(n²) time and O(1) extra space.</p>,
+            explain: <p>Each expansion takes O(n) in the worst case (a string like &quot;aaaa…&quot;), and there are 2n - 1 of them. So the time is O(n²) and the extra memory is O(1).</p>,
           },
           {
             name: "DP table",
-            idea: <p><code>isPal[i][j]</code> is true when <code>s[i] === s[j]</code> and the inside <code>s[i+1..j-1]</code> is a palindrome (or has at most one character). Fill from the bottom row upward.</p>,
+            idea: <p><code>isPal[i][j]</code> is true when <code>s[i] === s[j]</code> and the inside piece <code>s[i+1..j-1]</code> is a palindrome (or has at most one character). Fill the table from the bottom row upwards.</p>,
             code: `function longestPalindrome(s) {
   const n = s.length;
   const isPal = Array.from({ length: n }, () => new Array(n).fill(false));
@@ -466,14 +466,14 @@ console.log(longestPalindrome("a"));     // a`,
 console.log(longestPalindrome("babad")); // aba   ("bab" is equally valid)
 console.log(longestPalindrome("cbbd"));  // bb
 console.log(longestPalindrome("a"));     // a`,
-            explain: <p>O(n²) time and O(n²) space. It is the DP an interviewer may expect, but it uses more memory than expanding around centres for the same time.</p>,
+            explain: <p>O(n²) time and O(n²) memory. An interviewer may expect this DP. But it uses more memory than expanding around centres, for the same time.</p>,
           },
         ]}
-        compare={<p>Prefer expanding around centres: O(n²) time, O(1) space and short. Know the DP version because it generalises. (Manacher&apos;s algorithm reaches O(n) but is rarely expected.) (LeetCode 5.)</p>}
+        compare={<p>Prefer expanding around centres. It takes O(n²) time, O(1) memory, and the code is short. Know the DP version too, because the idea works for other problems. (Manacher&apos;s algorithm reaches O(n), but interviewers rarely expect it.) (LeetCode 5.)</p>}
       >
         <p>
-          Given a string <code>s</code>, return its longest palindromic <em>substring</em> (contiguous). If several have the same
-          length, any is accepted.
+          Given a string <code>s</code>, return its longest palindromic <em>substring</em> (one unbroken piece). If several have the same
+          length, any of them is accepted.
         </p>
       </Problem>
 
@@ -486,13 +486,13 @@ console.log(longestPalindrome("a"));     // a`,
           { input: 's = "aaa"', output: "6", why: '"a" three times, "aa" twice and "aaa" once. Substrings at different positions count separately.' },
         ]}
         hints={[
-          <>Same centres as the longest palindromic substring, but now count every expansion step that still matches.</>,
-          <>Each successful step of an expansion is one more palindrome.</>,
+          <>Use the same centres as in the longest palindromic substring. This time, count every step of growing outwards that still matches.</>,
+          <>Each step that still matches is one more palindrome.</>,
         ]}
         approaches={[
           {
             name: "Expand around each centre",
-            idea: <p>For every odd and even centre, grow outward and add one to the count each time the two sides match.</p>,
+            idea: <p>For every odd-length and even-length centre, grow outwards. Add one to the count each time the two sides match.</p>,
             code: `function countSubstrings(s) {
   let count = 0;
   function expand(l, r) {
@@ -510,11 +510,11 @@ console.log(longestPalindrome("a"));     // a`,
 
 console.log(countSubstrings("abc")); // 3
 console.log(countSubstrings("aaa")); // 6`,
-            explain: <p>Every palindromic substring has exactly one centre, so each is counted exactly once. O(n²) time, O(1) space.</p>,
+            explain: <p>Every palindromic substring has exactly one centre, so each one is counted exactly once. O(n²) time, O(1) memory.</p>,
           },
           {
             name: "DP table",
-            idea: <p>Use the same <code>isPal[i][j]</code> table as before and count the true cells.</p>,
+            idea: <p>Use the same <code>isPal[i][j]</code> table as before. Count the cells that are true.</p>,
             code: `function countSubstrings(s) {
   const n = s.length;
   const isPal = Array.from({ length: n }, () => new Array(n).fill(false));
@@ -532,14 +532,14 @@ console.log(countSubstrings("aaa")); // 6`,
 
 console.log(countSubstrings("abc")); // 3
 console.log(countSubstrings("aaa")); // 6`,
-            explain: <p>O(n²) time and O(n²) space; each cell decides one substring.</p>,
+            explain: <p>O(n²) time and O(n²) memory. Each cell decides one substring.</p>,
           },
         ]}
-        compare={<p>Expanding around centres wins on memory and is shorter. This question is the counting twin of LeetCode 5, so solving one gives you the other. (LeetCode 647.)</p>}
+        compare={<p>Expanding around centres uses less memory and is shorter. This question is the counting twin of LeetCode 5, so if you solve one you can solve the other. (LeetCode 647.)</p>}
       >
         <p>
           Given a string <code>s</code>, return the number of palindromic substrings in it. Substrings with different start or end
-          positions count separately, even if their text is the same.
+          positions count separately, even if the text is the same.
         </p>
       </Problem>
     </>

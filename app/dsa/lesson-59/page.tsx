@@ -20,8 +20,8 @@ const outline = [
   { id: "timeline", label: "The 45 minutes at a glance" },
   { id: "clarify", label: "Step 1: clarify the problem" },
   { id: "examples", label: "Step 2: examples and edge cases, out loud" },
-  { id: "brute", label: "Step 3: brute force, then optimise" },
-  { id: "clean", label: "Step 4: clean code under time pressure" },
+  { id: "brute", label: "Step 3: brute force, then make it faster" },
+  { id: "clean", label: "Step 4: clean code when time is short" },
   { id: "test", label: "Step 5: test with a dry run" },
   { id: "complexity", label: "Step 6: state time and space complexity" },
   { id: "hints", label: "Using hints well" },
@@ -251,58 +251,58 @@ deep[0][0] = 7;
 console.log(grid[0][0], deep[0][0]);    // 99 7`;
 
 const timelineRows: string[][] = [
-  ["0 – 5", "Clarify", "Restate the problem in your own words. Ask about input size, value ranges, duplicates, empty input, what to return.", "\"So I get an array of integers and must return the indices of two numbers adding up to target. Can there be negatives? Is exactly one answer guaranteed?\""],
-  ["5 – 10", "Examples and edges", "Run the given example by hand, then invent one or two of your own: smallest input, duplicates, no answer.", "\"For [3,3] and target 6 the answer is [0,1]. For an empty array I would return an empty array.\""],
-  ["10 – 17", "Brute force, then better", "Say the obvious solution and its cost, find what is wasteful, name the improvement, and ask if you may start.", "\"Brute force checks every pair: O(n²). The waste is searching for the partner each time; a map makes that O(1). Shall I go with the map?\""],
-  ["17 – 32", "Code", "Write calmly, narrate each block, use clear names. Leave a helper unwritten if needed (\"I'll fill this in after\").", "\"I loop once; for each number I look for target minus it in the map, then store this number.\""],
-  ["32 – 39", "Test", "Dry-run your code on the example and on an edge case, line by line, tracking variables. Fix what you find.", "\"i = 0, nums[0] = 2, needed 7, map is empty, store 2 → 0. i = 1, needed 2, found at 0, so return [0, 1].\""],
-  ["39 – 42", "Complexity and alternatives", "Time and space, with what n means. Mention a trade-off or what you would do for sorted or huge input.", "\"O(n) time, O(n) space for the map. If memory mattered I could sort and use two pointers: O(n log n) time, O(1) extra space.\""],
+  ["0 – 5", "Clarify", "Say the problem again in your own words. Ask about input size, value ranges, duplicates, empty input, and what to return.", "\"So I get an array of integers and must return the indices of two numbers adding up to target. Can there be negatives? Is exactly one answer guaranteed?\""],
+  ["5 – 10", "Examples and edges", "Work through the given example by hand. Then make up one or two of your own: the smallest input, duplicates, no answer.", "\"For [3,3] and target 6 the answer is [0,1]. For an empty array I would return an empty array.\""],
+  ["10 – 17", "Brute force, then better", "Say the obvious solution and what it costs. Find what is wasteful. Name the improvement and ask if you may start.", "\"Brute force checks every pair: O(n²). The waste is searching for the partner each time. A map makes that O(1). Shall I go with the map?\""],
+  ["17 – 32", "Code", "Write calmly, say what each part does, and use clear names. You may leave a small helper for later (\"I'll fill this in after\").", "\"I loop once. For each number I look for target minus that number in the map, then I store this number.\""],
+  ["32 – 39", "Test", "Do a dry run (follow your code by hand) on the example and on an edge case. Go line by line and track the variables. Fix what you find.", "\"i = 0, nums[0] = 2, needed 7, map is empty, store 2 → 0. i = 1, needed 2, found at 0, so return [0, 1].\""],
+  ["39 – 42", "Complexity and alternatives", "Say the time and the memory, and what n means. Mention a trade-off, or what you would do for sorted or huge input.", "\"O(n) time and O(n) memory for the map. If memory mattered, I could sort and use two pointers. That is O(n log n) time and O(1) extra memory.\""],
   ["42 – 45", "Your questions", "Ask one or two real questions about the team or the work. Say thank you.", "\"What does a typical week look like for someone on this team?\""],
 ];
 
 const clarifyRows: string[][] = [
-  ["How big can the input be?", "Decides whether O(n²) is acceptable (n up to a few thousand) or you need O(n log n) or O(n) (n up to 100,000 or more).", "Lesson 12"],
-  ["What are the value ranges? Negatives, zero, huge numbers?", "Negatives break sliding windows; huge numbers may overflow safe integers; zero breaks division tricks.", "Lessons 23, 24"],
-  ["Can there be duplicates?", "Changes whether you need a Set or a Map of counts, and how to skip repeats.", "Lessons 10, 26"],
-  ["Is the input sorted?", "Sorted input invites binary search or two pointers; unsorted may need a sort first.", "Lessons 21, 28"],
-  ["What if the input is empty, or has one element?", "Tells you the base case and what the function must return.", "Lesson 11"],
-  ["What should I return when there is no answer?", "-1, null, an empty array, or false: the interviewer chooses, so ask.", "Lesson 11"],
-  ["May I modify the input? Do I need to preserve order?", "Allows in-place tricks (sinking an island, swapping), or forces a copy.", "Lesson 8"],
-  ["Is there exactly one answer, or several (and do you want all of them)?", "One answer allows stopping early; many answers means collecting results.", "Lesson 33"],
+  ["How big can the input be?", "Tells you if O(n²) is fine (n up to a few thousand), or if you need O(n log n) or O(n) (n up to 100,000 or more).", "Lesson 12"],
+  ["What are the value ranges? Negatives, zero, huge numbers?", "Negatives break sliding windows. Huge numbers may be too big to stay exact. Zero breaks division tricks.", "Lessons 23, 24"],
+  ["Can there be duplicates?", "Decides if you need a Set or a Map of counts, and how to skip repeats.", "Lessons 10, 26"],
+  ["Is the input sorted?", "Sorted input suggests binary search or two pointers. Unsorted input may need a sort first.", "Lessons 21, 28"],
+  ["What if the input is empty, or has one element?", "Tells you the base case (the simplest case) and what the function must return.", "Lesson 11"],
+  ["What should I return when there is no answer?", "It could be -1, null, an empty array or false. The interviewer decides, so ask.", "Lesson 11"],
+  ["May I modify the input? Do I need to preserve order?", "If yes, you can change the data in place (sink an island, swap). If no, you must make a copy.", "Lesson 8"],
+  ["Is there exactly one answer, or several (and do you want all of them)?", "With one answer you can stop early. With many answers you must collect them all.", "Lesson 33"],
 ];
 
 const complexityRows: string[][] = [
-  ["Say what n is", "\"n is the length of nums.\" In a grid: \"R rows, C columns\". In a graph: \"V vertices, E edges\".", "Complexities are meaningless without it."],
-  ["Name the dominant cost", "\"Time is O(n log n) because the sort dominates; the loop after it is O(n).\"", "Shows you can find the bottleneck."],
-  ["Count extra memory, including the stack", "\"Space is O(n) for the map. The recursion also uses O(h) stack, where h is the tree height.\"", "Interviewers often probe the hidden recursion stack."],
-  ["Say best, average and worst when they differ", "\"A hash lookup is O(1) on average; quick sort is O(n log n) on average but O(n²) in the worst case.\"", "Lesson 12."],
-  ["Offer one trade-off", "\"We could save memory by sorting in place, at the cost of O(n log n) time and losing the original order.\"", "Turns a number into a design discussion."],
+  ["Say what n is", "\"n is the length of nums.\" In a grid: \"R rows, C columns\". In a graph: \"V vertices (points), E edges (links)\".", "A complexity means nothing if you do not say what n is."],
+  ["Name the biggest cost", "\"Time is O(n log n) because the sort is the slowest part. The loop after it is only O(n).\"", "Shows you can find the slowest part (the bottleneck)."],
+  ["Count extra memory, including the call stack", "\"Memory is O(n) for the map. The recursion also uses O(h) call stack, where h is the tree height.\"", "Interviewers often ask about the hidden memory that recursion uses."],
+  ["Say best, average and worst case when they differ", "\"A hash lookup is O(1) on average. Quick sort is O(n log n) on average but O(n²) in the worst case.\"", "Lesson 12."],
+  ["Offer one trade-off", "\"We could save memory by sorting in place. The cost is O(n log n) time, and we lose the original order.\"", "Turns a single number into a talk about design choices."],
 ];
 
 const mistakeRows: string[][] = [
-  ["Starting to code in the first minute", "You solve the wrong problem, or discover an edge case at minute 30.", "Spend the first 10 minutes on questions, examples and a plan."],
-  ["Coding in silence", "The interviewer cannot give credit or hints for thinking they cannot hear.", "Narrate decisions in short sentences: what, then why."],
-  ["Jumping to the clever solution and not mentioning brute force", "If the clever idea fails, you have nothing; and you lose the chance to show the improvement.", "Always say the brute force and its cost first, even in one sentence."],
-  ["Short, cryptic names (a, m, t, x2)", "You will mix them up while dry-running under pressure.", "Use needed, indexOf, left, right, best."],
-  ["Declaring \"done\" without testing", "A one-character bug (< vs <=) goes unnoticed.", "Always trace one example and one edge case through the code."],
-  ["Testing only the example from the problem", "The example is chosen to work. Bugs live at the edges.", "Add empty input, one element, duplicates, negatives."],
-  ["Going quiet and stuck for minutes", "Silence looks like panic and wastes time.", "Say what you tried and where it breaks. Ask for a hint at the 5-minute mark."],
-  ["Arguing with a hint", "Interviewers give hints to help you pass.", "Say \"let me think about that\", try it, and report back."],
-  ["Forgetting complexity until asked", "It is part of the answer, not a bonus question.", "State time and space before the interviewer has to ask."],
-  ["Rewriting everything when you find a bug", "Costs minutes and adds new bugs.", "Point to the line, change that line, re-run the failing case."],
-  ["Over-engineering (classes, generics, input validation)", "Fewer lines mean fewer bugs and faster dry runs.", "Write one function that solves the stated problem. Mention validation instead."],
+  ["Starting to code in the first minute", "You may solve the wrong problem, or find an edge case at minute 30.", "Spend the first 10 minutes on questions, examples and a plan."],
+  ["Coding in silence", "The interviewer cannot give you credit or hints for thinking they cannot hear.", "Say your decisions in short sentences: first what, then why."],
+  ["Jumping to the clever solution and never mentioning brute force", "If the clever idea fails, you have nothing. You also lose the chance to show how you improved the answer.", "Always say the brute force and its cost first, even if it is one sentence."],
+  ["Short, unclear names (a, m, t, x2)", "You will mix them up when you do a dry run and feel stressed.", "Use needed, indexOf, left, right, best."],
+  ["Saying \"done\" without testing", "A one-character bug (< instead of <=) goes unseen.", "Always follow one example and one edge case through the code."],
+  ["Testing only the example from the problem", "The example is chosen so that it works. Bugs hide at the edges.", "Add empty input, one element, duplicates and negatives."],
+  ["Going quiet and staying stuck for minutes", "Silence looks like panic, and it wastes time.", "Say what you tried and where it fails. Ask for a hint after about 5 minutes."],
+  ["Arguing with a hint", "Interviewers give hints to help you do well.", "Say \"let me think about that\", try the hint, and tell them what happened."],
+  ["Forgetting to talk about complexity until asked", "It is part of the answer. It is not an extra question.", "Say the time and memory cost before the interviewer has to ask."],
+  ["Rewriting everything when you find a bug", "It costs minutes and adds new bugs.", "Point to the line, change that line, and run the failing case again."],
+  ["Making it too complicated (classes, generics, input checks)", "Fewer lines mean fewer bugs and faster dry runs.", "Write one function that solves the problem as stated. Mention input checks instead of writing them."],
 ];
 
 const gotchaRows: string[][] = [
-  ["-7 % 3", "-1", "The sign follows the left operand. For a non-negative result use ((x % m) + m) % m, which gives 2."],
-  ["Math.floor(-7 / 2) and Math.trunc(-7 / 2)", "-4 and -3", "floor rounds down, trunc drops the fraction. They differ only for negatives."],
-  ["Math.round(-2.5) and Math.round(2.5)", "-2 and 3", "Halves round toward +Infinity."],
-  ["\"10\" < \"9\"", "true", "Two strings compare character by character as text. Convert with Number(...) first."],
-  ["(2 ** 31 + 2 ** 31) >> 1", "0", "A shift converts to 32 bits first. Use Math.floor((lo + hi) / 2), which stays exact below 2^53."],
-  ["Math.max() and Math.min() with no arguments", "-Infinity and Infinity", "Handy as starting values for \"best so far\", surprising on an empty array."],
-  ["[].reduce((a, b) => a + b)", "TypeError", "Without an initial value, reduce on an empty array throws. Write reduce(fn, 0)."],
-  ["Math.max(...hugeArray)", "RangeError", "Spreading hundreds of thousands of values into arguments overflows the stack (200,000 threw in Node 22). Use a loop."],
-  ["for (const i in [5])", "i is the string \"0\"", "for…in walks keys as text. Use for…of for values, or an index loop."],
+  ["-7 % 3", "-1", "The result has the sign of the left number. For a result that is never negative, use ((x % m) + m) % m, which gives 2."],
+  ["Math.floor(-7 / 2) and Math.trunc(-7 / 2)", "-4 and -3", "floor rounds down. trunc cuts off the fraction. They differ only for negative numbers."],
+  ["Math.round(-2.5) and Math.round(2.5)", "-2 and 3", "A half is rounded towards +Infinity (up)."],
+  ["\"10\" < \"9\"", "true", "Two strings are compared character by character, as text. Convert them with Number(...) first."],
+  ["(2 ** 31 + 2 ** 31) >> 1", "0", "A shift first turns the number into 32 bits. Use Math.floor((lo + hi) / 2) instead. It stays exact below 2^53."],
+  ["Math.max() and Math.min() with no arguments", "-Infinity and Infinity", "Handy as starting values for \"best so far\", but surprising on an empty array."],
+  ["[].reduce((a, b) => a + b)", "TypeError", "Without a starting value, reduce on an empty array gives an error. Write reduce(fn, 0)."],
+  ["Math.max(...hugeArray)", "RangeError", "Spreading hundreds of thousands of values into arguments uses up the call stack (200,000 failed in Node 22). Use a loop."],
+  ["for (const i in [5])", "i is the string \"0\"", "for…in walks the keys as text. Use for…of to get the values, or use an index loop."],
 ];
 
 export default function DsaLessonFiftyNinePage() {
@@ -310,16 +310,16 @@ export default function DsaLessonFiftyNinePage() {
     <DsaLessonPage lesson={lesson} outline={outline}>
       <h2 id="why">The interview is a conversation</h2>
       <p>
-        You now know the main data structures and patterns. A coding interview tests something extra: whether you can use them{" "}
-        <em>with another person watching</em>, in about 45 minutes, on a problem you have not seen. Interviewers are not only
-        asking &quot;did it pass?&quot; They are asking: Do I understand how this person thinks? Would I enjoy working with them?
+        You now know the main data structures and patterns. A coding interview tests one more thing. Can you use them{" "}
+        <em>while another person watches</em>, in about 45 minutes, on a problem you have not seen before? Interviewers do not only
+        ask &quot;did the code pass?&quot; They also ask: Can I follow how this person thinks? Would I enjoy working with them?
         Do they notice problems before I point them out?
       </p>
       <p>
-        That is good news, because thinking and communicating are skills you can rehearse. This lesson gives you a fixed routine to
-        follow every single time, so that on interview day you spend your energy on the problem, not on deciding what to do next.
+        That is good news, because thinking and speaking clearly are skills you can practise. This lesson gives you a fixed routine
+        to follow every time. On interview day you can then spend your energy on the problem, and not on deciding what to do next.
         The routine has six steps: <strong>clarify, examples, plan, code, test, analyse</strong>. We use{" "}
-        <Link href="/dsa/lesson-26">Two Sum</Link> as the running example because you already know it.
+        <Link href="/dsa/lesson-26">Two Sum</Link> as our example all the way through, because you already know it.
       </p>
 
       <h2 id="timeline">The 45 minutes at a glance</h2>
@@ -327,194 +327,202 @@ export default function DsaLessonFiftyNinePage() {
         title="a 45-minute interview, minute by minute"
         cols={["Minutes", "Phase", "What you do", "What you might say"]}
         rows={timelineRows}
-        note="Real interviews start with a few minutes of introductions and end with your questions, so you often have about 35 minutes for the problem itself. Keep the proportions: roughly a third thinking, a third coding, a quarter testing and discussing."
+        note="Real interviews start with a few minutes of introductions and end with your questions. So you often have only about 35 minutes for the problem itself. Keep the same balance: about a third for thinking, a third for coding, and a quarter for testing and talking."
       />
       <Callout kind="note" label="If you run short on time">
-        Never drop the testing phase. A working solution of the brute force that you have tested is worth more than an unfinished
-        optimal solution. If time is nearly out, say so: &quot;I won&apos;t finish the optimisation; here is how I would complete it.&quot;
+        Never skip the testing step. A brute-force answer that works and that you have tested is worth more than a faster answer that
+        is not finished. If time is almost over, say so: &quot;I won&apos;t finish the faster version. Here is how I would finish it.&quot;
       </Callout>
 
       <h2 id="clarify">Step 1: clarify the problem</h2>
       <p>
-        Problem statements are deliberately short and a little vague. Asking questions is not a sign of weakness; it is the first
-        thing a real engineer does with a ticket. First, <strong>restate the problem in your own words</strong> so that a
-        misunderstanding shows up now, not at minute 30. Then ask the questions whose answers change your solution.
+        Problem statements are short and a little vague on purpose. Asking questions is not a sign of weakness. It is the first thing
+        a real engineer does with a new task. First, <strong>say the problem again in your own words</strong>. Then a
+        misunderstanding shows up now, and not at minute 30. Next, ask the questions whose answers would change your solution.
       </p>
       <DryRun
         title="the clarifying questions that matter most"
         cols={["Ask", "Why the answer changes your solution", "Where we covered it"]}
         rows={clarifyRows}
-        note="Do not ask all eight every time. Pick the ones that are genuinely open. If the statement already says the array is sorted, do not ask. Lesson 11 has the full method for reading a problem."
+        note="Do not ask all eight every time. Pick the ones that are really open. If the statement already says the array is sorted, do not ask. Lesson 11 has the full method for reading a problem."
       />
 
       <h2 id="examples">Step 2: examples and edge cases, out loud</h2>
       <p>
-        Take the example from the problem and solve it by hand, saying each step: &quot;nums is 2, 7, 11, 15 and the target is 9;
-        2 and 7 add up to 9, so the answer is indices 0 and 1.&quot; This proves you understood the statement, and the way you solved it by hand
-        is often the algorithm.
+        Take the example from the problem and solve it by hand. Say each step out loud: &quot;nums is 2, 7, 11, 15 and the target is 9.
+        2 and 7 add up to 9, so the answer is indices 0 and 1.&quot; This shows you understood the problem. The way you solved it by
+        hand is often the algorithm itself.
       </p>
       <p>
-        Then make up <strong>edge cases</strong>, the small awkward inputs where code breaks. A reliable checklist: the empty input, one
-        element, two elements, all elements equal, duplicates, negatives and zero, already sorted, reverse sorted, the largest allowed
-        size, and &quot;no answer exists&quot;. Say them aloud and write the expected answers beside them. You will reuse that list
-        in step 5.
+        Then make up <strong>edge cases</strong>. These are small, odd inputs where code often breaks. Here is a checklist you can
+        trust: empty input, one element, two elements, all elements equal, duplicates, negatives and zero, already sorted, sorted in
+        reverse, the largest allowed size, and &quot;no answer exists&quot;. Say them out loud and write the expected answers next to
+        them. You will use the same list again in step 5.
       </p>
 
       <h2 id="brute">Step 3: brute force, then optimise</h2>
       <p>
-        Always state the <strong>brute force</strong> first, even if you can already see the better answer. It is correct by
-        construction, it shows you can solve the problem, and it gives you a baseline cost to beat. Then ask: <em>where is the wasted
-        work?</em> Usually the answer is one of a few things: you search for something that a map could look up (lesson 26), you recompute
-        something a running total could keep (lesson 20), you scan a sorted range that binary search could halve (lesson 28), or you
-        solve the same sub-problem many times (lesson 54).
+        Always say the <strong>brute force</strong> first, even if you already see a better answer. Brute force means trying every
+        possibility in the simplest way. It is correct, it shows you can solve the problem, and it gives you a cost to beat. Then ask:{" "}
+        <em>where is the wasted work?</em> It is usually one of these. You search for something that a map could look up (lesson 26).
+        Or you work out again something that a running total could remember (lesson 20). Or you scan a sorted range that binary search
+        could cut in half (lesson 28). Or you solve the same small problem many times (lesson 54).
       </p>
       <CodeBlock lang="js" code={bruteCode} />
       <p>
-        Say it as a ladder: &quot;Brute force is O(n²) time. Sorting gets O(n log n) with O(1) extra space if I may reorder. A Set gets
-        O(n) time for O(n) space. Which trade-off would you like?&quot; Offering the choice is a strong move. Then{" "}
-        <strong>agree on the plan before you type</strong>: &quot;Does that approach sound reasonable to you?&quot;
+        Say it like climbing a ladder: &quot;Brute force is O(n²) time. Sorting gives O(n log n) time with O(1) extra memory, if I may
+        change the order. A Set gives O(n) time but uses O(n) memory. Which trade-off would you like?&quot; Offering the choice is a
+        strong move. Then <strong>agree on the plan before you type</strong>: &quot;Does that approach sound reasonable to you?&quot;
       </p>
 
       <h2 id="clean">Step 4: clean code under time pressure</h2>
       <p>
-        You are writing for two readers: the interviewer, and yourself in ten minutes when you must dry-run it. So:
+        You write for two readers: the interviewer, and yourself ten minutes from now, when you must dry-run the code. So:
       </p>
       <ul>
-        <li>Write one function with a clear signature, in the shape the problem gave you.</li>
-        <li>Choose meaningful names (<code>needed</code>, <code>left</code>, <code>best</code>), not <code>a</code>, <code>t</code>, <code>m</code>.</li>
-        <li>Handle the special cases first with an early return, then the main logic.</li>
-        <li>Narrate in blocks, not every token: &quot;now the loop that builds the map&quot;.</li>
-        <li>Use built-ins you know well (<code>Map</code>, <code>Set</code>, <code>Math.max</code>); do not write a heap from memory unless asked, and say &quot;I would use a priority queue here&quot; if the language lacks one.</li>
-        <li>If a helper is distracting, name it, use it, and write its body afterwards.</li>
+        <li>Write one function with a clear name and inputs, in the same form the problem gave you.</li>
+        <li>Choose names that mean something (<code>needed</code>, <code>left</code>, <code>best</code>), not <code>a</code>, <code>t</code>, <code>m</code>.</li>
+        <li>Handle the special cases first with an early return (leave the function at once), then write the main logic.</li>
+        <li>Explain in blocks, not word by word: &quot;now the loop that builds the map&quot;.</li>
+        <li>Use built-in tools you know well (<code>Map</code>, <code>Set</code>, <code>Math.max</code>). Do not write a heap from memory unless asked. JavaScript has no built-in priority queue, so just say &quot;I would use a priority queue here&quot;.</li>
+        <li>If a helper function slows you down, give it a name, use it, and write its body later.</li>
       </ul>
       <CodeBlock lang="js" code={tidyCode} />
 
       <h2 id="test">Step 5: test with a dry run</h2>
       <p>
-        When the code is written, do not say &quot;I think it works.&quot; <strong>Run it by hand</strong>, the same dry-run habit you built in
-        lesson 1. Point at each line, say the value of each variable, and write the variables in a small table next to the code. Use three
-        kinds of input: the problem&apos;s example, one edge case from step 2, and, if time allows, one case designed to break your
-        particular idea (for Two Sum: the same number used twice).
+        When the code is written, do not say &quot;I think it works.&quot; <strong>Run it by hand</strong>. This is the dry-run habit you
+        built in lesson 1. Point at each line and say the value of each variable. Write the variables in a small table next to the code.
+        Use three kinds of input. First, the example from the problem. Second, one edge case from step 2. Third, if you have time, one
+        case made to break your idea (for Two Sum: the same number used twice).
       </p>
       <CodeBlock lang="js" code={testCode} />
       <p>
-        Bugs you find yourself earn credit (&quot;good catch, that is an off-by-one&quot;); bugs the interviewer finds cost you. When you
-        do find one, change the smallest thing, re-run only the case that failed, and then re-run the earlier ones to make sure
-        nothing else broke.
+        If you find a bug yourself, you earn credit (&quot;good catch, that is an off-by-one&quot;, which means a mistake of 1 in a
+        count or index). If the interviewer finds it, it costs you. When you find a bug, change the smallest thing. Run the case that
+        failed. Then run the earlier cases again to check that nothing else broke.
       </p>
 
       <h2 id="complexity">Step 6: state time and space complexity</h2>
       <p>
-        Give the analysis before being asked. A good answer has the same few parts every time:
+        Give the analysis before you are asked. A good answer has the same few parts every time:
       </p>
       <DryRun
         title="how to state complexity"
         cols={["Do this", "Example", "Why"]}
         rows={complexityRows}
-        note="Rehearse one sentence in this shape: “Time is O(…) because …, space is O(…) because …, where n is …”."
+        note="Practise one sentence like this: “Time is O(…) because …, memory is O(…) because …, where n is …”."
       />
       <p>
-        If the interviewer then asks &quot;can you do better?&quot;, they may be signalling that there is a better solution, or just
-        testing how you react. Think aloud about the bottleneck: is it the sort? the lookup? the repeated work? You do not need to
-        produce a miracle; explaining a lower bound (&quot;I must at least read every element, so O(n) time is the minimum&quot;) is also a good answer.
+        The interviewer may then ask &quot;can you do better?&quot; They may be hinting that a better solution exists, or they may just
+        want to see how you react. Think out loud about the slowest part. Is it the sort? The lookup? The repeated work? You do not
+        need to find a miracle. It is also a good answer to explain the lowest possible cost (&quot;I must at least read every element,
+        so O(n) time is the minimum&quot;).
       </p>
 
       <h2 id="hints">Using hints well</h2>
       <p>
-        Hints are normal. Almost every interviewer plans to give some, and what they watch is <em>how you use them</em>.
+        Hints are normal. Almost every interviewer plans to give some. What they watch is <em>how you use them</em>.
       </p>
       <ol>
-        <li><strong>Get stuck out loud.</strong> Say what you have tried and where it fails: &quot;sorting loses the original indices, so I need a way to keep them&quot;. That is a precise question that deserves a precise nudge.</li>
-        <li><strong>Ask for a direction, not the answer.</strong> &quot;Would you suggest I focus on the data structure or the algorithm?&quot;</li>
-        <li><strong>Repeat the hint in your own words</strong> and say what it changes: &quot;So you are suggesting a map from value to index; then each lookup is O(1).&quot;</li>
-        <li><strong>Do not take it personally.</strong> A hint at minute 15 costs far less than a silent dead end until minute 40.</li>
-        <li><strong>Do not ignore it.</strong> If the interviewer mentions a data structure or a constraint, build on it immediately.</li>
+        <li><strong>Get stuck out loud.</strong> Say what you have tried and where it fails: &quot;sorting loses the original indices, so I need a way to keep them&quot;. That is a clear question, and it earns a clear hint.</li>
+        <li><strong>Ask for a direction, not the answer.</strong> &quot;Should I think more about the data structure or about the algorithm?&quot;</li>
+        <li><strong>Say the hint again in your own words</strong> and say what it changes: &quot;So you suggest a map from value to index. Then each lookup is O(1).&quot;</li>
+        <li><strong>Do not feel bad about it.</strong> A hint at minute 15 costs far less than a silent dead end until minute 40.</li>
+        <li><strong>Do not ignore it.</strong> If the interviewer mentions a data structure or a limit, use it straight away.</li>
       </ol>
       <Callout kind="ok" label="A rule of thumb">
         If you have made no progress for about five minutes, say so and ask for a hint. If you have a working but slow solution, say
-        &quot;I have a correct O(n²) solution; I&apos;d like to improve it, may I think for a minute?&quot; Both are positive signals.
+        &quot;I have a correct O(n²) solution. I would like to improve it. May I think for a minute?&quot; Both are good signs to an interviewer.
       </Callout>
 
       <h2 id="js">JavaScript-specific tips</h2>
       <p>
-        JavaScript has a handful of behaviours that quietly ruin otherwise correct answers. Every sample below was run to check the printed
-        values. Knowing them is a visible sign of experience.
+        JavaScript has a few behaviours that can quietly break an answer that is otherwise correct. We ran every sample below to check
+        the printed values. Knowing these behaviours shows that you have experience.
       </p>
 
       <h3>sort() compares text by default</h3>
       <p>
-        Without a comparator, <code>sort()</code> turns values into strings, so <code>10</code> sorts before <code>9</code>. Always pass{" "}
-        <code>(a, b) =&gt; a - b</code> for numbers (lesson 18). It also sorts <strong>in place</strong>, so copy first with{" "}
-        <code>[...arr]</code> if you must keep the original.
+        If you give <code>sort()</code> no comparator (a small function that says which of two values comes first), it turns the values
+        into strings. Then <code>10</code> sorts before <code>9</code>. For numbers, always pass <code>(a, b) =&gt; a - b</code>{" "}
+        (lesson 18). It also sorts <strong>in place</strong>, which means it changes the original array. Copy first with{" "}
+        <code>[...arr]</code> if you need to keep the original.
       </p>
       <CodeBlock lang="js" code={sortCode} />
 
       <h3>-0, NaN and decimals</h3>
       <p>
-        Three values that break equality. <code>-0</code> is a real value that equals <code>0</code> under <code>===</code> but looks
-        different to <code>Object.is</code> and to <code>console.log</code>; it appears from <code>0 * -5</code> and similar, and can fail an
-        expected-output comparison. <code>NaN</code> is never equal to anything, including itself; use <code>Number.isNaN</code>. And
-        decimals are binary fractions, so <code>0.1 + 0.2</code> is not <code>0.3</code>.
+        Three kinds of values break the usual idea of &quot;equal&quot;. First, <code>-0</code> (negative zero) is a real value. It
+        equals <code>0</code> under <code>===</code>, but <code>Object.is</code> and <code>console.log</code> treat it as different.
+        It appears from <code>0 * -5</code> and similar sums, and it can make a check of the expected output fail. Second,{" "}
+        <code>NaN</code> (&ldquo;not a number&rdquo;) is never equal to anything, even itself. Use <code>Number.isNaN</code> to test
+        for it. Third, computers store decimals as binary fractions, so <code>0.1 + 0.2</code> is not exactly <code>0.3</code>.
       </p>
       <CodeBlock lang="js" code={equalityCode} />
 
       <h3>Map and Set against plain objects</h3>
       <p>
-        A plain object is fine for counting letters, but its keys are always strings, integer-like keys are reordered, and it
-        inherits names like <code>constructor</code>. A <code>Map</code> keeps key types and insertion order. Neither compares arrays by
-        content: build a text key such as <code>&quot;row,col&quot;</code> for pairs (lesson 10).
+        A plain object is fine for counting letters. But its keys are always strings, keys that look like whole numbers get reordered,
+        and it already has inherited names like <code>constructor</code>. A <code>Map</code> keeps the type of each key and the order in
+        which you added them. Neither one compares arrays by their contents. For pairs, build a text key such as{" "}
+        <code>&quot;row,col&quot;</code> (lesson 10).
       </p>
       <CodeBlock lang="js" code={keysCode} />
 
       <h3>Integers: 2^53 and 32 bits</h3>
       <p>
-        JavaScript numbers are 64-bit decimals (doubles). They never wrap around the way a 32-bit <code>int</code> does in Java or C++, but
-        whole numbers are exact only up to <code>2^53 - 1</code>. Two traps follow. First, products and sums that pass that limit lose
-        digits silently; use <code>BigInt</code> (or split the multiplication) for &quot;answer modulo 1e9 + 7&quot; questions. Second, the
-        bitwise operators (<code>|</code>, <code>&amp;</code>, <code>^</code>, <code>&lt;&lt;</code>, <code>&gt;&gt;</code>) convert to 32 bits first, so they
-        are the wrong tool for big values (lesson 58).
+        JavaScript numbers are 64-bit decimal-style numbers (called doubles). They do not wrap around like a 32-bit <code>int</code>
+        does in Java or C++. But whole numbers are exact only up to <code>2^53 - 1</code>. This leads to two traps. First, a product or
+        sum above that limit loses digits, and nothing warns you. For &quot;give the answer modulo 1e9 + 7&quot; questions (the
+        remainder after dividing by 1e9 + 7), use <code>BigInt</code> (a number type for very big whole numbers) or split the
+        multiplication. Second, the bitwise operators (<code>|</code>, <code>&amp;</code>, <code>^</code>, <code>&lt;&lt;</code>,{" "}
+        <code>&gt;&gt;</code>) first turn the number into 32 bits. So they are the wrong tool for big values (lesson 58).
       </p>
       <CodeBlock lang="js" code={bigCode} />
 
       <h3>Array holes</h3>
       <p>
-        <code>new Array(3)</code> makes three empty slots, not three <code>undefined</code> values, and methods such as{" "}
-        <code>map</code> and <code>forEach</code> skip them. Build arrays with <code>fill</code> or <code>Array.from</code>. Holes also appear
-        when you write <code>delete arr[i]</code> or assign to an index past the end.
+        <code>new Array(3)</code> makes three empty slots (holes), not three <code>undefined</code> values. Methods such as{" "}
+        <code>map</code> and <code>forEach</code> skip these holes. Build arrays with <code>fill</code> or <code>Array.from</code>.
+        Holes also appear when you write <code>delete arr[i]</code> or assign to an index past the end of the array.
       </p>
       <CodeBlock lang="js" code={holesCode} />
 
       <h3>Recursion depth is limited</h3>
       <p>
-        Each call takes space on the call stack, and the engine caps it at roughly ten thousand frames for simple functions (about 9,600
-        for the function below in Node 22; browsers and heavier functions differ). A recursion that goes n deep for n = 100,000, such as a
-        DFS down a long chain, throws <code>RangeError</code>. In an interview, ask for the maximum depth; if it may reach 10^5, say you will
-        convert to an explicit stack.
+        Each function call uses space on the call stack (the list of calls that are still waiting to finish). JavaScript limits this to
+        about ten thousand calls for simple functions. That is about 9,600 for the function below in Node 22. Browsers and bigger functions
+        give other numbers. A recursion that goes n = 100,000 calls deep, such as a depth-first search down a long chain, gives a{" "}
+        <code>RangeError</code>. In an interview, ask for the maximum depth. If it can reach 10^5, say that you will switch to your own
+        stack (an array that you push to and pop from).
       </p>
       <CodeBlock lang="js" code={recursionCode} />
 
       <h3>shift() can be slow; use a head index</h3>
       <p>
-        <code>queue.shift()</code> removes the first element and moves everything else down, so it can cost O(n) per call (engines optimise
-        small arrays, but you cannot rely on it). Draining 100,000 elements with <code>shift</code> took over ten seconds in the check run for this lesson,
-        against about a millisecond with an index. For BFS (lessons 39 and 50) advance a <code>head</code> index instead. The same goes for{" "}
-        <code>unshift</code>, and for <code>splice</code> in the middle of a big array.
+        <code>queue.shift()</code> removes the first element and moves all the others down by one. So it can cost O(n) for each call.
+        (JavaScript engines speed this up for small arrays, but you cannot count on it.) In our test run for this lesson, emptying 100,000
+        elements with <code>shift</code> took over ten seconds. With an index it took about a millisecond. For BFS (breadth-first search,
+        lessons 39 and 50), move a <code>head</code> index forward instead. The same advice applies to <code>unshift</code>, and to{" "}
+        <code>splice</code> in the middle of a big array.
       </p>
       <CodeBlock lang="js" code={queueCode} />
 
       <h3>Destructuring swaps</h3>
       <p>
-        <code>[a, b] = [b, a]</code> swaps without a temporary variable, and works on array slots. One trap: a line that starts
-        with <code>[</code> continues the previous line if that line has no semicolon, so in a semicolon-free style the swap can throw
-        or silently do something else. End the previous statement with <code>;</code>.
+        <code>[a, b] = [b, a]</code> swaps two values without a temporary variable. It also works on array slots. There is one trap. A
+        line that starts with <code>[</code> is joined to the line before it if that line has no semicolon. So if you write without
+        semicolons, the swap can give an error or do something else without warning. End the line before it with <code>;</code>.
       </p>
       <CodeBlock lang="js" code={swapCode} />
 
       <h3>2-D arrays: fill and copying</h3>
       <p>
-        The most common matrix bug: <code>Array(3).fill(Array(3).fill(0))</code> stores <em>one</em> inner array three times, so changing one
-        row changes all of them. Build each row separately. Copying has the same shape: <code>[...grid]</code> is a shallow copy, so the
-        rows are shared; copy each row, or use <code>structuredClone</code> for any depth (lesson 25).
+        The most common bug with grids: <code>Array(3).fill(Array(3).fill(0))</code> puts <em>one</em> inner array into all three rows.
+        So changing one row changes all of them. Build each row separately. Copying has the same problem. <code>[...grid]</code> is a
+        shallow copy. This means it copies only the outer array, and the rows are still shared. Copy each row, or use{" "}
+        <code>structuredClone</code>, which copies at any depth (lesson 25).
       </p>
       <CodeBlock lang="js" code={gridCode} />
 
@@ -530,34 +538,35 @@ export default function DsaLessonFiftyNinePage() {
         title="what loses offers, and the fix"
         cols={["Mistake", "Why it hurts", "Do this instead"]}
         rows={mistakeRows}
-        note="Pick the two you recognise in yourself and practise the fix deliberately in your next five problems."
+        note="Pick the two that you know from yourself. Practise the fix on purpose in your next five problems."
       />
 
       <h2 id="practice">Mock interview walk-throughs</h2>
       <p>
-        These four are different from the practice questions in earlier lessons. Each is a <strong>script</strong>: the problem, the
-        examples, the approaches, and, in the green box at the end, <strong>what you would say aloud at each phase</strong>. Read the problem,
-        close the solutions, and try to narrate your own version first. Then compare.
+        These four are different from the practice questions in earlier lessons. Each one is a <strong>script</strong>. It has the
+        problem, the examples, the approaches, and a green box at the end with <strong>what you would say out loud at each step</strong>.
+        Read the problem, close the solutions, and first try to say your own version out loud. Then compare.
       </p>
       <Questions />
 
       <h2 id="recall">Make it stick</h2>
       <Recall
         items={[
-          <>Recite the six steps (clarify, examples, plan, code, test, analyse) and roughly how many minutes each gets.</>,
-          <>Write down five clarifying questions that apply to almost any array problem.</>,
-          <>Say the brute-force-to-optimal ladder aloud for Two Sum, then for a different problem of your choice.</>,
-          <>List six JavaScript gotchas from this lesson, with the one-line fix for each.</>,
-          <>Explain why <code>Array(3).fill(Array(3).fill(0))</code> is a bug, and two ways to fix it.</>,
-          <>Pick any earlier lesson&apos;s practice question and solve it on paper in 30 minutes, narrating aloud.</>,
+          <>Say the six steps (clarify, examples, plan, code, test, analyse) and about how many minutes each one gets.</>,
+          <>Write down five clarifying questions that fit almost any array problem.</>,
+          <>Say the step-by-step path from brute force to the best answer out loud for Two Sum. Then do it for another problem you choose.</>,
+          <>List six JavaScript surprises from this lesson, with a one-line fix for each.</>,
+          <>Explain why <code>Array(3).fill(Array(3).fill(0))</code> is a bug. Give two ways to fix it.</>,
+          <>Pick a practice question from any earlier lesson. Solve it on paper in 30 minutes and explain it out loud as you go.</>,
         ]}
       />
 
       <h2 id="next">What&apos;s next</h2>
       <p>
-        The last lesson, <Link href="/dsa/lesson-60">Lesson 60</Link>, turns everything into a plan: a cheat sheet that links the wording of a
-        problem to the right technique and lesson, an eight-week practice schedule, a spaced-repetition routine, and mock interviews where
-        you must spot the pattern from the words alone.
+        The last lesson, <Link href="/dsa/lesson-60">Lesson 60</Link>, turns everything into a plan. It has a cheat sheet that links the
+        words of a problem to the right method and lesson. It has an eight-week practice schedule. It has a spaced-repetition routine
+        (you review things again after longer and longer gaps). It also has mock interviews where you must spot the pattern from the
+        words alone.
       </p>
     </DsaLessonPage>
   );

@@ -17,16 +17,16 @@ export const metadata: Metadata = {
 };
 
 const outline = [
-  { id: "idea", label: "When one index is not enough" },
+  { id: "idea", label: "When one number is not enough" },
   { id: "paths", label: "Grid paths" },
   { id: "obstacles", label: "Paths with obstacles" },
   { id: "minpath", label: "Minimum path sum" },
   { id: "trace", label: "Traced: minimum path sum" },
   { id: "knap", label: "0/1 knapsack" },
-  { id: "rolling", label: "One row, capacity downwards" },
+  { id: "rolling", label: "One row, capacity going downwards" },
   { id: "partition", label: "Partition equal subset sum" },
   { id: "unbounded", label: "Unbounded knapsack: coin change II" },
-  { id: "order", label: "Loop order: combinations vs permutations" },
+  { id: "order", label: "Loop order: combinations or permutations" },
   { id: "practice", label: "Practice questions (7)" },
   { id: "recall", label: "Make it stick" },
   { id: "next", label: "What's next" },
@@ -194,23 +194,23 @@ function minPathTrace() {
   const t = tracer();
   const grid = [[1, 3, 1], [1, 5, 1], [4, 2, 1]];
   const rows = grid.length, cols = grid[0].length;
-  t.step(1, "start", "a 3 by 3 grid", "Each cell costs what it shows. We want the cheapest route from the top-left to the bottom-right, moving only right or down.", { grid, rows, cols });
+  t.step(1, "start", "a 3 by 3 grid", "Each cell has a cost. We want the cheapest route from the top-left to the bottom-right. We can only move right or down.", { grid, rows, cols });
   const dp: number[][] = Array.from({ length: rows }, () => new Array(cols).fill(0));
-  t.step(2, "update", "dp starts as all zeros", "dp[r][c] will mean: the cheapest cost of reaching cell (r, c).", { dp }, "dp");
+  t.step(2, "update", "dp starts as all zeros", "dp[r][c] will mean: the lowest cost to reach cell (r, c).", { dp }, "dp");
   dp[0][0] = grid[0][0];
-  t.step(3, "update", "dp[0][0] = grid[0][0] = 1", "Standing on the start costs just that cell.", { dp }, "dp");
+  t.step(3, "update", "dp[0][0] = grid[0][0] = 1", "Starting here costs only this one cell.", { dp }, "dp");
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
       if (r === 0 && c === 0) continue;
       const fromAbove = r > 0 ? dp[r - 1][c] : Infinity;
       const fromLeft = c > 0 ? dp[r][c - 1] : Infinity;
       dp[r][c] = grid[r][c] + Math.min(fromAbove, fromLeft);
-      const from = fromAbove === Infinity ? "only the left neighbour exists" : fromLeft === Infinity ? "only the cell above exists" : `above costs ${fromAbove}, left costs ${fromLeft}: take the cheaper`;
-      t.step(9, "update", `dp[${r}][${c}] = ${grid[r][c]} + ${Math.min(fromAbove, fromLeft)} = ${dp[r][c]}`, `Cell cost ${grid[r][c]}; ${from}.`, { r, c, fromAbove, fromLeft, dp }, "dp");
+      const from = fromAbove === Infinity ? "only the left cell exists" : fromLeft === Infinity ? "only the cell above exists" : `above costs ${fromAbove}, left costs ${fromLeft}, so take the cheaper one`;
+      t.step(9, "update", `dp[${r}][${c}] = ${grid[r][c]} + ${Math.min(fromAbove, fromLeft)} = ${dp[r][c]}`, `This cell costs ${grid[r][c]}. ${from}.`, { r, c, fromAbove, fromLeft, dp }, "dp");
     }
   }
   t.print(dp[rows - 1][cols - 1]);
-  t.step(12, "done", `return dp[2][2] = ${dp[rows - 1][cols - 1]}`, "The cheapest route is right, right, down, down: 1 + 3 + 1 + 1 + 1 = 7.", { dp }, "dp");
+  t.step(12, "done", `return dp[2][2] = ${dp[rows - 1][cols - 1]}`, "The cheapest route goes right, right, down, down. The cost is 1 + 3 + 1 + 1 + 1 = 7.", { dp }, "dp");
   return t.steps;
 }
 
@@ -235,39 +235,41 @@ export default function DsaLessonFiftySixPage() {
     <DsaLessonPage lesson={lesson} outline={outline}>
       <h2 id="idea">When one index is not enough</h2>
       <p>
-        Lesson 55 stored one answer per index. Many problems need <strong>two</strong> numbers to describe a subproblem: a row and a
-        column on a board, or &ldquo;which items have I considered&rdquo; and &ldquo;how much capacity is left&rdquo;. Then the table is{" "}
-        <strong>2-D</strong>: <code>dp[i][j]</code> answers one small question for each pair. The recipe is unchanged: say in words what{" "}
-        <code>dp[i][j]</code> means, fix the base cases, write the transition from the last decision, and fill in an order where every
-        answer is ready before it is needed.
+        Lesson 55 saved one answer for each index. Some problems need <strong>two</strong> numbers to describe a small part of the problem
+        (a subproblem). For example, a row and a column on a board. Or &ldquo;how many items have I looked at&rdquo; and &ldquo;how much
+        room is left in the bag&rdquo;. Then the table is <strong>2-D</strong> (two-dimensional, like a spreadsheet with rows and
+        columns). Each cell <code>dp[i][j]</code> answers one small question for one pair of numbers. The recipe is the same as before.
+        First say in words what <code>dp[i][j]</code> means. Then set the starting values (the base cases). Then write the rule
+        (the transition) that uses the last choice you made. Last, fill the table in an order where each answer is ready before you need it.
       </p>
 
       <h2 id="paths">Grid paths</h2>
       <p>
-        A robot starts at the top-left of a grid and may move only <strong>right</strong> or <strong>down</strong>. How many different
-        routes reach the bottom-right? State: <strong>dp[r][c] = the number of ways to reach cell (r, c)</strong>. The last move into
-        that cell came from above or from the left, and those are different routes, so the counts add. The top row and left column can
-        be reached in exactly one way (straight along the edge).
+        A robot starts at the top-left of a grid. It can only move <strong>right</strong> or <strong>down</strong>. How many different
+        routes reach the bottom-right? The meaning of one cell (the &ldquo;state&rdquo;) is: <strong>dp[r][c] = the number of ways to reach
+        cell (r, c)</strong>. The robot came into that cell from above or from the left. Those are different routes, so we add the two counts.
+        The top row and the left column have exactly one way each (straight along the edge).
       </p>
       <CodeBlock lang="js" code={pathsCode} />
-      <p>Time and space are O(rows × cols). Each cell is computed once from two neighbours.</p>
+      <p>Time and memory are both O(rows × cols). Each cell is worked out once, using its two neighbours.</p>
 
       <h2 id="obstacles">Paths with obstacles</h2>
       <p>
-        Now some cells are blocked (marked 1). Nothing about the idea changes except that a blocked cell has{" "}
-        <strong>0</strong> ways to be reached, and so contributes 0 to the cells after it. Be careful with the edges: a blocked cell in
-        the first row cuts off everything after it in that row, and that falls out of the formula by itself.
+        Now some cells are blocked (marked 1). The idea stays the same. A blocked cell has <strong>0</strong> ways to be reached,
+        so it adds 0 to the cells after it. Watch the edges. A blocked cell in the first row cuts off everything after it in that row.
+        The formula does this by itself, so you need no extra code.
       </p>
       <CodeBlock lang="js" code={obstaclesCode} />
       <Callout kind="warn" label="Blocked start">
-        If the start cell itself is blocked, the answer is 0. The code above handles it because the obstacle check comes first.
+        If the start cell is blocked, the answer is 0. The code above handles this because it checks for an obstacle first.
       </Callout>
 
       <h2 id="minpath">Minimum path sum</h2>
       <p>
-        Each cell has a cost; find the right-and-down route with the smallest total. Same moves, but now we <em>minimise</em> instead of
-        count: <strong>dp[r][c] = the smallest sum of a route from the top-left to (r, c)</strong>. Pay for the cell, plus the cheaper
-        of the two ways in. Cells on an edge have only one way in, so treat a missing neighbour as <code>Infinity</code> (it never wins a minimum).
+        Each cell has a cost. Find the right-and-down route with the smallest total. The moves are the same, but now we find the
+        <em>smallest</em> value instead of counting: <strong>dp[r][c] = the smallest total cost of a route from the top-left to (r, c)</strong>.
+        Pay for the cell itself, plus the cheaper of the two ways in. A cell on an edge has only one way in. So we treat the missing
+        neighbour as <code>Infinity</code> (a number bigger than any other), because it can never be the smallest.
       </p>
       <CodeBlock lang="js" code={minPathCode} />
 
@@ -275,82 +277,84 @@ export default function DsaLessonFiftySixPage() {
       <CodeTrace
         code={traceSrc}
         steps={minPathTrace()}
-        caption="The table fills row by row. Look at dp[1][1]: the cell costs 5 and the cheaper way in costs 2, so 7. The final answer reaches the corner through dp[1][2] = 6, not through that expensive middle."
+        caption="The table fills row by row. Look at dp[1][1]. The cell costs 5 and the cheaper way in costs 2, so it is 7. The final route reaches the corner through dp[1][2] = 6, so it avoids that expensive middle cell."
       />
 
       <h2 id="knap">0/1 knapsack</h2>
       <p>
-        You have items, each with a <strong>weight</strong> and a <strong>value</strong>, and a bag that holds total weight at most{" "}
-        <code>capacity</code>. Pick items to maximise total value. &ldquo;0/1&rdquo; means each item is taken once or not at all.
+        You have some items. Each item has a <strong>weight</strong> and a <strong>value</strong>. You also have a bag that can hold a total
+        weight of at most <code>capacity</code>. Pick items to get the biggest total value. &ldquo;0/1&rdquo; means you take each item
+        once, or not at all. Think of packing a suitcase for a trip: each thing goes in once, and the case has a weight limit.
       </p>
       <p>
-        State: <strong>dp[i][w] = the best total value using only the first i items with capacity w</strong>. For item <code>i</code> the last
-        decision is binary. <em>Skip</em> it: the answer is <code>dp[i-1][w]</code>. <em>Take</em> it (only if it fits): you gain its
-        value and have <code>w - weight</code> capacity left for the earlier items: <code>dp[i-1][w - weight] + value</code>. Keep the
-        larger.
+        State: <strong>dp[i][w] = the best total value when you use only the first i items and the bag holds weight w</strong>. For
+        item <code>i</code> you make one yes-or-no choice. <em>Skip</em> it: the answer is <code>dp[i-1][w]</code>. <em>Take</em> it
+        (only if it fits): you gain its value, and you have <code>w - weight</code> room left for the earlier items. That gives{" "}
+        <code>dp[i-1][w - weight] + value</code>. Keep the larger of the two.
       </p>
       <CodeBlock lang="js" code={knapTableCode} />
-      <p>That is O(n × capacity) time and space.</p>
+      <p>This takes O(n × capacity) time and memory.</p>
 
       <h2 id="rolling">One row, capacity downwards</h2>
       <p>
-        Row <code>i</code> only reads row <code>i - 1</code>, so a single array can be reused: after processing item{" "}
-        <code>i</code>, <code>dp[w]</code> holds what row <code>i</code> would have held. Space drops to O(capacity). But there is one trap:
-        the <strong>capacity loop must go from high to low</strong>.
+        Row <code>i</code> only reads row <code>i - 1</code>. So one array is enough. After we process item <code>i</code>,{" "}
+        <code>dp[w]</code> holds what row <code>i</code> would have held. Memory drops to O(capacity). But there is one trap: the{" "}
+        <strong>capacity loop must go from high to low</strong>.
       </p>
       <CodeBlock lang="js" code={knapRowCode} />
       <DryRun
         title="weights [1, 3, 4, 5], values [1, 4, 5, 7], capacity 7"
         cols={["After", "Item", "dp[0..7]"]}
         rows={knapRows()}
-        note="The last entry is the answer, 9, from the items of weight 3 and 4 (value 4 + 5)."
+        note="The last number is the answer, 9. It comes from the items with weight 3 and weight 4 (value 4 + 5)."
       />
       <p>
-        <strong>Why downwards?</strong> The update for <code>dp[w]</code> reads <code>dp[w - weight]</code>, a <em>smaller</em> index. If
-        we go from high to low, that smaller cell has not been touched yet during this item, so it still holds the answer from{" "}
-        <em>before</em> this item, and the item is added at most once. If we go from low to high, the smaller cell has already been
-        updated for this item, so it may already include the item, and we add it again on top. The loop then silently allows
-        unlimited copies:
+        <strong>Why downwards?</strong> The update for <code>dp[w]</code> reads <code>dp[w - weight]</code>, which is a <em>smaller</em>{" "}
+        index. When we go from high to low, that smaller cell has not changed yet for this item. It still holds the answer from{" "}
+        <em>before</em> this item, so the item is added at most once. When we go from low to high, the smaller cell was already
+        updated for this item. It may already include the item, so we add the item again. The loop then allows unlimited copies,
+        and nothing warns you:
       </p>
       <CodeBlock lang="js" code={knapWrongCode} />
 
       <h2 id="partition">Partition equal subset sum</h2>
       <p>
-        Can an array of positive integers be split into two groups with equal sums? If the total is odd, no. Otherwise we need some
-        subset adding to exactly <strong>half the total</strong> (the rest then automatically makes the other half). That is knapsack in
-        disguise, where the weights are the numbers, the capacity is the target, and the question is a yes/no &ldquo;can we hit it
-        exactly?&rdquo; State: <strong>dp[s] = true if some subset of the numbers seen so far sums to exactly s</strong>. Each number is used
-        once, so the loop runs downwards.
+        Can an array of positive whole numbers be split into two groups with equal sums? If the total is odd, the answer is no.
+        Otherwise we need a subset (some of the numbers) that adds up to exactly <strong>half the total</strong>. The numbers left over
+        then make the other half. This is knapsack in disguise. The weights are the numbers, the capacity is the target, and the
+        question is yes or no: &ldquo;can we hit the target exactly?&rdquo; State: <strong>dp[s] = true if some subset of the numbers
+        seen so far adds up to exactly s</strong>. Each number is used once, so the loop runs downwards.
       </p>
       <CodeBlock lang="js" code={partitionCode} />
 
       <h2 id="unbounded">Unbounded knapsack: coin change II</h2>
       <p>
-        <strong>Unbounded</strong> means each item may be used any number of times. Coin change II asks: with unlimited coins of
-        given values, in how many different <em>combinations</em> can you make the amount? (Two answers that use the same coins in
-        a different order count as one.) The rolling-array loop is the one that looked like a bug a moment ago: capacity runs{" "}
-        <strong>upwards</strong>, because reading a cell that already includes the current coin is exactly what lets us reuse it.
+        <strong>Unbounded</strong> means you can use each item as many times as you like. Coin change II asks this. You have unlimited
+        coins of given values. In how many different <em>combinations</em> can you make the amount? (The same coins in a different
+        order count as one answer.) The one-row loop here is the one that looked like a bug a moment ago. Capacity now runs{" "}
+        <strong>upwards</strong>. Reading a cell that already includes the current coin is exactly what lets us use the coin again.
       </p>
       <CodeBlock lang="js" code={coinWaysCode} />
 
       <h2 id="order">Loop order: combinations vs permutations</h2>
       <p>
-        With the coins on the outside, we decide how many of coin 1 to use, then coin 2, and so on. Every way is built in a fixed coin
-        order, so 1 + 2 and 2 + 1 cannot both appear: you are counting <strong>combinations</strong>. Put the amount on the outside and the
-        coins inside, and at each amount <em>any</em> coin may be the last one added, so different orders of the same coins are counted
-        separately: <strong>permutations</strong> (this is the question &ldquo;Combination Sum IV&rdquo;). Same recurrence, loops swapped, different question.
+        Put the coins on the outside. We decide how many of coin 1 to use, then coin 2, and so on. Every way is built in one fixed coin
+        order. So 1 + 2 and 2 + 1 cannot both appear. You are counting <strong>combinations</strong> (order does not matter). Now put the
+        amount on the outside and the coins inside. At each amount, <em>any</em> coin can be the last one added. So different orders of
+        the same coins are counted separately. These are <strong>permutations</strong> (order matters). This is the question
+        &ldquo;Combination Sum IV&rdquo;. The rule is the same, only the loops are swapped, and so the question changes.
       </p>
       <CodeBlock lang="js" code={permsCode} />
       <DryRun
         title="amount 3, coins [1, 2]: the table dp[0..3]"
         cols={["Loop order", "Start", "After coin 1 / amount 1", "After coin 2 / amounts 2 and 3", "Answer"]}
         rows={orderRows}
-        note="Combinations: 1+1+1 and 1+2. Permutations add 2+1 as a separate answer."
+        note="Combinations: 1+1+1 and 1+2. Permutations also count 2+1 as a separate answer."
       />
 
       <h2 id="practice">Practice questions</h2>
       <p>
-        Before coding, say what <code>dp[i][j]</code> means and which direction each loop should run, and why.
+        Before you write code, say what <code>dp[i][j]</code> means. Also say which direction each loop should run, and why.
       </p>
 
       <Questions />
@@ -358,20 +362,20 @@ export default function DsaLessonFiftySixPage() {
       <h2 id="recall">Make it stick</h2>
       <Recall
         items={[
-          <>Write the state sentence and transition for unique paths, then adapt it for obstacles and minimum path sum.</>,
-          <>Write 0/1 knapsack as a 2-D table, then as one row.</>,
-          <>Explain why the 0/1 row goes from high capacity to low, and what breaks otherwise.</>,
-          <>Turn &ldquo;partition equal subset sum&rdquo; into a subset-sum-to-half question.</>,
-          <>Explain why coin change II iterates capacity upwards.</>,
-          <>Say which loop order counts combinations and which counts permutations, and why.</>,
+          <>Write the state sentence and the rule for unique paths. Then change it for obstacles and for minimum path sum.</>,
+          <>Write 0/1 knapsack as a 2-D table. Then write it again with one row.</>,
+          <>Explain why the 0/1 loop goes from high capacity to low. Say what goes wrong if it does not.</>,
+          <>Turn &ldquo;partition equal subset sum&rdquo; into the question &ldquo;can a subset add up to half the total?&rdquo;</>,
+          <>Explain why coin change II loops over the amount upwards.</>,
+          <>Say which loop order counts combinations and which counts permutations. Say why.</>,
         ]}
       />
 
       <h2 id="next">What&apos;s next</h2>
       <p>
-        Two-index tables also fit problems on <em>two strings</em>: let <code>dp[i][j]</code> describe the first <code>i</code> characters of one
-        string and the first <code>j</code> of the other. <strong>Lesson 57</strong> does exactly that for longest common subsequence and
-        edit distance, then returns to the longest increasing subsequence with an O(n log n) method.
+        Tables with two numbers also fit problems on <em>two strings</em>. Let <code>dp[i][j]</code> describe the first <code>i</code>{" "}
+        characters of one string and the first <code>j</code> characters of the other. <strong>Lesson 57</strong> does this for longest
+        common subsequence and edit distance. Then it comes back to the longest increasing subsequence with a faster O(n log n) method.
       </p>
     </DsaLessonPage>
   );
