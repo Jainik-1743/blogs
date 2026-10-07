@@ -263,7 +263,7 @@ console.log(shipWithinDays([1, 2, 3, 1, 1], 4));                 // 3`,
         approaches={[
           {
             name: "Top-down: recursion with saved answers (memoisation)",
-            idea: <p>The fewest coins for <code>a</code> is 1 plus the smallest of the answers for <code>a - c</code>, over every coin c. Save the answer for each amount (this is called memoisation), so you work it out only once.</p>,
+            idea: <p>The fewest coins for <code>a</code> is 1 plus the smallest of the answers for <code>a - c</code>, over every coin c. Save the answer for each amount (this is called memoisation, or memoization: remembering a result so it is not worked out again), so you work it out only once.</p>,
             code: `function coinChange(coins, amount) {
   const memo = new Map();
   function fewest(a) {

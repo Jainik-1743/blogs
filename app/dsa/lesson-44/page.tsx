@@ -314,7 +314,7 @@ function kthTrace() {
     k--;
     t.step(10, "update", `k = ${k}`, k === 0 ? `k reaches 0, so ${cur.val} is the 3rd smallest.` : `We have counted ${3 - k} value${3 - k === 1 ? "" : "s"} so far. ${k} more to go.`, { k, cur: cur.val, stack: vals() }, "k");
     if (k === 0) {
-      t.step(11, "run", `k is 0: return ${cur.val}`, "We stop right away. We never visit the rest of the tree (4, 5 and 6).", { k, cur: cur.val, stack: vals() });
+      t.step(11, "run", `k is 0: return ${cur.val}`, "We stop right away. We never count the rest of the values (4, 5 and 6).", { k, cur: cur.val, stack: vals() });
       t.print(cur.val);
       t.step(15, "print", `prints ${cur.val}`, "The 3rd smallest value is 3.", { k, stack: vals() });
       break;
@@ -407,7 +407,8 @@ export default function DsaLessonFortyFourPage() {
     <DsaLessonPage lesson={lesson} outline={outline}>
       <h2 id="property">The BST property</h2>
       <p>
-        A <strong>binary search tree</strong> (BST) is a binary tree that obeys one rule at <em>every</em> node:
+        A <strong>binary search tree</strong> (BST) is a binary tree (a tree where each node has at most two children) that obeys
+        one rule at <em>every</em> node. It is called &quot;search&quot; because the rule lets you find a value fast:
       </p>
       <Callout kind="note" label="The BST property">
         Every value in the <strong>left</strong> side of a node (its left subtree, meaning the left child and everything below it)
@@ -421,16 +422,18 @@ export default function DsaLessonFortyFourPage() {
       <ul>
         <li>
           <strong>Binary search on a tree.</strong> At each node you can ignore one whole side. Binary search on a sorted array
-          ignores half of the array in the same way. A search takes as many steps as the tree is tall.
+          (checking the middle item and throwing away the half that cannot hold the answer) works in the same way. A search takes
+          at most as many steps as the tree is tall.
         </li>
         <li>
           <strong>Inorder gives sorted order.</strong> Visit the left side, then the node, then the right side. This is the{" "}
-          <em>inorder</em> walk from lesson 41. It lists the values from smallest to largest. Several questions below use just
+          <em>inorder</em> walk (a way to visit every node of a tree) from lesson 41. It lists the values from smallest to largest. Several questions below use just
           this fact.
         </li>
       </ul>
       <p>
-        Most operations cost <strong>O(h)</strong>, where <em>h</em> is the <strong>height</strong> of the tree. For a bushy tree
+        Most operations cost <strong>O(h)</strong>, where <em>h</em> is the <strong>height</strong> of the tree (the number of
+        levels from the root to the lowest leaf). That means the work grows with the height. For a bushy tree
         h is about log n. The last section shows when it is not. All samples use the same <code>buildTree</code> helper as the
         last lesson (a level-order array, with <code>null</code> for a missing child). Each sample is complete on its own.
       </p>
@@ -452,8 +455,9 @@ export default function DsaLessonFortyFourPage() {
       </p>
       <CodeBlock lang="js" code={insertCode} />
       <p>
-        Several tree shapes can be valid after an insertion. A different method could move nodes around. The simple &quot;add
-        as a leaf&quot; method is what interviewers usually expect.
+        More than one tree can be a valid answer after an insertion. Some methods move existing nodes around (for example,
+        methods that turn nodes around to keep the tree short). The simple &quot;add as a leaf&quot; method is what
+        interviewers usually expect.
       </p>
 
       <h2 id="delete">Delete: three cases</h2>
@@ -497,7 +501,8 @@ export default function DsaLessonFortyFourPage() {
       <h2 id="kth">K-th smallest with inorder</h2>
       <p>
         Inorder visits values from smallest to largest. So the k-th smallest value is the k-th node we visit. The version
-        without recursion keeps its own <strong>stack</strong> of the nodes on the way back up. This lets us{" "}
+        without recursion keeps its own <strong>stack</strong> (a pile where the last item added is the first one taken out) of
+        the nodes on the way back up. This lets us{" "}
         <strong>stop early</strong> as soon as we have counted k nodes. We visit only about h + k nodes, not all n.
       </p>
       <CodeBlock lang="js" code={kthCode} />
@@ -524,7 +529,7 @@ export default function DsaLessonFortyFourPage() {
       <h2 id="degenerate">Why an unbalanced BST is O(n)</h2>
       <p>
         O(h) is only as good as h. Say the values arrive in sorted order. Each new value is the largest so far, so it goes far
-        to the right. The result is a chain where every node has just one child. That is really a linked list shaped like a
+        to the right. The result is a chain where every node has just one child. That is really a linked list (items joined one after another in a single line) shaped like a
         tree. Search, insert and delete all become <strong>O(n)</strong>. This is called a <strong>degenerate</strong> (or
         skewed) tree.
       </p>
@@ -532,7 +537,7 @@ export default function DsaLessonFortyFourPage() {
       <Callout kind="note" label="Balanced trees exist, but you rarely write them">
         <strong>Self-balancing</strong> trees (AVL trees and red-black trees) turn nodes around (this is called rotating) after
         each insert and delete. This keeps h about log n, so every operation takes O(log n). Many language libraries use them
-        inside ordered maps and sets. In interviews it is enough to know that they exist. You can say: &quot;O(h). That is
+        inside ordered maps and sets (for example Java&apos;s <code>TreeMap</code> and C++&apos;s <code>std::map</code>). In interviews it is enough to know that they exist. You can say: &quot;O(h). That is
         O(log n) if the tree is balanced, and O(n) in the worst case.&quot;
       </Callout>
       <p>

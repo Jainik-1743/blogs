@@ -273,8 +273,8 @@ export default function DsaLessonFiftySevenPage() {
 
       <h2 id="lcs">Longest common subsequence</h2>
       <p>
-        The <strong>longest common subsequence</strong> (LCS) of two strings is the longest run of characters that appears in both
-        strings, in the same order. For <code>&quot;abcde&quot;</code> and <code>&quot;ace&quot;</code> it is{" "}
+        The <strong>longest common subsequence</strong> (LCS) of two strings is the longest subsequence that appears in both
+        strings. Its characters are in the same order in both, but they do not need to be next to each other. For <code>&quot;abcde&quot;</code> and <code>&quot;ace&quot;</code> it is{" "}
         <code>&quot;ace&quot;</code>, with length 3.
       </p>
       <p>
@@ -283,7 +283,7 @@ export default function DsaLessonFiftySevenPage() {
       </p>
       <ul>
         <li>
-          If <code>a[i-1] === b[j-1]</code>, the two characters match. Using them is never a mistake, so{" "}
+          If <code>a[i-1] === b[j-1]</code>, the two characters match. It is always safe to use them, so{" "}
           <code>dp[i][j] = dp[i-1][j-1] + 1</code>.
         </li>
         <li>
@@ -368,7 +368,7 @@ export default function DsaLessonFiftySevenPage() {
       </p>
       <CodeBlock lang="js" code={lpsReverseCode} />
       <p>
-        <strong>Way 2: interval DP.</strong> An interval is a slice of the string from position i to position j. Let{" "}
+        <strong>Way 2: interval DP.</strong> Interval DP is DP where the state is a slice (interval) of one string or array. An interval is a slice of the string from position i to position j. Let{" "}
         <code>dp[i][j]</code> be the answer for the slice <code>s[i..j]</code>. If the two ends match, they wrap around the best
         palindrome of the inside, and we add 2. If they do not match, drop one end. We must fill the table from short slices to long
         slices. The code does this by looping bottom-up: <code>dp[i]</code> needs <code>dp[i+1]</code>, so <code>i</code> runs
@@ -390,7 +390,7 @@ export default function DsaLessonFiftySevenPage() {
         The faster method keeps an array called <code>tails</code>. The value <code>tails[k]</code> is the <strong>smallest possible
         last value</strong> of any increasing subsequence with length <code>k + 1</code> that we have seen so far. A smaller last value
         is better, because it is easier to add to. Two facts follow. First, <code>tails</code> is always sorted from small to big, so
-        we can use binary search (repeatedly check the middle to find a spot quickly). Second, each new number <code>x</code> has only
+        we can use binary search (a way to find a spot in a sorted list by checking the middle and discarding the half that cannot contain it). Second, each new number <code>x</code> has only
         two cases:
       </p>
       <ul>

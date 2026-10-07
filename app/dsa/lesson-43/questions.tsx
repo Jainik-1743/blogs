@@ -294,7 +294,7 @@ console.log(hasPathSum(buildTree([]), 0));                                      
           },
           {
             name: "DFS with your own stack (no recursion)",
-            idea: <p>Replace the recursion with a stack of <code>[node, sum so far]</code> pairs. Pop one pair and add its value. At a leaf, check the target. Otherwise push the children.</p>,
+            idea: <p>Replace the recursion with a stack (a pile where the last item added is the first one taken out) of <code>[node, sum so far]</code> pairs. Pop one pair and add its value. At a leaf, check the target. Otherwise push the children.</p>,
             code: `class TreeNode { constructor(val, left = null, right = null) { this.val = val; this.left = left; this.right = right; } }
 function buildTree(arr) {                           // level-order array, null marks a missing child
   if (arr.length === 0 || arr[0] === null) return null;
@@ -531,7 +531,7 @@ console.log(isSymmetric(buildTree([1, 2, 2, null, 3, null, 3])));  // false`,
           },
           {
             name: "With a queue of pairs (no recursion)",
-            idea: <p>Put the two children of the root in a queue as a pair. Take a pair, compare it, and add the crossed child pairs. Repeat.</p>,
+            idea: <p>Put the two children of the root in a queue (a line where the first item added is the first one taken out) as a pair. Take a pair, compare it, and add the crossed child pairs. Repeat.</p>,
             code: `class TreeNode { constructor(val, left = null, right = null) { this.val = val; this.left = left; this.right = right; } }
 function buildTree(arr) {                           // level-order array, null marks a missing child
   if (arr.length === 0 || arr[0] === null) return null;
@@ -624,7 +624,7 @@ console.log(isSubtree(buildTree([3, 4, 5, 1, 2, null, null, null, null, 0]), bui
           },
           {
             name: "Turn both trees into text and look for a substring",
-            idea: <p>Turn each tree into a string with a preorder walk. Write a marker for every <code>null</code>. Then check whether the string of the small tree appears inside the string of the big tree. The markers make the shape clear. Each value is wrapped in brackets, so <code>[2]</code> can never match inside <code>[12]</code>.</p>,
+            idea: <p>Turn each tree into a string with a preorder walk (visit the node first, then its left side, then its right side). Write a marker for every <code>null</code>. Then check whether the string of the small tree appears inside the string of the big tree. The markers make the shape clear. Each value is wrapped in brackets, so <code>[2]</code> can never match inside <code>[12]</code>.</p>,
             code: `class TreeNode { constructor(val, left = null, right = null) { this.val = val; this.left = left; this.right = right; } }
 function buildTree(arr) {                           // level-order array, null marks a missing child
   if (arr.length === 0 || arr[0] === null) return null;
@@ -652,7 +652,7 @@ function isSubtree(root, subRoot) {
 console.log(isSubtree(buildTree([3, 4, 5, 1, 2]), buildTree([4, 1, 2])));                              // true
 console.log(isSubtree(buildTree([3, 4, 5, 1, 2, null, null, null, null, 0]), buildTree([4, 1, 2])));   // false
 console.log(isSubtree(buildTree([12]), buildTree([2])));                                                 // false`,
-            explain: <p>Building the strings is O(m + n). JavaScript&apos;s <code>includes</code> is not promised to be linear, so say &quot;about O(m + n) with a good substring search&quot;. Without the brackets, tree <code>[12]</code> would wrongly contain <code>[2]</code>. Without the <code>#</code> markers, two trees with different shapes could give the same string.</p>,
+            explain: <p>Building the strings is O(m + n). JavaScript&apos;s <code>includes</code> (which asks whether one string contains another) is not promised to be linear, so say &quot;about O(m + n) with a good substring search&quot;. Without the brackets, tree <code>[12]</code> would wrongly contain <code>[2]</code>. Without the <code>#</code> markers, two trees with different shapes could give the same string.</p>,
           },
         ]}
         compare={<p>Start with the node-by-node comparison. It is easy to write correctly. Turning the trees into strings is a nice follow-up if the interviewer asks for a faster way. (LeetCode 572.)</p>}
@@ -671,7 +671,7 @@ console.log(isSubtree(buildTree([12]), buildTree([2])));                        
         hints={[
           <>A path must go downward (from parent to child), but it can start and end at any node.</>,
           <>Brute force: treat every node as a possible start. Count the downward paths from it that add up to the target.</>,
-          <>Remember the prefix-sum trick from arrays (a running total). Say the running sum from the root to here is S. Then a path that ends here with sum T exists for each earlier ancestor whose running sum was S − T.</>,
+          <>Remember the prefix-sum trick from arrays (a prefix sum is the running total of the values from the start up to here). Say the running sum from the root to here is S. Then a path that ends here with sum T exists for each earlier ancestor whose running sum was S − T.</>,
           <>Keep a map of the running sums on the current path from the root to this node. Undo your entry when you leave the node.</>,
         ]}
         approaches={[

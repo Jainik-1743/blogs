@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 
 const outline = [
   { id: "how", label: "How to use this lesson" },
-  { id: "limits", label: "The input limits tell you how fast you need to be" },
+  { id: "limits", label: "Constraints tell you the target speed" },
   { id: "cheat", label: "The pattern cheat sheet" },
   { id: "plan", label: "An eight-week practice plan" },
   { id: "spaced", label: "Spaced repetition: 1, 3, 7 and 21 days" },
@@ -55,7 +55,8 @@ const limitRows: string[][] = [
   ["n up to about 500", "Three loops inside each other are still fine", "O(n³)"],
   ["n up to about 5,000", "Two loops inside each other are fine", "O(n²)"],
   ["n up to 100,000 or 1,000,000", "Sort, heap, binary search, or one pass with a Map", "O(n log n) or O(n)"],
-  ["n up to 10¹⁸ or \"very large number\"", "Maths, or binary search on the answer. A loop that runs n times is too slow", "O(log n) or O(√n)"],
+  ["n up to about 10¹² (a very large number)", "Maths. A loop up to √n (about 10⁶ steps) is fine, a loop that runs n times is too slow", "O(√n)"],
+  ["n up to 10¹⁸", "Maths or binary search. Even √n (10⁹ steps) is too slow here", "O(log n)"],
 ];
 
 const foundationRows: ReactNode[][] = [
@@ -259,7 +260,7 @@ export default function DsaLessonSixtyPage() {
 
       <h2 id="cheat">The pattern cheat sheet</h2>
       <p>
-        Every table has the same four columns. The first is the <strong>wording</strong> you will see. The second is the{" "}
+        Every table has the same four columns. Each technique name is explained in the lesson you can click, so use the table to find the lesson, not to learn the term. The first is the <strong>wording</strong> you will see. The second is the{" "}
         <strong>technique</strong> it points to. The third is the <strong>lesson</strong> (click the number). The fourth is the usual{" "}
         <strong>time and memory</strong>. In a graph, V is the number of vertices (points) and E is the number of edges (links). R × C is a
         grid with R rows and C columns. h is the height of a tree. Together, the tables cover every lesson from 1 to 60.
@@ -307,7 +308,7 @@ export default function DsaLessonSixtyPage() {
 
       <h2 id="spaced">Spaced repetition: 1, 3, 7 and 21 days</h2>
       <p>
-        You forget most of what you learn within a few days, unless you pull it out of memory again. The trick is to do this <em>just as the
+        You forget a large part of what you learn within a few days, unless you pull it out of memory again. The trick is to do this <em>just as the
         memory starts to fade</em>. Do it soon at first, then with longer and longer gaps. This is called spaced repetition. A good schedule is{" "}
         <strong>1, 3, 7 and 21 days</strong> after you solve a problem. It is easy to remember and it works well:
       </p>

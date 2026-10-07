@@ -20,13 +20,13 @@ const outline = [
   { id: "why", label: "Why a trie?" },
   { id: "trie", label: "Building a trie" },
   { id: "trace", label: "Traced: insert and search" },
-  { id: "wild", label: "Wildcard search (depth-first search)" },
+  { id: "wild", label: "Wildcard search with DFS" },
   { id: "bits", label: "Bits and operators in JavaScript" },
   { id: "int32", label: "The 32-bit rule" },
-  { id: "tricks", label: "Check, set, clear and flip a bit" },
+  { id: "tricks", label: "Check, set, clear, toggle" },
   { id: "count", label: "Counting set bits" },
   { id: "xor", label: "Power of two, XOR and the single number" },
-  { id: "masks", label: "Subsets with bit masks" },
+  { id: "masks", label: "Subsets with bitmasks" },
   { id: "practice", label: "Practice questions (7)" },
   { id: "recall", label: "Make it stick" },
   { id: "next", label: "What's next" },
@@ -329,7 +329,7 @@ export default function DsaLessonFiftyEightPage() {
       <p>
         Imagine a dictionary of 100,000 words. You ask: &quot;does any word start with <code>pre</code>?&quot; (A prefix is the
         beginning of a word.) Checking every word takes O(number of words) time. A <strong>trie</strong> (say &quot;try&quot;; it is
-        also called a <strong>prefix tree</strong>) is a better way. It stores words as paths through a tree, where each step is one
+        also called a <strong>prefix tree</strong>) is a better way: a tree where each node stands for one more character of a word. It stores words as paths through a tree (a structure of nodes, where each node links down to its child nodes), and each step is one
         character. Words that start the same way share the same path. Think of a phone book where all the names starting with
         &ldquo;Sm&rdquo; sit together. Now the question costs only O(length of the prefix), however many words are stored.
         Autocomplete, spell checkers and word-game solvers use this idea.
@@ -337,7 +337,7 @@ export default function DsaLessonFiftyEightPage() {
 
       <h2 id="trie">Building a trie</h2>
       <p>
-        Each node holds its <strong>children</strong>. This is a <code>Map</code> (a list of pairs) that links a character to the next
+        Each node holds its <strong>children</strong>. This is a <code>Map</code> (a built-in JavaScript object that stores key-value pairs, and looks up a value by its key) that links a character to the next
         node. Each node also has a flag called <code>isEnd</code>. It says if a stored word finishes at that node. The flag is needed.
         After you insert &quot;apple&quot;, the nodes for &quot;a&quot;, &quot;ap&quot;, &quot;app&quot; and &quot;appl&quot; all exist.
         But only &quot;apple&quot; is a word.
@@ -371,8 +371,8 @@ export default function DsaLessonFiftyEightPage() {
       </p>
       <CodeBlock lang="js" code={wildCode} />
       <p>
-        Without dots, a search takes O(L). With dots it can visit many branches. In the worst case, a pattern of only dots explores the
-        whole trie. That takes O(total characters stored).
+        Without dots, a search takes O(L). With dots it can visit many branches. In the worst case, a pattern of only dots explores
+        every node down to depth L (the pattern length). That is at most O(total characters stored).
       </p>
 
       <h2 id="bits">Bits and operators in JavaScript</h2>
@@ -403,7 +403,7 @@ export default function DsaLessonFiftyEightPage() {
         </li>
         <li>
           <strong>Big values are cut off:</strong> only the lowest 32 bits are kept, so <code>2 ** 32 + 5 | 0</code> is{" "}
-          <code>5</code>. Numbers beyond 2<sup>32</sup> lose their high bits, and there is no warning. Anything above 2<sup>53</sup> is
+          <code>5</code>. Numbers beyond 2<sup>32</sup> lose their high bits, and there is no warning. Whole numbers above 2<sup>53</sup> - 1 are
           not even exact as a normal number.
         </li>
         <li>
@@ -469,7 +469,7 @@ export default function DsaLessonFiftyEightPage() {
       <p>
         You met subsets in lesson 33, where we used backtracking. Bits give another way that needs only a loop. With n items there are
         2<sup>n</sup> subsets. Each number from 0 to 2<sup>n</sup> - 1, written in binary, tells you which items to take. If bit i is
-        set, item i is in the subset. This works only for small n (up to about 20), because 1 &lt;&lt; n must also fit in 32 bits.
+        set, item i is in the subset. This works only for small n. There are 2<sup>n</sup> subsets, so about 20 is the practical limit. Also, <code>1 &lt;&lt; n</code> must fit in 32 bits, so n can be at most 30.
       </p>
       <CodeBlock lang="js" code={maskCode} />
 

@@ -21,7 +21,7 @@ export default function Questions() {
         approaches={[
           {
             name: "Top-down recursion with memoisation",
-            idea: <p>Define <code>solve(i, j)</code> for the first i and first j characters. Memoisation means saving each answer so you never work it out twice. Save the answer for each pair. Without the saved answers, the recursion splits in two at every mismatch. That is exponential, which means the work doubles again and again.</p>,
+            idea: <p>Define <code>solve(i, j)</code> for the first i and first j characters. Memoisation (memoization) means saving each answer after you work it out, so you never work it out twice. Save the answer for each pair. Without the saved answers, the recursion splits in two at every mismatch. That is exponential, which means the work doubles again and again.</p>,
             code: `function longestCommonSubsequence(text1, text2) {
   const memo = new Map();
   function solve(i, j) {

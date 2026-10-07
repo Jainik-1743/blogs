@@ -23,7 +23,7 @@ export default function Questions() {
         approaches={[
           {
             name: "Brute force: a Set of words",
-            idea: <p>Store every word in a <code>Set</code> (a collection with no repeats). search is a quick lookup. startsWith checks the beginning of every word, one by one.</p>,
+            idea: <p>Store every word in a <code>Set</code> (a built-in collection that keeps each value once and checks whether a value is in it in about O(1) time). search is a quick lookup. startsWith checks the beginning of every word, one by one.</p>,
             code: `class Trie {
   constructor() { this.words = new Set(); }
   insert(word) { this.words.add(word); }

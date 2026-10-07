@@ -19,7 +19,7 @@ export default function Questions() {
         approaches={[
           {
             name: "Brute force: visit every node",
-            idea: <p>Ignore the BST property. Search the whole tree with an ordinary DFS (depth-first search) until you find the value.</p>,
+            idea: <p>Ignore the BST property. Search the whole tree with an ordinary DFS (depth-first search: go all the way down one branch, then back up to try the next) until you find the value.</p>,
             code: `class TreeNode { constructor(val, left = null, right = null) { this.val = val; this.left = left; this.right = right; } }
 function buildTree(arr) {                           // level-order array, null marks a missing child
   if (arr.length === 0 || arr[0] === null) return null;
@@ -144,7 +144,7 @@ console.log(serialize(searchBST(buildTree([4, 2, 7, 1, 3]), 5))); // []`,
         ]}
         compare={<p>Use the loop. It is short to write correctly and needs no stack. The brute force is a trap only because it ignores the BST property that the question gave you. (LeetCode 700.)</p>}
       >
-        <p>You get the root of a BST and an integer <code>val</code>, find the node whose value equals <code>val</code>. Return that node with everything below it, or <code>null</code> if there is none.</p>
+        <p>You get the root of a BST and an integer <code>val</code>. Find the node whose value equals <code>val</code>. Return that node with everything below it (its subtree), or <code>null</code> if there is none.</p>
       </Problem>
 
       <Problem
@@ -835,7 +835,7 @@ console.log(serialize(sortedArrayToBST([])));                  // []`,
         approaches={[
           {
             name: "Hash set while walking the tree",
-            idea: <p>Visit every node. If you saw <code>k − node.val</code> earlier, return true. Otherwise remember the value.</p>,
+            idea: <p>A hash set is a collection that remembers values and tells you in about one step whether it has seen a value before. Visit every node. If you saw <code>k − node.val</code> earlier, return true. Otherwise remember the value.</p>,
             code: `class TreeNode { constructor(val, left = null, right = null) { this.val = val; this.left = left; this.right = right; } }
 function buildTree(arr) {                           // level-order array, null marks a missing child
   if (arr.length === 0 || arr[0] === null) return null;

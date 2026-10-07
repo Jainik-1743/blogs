@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 };
 
 const outline = [
-  { id: "idea", label: "When one number is not enough" },
+  { id: "idea", label: "When one index is not enough" },
   { id: "paths", label: "Grid paths" },
   { id: "obstacles", label: "Paths with obstacles" },
   { id: "minpath", label: "Minimum path sum" },
@@ -26,7 +26,7 @@ const outline = [
   { id: "rolling", label: "One row, capacity going downwards" },
   { id: "partition", label: "Partition equal subset sum" },
   { id: "unbounded", label: "Unbounded knapsack: coin change II" },
-  { id: "order", label: "Loop order: combinations or permutations" },
+  { id: "order", label: "Loop order: combinations vs permutations" },
   { id: "practice", label: "Practice questions (7)" },
   { id: "recall", label: "Make it stick" },
   { id: "next", label: "What's next" },
@@ -236,7 +236,7 @@ export default function DsaLessonFiftySixPage() {
       <h2 id="idea">When one index is not enough</h2>
       <p>
         Lesson 55 saved one answer for each index. Some problems need <strong>two</strong> numbers to describe a small part of the problem
-        (a subproblem). For example, a row and a column on a board. Or &ldquo;how many items have I looked at&rdquo; and &ldquo;how much
+        (a <strong>subproblem</strong> is a smaller version of the same question; solving all of them solves the big one). For example, a row and a column on a board. Or &ldquo;how many items have I looked at&rdquo; and &ldquo;how much
         room is left in the bag&rdquo;. Then the table is <strong>2-D</strong> (two-dimensional, like a spreadsheet with rows and
         columns). Each cell <code>dp[i][j]</code> answers one small question for one pair of numbers. The recipe is the same as before.
         First say in words what <code>dp[i][j]</code> means. Then set the starting values (the base cases). Then write the rule
@@ -284,7 +284,7 @@ export default function DsaLessonFiftySixPage() {
       <p>
         You have some items. Each item has a <strong>weight</strong> and a <strong>value</strong>. You also have a bag that can hold a total
         weight of at most <code>capacity</code>. Pick items to get the biggest total value. &ldquo;0/1&rdquo; means you take each item
-        once, or not at all. Think of packing a suitcase for a trip: each thing goes in once, and the case has a weight limit.
+        once, or not at all. Think of packing a suitcase for a trip: each thing goes in once, and the case has a weight limit. The opposite, &ldquo;unbounded&rdquo; knapsack, lets you take the same item many times (see below).
       </p>
       <p>
         State: <strong>dp[i][w] = the best total value when you use only the first i items and the bag holds weight w</strong>. For

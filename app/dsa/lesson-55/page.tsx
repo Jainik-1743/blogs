@@ -247,8 +247,12 @@ export default function DsaLessonFiftyFivePage() {
     <DsaLessonPage lesson={lesson} outline={outline}>
       <h2 id="state">Defining the state in words</h2>
       <p>
-        In lesson 54 you made slow recursion fast by remembering answers. Now we turn that into a habit. The most important
-        sentence in any dynamic programming (DP) solution is the one that starts{" "}
+        In lesson 54 you made slow recursion fast by remembering answers. Now we turn that into a habit.{" "}
+        <strong>Dynamic programming (DP)</strong> is a method that solves a big problem by splitting it into smaller problems that
+        repeat, solving each small problem only once, and saving its answer. <strong>Memoization</strong> (also called a memo) means saving
+        the answer of a function call, so the next call with the same input just reads it. Think of writing a result in a notebook
+        instead of calculating it again. The most important
+        sentence in any DP solution is the one that starts{" "}
         <strong>&ldquo;dp[i] means &hellip;&rdquo;</strong>. This sentence defines the <strong>state</strong>. The state is the small question whose
         answer you save for each value of <code>i</code>. When the state is clear, three more things follow almost by themselves:
       </p>
@@ -279,7 +283,9 @@ export default function DsaLessonFiftyFivePage() {
       <p>
         Without the memo, this recursion calls itself twice per house, so the time is O(2<sup>n</sup>). With the memo, each{" "}
         <code>best(i)</code> is worked out only once. The time and space are O(n). You can also state the same problem looking{" "}
-        <em>backward</em>. That gives a loop with no recursion at all. This is called <strong>tabulation</strong>, which means filling a table from the bottom up:
+        <em>backward</em>. That gives a loop with no recursion at all. This is called <strong>tabulation</strong>: filling a table (an array) from the smallest
+        answers up to the biggest one. In one line: memoization is <em>top-down</em> (start from the big question and save answers as
+        you go), and tabulation is <em>bottom-up</em> (start from the small answers and build up).
       </p>
       <CodeBlock lang="js" code={robberTableCode} />
       <DryRun
@@ -308,7 +314,7 @@ export default function DsaLessonFiftyFivePage() {
       <h2 id="coin">Coin change</h2>
       <p>
         You get coin values and a target <code>amount</code>. Find the <strong>fewest coins</strong> that add up to it. You can use
-        each coin value as many times as you like. If it is impossible, return <code>-1</code>. Greedy (always taking the biggest coin first) fails here. For coins 1, 3, 4 and
+        each coin value as many times as you like. If it is impossible, return <code>-1</code>. A <strong>greedy</strong> method (a method that always takes the best-looking choice right now and never looks back) fails here. Here that means always taking the biggest coin first. For coins 1, 3, 4 and
         amount 6, the biggest coin first gives 4 + 1 + 1 = 3 coins, but 3 + 3 uses only 2 coins.
       </p>
       <p>
@@ -354,7 +360,7 @@ export default function DsaLessonFiftyFivePage() {
       </p>
       <CodeBlock lang="js" code={wordBreakCode} />
       <p>
-        The time is O(n² × the cost of one slice and lookup), which is roughly O(n³) for long words. The space is O(n). Tip: if the longest dictionary word has
+        There are O(n²) pairs (j, i), and each slice and lookup costs up to O(n) because it copies and hashes the characters. So the time is about O(n³) in the worst case. The space is O(n). Tip: if the longest dictionary word has
         length <code>L</code>, try only <code>j</code> values from <code>i - L</code> upwards. That makes it O(n × L).
       </p>
 
@@ -368,7 +374,7 @@ export default function DsaLessonFiftyFivePage() {
       </p>
       <CodeBlock lang="js" code={lisCode} />
       <p>
-        The time is O(n²) and the space is O(n). A cleverer method with binary search (halving the search range each time) reaches O(n log n). You will meet it in lesson 57.
+        The time is O(n²) and the space is O(n). A cleverer method with binary search (a way to find a value in a sorted list by checking the middle and discarding half each time) reaches O(n log n). You will meet it in lesson 57.
       </p>
       <Callout kind="note" label="The 'ends at' trick">
         A common move is to define the state as &ldquo;the best answer <em>ending exactly at i</em>&rdquo; instead of &ldquo;the best answer in the first i items&rdquo;. It forces

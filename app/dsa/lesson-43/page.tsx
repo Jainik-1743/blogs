@@ -331,8 +331,14 @@ export default function DsaLessonFortyThreePage() {
         all the way down one branch, then backing up to try the next branch.
       </p>
       <p>
+        Two terms to keep in mind. A <strong>binary tree</strong> is a set of nodes where each node has at most two children, a
+        left child and a right child. The top node is the <strong>root</strong>. <strong>Recursion</strong> means a function that
+        solves a problem by calling itself on a smaller piece of the same problem. On a tree, the smaller pieces are the left and
+        right subtrees (a <strong>subtree</strong> is a node together with everything below it).
+      </p>
+      <p>
         The trick is a way of thinking. A tree is a node with two smaller trees hanging off it. So to answer a question about a
-        tree, <strong>pretend the recursion already gave the answer for the left side and the right side</strong>. Then join
+        tree, <strong>pretend the recursive call already gave the answer for the left side and the right side</strong>. Then join
         those two answers with the current node to make your own answer. <strong>Return</strong> that answer to the parent.
         Every tree function has the same three parts:
       </p>
@@ -344,31 +350,36 @@ export default function DsaLessonFortyThreePage() {
       <p>
         The answer travels from the leaves <em>up</em> to the root, so this style is called <strong>bottom-up</strong>. The
         opposite is to pass information <em>down</em> as extra arguments. We do that for path sum. Many problems need both. Start
-        by asking: &quot;what one value should a node give to its parent?&quot;
+        by asking: &quot;what one value should a node give to its parent?&quot; (The difference in one line: bottom-up sends answers
+        up from the children, and top-down sends information down to the children.)
       </p>
       <p>
         All samples below build their tree with a small helper called <code>buildTree</code>. It reads a level-order array (the
-        tree row by row), where <code>null</code> marks a missing child. LeetCode uses the same format. Each sample is complete
+        tree row by row, from the top row down, and each row from left to right), where <code>null</code> marks a missing child.
+        LeetCode uses the same format. Each sample is complete
         on its own, so you can paste it into a file and run it.
       </p>
 
       <h2 id="height">Height, the model problem</h2>
       <p>
         The <strong>height</strong> of a tree is the number of nodes on the longest path from the root down to a leaf (a{" "}
-        <strong>leaf</strong> is a node with no children). An empty tree has height 0. Some books count edges instead, so a
-        single node has height 0. LeetCode&apos;s &quot;maximum depth&quot; counts nodes, and so do we.
+        <strong>leaf</strong> is a node with no children). An empty tree has height 0. A tree with one node has height 1. Some
+        books count <strong>edges</strong> (the links between nodes) instead, so a single node has height 0 there. LeetCode&apos;s
+        &quot;maximum depth&quot; counts nodes, and so do we.
       </p>
       <CodeBlock lang="js" code={heightCode} />
       <p>
         Read it with the three parts in mind. The base case is 0. We trust <code>height(node.left)</code> and{" "}
         <code>height(node.right)</code>. We combine them as &quot;the taller side, plus this node&quot;. Time is{" "}
-        <strong>O(n)</strong>, because each node is visited once. Extra space is <strong>O(h)</strong> for the recursion stack
-        (the pile of open calls), where h is the height. For a bushy tree h is about log n. For a tree that is one long chain, h
+        <strong>O(n)</strong> (the work grows in step with the number of nodes n), because each node is visited once. Extra space
+        is <strong>O(h)</strong> for the recursion stack (the pile of calls that have started but not finished), where h is the
+        height. For a bushy tree h is about log n. For a tree that is one long chain, h
         can be as big as n.
       </p>
       <Callout kind="note" label="Depth versus height">
-        <strong>Depth</strong> counts down from the root (the root has depth 0 or 1). <strong>Height</strong> counts down from a
-        node to its deepest leaf. Information that flows <em>up</em> is a height. Information that flows <em>down</em> is a depth.
+        <strong>Depth</strong> is how far a node is below the root (the root has depth 0 or 1, depending on the book).{" "}
+        <strong>Height</strong> is how far the deepest leaf is below a node. Information that flows <em>up</em> is a height.
+        Information that flows <em>down</em> is a depth.
       </Callout>
 
       <h2 id="balanced">Balanced tree and the -1 trick</h2>
@@ -515,8 +526,8 @@ export default function DsaLessonFortyThreePage() {
       <p>
         Each call of <code>isSameTree</code> costs up to the size of the smaller tree. We try it at up to n nodes. So the total is{" "}
         <strong>O(m · n)</strong> for trees with n and m nodes. That is fine for interview limits. A faster way is to turn each
-        tree into a string and check whether one string is inside the other. Question 6 shows how, and the separator trap you
-        must avoid.
+        tree into a string (a line of text) and check whether one string is a <strong>substring</strong> of the other (a piece of
+        text found inside the longer text). Question 6 shows how, and the separator trap you must avoid.
       </p>
 
       <h2 id="practice">Practice questions</h2>

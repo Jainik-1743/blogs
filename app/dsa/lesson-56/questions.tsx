@@ -57,7 +57,7 @@ console.log(uniquePaths(1, 1)); // 1`,
           },
           {
             name: "Counting with a formula",
-            idea: <p>Every route has exactly <code>m - 1</code> down moves and <code>n - 1</code> right moves. A route is just a choice of which of the <code>m + n - 2</code> moves are the down ones. The answer is C(m + n - 2, m - 1), which means &ldquo;the number of ways to choose m - 1 things from m + n - 2&rdquo;.</p>,
+            idea: <p>Every route has exactly <code>m - 1</code> down moves and <code>n - 1</code> right moves. A route is just a choice of which of the <code>m + n - 2</code> moves are the down ones. The answer is C(m + n - 2, m - 1). C(a, b) is called a binomial coefficient. It means &ldquo;the number of ways to choose b things from a things when the order does not matter&rdquo;.</p>,
             code: `function uniquePaths(m, n) {
   const total = m + n - 2;
   const k = Math.min(m, n) - 1;
@@ -164,7 +164,7 @@ console.log(uniquePathsWithObstacles([[1, 0]]));                          // 0`,
         approaches={[
           {
             name: "Recursion with memo",
-            idea: <p><code>best(r, c)</code> is the lowest cost from <code>(r, c)</code> to the end: the cell plus the cheaper of going down or going right. A memo is a saved-answers list. We save the answer for each cell. Without it, the code would walk every route one by one.</p>,
+            idea: <p><code>best(r, c)</code> is the lowest cost from <code>(r, c)</code> to the end: the cell plus the cheaper of going down or going right. A memo (memoization) means saving each answer after you work it out, so you never work it out twice. We save the answer for each cell. Without it, the code would walk every route one by one.</p>,
             code: `function minPathSum(grid) {
   const rows = grid.length, cols = grid[0].length;
   const memo = new Map();
@@ -206,7 +206,7 @@ console.log(minPathSum([[1, 2, 3], [4, 5, 6]]));            // 12`,
             explain: <p>O(rows × cols) time, O(cols) memory. On the first row, <code>dp[c]</code> is still <code>Infinity</code>, so only the left neighbour counts. In the first column there is no left neighbour, so only the cell above counts.</p>,
           },
         ]}
-        compare={<p>Start with the memo, because it follows how you think. Use the row version when memory matters. A greedy method (&ldquo;always pick the cheaper next step&rdquo;) fails, because a cheap step can lead into expensive cells. (LeetCode 64.)</p>}
+        compare={<p>Start with the memo, because it follows how you think. Use the row version when memory matters. A greedy method (a method that always takes the choice that looks best right now) fails here (&ldquo;always pick the cheaper next step&rdquo;), because a cheap step can lead into expensive cells. (LeetCode 64.)</p>}
       >
         <p>
           Given a grid of numbers that are zero or more, find a route from the top-left to the bottom-right (moving only right or down) with the

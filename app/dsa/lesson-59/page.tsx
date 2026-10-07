@@ -256,7 +256,7 @@ const timelineRows: string[][] = [
   ["10 – 17", "Brute force, then better", "Say the obvious solution and what it costs. Find what is wasteful. Name the improvement and ask if you may start.", "\"Brute force checks every pair: O(n²). The waste is searching for the partner each time. A map makes that O(1). Shall I go with the map?\""],
   ["17 – 32", "Code", "Write calmly, say what each part does, and use clear names. You may leave a small helper for later (\"I'll fill this in after\").", "\"I loop once. For each number I look for target minus that number in the map, then I store this number.\""],
   ["32 – 39", "Test", "Do a dry run (follow your code by hand) on the example and on an edge case. Go line by line and track the variables. Fix what you find.", "\"i = 0, nums[0] = 2, needed 7, map is empty, store 2 → 0. i = 1, needed 2, found at 0, so return [0, 1].\""],
-  ["39 – 42", "Complexity and alternatives", "Say the time and the memory, and what n means. Mention a trade-off, or what you would do for sorted or huge input.", "\"O(n) time and O(n) memory for the map. If memory mattered, I could sort and use two pointers. That is O(n log n) time and O(1) extra memory.\""],
+  ["39 – 42", "Complexity and alternatives", "Say the time and the memory, and what n means. Mention a trade-off, or what you would do for sorted or huge input.", "\"O(n) time and O(n) memory for the map. If memory mattered, I could sort a copy of the pairs (value, index) and use two pointers. That is O(n log n) time, and it still needs O(n) memory for the pairs.\""],
   ["42 – 45", "Your questions", "Ask one or two real questions about the team or the work. Say thank you.", "\"What does a typical week look like for someone on this team?\""],
 ];
 
@@ -301,7 +301,7 @@ const gotchaRows: string[][] = [
   ["(2 ** 31 + 2 ** 31) >> 1", "0", "A shift first turns the number into 32 bits. Use Math.floor((lo + hi) / 2) instead. It stays exact below 2^53."],
   ["Math.max() and Math.min() with no arguments", "-Infinity and Infinity", "Handy as starting values for \"best so far\", but surprising on an empty array."],
   ["[].reduce((a, b) => a + b)", "TypeError", "Without a starting value, reduce on an empty array gives an error. Write reduce(fn, 0)."],
-  ["Math.max(...hugeArray)", "RangeError", "Spreading hundreds of thousands of values into arguments uses up the call stack (200,000 failed in Node 22). Use a loop."],
+  ["Math.max(...hugeArray)", "RangeError", "Spreading hundreds of thousands of values into arguments uses up the call stack (150,000 values failed in Node 22, 125,000 still worked; the limit differs between engines). Use a loop."],
   ["for (const i in [5])", "i is the string \"0\"", "for…in walks the keys as text. Use for…of to get the values, or use an index loop."],
 ];
 
@@ -327,7 +327,7 @@ export default function DsaLessonFiftyNinePage() {
         title="a 45-minute interview, minute by minute"
         cols={["Minutes", "Phase", "What you do", "What you might say"]}
         rows={timelineRows}
-        note="Real interviews start with a few minutes of introductions and end with your questions. So you often have only about 35 minutes for the problem itself. Keep the same balance: about a third for thinking, a third for coding, and a quarter for testing and talking."
+        note="Real interviews start with a few minutes of introductions and end with your questions. So you often have only about 35 minutes for the problem itself. Keep the same balance: roughly a third of the time for questions and planning, a third for coding, and the rest for testing and talking."
       />
       <Callout kind="note" label="If you run short on time">
         Never skip the testing step. A brute-force answer that works and that you have tested is worth more than a faster answer that
@@ -371,7 +371,7 @@ export default function DsaLessonFiftyNinePage() {
       <CodeBlock lang="js" code={bruteCode} />
       <p>
         Say it like climbing a ladder: &quot;Brute force is O(n²) time. Sorting gives O(n log n) time with O(1) extra memory, if I may
-        change the order. A Set gives O(n) time but uses O(n) memory. Which trade-off would you like?&quot; Offering the choice is a
+        change the order. A Set (a collection that remembers values and checks &quot;seen it?&quot; in O(1) time) gives O(n) time but uses O(n) memory. Which trade-off would you like?&quot; Offering the choice is a
         strong move. Then <strong>agree on the plan before you type</strong>: &quot;Does that approach sound reasonable to you?&quot;
       </p>
 
@@ -492,7 +492,7 @@ export default function DsaLessonFiftyNinePage() {
       <h3>Recursion depth is limited</h3>
       <p>
         Each function call uses space on the call stack (the list of calls that are still waiting to finish). JavaScript limits this to
-        about ten thousand calls for simple functions. That is about 9,600 for the function below in Node 22. Browsers and bigger functions
+        about ten thousand calls for simple functions. In our test the function below reached about 10,900 calls in Node 22. Browsers and bigger functions
         give other numbers. A recursion that goes n = 100,000 calls deep, such as a depth-first search down a long chain, gives a{" "}
         <code>RangeError</code>. In an interview, ask for the maximum depth. If it can reach 10^5, say that you will switch to your own
         stack (an array that you push to and pop from).
@@ -503,7 +503,7 @@ export default function DsaLessonFiftyNinePage() {
       <p>
         <code>queue.shift()</code> removes the first element and moves all the others down by one. So it can cost O(n) for each call.
         (JavaScript engines speed this up for small arrays, but you cannot count on it.) In our test run for this lesson, emptying 100,000
-        elements with <code>shift</code> took over ten seconds. With an index it took about a millisecond. For BFS (breadth-first search,
+        elements with <code>shift</code> took over ten seconds. With an index it took about a millisecond. For BFS (breadth-first search: visit everything one step away, then two steps away, and so on, using a queue;
         lessons 39 and 50), move a <code>head</code> index forward instead. The same advice applies to <code>unshift</code>, and to{" "}
         <code>splice</code> in the middle of a big array.
       </p>

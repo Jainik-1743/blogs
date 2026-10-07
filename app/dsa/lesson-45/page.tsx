@@ -308,8 +308,8 @@ export default function DsaLessonFortyFivePage() {
     <DsaLessonPage lesson={lesson} outline={outline}>
       <h2 id="ancestor">Ancestors and the lowest common ancestor</h2>
       <p>
-        An <strong>ancestor</strong> of a node is any node on the path from the root down to it. LeetCode also counts the node
-        itself. The <strong>lowest common ancestor</strong>, short name <strong>LCA</strong>, of two nodes <code>p</code> and{" "}
+        An <strong>ancestor</strong> of a node is any node on the path from the root down to it (its parent, its grandparent,
+        and so on up to the root). LeetCode also counts the node itself. The <strong>lowest common ancestor</strong>, short name <strong>LCA</strong>, of two nodes <code>p</code> and{" "}
         <code>q</code> is the lowest node that has both of them somewhere below it (in its subtree, meaning itself and
         everything under it). Think of a family tree. The LCA of two cousins is the grandparent they share, not the
         great-grandparent above.
@@ -323,7 +323,7 @@ export default function DsaLessonFortyFivePage() {
       <h2 id="lca">LCA in a binary tree</h2>
       <p>
         If the values have no order, you cannot know where <code>p</code> and <code>q</code> are. So search the whole tree with
-        a recursive function (a function that calls itself) that answers one question: &quot;what do you find in this part of
+        a recursive function (a function that calls itself on a smaller part of the problem) that answers one question: &quot;what do you find in this part of
         the tree?&quot; Each call returns:
       </p>
       <ul>
@@ -382,7 +382,9 @@ export default function DsaLessonFortyFivePage() {
 
       <h2 id="build">Rebuilding a tree from its traversals</h2>
       <p>
-        Lesson 41 gave you the three depth-first orders. Can lists of values bring a tree back? <strong>One list alone is not
+        Lesson 41 gave you the three depth-first orders. <strong>Preorder</strong> visits the node, then its left side, then its
+        right side. <strong>Inorder</strong> visits the left side, then the node, then the right side.{" "}
+        <strong>Postorder</strong> visits the left side, then the right side, then the node. Can lists of values bring a tree back? <strong>One list alone is not
         enough</strong>. Preorder <code>[1, 2]</code> fits a tree where 2 is the left child of 1, and also a tree where 2 is the
         right child. But <strong>preorder plus inorder</strong> (when all values are different) gives exactly one tree:
       </p>
@@ -394,7 +396,7 @@ export default function DsaLessonFortyFivePage() {
           is the root of the left side. After the left side is finished, the next one is the root of the right side.</li>
       </ul>
       <p>
-        The slow way copies parts of the arrays with <code>slice</code> and searches with <code>indexOf</code> on every call. In
+        The slow way copies parts of the arrays with <code>slice</code> and searches for a value with <code>indexOf</code> on every call. In
         the worst case that costs O(n²). The fast way builds a <code>Map</code> (a lookup table) once, from each value to its
         position in the inorder list. It keeps one moving position in the preorder list. It describes each part of the tree by a
         range <code>[lo, hi]</code> in the inorder list, instead of copying.
@@ -425,8 +427,8 @@ export default function DsaLessonFortyFivePage() {
 
       <h2 id="serialise">Save a tree as text and build it back</h2>
       <p>
-        To <strong>serialise</strong> a tree means to turn it into a string of text that you can save or send. To{" "}
-        <strong>deserialise</strong> means to build the tree back from that text. We saw above that one list is not enough. But
+        To <strong>serialize</strong> a tree means to turn it into a string of text that you can save or send. To{" "}
+        <strong>deserialize</strong> means to build the tree back from that text. We saw above that one list is not enough. But
         if you also write down <em>where the children are missing</em>, one walk is enough. Write a marker (here{" "}
         <code>#</code>) for every missing child. You can read a preorder with markers back with the same recursion that wrote it.
         Read one piece of text (a token). If it is <code>#</code>, return null. Otherwise make a node. Let the next tokens fill
