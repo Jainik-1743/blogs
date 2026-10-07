@@ -52,19 +52,19 @@ console.log(steps);`;
 function halvingTrace() {
   const t = tracer();
   let n = 16;
-  t.step(1, "start", "n = 16", "The size of the problem.", { n }, "n");
+  t.step(1, "start", "n = 16", "n is the size of the problem.", { n }, "n");
   let steps = 0;
-  t.step(2, "start", "steps = 0", "Counts how many times the loop body runs.", { n, steps }, "steps");
+  t.step(2, "start", "steps = 0", "steps counts how many times the loop body runs.", { n, steps }, "steps");
   while (n > 1) {
     t.step(3, "check", `${n} > 1? yes`, "Still more than one left, so halve again.", { n, steps });
     n = Math.floor(n / 2);
-    t.step(4, "update", `n = ${n}`, "Half of the problem is thrown away in a single step.", { n, steps }, "n");
+    t.step(4, "update", `n = ${n}`, "Half of the problem is thrown away in one step.", { n, steps }, "n");
     steps++;
     t.step(5, "update", `steps = ${steps}`, "One more halving done.", { n, steps }, "steps");
   }
   t.step(3, "stop", `${n} > 1? no`, "We reached 1, so the loop ends.", { n, steps });
   t.print(steps);
-  t.step(7, "print", "console.log(steps)", "16 → 8 → 4 → 2 → 1 took 4 halvings, and 2⁴ = 16. That 4 is log₂ 16.", { n, steps });
+  t.step(7, "print", "console.log(steps)", "16 → 8 → 4 → 2 → 1 took 4 halvings, and 2⁴ = 16. So 4 is log₂ 16.", { n, steps });
   return t.steps;
 }
 
@@ -100,7 +100,7 @@ for (const a of arrA) {
   for (const b of arrB) { /* ... */ }
 }`;
 
-const hiddenCode = `// Looks like one loop. Is really two.
+const hiddenCode = `// Looks like one loop, but it is really two.
 function commonValues(a, b) {
   const result = [];
   for (const x of a) {           // runs n times
@@ -111,7 +111,7 @@ function commonValues(a, b) {
   return result;                 // O(n × m) in total
 }
 
-// Same result, really one pass over each array
+// Same result, but only one pass over each array
 function commonValuesFast(a, b) {
   const inB = new Set(b);        // m steps, once
   const result = [];
@@ -128,25 +128,29 @@ export default function DsaLessonTwelvePage() {
     <DsaLessonPage lesson={lesson} outline={outline}>
       <h2 id="concept">Why we count steps, not seconds</h2>
       <p>
-        In Lesson 11 we kept saying that one solution was &ldquo;faster&rdquo; than another. How can
-        we know that before running it? Timing with a stopwatch does not help much: the same code
-        runs at different speeds on a laptop and a phone, and on a small input almost everything looks
-        instant.
+        In Lesson 11 we often said that one solution was &ldquo;faster&rdquo; than another. How can
+        we know this before we run the code? A stopwatch does not help much. The same code runs at
+        different speeds on a laptop and on a phone. And with a small input, almost every solution
+        looks instant.
       </p>
       <p>
-        Instead, we count <strong>steps</strong> — simple operations like a comparison, an addition
-        or reading <code>arr[i]</code> — and ask one question: <strong>when the input gets bigger,
-        how quickly does the number of steps grow?</strong> The answer is written in{" "}
-        <strong>Big-O</strong> notation, and it is the language every interviewer uses to talk about
-        efficiency.
+        So we count <strong>steps</strong> instead. A step is one simple operation, such as a
+        comparison, an addition or reading <code>arr[i]</code>. Then we ask one question:{" "}
+        <strong>when the input gets bigger, how fast does the number of steps grow?</strong> We
+        write the answer in <strong>Big-O notation</strong>. Big-O is a short way to describe how the
+        work grows when the input size grows. Every interviewer uses it to talk about efficiency.
+        The letter <code>n</code> always means the size of the input, for example the length of an
+        array.
       </p>
 
       <h2 id="counting">Counting the steps of a loop</h2>
-      <p>Take the simplest loop there is — adding up an array — and count:</p>
+      <p>Take one of the simplest loops, adding up an array, and count its steps:</p>
       <CodeBlock lang="js" code={sumCode} />
       <p>
-        Adding the comments together gives 1 + (n + 1) + n + n + 1 = <strong>3n + 3</strong> steps for
-        an array of length n. Check it against a few sizes:
+        If you add up the numbers in the comments, you get 1 + (n + 1) + n + n + 1 ={" "}
+        <strong>3n + 3</strong> steps for an array of length n. (Different people count slightly
+        different steps. For example, we did not count <code>let i = 0</code>. That is fine, as
+        you will see.) Check the formula for a few sizes:
       </p>
       <DryRun
         title="steps taken by sum(nums)"
@@ -162,12 +166,12 @@ export default function DsaLessonTwelvePage() {
 
       <h2 id="notation">Big-O: keep only what grows</h2>
       <p>
-        Exact counts like 3n + 3 depend on small details — whether <code>i++</code> counts as one step
-        or two, for example. Big-O ignores those details with two rules:
+        Exact counts like 3n + 3 depend on small details. For example, does <code>i++</code> count as
+        one step or as two? Big-O ignores such details. It uses two rules:
       </p>
       <ol>
-        <li><strong>Drop constant factors.</strong> 3n and n grow the same way: double n, double the work. So 3n → n.</li>
-        <li><strong>Keep only the fastest-growing term.</strong> In n² + n + 3, once n is 1,000 the n² part is 1,000,000 and the rest is about 1,000. The small terms stop mattering. So n² + n + 3 → n².</li>
+        <li><strong>Drop constant factors.</strong> A constant factor is a fixed number that you multiply by. 3n and n grow in the same way: if you double n, the work doubles. So 3n becomes n.</li>
+        <li><strong>Keep only the fastest-growing term.</strong> Look at n² + n + 3. When n is 1,000, the n² part is 1,000,000 and the rest is only about 1,000. The small terms stop mattering. So n² + n + 3 becomes n².</li>
       </ol>
       <DryRun
         title="simplifying to Big-O"
@@ -181,12 +185,13 @@ export default function DsaLessonTwelvePage() {
         ]}
       />
       <p>
-        So the <code>sum</code> function is <strong>O(n)</strong>. This measure of how steps grow
-        with the input is called <strong>time complexity</strong>.
+        So the <code>sum</code> function is <strong>O(n)</strong>. Say it &ldquo;order n&rdquo; or
+        &ldquo;linear time&rdquo;. This measure of how the number of steps grows with the input is
+        called <strong>time complexity</strong>.
       </p>
 
       <h2 id="rates">The growth rates you will meet</h2>
-      <p>Almost every solution in this series falls into one of these, ordered from fastest to slowest:</p>
+      <p>Almost every solution in this series is one of these growth rates. They are in order from fastest to slowest:</p>
       <div className="table-wrap">
         <table>
           <thead>
@@ -203,11 +208,11 @@ export default function DsaLessonTwelvePage() {
             <tr><td>O(n)</td><td>linear</td><td>One loop</td><td>Sum, max, linear search</td></tr>
             <tr><td>O(n log n)</td><td>n log n</td><td>Good sorting</td><td><code>arr.sort()</code>, merge sort (Lesson 17)</td></tr>
             <tr><td>O(n²)</td><td>quadratic</td><td>A loop inside a loop</td><td>Checking every pair</td></tr>
-            <tr><td>O(2ⁿ)</td><td>exponential</td><td>Try every subset</td><td>Subsets (Lesson 33)</td></tr>
+            <tr><td>O(2ⁿ)</td><td>exponential</td><td>Try every subset (every possible group of items)</td><td>Subsets (Lesson 33)</td></tr>
           </tbody>
         </table>
       </div>
-      <p>The difference between them is not small. Here are the step counts as n grows:</p>
+      <p>The difference between these rates is very big. Here are the step counts as n grows:</p>
       <DryRun
         title="steps for each growth rate"
         cols={["n", "log n", "n", "n log n", "n²", "2ⁿ"]}
@@ -218,20 +223,21 @@ export default function DsaLessonTwelvePage() {
           ["1,000,000", "≈ 20", "1,000,000", "≈ 20,000,000", "10¹²", "far too many"],
         ]}
         highlight={3}
-        note="A computer does very roughly 10⁸ simple steps per second. For n = 1,000,000: O(n) takes about 0.01 seconds, O(n log n) about 0.2 seconds, and O(n²) about 3 hours."
+        note="As a rough rule, a computer does about 10⁸ (100 million) simple steps per second. For n = 1,000,000: O(n) takes about 0.01 seconds, O(n log n) takes about 0.2 seconds, and O(n²) takes about 3 hours."
       />
       <Callout kind="ok" label="The idea to remember">
         <p className="mb-0">
-          For large inputs, the growth rate matters far more than the speed of the computer or small
-          code optimisations. Changing an O(n²) solution into an O(n) one is usually the main
-          improvement an interviewer is looking for.
+          For large inputs, the growth rate matters much more than the speed of the computer or small
+          changes to the code. Often, the main improvement that an interviewer looks for is to change
+          an O(n²) solution into an O(n) solution.
         </p>
       </Callout>
 
       <h2 id="log">O(log n): the halving loop</h2>
       <p>
-        One growth rate needs a little more explanation. A <strong>logarithm</strong> answers the
-        question: <em>how many times can I halve n before I reach 1?</em>
+        One growth rate needs more explanation. A <strong>logarithm</strong> (log for short) answers
+        this question: <em>how many times can I halve n before I reach 1?</em> The small 2 in log₂
+        means &ldquo;halve&rdquo;.
       </p>
       <ul>
         <li>16 → 8 → 4 → 2 → 1: four halvings, so log₂ 16 = 4.</li>
@@ -239,11 +245,14 @@ export default function DsaLessonTwelvePage() {
         <li>1,000,000 → … → 1: about twenty halvings.</li>
       </ul>
       <p>
-        So any loop that throws away half of what is left on each step is O(log n). It grows so
-        slowly that even for a billion items it runs only about 30 times. In Big-O the base of the
-        logarithm does not matter (dividing by 10 instead of 2 is only a constant factor), so we just
-        write <code>log n</code>. You have already met one: the digit loop from Lesson 5 divides by 10
-        each time, so it is O(log n) in the size of the number.
+        So any loop that throws away half of what is left on each step is O(log n). It grows very
+        slowly. Even for a billion items, it runs only about 30 times.
+      </p>
+      <p>
+        In Big-O, the base of the logarithm does not matter. (Dividing by 10 instead of 2 changes
+        the work only by a constant factor.) So we just write <code>log n</code>. You have already
+        met one such loop. The digit loop from Lesson 5 divides by 10 each time, so it is O(log n)
+        in the size of the number.
       </p>
 
       <h2 id="trace">Traced: halving 16 down to 1</h2>
@@ -254,19 +263,20 @@ export default function DsaLessonTwelvePage() {
       />
 
       <h2 id="reading">Reading Big-O from code</h2>
-      <p>You rarely need to count exactly. Look at the shape of the loops instead:</p>
+      <p>You rarely need to count exactly. Look at the shape of the loops instead. Here are four rules:</p>
       <ul>
         <li><strong>One after another → add.</strong> Two separate loops over n are n + n = 2n, which is O(n).</li>
         <li><strong>One inside another → multiply.</strong> A loop of n inside a loop of n is n × n = O(n²).</li>
         <li><strong>Halving or doubling → log.</strong> A loop variable that is multiplied or divided by 2 each time gives O(log n).</li>
-        <li><strong>Two inputs → two letters.</strong> If the input is two arrays of lengths n and m, write O(n + m) or O(n × m). Do not combine them into one n.</li>
+        <li><strong>Two inputs → two letters.</strong> If there are two arrays of lengths n and m, write O(n + m) or O(n × m). Do not merge them into one n.</li>
       </ul>
       <CodeBlock lang="js" code={shapes} />
 
       <h2 id="hidden">Hidden loops in built-in methods</h2>
       <p>
-        Some JavaScript methods look like a single step but contain a loop inside them. Putting
-        one of these inside your own loop turns O(n) into O(n²) without any visible nested loop.
+        Some JavaScript methods look like one step, but they run a loop inside. If you put one of
+        these inside your own loop, an O(n) solution becomes O(n²). You will not see a nested loop
+        in your code, but it is there.
       </p>
       <div className="table-wrap">
         <table>
@@ -278,10 +288,10 @@ export default function DsaLessonTwelvePage() {
             </tr>
           </thead>
           <tbody>
-            <tr><td><code>arr[i]</code>, <code>arr.length</code>, <code>push</code>, <code>pop</code></td><td>O(1)</td><td>Works at one known position</td></tr>
+            <tr><td><code>arr[i]</code>, <code>arr.length</code>, <code>push</code>, <code>pop</code></td><td>O(1)</td><td>Works at one known position. (<code>push</code> and <code>pop</code> are O(1) on average)</td></tr>
             <tr><td>Map / Set: <code>get</code>, <code>set</code>, <code>has</code>, <code>add</code>, <code>delete</code></td><td>O(1) on average</td><td>Jumps straight to the key (Lesson 15)</td></tr>
             <tr><td><code>includes</code>, <code>indexOf</code>, <code>find</code></td><td>O(n)</td><td>Linear search through the array</td></tr>
-            <tr><td><code>shift</code>, <code>unshift</code>, <code>splice</code></td><td>O(n)</td><td>Every later item has to move one position</td></tr>
+            <tr><td><code>shift</code>, <code>unshift</code>, <code>splice</code></td><td>O(n)</td><td>Every later item may have to move one position (some engines can make <code>shift</code> faster, but you should not rely on it)</td></tr>
             <tr><td><code>slice</code>, <code>[...arr]</code>, <code>concat</code>, <code>join</code></td><td>O(n)</td><td>Copies every item</td></tr>
             <tr><td><code>new Set(arr)</code>, <code>map</code>, <code>filter</code>, <code>reduce</code></td><td>O(n)</td><td>Visits every item</td></tr>
             <tr><td><code>sort</code></td><td>O(n log n)</td><td>Sorting (Lessons 16–18)</td></tr>
@@ -293,7 +303,8 @@ export default function DsaLessonTwelvePage() {
       <h2 id="space">Space complexity</h2>
       <p>
         Time is not the only cost. <strong>Space complexity</strong> measures how much{" "}
-        <em>extra</em> memory a solution needs as the input grows. The input itself is not counted.
+        <em>extra</em> memory a solution needs as the input grows. We do not count the input
+        itself. We use the same Big-O notation for it.
       </p>
       <div className="table-wrap">
         <table>
@@ -312,14 +323,15 @@ export default function DsaLessonTwelvePage() {
         </table>
       </div>
       <p>
-        Many improvements trade space for time. In the hidden-loop example above,{" "}
-        <code>commonValuesFast</code> uses an extra Set (O(m) space) to drop from O(n × m) to O(n + m)
-        time. That is usually a good trade, but be ready to say it out loud: &ldquo;this is O(n) time
-        and O(n) extra space&rdquo;. Interviewers expect both numbers.
+        Many improvements trade space for time. This means you use more memory to save time. In the
+        hidden-loop example above, <code>commonValuesFast</code> uses an extra Set (O(m) space). In
+        return, the time drops from O(n × m) to O(n + m). This is usually a good trade. Be ready to
+        say it out loud, for example: &ldquo;this is O(n) time and O(n) extra space&rdquo;.
+        Interviewers expect both numbers.
       </p>
 
       <h2 id="cases">Best, average and worst case</h2>
-      <p>The same code can do very different amounts of work depending on the input. Take linear search:</p>
+      <p>The same code can do very different amounts of work for different inputs. Take linear search:</p>
       <CodeBlock lang="js" code={`function indexOf(nums, target) {\n  for (let i = 0; i < nums.length; i++) {\n    if (nums[i] === target) return i;\n  }\n  return -1;\n}`} />
       <DryRun
         title="linear search on n items"
@@ -332,16 +344,17 @@ export default function DsaLessonTwelvePage() {
         highlight={2}
       />
       <p>
-        Unless someone says otherwise, Big-O means the <strong>worst case</strong>. It is the only one
-        you can promise: the best case depends on luck. The one common exception is Map and Set,
-        where we quote the average O(1) because the worst case almost never happens in practice.
+        Unless someone says otherwise, we quote the <strong>worst case</strong>. It is the only one
+        you can promise, because the best case depends on luck. The common exception is Map and Set.
+        For them we quote the average case, O(1), because the worst case almost never happens in
+        practice.
       </p>
 
       <h2 id="constraints">From constraints to approach</h2>
       <p>
-        This is where Big-O pays off in interviews. Combine the constraints (Lesson 11) with the rule
-        of thumb of about 10<sup>8</sup> simple steps per second, and the size of n tells you which
-        growth rate you need <em>before</em> you start designing:
+        This is where Big-O helps you most in interviews. Take the constraints (Lesson 11) and the
+        rule of thumb of about 10<sup>8</sup> simple steps per second. Then the size of n tells you
+        which growth rate you need <em>before</em> you design the solution:
       </p>
       <div className="table-wrap">
         <table>
@@ -353,8 +366,8 @@ export default function DsaLessonTwelvePage() {
             </tr>
           </thead>
           <tbody>
-            <tr><td>about 10</td><td>O(n!)</td><td>Try every ordering (permutations)</td></tr>
-            <tr><td>about 20</td><td>O(2ⁿ)</td><td>Try every subset (backtracking)</td></tr>
+            <tr><td>about 10</td><td>O(n!)</td><td>Try every ordering (n! means n × (n−1) × … × 1, and a &ldquo;permutation&rdquo; is one ordering)</td></tr>
+            <tr><td>about 20</td><td>O(2ⁿ)</td><td>Try every subset (backtracking: try a choice, and go back if it fails)</td></tr>
             <tr><td>about 500</td><td>O(n³)</td><td>Three nested loops</td></tr>
             <tr><td>about 5,000</td><td>O(n²)</td><td>Check every pair</td></tr>
             <tr><td>10<sup>5</sup> to 10<sup>6</sup></td><td>O(n log n) or O(n)</td><td>Sorting, one pass with a Map or Set, two pointers</td></tr>
@@ -365,16 +378,16 @@ export default function DsaLessonTwelvePage() {
       <Callout kind="note" label="Try it on Lesson 11">
         <p className="mb-0">
           <code>secondLargest</code> allowed up to 10<sup>5</sup> values. O(n²) would be 10<sup>10</sup>{" "}
-          steps — far too slow. So we needed O(n log n) (sort) or O(n) (one pass), and both of our
-          solutions qualify. In &ldquo;Maximum product of two elements&rdquo;, n was at most 500, so even
-          the O(n²) pair check was acceptable.
+          steps, which is far too slow. So we needed O(n log n) (sort) or O(n) (one pass). Both of
+          our solutions are fast enough. In &ldquo;Maximum product of two elements&rdquo;, n was at
+          most 500, so even the O(n²) pair check was fine.
         </p>
       </Callout>
 
       <h2 id="practice">Practice questions</h2>
       <p>
-        For every solution below, state its time and space complexity before reading the explanation.
-        Saying both numbers should become automatic.
+        For every solution below, say its time complexity and space complexity before you read the
+        explanation. Saying both numbers should become automatic for you.
       </p>
 
       <Questions />
@@ -392,9 +405,9 @@ export default function DsaLessonTwelvePage() {
       <h2 id="next">What&apos;s next</h2>
       <p>
         You can now read a problem carefully and judge how fast a solution must be. Lesson 13 covers
-        the basic maths that appears in many problems: divisors, prime numbers, the greatest common
-        divisor and fast powers. Several of these turn an O(n) loop into O(√n) or O(log n) — and you
-        now have the words to say exactly why that matters.
+        basic maths that appears in many problems: divisors, prime numbers, the greatest common
+        divisor and fast powers. Several of these ideas turn an O(n) loop into O(√n) or O(log n).
+        You now have the words to say exactly why that matters.
       </p>
     </DsaLessonPage>
   );

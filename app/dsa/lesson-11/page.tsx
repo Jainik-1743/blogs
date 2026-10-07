@@ -74,9 +74,9 @@ function onePassTrace() {
   const t = tracer();
   const nums = [4, 9, 7, 9, 2];
   let first = -Infinity;
-  t.step(2, "start", "first = -Infinity", "Smaller than any number, so the first value we see will replace it. Starting at 0 would break on all-negative input.", { nums, first }, "first");
+  t.step(2, "start", "first = -Infinity", "-Infinity is smaller than any number, so the first value we see will replace it. Starting at 0 would break on input with only negative numbers.", { nums, first }, "first");
   let second = -Infinity;
-  t.step(3, "start", "second = -Infinity", "Same idea for the runner-up.", { nums, first, second }, "second");
+  t.step(3, "start", "second = -Infinity", "Same idea for the second place (the runner-up).", { nums, first, second }, "second");
   for (const x of nums) {
     t.step(4, "check", `Next value: x = ${x}`, "Take the next value from the array.", { nums, first, second, x }, "x");
     if (x > first) {
@@ -90,7 +90,7 @@ function onePassTrace() {
       second = x;
       t.step(9, "update", `second = ${second}`, `${x} is the new second largest.`, { nums, first, second, x }, "second");
     } else {
-      t.step(8, "check", `${x} > ${first}? no. ${x} < ${first} and ${x} > ${second}? no`, x === first ? `${x} equals the largest. This is the duplicate case a clarifying question settled: skip it.` : `${x} is too small to matter.`, { nums, first, second, x });
+      t.step(8, "check", `${x} > ${first}? no. ${x} < ${first} and ${x} > ${second}? no`, x === first ? `${x} equals the largest. This is the duplicate case that our clarifying question settled: skip it.` : `${x} is too small to matter.`, { nums, first, second, x });
     }
   }
   const result = second === -Infinity ? null : second;
@@ -106,20 +106,23 @@ export default function DsaLessonElevenPage() {
       <h2 id="concept">Most wrong answers start with a misread question</h2>
       <p>
         Part 1 gave you the tools: loops, functions, arrays, strings and Maps. Part 2 is about using
-        them on problems you have never seen before. The first skill is not coding at all. It is
-        reading the problem properly.
+        these tools on problems you have never seen before. The first skill is not coding. It is
+        reading the problem well.
       </p>
       <p>
-        In interviews, many candidates who fail could have written the code. They solved a slightly
-        different problem from the one asked, forgot an empty array, or started typing before they
-        understood the examples. This lesson gives you a fixed routine that prevents all three. It
-        takes about five minutes, and it saves far more time than it costs.
+        In interviews, many candidates who fail could have written the code. They made one of three
+        mistakes. They solved a slightly different problem from the one asked. They forgot the empty
+        array. Or they started typing before they understood the examples.
+      </p>
+      <p>
+        This lesson gives you a fixed routine that prevents all three mistakes. It takes about five
+        minutes, and it saves much more time than it costs.
       </p>
 
       <h2 id="parts">The five parts of every problem</h2>
       <p>
-        Interview and LeetCode problems are written in the same shape. Here is one we will use for
-        the whole lesson:
+        Interview problems and LeetCode problems all have the same shape. (LeetCode is a website
+        with coding practice problems.) Here is one problem that we will use for the whole lesson:
       </p>
       <CodeBlock lang="text" code={statement} />
       <div className="table-wrap">
@@ -135,21 +138,23 @@ export default function DsaLessonElevenPage() {
             <tr><td>Statement</td><td>The task in words</td><td>Find the second largest value</td></tr>
             <tr><td>Input</td><td>What your function receives, and its type</td><td><code>nums</code>, an array of numbers</td></tr>
             <tr><td>Output</td><td>What your function must return, and its type</td><td>One number</td></tr>
-            <tr><td>Examples</td><td>Concrete input → output pairs to check your understanding</td><td><code>[4, 9, 7, 2]</code> → <code>7</code></td></tr>
-            <tr><td>Constraints</td><td>Limits on size and values</td><td>Up to 100,000 numbers, negatives allowed, can be empty</td></tr>
+            <tr><td>Examples</td><td>Real input and output pairs. Use them to check that you understood the problem</td><td><code>[4, 9, 7, 2]</code> → <code>7</code></td></tr>
+            <tr><td>Constraints</td><td>Limits on the size and on the values of the input</td><td>Up to 100,000 numbers, negatives allowed, can be empty</td></tr>
           </tbody>
         </table>
       </div>
       <p>
-        Before anything else, write the input and output as a function signature. It turns a
+        Before anything else, write the input and output as a <strong>function signature</strong>.
+        A function signature is the function&apos;s name, its inputs and what it returns. It turns a
         paragraph of text into something concrete:
       </p>
       <CodeBlock lang="js" code={`function secondLargest(nums) {   // nums: number[]  →  returns a number\n  // ...\n}`} />
 
       <h2 id="constraints">Reading the constraints</h2>
       <p>
-        The constraints are the most skipped part of a problem, and the most useful. Each line answers
-        a question you would otherwise have to guess:
+        Constraints are the rules about what input is allowed. Many people skip them, but they are
+        the most useful part of a problem. Each line answers a question that you would otherwise
+        have to guess:
       </p>
       <div className="table-wrap">
         <table>
@@ -166,24 +171,25 @@ export default function DsaLessonElevenPage() {
             </tr>
             <tr>
               <td><code>nums.length &lt;= 10^5</code></td>
-              <td>Up to 100,000 values. Two nested loops would do about 10 billion steps — too slow. Lesson 12 shows how to make this judgement quickly.</td>
+              <td>Up to 100,000 values. Two nested loops (a loop inside a loop) would do about 100,000 × 100,000 = 10 billion steps. That is too slow. Lesson 12 shows how to judge this quickly. (<code>10^5</code> means 10 to the power 5, which is 100,000.)</td>
             </tr>
             <tr>
               <td><code>-10^9 &lt;= nums[i]</code></td>
-              <td>Values can be <strong>negative</strong>. Starting a &ldquo;largest so far&rdquo; variable at 0 would be a bug.</td>
+              <td>Values can be <strong>negative</strong>. Starting a &ldquo;largest so far&rdquo; variable at 0 would be a bug. (<code>10^9</code> is one billion.)</td>
             </tr>
             <tr>
               <td><code>nums[i] &lt;= 10^9</code></td>
-              <td>Values fit easily in a JavaScript number. Even a sum of all of them (at most 10<sup>14</sup>) stays exact.</td>
+              <td>Values fit easily in a JavaScript number. Even the sum of all of them (at most 10<sup>14</sup>) stays exact. JavaScript numbers are exact for whole numbers up to about 9 × 10<sup>15</sup>.</td>
             </tr>
           </tbody>
         </table>
       </div>
       <Callout kind="note" label="Look for these words too">
         <p className="mb-0">
-          &ldquo;sorted&rdquo;, &ldquo;distinct&rdquo;, &ldquo;non-negative&rdquo;, &ldquo;exactly one
-          answer&rdquo;, &ldquo;in place&rdquo;, &ldquo;any order&rdquo;. Each one removes a case you would
-          otherwise have to handle — or adds a rule you must follow. Underline them.
+          &ldquo;sorted&rdquo;, &ldquo;distinct&rdquo; (all different), &ldquo;non-negative&rdquo;
+          (0 or more), &ldquo;exactly one answer&rdquo;, &ldquo;in place&rdquo; (change the
+          original array) and &ldquo;any order&rdquo;. Each of these words either removes a case that
+          you would have to handle, or adds a rule that you must follow. Underline them.
         </p>
       </Callout>
 
@@ -191,17 +197,18 @@ export default function DsaLessonElevenPage() {
       <p>
         Read the statement again and try <code>[5, 5, 3]</code>. Is the second largest value 5 (the
         second item in sorted order) or 3 (the second <em>different</em> value)? The problem does not
-        say. And what should the function return for <code>[]</code> or <code>[5]</code>?
+        say. Also, what should the function return for <code>[]</code> or <code>[5]</code>?
       </p>
       <p>
-        When a problem is unclear, <strong>ask</strong>. Interviewers often leave gaps on purpose,
-        to see whether you notice them. For this lesson, assume the interviewer answered:
+        When a problem is not clear, <strong>ask</strong>. These are called{" "}
+        <strong>clarifying questions</strong>. Interviewers often leave gaps on purpose, to see if
+        you notice them. For this lesson, assume that the interviewer answered like this:
       </p>
       <ul>
         <li>&ldquo;Second largest&rdquo; means the second largest <strong>distinct</strong> value, so <code>[5, 5, 3]</code> → 3.</li>
-        <li>If there is no such value, return <code>null</code>. (Returning <code>-1</code> would be a bad choice here, because -1 is a valid value in the array.)</li>
+        <li>If there is no such value, return <code>null</code>. (<code>null</code> is a special value that means &ldquo;nothing&rdquo;.) Returning <code>-1</code> would be a bad choice here, because -1 can be a real value in the array.</li>
       </ul>
-      <p>The questions worth asking come up again and again:</p>
+      <p>The same kinds of questions are worth asking again and again:</p>
       <div className="table-wrap">
         <table>
           <thead>
@@ -223,8 +230,9 @@ export default function DsaLessonElevenPage() {
 
       <h2 id="by-hand">Solve the examples by hand</h2>
       <p>
-        Before thinking about code, solve an example yourself, slowly, and notice <em>how</em> you did
-        it. Your own method is usually the first algorithm.
+        Before you think about code, solve an example yourself, slowly. Then notice <em>how</em> you
+        did it. Your own method is usually the first algorithm. (An <em>algorithm</em> is a list of
+        clear steps that solves a problem.)
       </p>
       <ArrayBoxes
         values={[4, 9, 7, 9, 2]}
@@ -235,14 +243,16 @@ export default function DsaLessonElevenPage() {
         note="The second 9 is not the answer, because the interviewer asked for distinct values."
       />
       <p>
-        Most people scan the list once, keeping the two biggest values in their head. That observation —
-        &ldquo;I only need to remember two numbers&rdquo; — will become the efficient solution.
+        Most people scan the list once and keep the two biggest values in their head. This
+        observation is the key: &ldquo;I only need to remember two numbers.&rdquo; It will become the
+        efficient solution.
       </p>
 
       <h2 id="edge">Listing edge cases</h2>
       <p>
-        An <strong>edge case</strong> is a valid input at the limits of the problem. Write them down
-        <em> before</em> coding, with the expected answer next to each. Then they become your tests.
+        An <strong>edge case</strong> is a valid input at the very limit of what the problem allows.
+        It is often the input that breaks a solution. Write the edge cases down <em>before</em> you
+        code, and write the expected answer next to each. Then they become your tests.
       </p>
       <DryRun
         title="edge cases for secondLargest"
@@ -261,18 +271,22 @@ export default function DsaLessonElevenPage() {
 
       <h2 id="brute">Brute force first, then improve</h2>
       <p>
-        A <strong>brute force</strong> solution is the simplest one that is correct, even if it is
-        slow. Always find one first. It proves you understand the problem, it gives you something to
-        test against, and in an interview a working slow answer is far better than an unfinished fast
-        one.
+        A <strong>brute force</strong> solution is the simplest solution that is correct, even if it
+        is slow. It tries everything. Always find one first, for three reasons. It proves that you
+        understand the problem. It gives you something to test a faster solution against. And in an
+        interview, a working slow answer is much better than an unfinished fast one.
       </p>
-      <p>Brute force here: sort the values from largest to smallest, then take the first value that is smaller than the maximum.</p>
+      <p>
+        Brute force here: sort the values from largest to smallest. Then take the first value that
+        is smaller than the maximum.
+      </p>
       <CodeBlock lang="js" code={bruteCode} />
       <p>
-        It is correct, but sorting does more work than we need: it puts <em>every</em> value in order
-        when we only care about the top two. To improve a brute force, ask: <strong>what work is
-        wasted, or repeated?</strong> Here, the answer is the sorting. Our by-hand method needed only
-        two variables and one pass.
+        It is correct, but sorting does more work than we need. It puts <em>every</em> value in
+        order, and we only care about the top two. To improve a brute force, ask:{" "}
+        <strong>what work is wasted or repeated?</strong> Here, the wasted work is the sorting. Our
+        by-hand method needed only two variables and one pass. (A <em>pass</em> is one trip through
+        the whole array.)
       </p>
 
       <h2 id="trace">Traced: the one-pass solution</h2>
@@ -282,10 +296,12 @@ export default function DsaLessonElevenPage() {
         caption="Keep the largest and second largest seen so far. Each new value either becomes the largest, becomes the second largest, or is ignored."
       />
       <p>
-        Now test it against every row of the edge-case table. <code>[]</code> never enters the loop,
-        so <code>second</code> stays <code>-Infinity</code> and the function returns <code>null</code>.{" "}
-        <code>[5, 5, 5]</code> sets <code>first</code> to 5 and then skips both duplicates, so it also
-        returns <code>null</code>. All seven pass.
+        Now test it against every row of the edge-case table. This is called a <strong>dry run</strong>:
+        you follow the code by hand with an example input, and you do not run it on a computer. For{" "}
+        <code>[]</code>, the loop never starts. So <code>second</code> stays <code>-Infinity</code>{" "}
+        and the function returns <code>null</code>. For <code>[5, 5, 5]</code>, <code>first</code>{" "}
+        becomes 5, and the two other 5s are skipped. So it also returns <code>null</code>. All seven
+        rows pass.
       </p>
 
       <h2 id="method">The eight-step method</h2>
@@ -303,15 +319,15 @@ export default function DsaLessonElevenPage() {
         </ol>
       </Callout>
       <p>
-        Steps 1–6 happen before you write any code, and that is intentional. When code is
-        written before the problem is understood, it usually has to be rewritten.
+        Steps 1 to 6 happen before you write any code. This is on purpose. If you write code before
+        you understand the problem, you usually have to write it again.
       </p>
 
       <h2 id="aloud">Explaining your thinking out loud</h2>
       <p>
-        In an interview, the interviewer judges your thinking, not only your final code. If you
-        work in silence they cannot help you, and they cannot give you credit for good ideas you did
-        not say. Talk through the eight steps. Simple sentences are enough:
+        In an interview, the interviewer judges your thinking, not only your final code. If you work
+        in silence, they cannot help you. They also cannot give you credit for good ideas that you
+        did not say. So talk through the eight steps. Simple sentences are enough:
       </p>
       <div className="table-wrap">
         <table>
@@ -332,14 +348,14 @@ export default function DsaLessonElevenPage() {
         </table>
       </div>
       <p>
-        Practise this even when you are alone. Saying your reasoning out loud also helps you notice
+        Practise this even when you are alone. When you say your reasoning out loud, you also notice
         your own mistakes sooner.
       </p>
 
       <h2 id="practice">Practice questions</h2>
       <p>
-        For each question, go through the eight steps on paper before opening any hint. Pay special
-        attention to the constraints — several of these questions change completely if you misread
+        For each question, go through the eight steps on paper before you open any hint. Pay special
+        attention to the constraints. Several of these questions change completely if you misread
         one line.
       </p>
 
@@ -356,10 +372,10 @@ export default function DsaLessonElevenPage() {
 
       <h2 id="next">What&apos;s next</h2>
       <p>
-        Several times in this lesson we said a solution was &ldquo;too slow&rdquo; or &ldquo;more work
-        than needed&rdquo;. Lesson 12 makes that precise with <strong>Big-O</strong>: a simple way to
-        count how much work code does, and to decide from the constraints alone which approach will be
-        fast enough.
+        Several times in this lesson we said that a solution was &ldquo;too slow&rdquo; or &ldquo;more
+        work than needed&rdquo;. Lesson 12 makes this exact with <strong>Big-O</strong>. Big-O is a
+        simple way to count how much work code does. With it, you can decide from the constraints
+        alone which approach will be fast enough.
       </p>
     </DsaLessonPage>
   );

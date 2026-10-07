@@ -44,12 +44,12 @@ console.log(marks);                    // [ 72, 88, 90, 64 ]`;
 
 const loops = `const nums = [4, 8, 15];
 
-// 1. Index loop — when you need the position i
+// 1. Index loop: use it when you need the position i
 for (let i = 0; i < nums.length; i++) {
   console.log(i, nums[i]);
 }
 
-// 2. for...of — when you only need the values
+// 2. for...of: use it when you only need the values
 for (const x of nums) {
   console.log(x);
 }
@@ -70,7 +70,7 @@ const last = stack.pop();  // remove from the END, returns it
 console.log(last);    // 4
 console.log(stack);   // [ 1, 2, 3 ]
 
-const empty = [];     // start empty, fill in a loop — very common
+const empty = [];     // start empty and fill it in a loop (very common)
 for (let i = 1; i <= 3; i++) empty.push(i * i);
 console.log(empty);   // [ 1, 4, 9 ]`;
 
@@ -88,7 +88,7 @@ function maxTrace() {
   const nums = [3, 7, 2, 9, 4];
   t.step(1, "start", "The input array", "Five numbers at indices 0 to 4.", { nums }, "nums");
   let max = nums[0];
-  t.step(2, "start", "max = nums[0] = 3", "Start with the first item as the “best so far” — never 0, in case every number is negative.", { nums, max }, "max");
+  t.step(2, "start", "max = nums[0] = 3", "Start with the first item as the “best so far”. Do not start with 0, because every number could be negative.", { nums, max }, "max");
   for (let i = 1; ; i++) {
     if (!(i < nums.length)) {
       t.step(3, "stop", `CHECK: ${i} < 5 is false`, "Every item has been compared once.", { nums, max, i });
@@ -113,7 +113,7 @@ const searching = `const nums = [5, 3, 8, 3];
 console.log(nums.includes(8));    // true   is 8 anywhere in the array?
 console.log(nums.indexOf(3));     // 1      first position of 3, or -1
 console.log(nums.lastIndexOf(3)); // 3      last position of 3
-console.log(nums.slice(1, 3));    // [ 3, 8 ]  a COPY of positions 1 and 2 (3 is excluded)
+console.log(nums.slice(1, 3));    // [ 3, 8 ]  a COPY of positions 1 and 2 (position 3 is not included)
 console.log(nums.slice());        // [ 5, 3, 8, 3 ]  a full copy`;
 
 const splice = `const nums = [10, 20, 30, 40];
@@ -126,7 +126,7 @@ console.log(nums);             // [ 10, 15, 25, 30, 40 ]`;
 
 const mapFilterReduce = `const prices = [100, 250, 40, 80];
 
-// map: make a NEW array by changing every item
+// map: make a NEW array by changing every item (here: add 10 percent)
 const withTax = prices.map((p) => p * 1.1);
 console.log(withTax.map(Math.round));          // [ 110, 275, 44, 88 ]
 
@@ -159,10 +159,13 @@ export default function DsaLessonEightPage() {
     <DsaLessonPage lesson={lesson} outline={outline}>
       <h2 id="concept">An array is a row of numbered lockers</h2>
       <p>
-        Storing 100 exam marks in 100 variables (<code>mark1</code>, <code>mark2</code>, …) would be
-        impractical. An <strong>array</strong> is one variable holding a whole row of values, like a row
-        of lockers. Each locker has a number — its <strong>index</strong> — and the numbering starts
-        at <strong>0</strong>, not 1.
+        Imagine you must store 100 exam marks. Making 100 variables (<code>mark1</code>,{" "}
+        <code>mark2</code>, …) would be very hard to manage.
+      </p>
+      <p>
+        An <strong>array</strong> is one variable that holds a list of values in order. Think of a
+        row of lockers. Each locker holds one value. Each locker has a number, called its{" "}
+        <strong>index</strong>. The numbering starts at <strong>0</strong>, not 1.
       </p>
       <ArrayBoxes
         name="marks"
@@ -170,9 +173,9 @@ export default function DsaLessonEightPage() {
         caption="Four values, indices 0 to 3. The last index is always length − 1."
       />
       <p>
-        Arrays are the most-asked data structure in interviews by a wide margin. Almost every
-        question in Parts 4–7 is an array or a string, so this lesson and the next carry a lot of
-        weight.
+        A <em>data structure</em> is a way to organise data in memory so that you can use it well.
+        Arrays are the data structure that interviews ask about most. Almost every question in Parts
+        4–7 uses an array or a string. So this lesson and the next one are very important.
       </p>
 
       <h2 id="basics">Creating, reading and changing</h2>
@@ -181,29 +184,35 @@ export default function DsaLessonEightPage() {
         <ul className="mb-0">
           <li>First item: <code>arr[0]</code>.</li>
           <li>Last item: <code>arr[arr.length - 1]</code>.</li>
-          <li>Valid indices: <code>0</code> to <code>arr.length - 1</code>. Anything outside gives <code>undefined</code>.</li>
+          <li>Valid indices: <code>0</code> to <code>arr.length - 1</code>. An index outside this range gives <code>undefined</code> (&ldquo;no value&rdquo;).</li>
         </ul>
       </Callout>
 
       <h2 id="loop">Looping over an array</h2>
       <p>
-        Lesson 4 said &ldquo;start at 0, use <code>&lt;</code>&rdquo; is the most common loop in DSA.
-        Here is why: <code>i</code> takes exactly the values 0 to <code>length − 1</code> — every
-        valid index, once.
+        In Lesson 4 you saw that &ldquo;start at 0 and use <code>&lt;</code>&rdquo; is the most common
+        loop in DSA. Here is why. The variable <code>i</code> takes exactly the values 0 to{" "}
+        <code>length − 1</code>. That is every valid index, once.
       </p>
       <CodeBlock lang="js" code={loops} />
       <p>
-        Use the index loop whenever position matters (comparing neighbours, swapping, returning an
-        index). Use <code>for…of</code> when you only need each value.
+        Use the index loop when the position matters. For example, you need it to compare neighbours,
+        to swap items or to return an index. Use <code>for…of</code> when you only need each value.
+        (<code>for…of</code> is a loop that gives you each value of an array, one at a time.)
       </p>
 
       <h2 id="grow">Adding and removing: push and pop</h2>
       <CodeBlock lang="js" code={pushPop} />
       <p>
-        <code>push</code> and <code>pop</code> work at the <strong>end</strong> and are instant.
-        There are also <code>unshift</code> / <code>shift</code> for the <em>front</em>, but they
-        have to move every other item one place, so they take longer on large arrays — Lesson 12
-        explains why that matters.
+        <code>push</code> is a method that adds an item to the <strong>end</strong> of an array.{" "}
+        <code>pop</code> is a method that removes the last item and gives it back to you. (A{" "}
+        <em>method</em> is a function that belongs to an object, here the array. You call it with a
+        dot, like <code>stack.push(3)</code>.) Both are fast, because no other item has to move.
+      </p>
+      <p>
+        There are also <code>unshift</code> and <code>shift</code>. They add and remove at the{" "}
+        <em>front</em>. They can be slow on large arrays, because every other item may have to move
+        one place. Lesson 12 explains why that matters.
       </p>
 
       <h2 id="patterns">The four patterns behind most array questions</h2>
@@ -226,8 +235,8 @@ export default function DsaLessonEightPage() {
         </table>
       </div>
       <p>
-        These are the loop patterns from Lessons 4–5 applied to arrays. Searching item by item from
-        the start is called a <strong>linear search</strong>; Part 6 will show a much faster way
+        These are the loop patterns from Lessons 4–5, now used on arrays. Searching item by item from
+        the start is called a <strong>linear search</strong>. Part 6 will show a much faster way
         when the array is sorted.
       </p>
 
@@ -240,34 +249,48 @@ export default function DsaLessonEightPage() {
 
       <h2 id="reference">Copying arrays: variables share the same array</h2>
       <p>
-        A variable doesn&apos;t hold the array itself, it holds a <em>reference</em> — directions to
-        where the array lives. Copying the variable copies the directions, not the lockers:
+        A variable does not hold the array itself. It holds a <em>reference</em>. A reference is
+        the address of the place in memory where the array lives. When you write{" "}
+        <code>const b = a</code>, you copy the address, not the lockers. Both variables then point
+        to the same array:
       </p>
       <CodeBlock lang="js" code={shared} />
       <p>
-        This matters the moment you pass an array into a function: the function can change your
-        array. When a question says &ldquo;do it in place&rdquo;, that is exactly what it wants. When
-        it says &ldquo;return a new array&rdquo;, copy first.
+        This matters when you pass an array into a function. The function can change your array.
+        When a question says &ldquo;do it in place&rdquo;, it wants exactly that: change the
+        original array. When a question says &ldquo;return a new array&rdquo;, copy the array first.
+        The <code>[...a]</code> form is called <strong>spread syntax</strong>. It takes every item
+        out of <code>a</code> and puts them in a new array.
       </p>
 
       <h2 id="builtins">Built-in methods you will use every day</h2>
       <p>
-        JavaScript arrays come with methods that do common jobs for you. Each one is a loop
-        inside, so they are not free — but they make code much shorter.
+        JavaScript arrays come with ready-made methods that do common jobs. Each one runs a loop
+        inside, so it still takes time on a large array. But the methods make your code much
+        shorter.
       </p>
       <h3>Searching and copying</h3>
       <CodeBlock lang="js" code={searching} />
       <h3>Removing and inserting in the middle: splice</h3>
       <CodeBlock lang="js" code={splice} />
       <p>
-        <code>splice</code> changes the array itself, and every item after the change has to move,
-        so it takes longer on large arrays. <code>slice</code> (without the &ldquo;p&rdquo;) never
-        changes the original — it returns a copy.
+        <code>splice</code> changes the array itself. Every item after the change has to move, so it
+        takes longer on large arrays. <code>slice</code> (without the &ldquo;p&rdquo;) never changes
+        the original. It returns a copy of a part of the array. Do not mix them up.
       </p>
       <h3>map, filter and reduce</h3>
       <p>
-        These three take a small function (written here as an arrow function, Lesson 7) and apply it
-        to every item:
+        These three methods each take a small function and run it on every item. A function you pass
+        to another function is called a <strong>callback</strong>. Here the callbacks are arrow
+        functions (Lesson 7).
+      </p>
+      <ul>
+        <li><code>map</code> makes a <em>new array</em> of the same length. Each new item is the callback&apos;s result for the old item.</li>
+        <li><code>filter</code> makes a <em>new array</em> with only the items for which the callback returns true.</li>
+        <li><code>reduce</code> combines all items into <em>one value</em>. The callback receives the total so far and the next item. The last argument (here <code>0</code>) is the starting total.</li>
+      </ul>
+      <p>
+        Here they are in code:
       </p>
       <CodeBlock lang="js" code={mapFilterReduce} />
       <div className="table-wrap">
@@ -290,16 +313,19 @@ export default function DsaLessonEightPage() {
 
       <h2 id="sorting">Sorting numbers correctly</h2>
       <p>
-        <code>sort()</code> with no arguments compares items <strong>as text</strong>, so{" "}
-        <code>&quot;100&quot;</code> comes before <code>&quot;25&quot;</code> (because &ldquo;1&rdquo;
-        comes before &ldquo;2&rdquo;). For numbers, always pass a comparison function:
+        <code>sort()</code> is a method that puts the items of an array in order. With no arguments,
+        it compares items <strong>as text</strong>. So <code>&quot;100&quot;</code> comes before{" "}
+        <code>&quot;25&quot;</code>, because &ldquo;1&rdquo; comes before &ldquo;2&rdquo;. For
+        numbers, always pass a <strong>comparison function</strong>. This is a function that takes
+        two items, a and b. If it returns a negative number, a goes first. If it returns a positive
+        number, b goes first.
       </p>
       <CodeBlock lang="js" code={sortCode} />
       <Callout kind="warn" label="Remember">
         <p className="mb-0">
           <code>(a, b) =&gt; a - b</code> sorts from smallest to largest. <code>sort</code> changes the
-          original array, which is why the examples sort a copy (<code>[...nums]</code>). Part 3
-          explains how sorting works inside.
+          original array, so the examples sort a copy (<code>[...nums]</code>). Part 3 explains how
+          sorting works inside.
         </p>
       </Callout>
 
@@ -335,8 +361,8 @@ export default function DsaLessonEightPage() {
         ]}
       />
       <p>
-        Next lesson: <strong>strings</strong> — arrays of characters that you can read but not
-        change.
+        Next lesson: <strong>strings</strong>. A string is text. It works like an array of
+        characters, but you can read it and not change it.
       </p>
     </DsaLessonPage>
   );

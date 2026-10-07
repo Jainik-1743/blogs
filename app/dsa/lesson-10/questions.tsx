@@ -9,12 +9,12 @@ export default function Questions() {
         n={1}
         title="Character frequency"
         level="Easy"
-        examples={[{ input: `"banana"`, output: "b: 1\na: 3\nn: 2", why: "b appears once, a three times and n twice. Characters are listed in the order they first appear." }]}
-        hints={[<>Use a Map from character to count.</>, <>For each character: <code>freq.set(ch, (freq.get(ch) ?? 0) + 1)</code>.</>]}
+        examples={[{ input: `"banana"`, output: "b: 1\na: 3\nn: 2", why: "b appears once, a three times and n twice. The characters are listed in the order they first appear." }]}
+        hints={[<>Use a Map that stores each character and its count.</>, <>For each character, write: <code>freq.set(ch, (freq.get(ch) ?? 0) + 1)</code>.</>]}
         approaches={[
           {
             name: "Map",
-            idea: <p>One pass: add 1 to the character&apos;s count, starting from 0 the first time.</p>,
+            idea: <p>Go through the string once. Add 1 to the character&apos;s count. The first time, start from 0.</p>,
             code: `function charFrequency(s) {
   const freq = new Map();
   for (const ch of s) {
@@ -32,11 +32,11 @@ b: 1
 a: 3
 n: 2
 */`,
-            explain: <p>The frequency-map pattern traced in this lesson. A Map remembers the order in which keys were first added.</p>,
+            explain: <p>This is the frequency-map pattern traced in this lesson. A Map remembers the order in which the keys were first added.</p>,
           },
           {
             name: "Plain object",
-            idea: <p>The same idea with an object: each character is a property name.</p>,
+            idea: <p>This is the same idea with an object. Each character is a property name.</p>,
             code: `function charFrequency(s) {
   const freq = {};
   for (const ch of s) {
@@ -46,11 +46,11 @@ n: 2
 }
 
 console.log(charFrequency("banana")); // { b: 1, a: 3, n: 2 }`,
-            explain: <p>Very common in JavaScript code. <code>freq[ch] || 0</code> gives 0 when the property does not exist yet.</p>,
+            explain: <p>This is very common in JavaScript code. <code>freq[ch] || 0</code> gives 0 when the property does not exist yet. (<code>||</code> uses the right side for any &ldquo;empty&rdquo; value such as 0 or <code>undefined</code>. That is fine here, because a count of 0 and &ldquo;no count&rdquo; both mean 0.)</p>,
           },
           {
             name: "Array of 26 counters",
-            idea: <p>For lowercase letters only, use the character-code technique from Lesson 9: letter → position 0–25.</p>,
+            idea: <p>For lowercase letters only, use the character-code trick from Lesson 9. It turns each letter into a position from 0 to 25.</p>,
             code: `function charFrequency(s) {
   const counts = new Array(26).fill(0);
   for (const ch of s) {
@@ -61,10 +61,10 @@ console.log(charFrequency("banana")); // { b: 1, a: 3, n: 2 }`,
 
 const counts = charFrequency("banana");
 console.log(counts[0], counts[1], counts[13]); // 3 1 2   (a, b, n)`,
-            explain: <p>An array is slightly faster than a Map and uses a fixed amount of memory. It only works when you know the set of possible characters in advance.</p>,
+            explain: <p>An array is slightly faster than a Map and uses a fixed amount of memory. It works only when you know in advance which characters are possible.</p>,
           },
         ]}
-        compare={<p>Use a Map (Approach 1) by default — it works for any characters. Use the 26-counter array when the problem says &ldquo;lowercase English letters only&rdquo;.</p>}
+        compare={<p>Use a Map (Approach 1) by default. It works for any characters. Use the 26-counter array when the problem says &ldquo;lowercase English letters only&rdquo;.</p>}
       >
         <p>Count how many times each character appears.</p>
       </Problem>
@@ -77,11 +77,11 @@ console.log(counts[0], counts[1], counts[13]); // 3 1 2   (a, b, n)`,
           { input: "[1, 2, 3, 1]", output: "true", why: "1 appears twice." },
           { input: "[1, 2, 3, 4]", output: "false", why: "Every value is different." },
         ]}
-        hints={[<>Brute force: compare every pair. Can you avoid that?</>, <>Walk through the array, remembering every value you have seen in a Set. If a value is already in the Set, you found a duplicate.</>]}
+        hints={[<>Brute force means trying every possibility. Here that means comparing every pair. Can you avoid that?</>, <>Walk through the array. Remember every value you have seen in a Set. If a value is already in the Set, you found a duplicate.</>]}
         approaches={[
           {
             name: "Compare every pair",
-            idea: <p>Two nested loops check each pair (i, j) with i &lt; j.</p>,
+            idea: <p>Two nested loops (a loop inside a loop) check each pair (i, j) where i &lt; j.</p>,
             code: `function containsDuplicate(nums) {
   for (let i = 0; i < nums.length; i++) {
     for (let j = i + 1; j < nums.length; j++) {
@@ -93,11 +93,11 @@ console.log(counts[0], counts[1], counts[13]); // 3 1 2   (a, b, n)`,
 
 console.log(containsDuplicate([1, 2, 3, 1])); // true
 console.log(containsDuplicate([1, 2, 3, 4])); // false`,
-            explain: <p>Correct, but for n items it makes about n²/2 comparisons (Lesson 6). For 100,000 items that is 5 billion — far too slow.</p>,
+            explain: <p>This is correct, but for n items it makes about n²/2 comparisons (Lesson 6). For 100,000 items that is about 5 billion, which is far too slow.</p>,
           },
           {
             name: "Sort, then check neighbours",
-            idea: <p>After sorting, equal values sit next to each other.</p>,
+            idea: <p>After sorting, equal values sit next to each other. So compare each item with its neighbour.</p>,
             code: `function containsDuplicate(nums) {
   const sorted = [...nums].sort((a, b) => a - b);
   for (let i = 1; i < sorted.length; i++) {
@@ -107,11 +107,11 @@ console.log(containsDuplicate([1, 2, 3, 4])); // false`,
 }
 
 console.log(containsDuplicate([1, 2, 3, 1])); // true`,
-            explain: <p>Much faster than comparing every pair, and uses little extra memory. Sorting itself costs more than one pass, though (Lesson 12).</p>,
+            explain: <p>This is much faster than comparing every pair. Sorting still costs more than one pass (Lesson 12). We sort a copy because <code>sort</code> changes the original array. If you may change the input, you can sort it directly and save the memory for the copy.</p>,
           },
           {
             name: "Set of values seen so far",
-            idea: <p>Check each value against a Set of earlier values, then add it.</p>,
+            idea: <p>Check each value against a Set of the earlier values. Then add it to the Set.</p>,
             code: `function containsDuplicate(nums) {
   const seen = new Set();
   for (const x of nums) {
@@ -126,10 +126,10 @@ console.log(containsDuplicate([1, 2, 3, 4])); // false
 
 // Even shorter: if the Set is smaller than the array, something was repeated
 console.log(new Set([1, 2, 3, 1]).size !== 4); // true`,
-            explain: <p>Each value is checked once, and <code>has</code> is instant. This is the &ldquo;have I seen it before?&rdquo; idea at the heart of Part 5.</p>,
+            explain: <p>Each value is checked once, and <code>has</code> is very fast. This is the &ldquo;have I seen it before?&rdquo; idea that Part 5 is built on.</p>,
           },
         ]}
-        compare={<p>Approach 3 is the expected answer for LeetCode 217: one pass. Mention Approach 1 as the brute force and Approach 2 if memory is limited.</p>}
+        compare={<p>Approach 3 is the expected answer for LeetCode 217. It needs one pass. Mention Approach 1 as the brute force. Mention Approach 2 if memory is limited.</p>}
       >
         <p>Return <code>true</code> if any value appears at least twice. (LeetCode 217.)</p>
       </Problem>
@@ -140,14 +140,14 @@ console.log(new Set([1, 2, 3, 1]).size !== 4); // true`,
         level="Medium"
         examples={[
           { input: `"leetcode"`, output: `"l"`, why: "l appears once and comes first. (e appears three times.)" },
-          { input: `"loveleetcode"`, output: `"v"`, why: "l and o repeat; v is the first character that appears only once." },
+          { input: `"loveleetcode"`, output: `"v"`, why: "l and o repeat. v is the first character that appears only once." },
           { input: `"aabb"`, output: "null", why: "Every character repeats." },
         ]}
-        hints={[<>You cannot know whether a character repeats until you have seen the whole string.</>, <>Pass 1: count every character. Pass 2: walk the string again and return the first character whose count is 1.</>]}
+        hints={[<>You cannot know whether a character repeats until you have seen the whole string.</>, <>Pass 1: count every character. Pass 2: walk the string again. Return the first character whose count is 1.</>]}
         approaches={[
           {
             name: "Count, then scan again",
-            idea: <p>Two passes: build a frequency map, then find the first character with count 1 in the original order.</p>,
+            idea: <p>Use two passes. First build a frequency map. Then walk the string again and find the first character with count 1.</p>,
             code: `function firstUnique(s) {
   const freq = new Map();
   for (const ch of s) freq.set(ch, (freq.get(ch) ?? 0) + 1);
@@ -160,11 +160,11 @@ console.log(new Set([1, 2, 3, 1]).size !== 4); // true`,
 console.log(firstUnique("leetcode"));     // l
 console.log(firstUnique("loveleetcode")); // v
 console.log(firstUnique("aabb"));         // null`,
-            explain: <p>The second pass walks the <em>string</em>, not the map, so &ldquo;first&rdquo; means first in the original order. LeetCode 387 asks for the index; return <code>i</code> instead of the character.</p>,
+            explain: <p>The second pass walks the <em>string</em> and not the map. So &ldquo;first&rdquo; means first in the original order. LeetCode 387 asks for the index. For that, use an index loop and return <code>i</code> instead of the character.</p>,
           },
           {
             name: "indexOf equals lastIndexOf",
-            idea: <p>A character is unique if its first and last positions are the same.</p>,
+            idea: <p>A character is unique if its first position and its last position are the same.</p>,
             code: `function firstUnique(s) {
   for (const ch of s) {
     if (s.indexOf(ch) === s.lastIndexOf(ch)) return ch;
@@ -173,10 +173,10 @@ console.log(firstUnique("aabb"));         // null`,
 }
 
 console.log(firstUnique("loveleetcode")); // v`,
-            explain: <p>Short, but <code>indexOf</code> and <code>lastIndexOf</code> each scan the string, so the total work grows like n². Fine for short strings only.</p>,
+            explain: <p>This is short. But <code>indexOf</code> and <code>lastIndexOf</code> each scan the string, so the total work grows like n². It is fine for short strings only.</p>,
           },
         ]}
-        compare={<p>Use Approach 1: two simple passes, each checking every character once.</p>}
+        compare={<p>Use Approach 1. It makes two simple passes, and each pass checks every character once.</p>}
       >
         <p>Return the first character that appears exactly once, or <code>null</code>.</p>
       </Problem>
@@ -185,12 +185,12 @@ console.log(firstUnique("loveleetcode")); // v`,
         n={4}
         title="Most frequent element"
         level="Easy"
-        examples={[{ input: "[1, 3, 2, 3, 3, 2]", output: "3", why: "3 appears three times, 2 twice and 1 once." }]}
-        hints={[<>Count first with a frequency map.</>, <>Then find the entry with the largest count — the &ldquo;best so far&rdquo; pattern.</>]}
+        examples={[{ input: "[1, 3, 2, 3, 3, 2]", output: "3", why: "3 appears three times, 2 appears twice and 1 appears once." }]}
+        hints={[<>Count first with a frequency map.</>, <>Then find the entry with the largest count. This is the &ldquo;best so far&rdquo; pattern.</>]}
         approaches={[
           {
             name: "Count, then pick the best",
-            idea: <p>Build the frequency map, then loop over it keeping the value with the highest count.</p>,
+            idea: <p>Build the frequency map. Then loop over it and keep the value with the highest count.</p>,
             code: `function mostFrequent(nums) {
   const freq = new Map();
   for (const x of nums) freq.set(x, (freq.get(x) ?? 0) + 1);
@@ -206,11 +206,11 @@ console.log(firstUnique("loveleetcode")); // v`,
 }
 
 console.log(mostFrequent([1, 3, 2, 3, 3, 2])); // 3`,
-            explain: <p>Two patterns you already know, combined: a frequency map and best-so-far.</p>,
+            explain: <p>This joins two patterns you already know: a frequency map and best-so-far.</p>,
           },
           {
             name: "Track the best while counting",
-            idea: <p>Update the best answer every time a count increases, so only one loop is needed.</p>,
+            idea: <p>Update the best answer every time a count goes up. Then you need only one loop.</p>,
             code: `function mostFrequent(nums) {
   const freq = new Map();
   let best = null, bestCount = 0;
@@ -226,10 +226,10 @@ console.log(mostFrequent([1, 3, 2, 3, 3, 2])); // 3`,
 }
 
 console.log(mostFrequent([1, 3, 2, 3, 3, 2])); // 3`,
-            explain: <p>The best can only change when a count goes up, so checking at that moment is enough.</p>,
+            explain: <p>The best answer can change only when a count goes up. So it is enough to check at that moment.</p>,
           },
         ]}
-        compare={<p>Both are correct and do similar work. Approach 1 is easier to read; Approach 2 saves the second loop.</p>}
+        compare={<p>Both are correct and do about the same work. Approach 1 is easier to read. Approach 2 saves the second loop.</p>}
       >
         <p>Return the value that appears most often.</p>
       </Problem>
@@ -239,14 +239,14 @@ console.log(mostFrequent([1, 3, 2, 3, 3, 2])); // 3`,
         title="Valid anagram"
         level="Easy"
         examples={[
-          { input: `"listen", "silent"`, output: "true", why: "Both use the letters e, i, l, n, s, t once each." },
-          { input: `"rat", "car"`, output: "false", why: "rat has a t that car does not have." },
+          { input: `"listen", "silent"`, output: "true", why: "Both words use the letters e, i, l, n, s, t once each." },
+          { input: `"rat", "car"`, output: "false", why: "rat has a t, but car does not have a t." },
         ]}
-        hints={[<>Two words are anagrams when they use the same letters the same number of times.</>, <>Count the letters of the first word up and the letters of the second word down. If a count would go below zero, it is not an anagram.</>]}
+        hints={[<>Two words are anagrams when they use the same letters the same number of times.</>, <>Count the letters of the first word up. Count the letters of the second word down. If a count would go below zero, it is not an anagram.</>]}
         approaches={[
           {
             name: "Sort both and compare",
-            idea: <p>Anagrams become identical when their letters are sorted.</p>,
+            idea: <p>If you sort the letters of two anagrams, you get the same text.</p>,
             code: `function isAnagram(a, b) {
   const sortWord = (w) => w.split("").sort().join("");
   return sortWord(a) === sortWord(b);
@@ -254,11 +254,11 @@ console.log(mostFrequent([1, 3, 2, 3, 3, 2])); // 3`,
 
 console.log(isAnagram("listen", "silent")); // true
 console.log(isAnagram("rat", "car"));       // false`,
-            explain: <p>&ldquo;listen&rdquo; and &ldquo;silent&rdquo; both become &ldquo;eilnst&rdquo;. Very easy to write; sorting costs more than counting.</p>,
+            explain: <p>&ldquo;listen&rdquo; and &ldquo;silent&rdquo; both become &ldquo;eilnst&rdquo;. This is very easy to write. But sorting costs more than counting.</p>,
           },
           {
             name: "Count up and down with a Map",
-            idea: <p>Add 1 for each letter of <code>a</code>, subtract 1 for each letter of <code>b</code>.</p>,
+            idea: <p>Add 1 for each letter of <code>a</code>. Subtract 1 for each letter of <code>b</code>.</p>,
             code: `function isAnagram(a, b) {
   if (a.length !== b.length) return false;
   const count = new Map();
@@ -273,11 +273,11 @@ console.log(isAnagram("rat", "car"));       // false`,
 
 console.log(isAnagram("listen", "silent")); // true
 console.log(isAnagram("rat", "car"));       // false`,
-            explain: <p>If the lengths match and no count ever goes below zero, every count must end at exactly 0.</p>,
+            explain: <p>The lengths are equal and no count ever goes below zero. So every count must end at exactly 0.</p>,
           },
           {
             name: "26 counters",
-            idea: <p>For lowercase letters, use an array of 26 counts instead of a Map.</p>,
+            idea: <p>For lowercase letters, use an array of 26 counters instead of a Map.</p>,
             code: `function isAnagram(a, b) {
   if (a.length !== b.length) return false;
   const counts = new Array(26).fill(0);
@@ -289,10 +289,10 @@ console.log(isAnagram("rat", "car"));       // false`,
 }
 
 console.log(isAnagram("listen", "silent")); // true`,
-            explain: <p>Both words are processed in the same loop. At the end every counter must be 0.</p>,
+            explain: <p>Both words are processed in the same loop. At the end, every counter must be 0.</p>,
           },
         ]}
-        compare={<p>Approach 1 is a good first answer. Approach 2 or 3 is the efficient answer for LeetCode 242; use 3 when the input is lowercase letters only.</p>}
+        compare={<p>Approach 1 is a good first answer. Approach 2 or 3 is the efficient answer for LeetCode 242. Use Approach 3 when the input is lowercase letters only.</p>}
       >
         <p>Do the two strings contain exactly the same letters, the same number of times? (LeetCode 242.)</p>
       </Problem>
@@ -302,14 +302,14 @@ console.log(isAnagram("listen", "silent")); // true`,
         title="Intersection of two arrays"
         level="Easy"
         examples={[
-          { input: "[1, 2, 2, 1], [2, 2]", output: "[2]", why: "2 is the only value in both. It is listed once." },
+          { input: "[1, 2, 2, 1], [2, 2]", output: "[2]", why: "2 is the only value in both arrays. It is listed once." },
           { input: "[4, 9, 5], [9, 4, 9, 8, 4]", output: "[9, 4]", why: "4 and 9 are in both arrays. Any order is accepted." },
         ]}
-        hints={[<>Put one array into a Set so you can check membership instantly.</>, <>Walk the other array and collect values that are in the Set. Use another Set so each answer appears only once.</>]}
+        hints={[<>Put one array into a Set. Then you can check quickly whether a value is in it.</>, <>Walk the other array and collect the values that are in the Set. Use a second Set so that each answer appears only once.</>]}
         approaches={[
           {
             name: "Set lookup",
-            idea: <p>A Set of the first array, a Set for the answers, one pass over the second array.</p>,
+            idea: <p>Make a Set from the first array. Make a second Set for the answers. Then make one pass over the second array.</p>,
             code: `function intersection(a, b) {
   const inA = new Set(a);
   const result = new Set();
@@ -321,19 +321,19 @@ console.log(isAnagram("listen", "silent")); // true`,
 
 console.log(intersection([1, 2, 2, 1], [2, 2]));       // [ 2 ]
 console.log(intersection([4, 9, 5], [9, 4, 9, 8, 4])); // [ 9, 4 ]`,
-            explain: <p>Each value is checked once, and the result Set removes repeated answers automatically.</p>,
+            explain: <p>Each value is checked once. The result Set removes repeated answers for you.</p>,
           },
           {
             name: "filter with includes",
-            idea: <p>Keep the values of one array that the other array includes, then remove duplicates.</p>,
+            idea: <p>Keep the values of one array that the other array also has. Then remove duplicates.</p>,
             code: `const intersection = (a, b) => [...new Set(a.filter((x) => b.includes(x)))];
 
 console.log(intersection([4, 9, 5], [9, 4, 9, 8, 4])); // [ 4, 9 ]`,
-            explain: <p>One line, but <code>includes</code> scans <code>b</code> for every item of <code>a</code>, so the work grows like n × m.</p>,
+            explain: <p>This is one line. But <code>includes</code> scans <code>b</code> for every item of <code>a</code>, so the work grows like n × m (the two array sizes multiplied).</p>,
           },
           {
             name: "Sort both, then two pointers",
-            idea: <p>With both arrays sorted, walk them together and move the pointer at the smaller value.</p>,
+            idea: <p>Sort both arrays. Then use one pointer in each array. Compare the two values and move the pointer that points to the smaller value.</p>,
             code: `function intersection(a, b) {
   a = [...a].sort((x, y) => x - y);
   b = [...b].sort((x, y) => x - y);
@@ -352,10 +352,10 @@ console.log(intersection([4, 9, 5], [9, 4, 9, 8, 4])); // [ 4, 9 ]`,
 }
 
 console.log(intersection([4, 9, 5], [9, 4, 9, 8, 4])); // [ 4, 9 ]`,
-            explain: <p>Useful when the arrays are already sorted or memory is limited. Lesson 21 covers two pointers in depth.</p>,
+            explain: <p>This helps when the arrays are already sorted or memory is limited. Lesson 21 covers two pointers in depth.</p>,
           },
         ]}
-        compare={<p>Approach 1 is the standard answer for LeetCode 349. Approach 3 is the follow-up when the inputs are sorted.</p>}
+        compare={<p>Approach 1 is the standard answer for LeetCode 349. Approach 3 is the follow-up when the inputs are already sorted.</p>}
       >
         <p>Return the values that appear in both arrays, each only once, in any order. (LeetCode 349.)</p>
       </Problem>
@@ -364,12 +364,12 @@ console.log(intersection([4, 9, 5], [9, 4, 9, 8, 4])); // [ 4, 9 ]`,
         n={7}
         title="Count distinct values"
         level="Easy"
-        examples={[{ input: "[1, 2, 2, 3, 3, 3]", output: "3", why: "The distinct values are 1, 2 and 3." }]}
-        hints={[<>Which structure keeps each value only once?</>]}
+        examples={[{ input: "[1, 2, 2, 3, 3, 3]", output: "3", why: "The distinct (different) values are 1, 2 and 3." }]}
+        hints={[<>Which data structure keeps each value only once?</>]}
         approaches={[
           {
             name: "Set size",
-            idea: <p>Put everything into a Set; its size is the number of distinct values.</p>,
+            idea: <p>Put everything into a Set. The size of the Set is the number of distinct values.</p>,
             code: `const countDistinct = (nums) => new Set(nums).size;
 
 console.log(countDistinct([1, 2, 2, 3, 3, 3])); // 3`,
@@ -377,7 +377,7 @@ console.log(countDistinct([1, 2, 2, 3, 3, 3])); // 3`,
           },
           {
             name: "Sort and count changes",
-            idea: <p>After sorting, a new distinct value starts wherever an item differs from the one before it.</p>,
+            idea: <p>After sorting, a new distinct value starts wherever an item is different from the one before it.</p>,
             code: `function countDistinct(nums) {
   const s = [...nums].sort((a, b) => a - b);
   let count = s.length > 0 ? 1 : 0;
@@ -388,7 +388,7 @@ console.log(countDistinct([1, 2, 2, 3, 3, 3])); // 3`,
 }
 
 console.log(countDistinct([3, 1, 2, 3, 2, 3])); // 3`,
-            explain: <p>No extra Set is needed. This is the &ldquo;remove duplicates from a sorted array&rdquo; idea from Lesson 8, counting instead of copying.</p>,
+            explain: <p>No Set is needed. This is the &ldquo;remove duplicates from a sorted array&rdquo; idea from Lesson 8. Here we count instead of copy.</p>,
           },
         ]}
         compare={<p>Use the Set (Approach 1).</p>}
@@ -401,11 +401,11 @@ console.log(countDistinct([3, 1, 2, 3, 2, 3])); // 3`,
         title="Class report from records"
         level="Easy"
         examples={[{ input: "Asha 72, Ravi 91, Meera 71", output: "Average: 78\nTopper: Ravi", why: "(72 + 91 + 71) / 3 = 234 / 3 = 78. Ravi has the highest marks." }]}
-        hints={[<>Each student is an object. Read the fields with <code>s.marks</code> and <code>s.name</code>.</>, <>Use an accumulator for the total and best-so-far for the topper.</>]}
+        hints={[<>Each student is an object. Read the fields with <code>s.marks</code> and <code>s.name</code>.</>, <>Use an accumulator (a variable that collects a total) for the sum. Use best-so-far for the topper.</>]}
         approaches={[
           {
             name: "One loop",
-            idea: <p>Add up the marks and keep the student with the highest marks, in the same loop.</p>,
+            idea: <p>In one loop, add up the marks and keep the student with the highest marks.</p>,
             code: `const students = [
   { name: "Asha", marks: 72 },
   { name: "Ravi", marks: 91 },
@@ -421,11 +421,11 @@ for (const s of students) {
 
 console.log("Average: " + total / students.length); // Average: 78
 console.log("Topper: " + topper.name);              // Topper: Ravi`,
-            explain: <p>Arrays of objects are how real data usually arrives (from an API, a database or a test case). The patterns are exactly the same as for arrays of numbers.</p>,
+            explain: <p>Real data often arrives as an array of objects (from an API, a database or a test case). The patterns are exactly the same as for arrays of numbers.</p>,
           },
           {
             name: "reduce and sort",
-            idea: <p>Use <code>reduce</code> for the total and sort a copy by marks to find the topper.</p>,
+            idea: <p>Use <code>reduce</code> to get the total. Sort a copy by marks to find the topper.</p>,
             code: `const students = [
   { name: "Asha", marks: 72 },
   { name: "Ravi", marks: 91 },
@@ -437,10 +437,10 @@ const ranked = [...students].sort((a, b) => b.marks - a.marks);
 
 console.log("Average: " + total / students.length); // Average: 78
 console.log("Topper: " + ranked[0].name);           // Topper: Ravi`,
-            explain: <p><code>(a, b) =&gt; b.marks - a.marks</code> sorts by marks, largest first. Sorting gives the full ranking, which is useful if you also need second and third place.</p>,
+            explain: <p><code>(a, b) =&gt; b.marks - a.marks</code> sorts by marks, largest first. Sorting gives the full ranking. This helps if you also need second and third place.</p>,
           },
         ]}
-        compare={<p>Approach 1 does the least work. Approach 2 is handy when you need the whole ranking.</p>}
+        compare={<p>Approach 1 does the least work. Approach 2 is useful when you need the whole ranking.</p>}
       >
         <p>Given an array of <code>{"{ name, marks }"}</code> objects, print the average marks and the name of the topper.</p>
       </Problem>
@@ -451,17 +451,17 @@ console.log("Topper: " + ranked[0].name);           // Topper: Ravi`,
         level="Medium"
         examples={[
           { input: "nums = [2, 7, 11, 15], target = 9", output: "[0, 1]", why: "nums[0] + nums[1] = 2 + 7 = 9." },
-          { input: "nums = [3, 2, 4], target = 6", output: "[1, 2]", why: "nums[1] + nums[2] = 2 + 4 = 6. (3 + 3 is not allowed: an element cannot be used twice.)" },
+          { input: "nums = [3, 2, 4], target = 6", output: "[1, 2]", why: "nums[1] + nums[2] = 2 + 4 = 6. (3 + 3 is not allowed, because you cannot use the same element twice.)" },
         ]}
         hints={[
           <>Brute force: try every pair (i, j). How many pairs is that?</>,
           <>For each number x, the partner you need is <code>target - x</code>. Have you already seen it?</>,
-          <>Keep a Map from value to index of everything seen so far. Check for the partner before adding the current number.</>,
+          <>Keep a Map that stores the value and the index of every number you have seen so far. Check for the partner before you add the current number.</>,
         ]}
         approaches={[
           {
             name: "Try every pair",
-            idea: <p>Two nested loops; return the first pair that adds up to the target.</p>,
+            idea: <p>Use two nested loops. Return the first pair that adds up to the target.</p>,
             code: `function twoSum(nums, target) {
   for (let i = 0; i < nums.length; i++) {
     for (let j = i + 1; j < nums.length; j++) {
@@ -473,13 +473,13 @@ console.log("Topper: " + ranked[0].name);           // Topper: Ravi`,
 
 console.log(twoSum([2, 7, 11, 15], 9)); // [ 0, 1 ]
 console.log(twoSum([3, 2, 4], 6));      // [ 1, 2 ]`,
-            explain: <p>Always a good first answer to say out loud. It makes about n²/2 checks, so it is too slow for large inputs.</p>,
+            explain: <p>This is always a good first answer to say out loud. It makes about n²/2 checks, so it is too slow for large inputs.</p>,
           },
           {
             name: "Map of values seen so far",
-            idea: <p>For each number, look up its partner in a Map; if it is not there, store the number and its index.</p>,
+            idea: <p>For each number, look for its partner in a Map. If the partner is not there, store the number and its index.</p>,
             code: `function twoSum(nums, target) {
-  const indexOf = new Map();             // value → index
+  const indexOf = new Map();             // stores: value, then its index
   for (let i = 0; i < nums.length; i++) {
     const need = target - nums[i];
     if (indexOf.has(need)) return [indexOf.get(need), i];
@@ -494,7 +494,7 @@ console.log(twoSum([3, 2, 4], 6));      // [ 1, 2 ]`,
           },
           {
             name: "Sort with indexes, then two pointers",
-            idea: <p>Sort the values (remembering their original positions), then move pointers from both ends towards each other.</p>,
+            idea: <p>Sort the values, but remember their original positions. Then start one pointer at each end and move them towards each other.</p>,
             code: `function twoSum(nums, target) {
   const items = nums.map((value, index) => ({ value, index }));
   items.sort((a, b) => a.value - b.value);
@@ -509,10 +509,10 @@ console.log(twoSum([3, 2, 4], 6));      // [ 1, 2 ]`,
 }
 
 console.log(twoSum([3, 2, 4], 6)); // [ 1, 2 ]`,
-            explain: <p>If the sum is too small, only moving the left pointer can increase it; if too large, only moving the right pointer can decrease it. This is the core idea of LeetCode 167 (Lesson 21).</p>,
+            explain: <p>If the sum is too small, only moving the left pointer can make it bigger. If the sum is too big, only moving the right pointer can make it smaller. This is the main idea of LeetCode 167 (Lesson 21).</p>,
           },
         ]}
-        compare={<p>LeetCode 1 is one of the best-known interview questions. State Approach 1, then give Approach 2 — one pass with a Map. Lesson 26 compares all three in detail.</p>}
+        compare={<p>LeetCode 1 is one of the best-known interview questions. First say Approach 1. Then give Approach 2, which makes one pass with a Map. Lesson 26 compares all three in detail.</p>}
       >
         <p>Return the indices of the two numbers that add up to <code>target</code>. Exactly one answer exists, and you may not use the same element twice. (LeetCode 1.)</p>
       </Problem>
@@ -521,12 +521,12 @@ console.log(twoSum([3, 2, 4], 6)); // [ 1, 2 ]`,
         n={10}
         title="Group words by first letter"
         level="Medium"
-        examples={[{ input: `["apple", "bat", "avocado", "ball", "cat"]`, output: "a: apple, avocado\nb: bat, ball\nc: cat", why: "Words that start with the same letter are grouped together, in their original order." }]}
-        hints={[<>Use a Map from letter to a list of words.</>, <>The first time you see a letter, create an empty list for it. Then push the word into its list.</>]}
+        examples={[{ input: `["apple", "bat", "avocado", "ball", "cat"]`, output: "a: apple, avocado\nb: bat, ball\nc: cat", why: "Words that start with the same letter are put in the same group, in their original order." }]}
+        hints={[<>Use a Map. The key is the letter and the value is a list of words.</>, <>The first time you see a letter, create an empty list for it. Then push the word into that list.</>]}
         approaches={[
           {
             name: "Map of arrays",
-            idea: <p>Key = first letter, value = array of words with that first letter.</p>,
+            idea: <p>The key is the first letter. The value is an array of the words that start with that letter.</p>,
             code: `function groupByFirstLetter(words) {
   const groups = new Map();
   for (const w of words) {
@@ -546,21 +546,21 @@ a: apple, avocado
 b: bat, ball
 c: cat
 */`,
-            explain: <p>&ldquo;Create the list the first time you see a key, then push into it&rdquo; is the grouping pattern. Change the key to the word&apos;s sorted letters and this becomes Group Anagrams (LeetCode 49, Lesson 27).</p>,
+            explain: <p>&ldquo;Create the list the first time you see a key, then push into it&rdquo; is the grouping pattern. If you change the key to the word&apos;s sorted letters, this becomes Group Anagrams (LeetCode 49, Lesson 27).</p>,
           },
           {
             name: "Object with reduce",
-            idea: <p>Build an object whose properties are the letters.</p>,
+            idea: <p>Build an object whose property names are the letters.</p>,
             code: `const groups = ["apple", "bat", "avocado", "ball", "cat"].reduce((acc, w) => {
   (acc[w[0]] ??= []).push(w);       // create the list if missing, then push
   return acc;
 }, {});
 
 console.log(groups); // { a: [ 'apple', 'avocado' ], b: [ 'bat', 'ball' ], c: [ 'cat' ] }`,
-            explain: <p><code>x ??= []</code> sets <code>x</code> to an empty array only if it is <code>undefined</code> or <code>null</code>. Compact, but harder to read for beginners.</p>,
+            explain: <p><code>x ??= []</code> sets <code>x</code> to an empty array only if <code>x</code> is <code>undefined</code> or <code>null</code>. This is short, but it is harder for beginners to read.</p>,
           },
         ]}
-        compare={<p>Use Approach 1. It is clear and works with keys of any type.</p>}
+        compare={<p>Use Approach 1. It is clear and it works with keys of any type.</p>}
       >
         <p>Group the words by their first letter.</p>
       </Problem>
@@ -570,14 +570,14 @@ console.log(groups); // { a: [ 'apple', 'avocado' ], b: [ 'bat', 'ball' ], c: [ 
         title="Ransom note"
         level="Easy"
         examples={[
-          { input: `ransomNote = "aa", magazine = "aab"`, output: "true", why: "The magazine has two a's, which is enough for the note." },
-          { input: `ransomNote = "aa", magazine = "ab"`, output: "false", why: "The note needs two a's, but the magazine has only one." },
+          { input: `ransomNote = "aa", magazine = "aab"`, output: "true", why: "The magazine has two a letters. That is enough for the note." },
+          { input: `ransomNote = "aa", magazine = "ab"`, output: "false", why: "The note needs two a letters, but the magazine has only one." },
         ]}
-        hints={[<>Each magazine letter can be used once. Count the letters the magazine has.</>, <>Then go through the note, using up one count per letter. If a count is already 0, return false.</>]}
+        hints={[<>Each magazine letter can be used only once. Count the letters that the magazine has.</>, <>Then go through the note and use up one count for each letter. If a count is already 0, return false.</>]}
         approaches={[
           {
             name: "Count the magazine, use it up",
-            idea: <p>A frequency map of the magazine; subtract for each letter of the note.</p>,
+            idea: <p>Make a frequency map of the magazine. Then subtract 1 for each letter of the note.</p>,
             code: `function canConstruct(ransomNote, magazine) {
   const available = new Map();
   for (const ch of magazine) available.set(ch, (available.get(ch) ?? 0) + 1);
@@ -591,11 +591,11 @@ console.log(groups); // { a: [ 'apple', 'avocado' ], b: [ 'bat', 'ball' ], c: [ 
 
 console.log(canConstruct("aa", "aab")); // true
 console.log(canConstruct("aa", "ab"));  // false`,
-            explain: <p>The same count-up/count-down idea as the anagram question, except the magazine may have letters left over.</p>,
+            explain: <p>This is the same count-up and count-down idea as the anagram question. The difference is that the magazine may have letters left over.</p>,
           },
           {
             name: "26 counters",
-            idea: <p>The input is lowercase letters, so an array of 26 counts works.</p>,
+            idea: <p>The input has only lowercase letters, so an array of 26 counters works.</p>,
             code: `function canConstruct(ransomNote, magazine) {
   const counts = new Array(26).fill(0);
   for (const ch of magazine) counts[ch.charCodeAt(0) - 97]++;
@@ -608,10 +608,10 @@ console.log(canConstruct("aa", "ab"));  // false`,
 }
 
 console.log(canConstruct("aa", "aab")); // true`,
-            explain: <p>Same logic, fixed memory.</p>,
+            explain: <p>This is the same logic, with a fixed amount of memory.</p>,
           },
         ]}
-        compare={<p>Both are accepted for LeetCode 383. Use the array when the problem guarantees lowercase letters.</p>}
+        compare={<p>Both are accepted for LeetCode 383. Use the array when the problem says the input is lowercase letters.</p>}
       >
         <p>Can the ransom note be built from the letters of the magazine, using each letter at most once? (LeetCode 383.)</p>
       </Problem>
