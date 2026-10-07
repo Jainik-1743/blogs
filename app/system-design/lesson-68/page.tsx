@@ -34,15 +34,16 @@ export default function SdLessonSixEightPage() {
       <div className="lesson">
         <Section id="why-this-page-exists" title="Why This Page Exists">
           <p>
-            Over 65 posts, we learned each building block <strong>one at a time</strong>. This page puts{" "}
-            <strong>all of them into one picture</strong>: a complete, production-style reference architecture, with
-            every layer explained in simple words, how requests flow through it, how it grows from one server to
-            millions of users, and which post covers each part.
+            In the earlier posts, we learned each building block <strong>one at a time</strong>. This page puts{" "}
+            <strong>all of them into one picture</strong>. It is a complete reference architecture (a sample design)
+            like the ones used in production, which means in real, live systems. It explains every layer in simple
+            words. It shows how requests flow through it and how it grows from one server to millions of users. It also
+            tells you which post covers each part.
           </p>
           <p>
             <strong>Important:</strong> no real system needs <em>every</em> box on day one. Think of this as a{" "}
-            <strong>map of all possible parts</strong>, not a shopping list. Start small, and add pieces when real
-            problems (and numbers) appear.
+            <strong>map of all possible parts</strong>, not a shopping list. Start small. Add pieces when real problems
+            (and real numbers) appear.
           </p>
         </Section>
 
@@ -56,7 +57,7 @@ export default function SdLessonSixEightPage() {
             </li>
             <li>
               <strong>Gates and security checkpoints</strong> (CDN, WAF, load balancers, API gateway) control who enters
-              and where they go.
+              and where they go. Each of these is explained in the layers below.
             </li>
             <li>
               <strong>Offices and shops</strong> (application services) do the real work.
@@ -145,25 +146,31 @@ export default function SdLessonSixEightPage() {
         <Section id="how-it-works" title="How It Works" kind="how">
           <h3 id="layer-1-clients">Layer 1: Clients</h3>
           <p>
-            <strong>What:</strong> web apps, mobile apps, and other companies' systems (partners) that use your APIs.
+            <strong>What:</strong> web apps, mobile apps, and other companies' systems (partners) that use your APIs. An
+            API (application programming interface) is a set of rules that lets one program ask another program for
+            data or actions.
           </p>
           <p>
             <strong>Key ideas:</strong>
           </p>
           <ul>
             <li>
-              <strong>Never trust the client.</strong> Validate and authorise everything on the server (post 52).
+              <strong>Never trust the client.</strong> A user can change anything that runs on their own device. So
+              validate (check the data is correct) and authorise (check the user is allowed) everything on the server
+              (post 52).
             </li>
             <li>
-              <strong>Clients can help.</strong> Local caching, retries with backoff and jitter (post 41), offline
-              queues, and prefetching the next page.
+              <strong>Clients can help.</strong> They can keep a local cache (a saved copy of data). They can retry with
+              backoff and jitter (wait longer after each try, plus a random extra time, post 41). They can keep an offline
+              queue (actions saved until the network returns). They can also prefetch (load early) the next page.
             </li>
             <li>
               <strong>Mobile apps live for years</strong>, so APIs must stay backward compatible (post 34).
             </li>
             <li>
-              Real-time features use <strong>WebSockets or SSE</strong> (post 33). Background notifications use{" "}
-              <strong>push</strong> (post 62).
+              Real-time features use <strong>WebSockets or SSE</strong> (post 33). A WebSocket is a connection that stays
+              open so both sides can send messages at any time. SSE (server-sent events) is a connection where only the
+              server sends messages. Notifications that arrive when the app is closed use <strong>push</strong> (post 62).
             </li>
           </ul>
           <p>
@@ -175,19 +182,25 @@ export default function SdLessonSixEightPage() {
           </p>
           <ul>
             <li>
-              <strong>DNS</strong> turns names into IPs. <strong>GeoDNS or Anycast</strong> sends users to the nearest
-              region. Use <strong>two DNS providers</strong> for critical sites (posts 1 and 11).
+              <strong>DNS</strong> (the domain name system) turns names like example.com into IP addresses.{" "}
+              <strong>GeoDNS</strong> gives each user the address of the nearest region. <strong>Anycast</strong> uses
+              one address that many places share, so the network sends the user to the closest place. Use{" "}
+              <strong>two DNS providers</strong> for critical sites, so one failure does not stop everything (posts 1
+              and 11).
             </li>
             <li>
-              The <strong>CDN</strong> caches static files, images, video segments and public pages at the edge, which
-              cuts latency and origin load (post 14).
+              The <strong>CDN</strong> (content delivery network) is a group of servers around the world. It caches
+              static files, images, video segments and public pages at the edge (close to users). This cuts latency (the
+              waiting time) and the load on your origin servers (post 14).
             </li>
             <li>
-              The <strong>WAF and DDoS protection</strong> block common attacks and floods before they reach you (posts
-              14 and 52).
+              A <strong>WAF</strong> (web application firewall) blocks common attacks, such as bad input in requests.{" "}
+              <strong>DDoS protection</strong> stops a flood of fake traffic sent to overload you. Both work before the
+              traffic reaches you (posts 14 and 52).
             </li>
             <li>
-              <strong>TLS</strong> often terminates here or at the load balancer (post 3).
+              <strong>TLS</strong> (the protocol that encrypts HTTPS traffic) often ends here or at the load balancer.
+              That means the edge decrypts the traffic (post 3).
             </li>
           </ul>
           <p>
@@ -199,16 +212,21 @@ export default function SdLessonSixEightPage() {
           </p>
           <ul>
             <li>
-              <strong>Load balancers (L4/L7)</strong> spread traffic, run health checks, and support zero-downtime
-              deploys. They're redundant across zones (post 12).
+              <strong>Load balancers</strong> spread traffic over many servers. They run health checks (they test if a
+              server is working) and support zero-downtime deploys (new versions with no break in service). L4 balancers
+              route by IP address and port. L7 balancers read the HTTP request and can route by URL or header. Keep
+              them redundant across zones (post 12).
             </li>
             <li>
-              <strong>The API gateway / BFF</strong> handles authentication checks, <strong>rate limiting</strong>,
-              routing to services, request shaping and API keys (posts 13, 43 and 61).
+              <strong>The API gateway</strong> is one front door for all API calls. It checks authentication, applies{" "}
+              <strong>rate limiting</strong> (a cap on requests per client), routes calls to services and checks API
+              keys. A <strong>BFF</strong> (backend for frontend) is a gateway made for one kind of client, such as the
+              mobile app (posts 13, 43 and 61).
             </li>
             <li>
-              <strong>WebSocket gateways</strong> hold persistent connections for chat and live updates, with a{" "}
-              <strong>presence and session registry</strong> (posts 33 and 63).
+              <strong>WebSocket gateways</strong> hold long-lived connections for chat and live updates. A{" "}
+              <strong>presence and session registry</strong> is a list that says which user is online and which gateway
+              holds their connection (posts 33 and 63).
             </li>
           </ul>
           <p>
@@ -221,25 +239,30 @@ export default function SdLessonSixEightPage() {
           </p>
           <ul>
             <li>
-              <strong>Stateless services</strong> (post 7) mean any instance can handle any request, so you scale out by
-              adding instances.
+              <strong>Stateless services</strong> (post 7) keep no user data in their own memory between requests. So any
+              instance (running copy) can handle any request, and you scale out by adding instances.
             </li>
             <li>
-              <strong>Monolith vs microservices</strong> (post 53): start with a <strong>(modular) monolith</strong>,
-              and split into services when teams and scale require it.
+              <strong>Monolith vs microservices</strong> (post 53). A monolith is one application. Microservices are many
+              small applications. Start with a <strong>(modular) monolith</strong>, which is one application with clear
+              inner parts. Split into services when your teams and scale need it.
             </li>
             <li>
-              <strong>Communication:</strong> <strong>REST or GraphQL</strong> to clients, and <strong>gRPC</strong>{" "}
-              between services (posts 30–32). <strong>Service discovery</strong> lets services find each other (post
-              54).
+              <strong>Communication:</strong> use <strong>REST or GraphQL</strong> to talk to clients. REST uses URLs and
+              HTTP methods. GraphQL lets the client choose exactly which fields it wants. Use <strong>gRPC</strong>{" "}
+              between services. gRPC is a fast call format that uses Protobuf (a compact binary data format) (posts
+              30–32). <strong>Service discovery</strong> lets services find each other's addresses (post 54).
             </li>
             <li>
-              <strong>Resilience on every call:</strong> timeouts, limited retries with jitter, circuit breakers,
-              bulkheads and fallbacks (posts 41–42).
+              <strong>Resilience on every call.</strong> Resilience means surviving failures. Use timeouts (stop waiting
+              after a set time) and a few retries with jitter. Use circuit breakers (stop calling a service that keeps
+              failing), bulkheads (separate resource pools, so one failure cannot use everything) and fallbacks (a
+              simpler backup answer) (posts 41–42).
             </li>
             <li>
-              <strong>Runs on:</strong> containers (post 55), orchestrated by Kubernetes (post 56), across{" "}
-              <strong>3 availability zones</strong> (posts 40 and 57).
+              <strong>Runs on:</strong> containers (post 55). A container packs an app with everything it needs to run.
+              Kubernetes (post 56) starts, stops and restarts the containers for you. They run across{" "}
+              <strong>3 availability zones</strong>, which are separate data centres in one region (posts 40 and 57).
             </li>
           </ul>
           <h3 id="layer-5-cache">Layer 5: Cache</h3>
@@ -248,15 +271,20 @@ export default function SdLessonSixEightPage() {
           </p>
           <ul>
             <li>
-              <strong>Redis cluster</strong> for: object cache (product, profile), <strong>sessions</strong> (post 49),{" "}
-              <strong>counters</strong>, <strong>rate-limit buckets</strong> (post 43), <strong>feed lists</strong>{" "}
-              (post 64), leaderboards and presence.
+              <strong>Redis cluster.</strong> Redis is a fast database that keeps data in memory. A cluster is several
+              Redis machines working together. Use it for: object cache (product, profile), <strong>sessions</strong>{" "}
+              (login state, post 49), <strong>counters</strong>, <strong>rate-limit buckets</strong> (post 43),{" "}
+              <strong>feed lists</strong> (post 64), leaderboards and presence (who is online).
             </li>
             <li>
-              <strong>Patterns:</strong> cache-aside, delete on write, TTL on everything (post 16).
+              <strong>Patterns:</strong> cache-aside means the app checks the cache first, and on a miss it reads the
+              database and fills the cache. Delete the cached item when the data changes. Put a TTL (time to live, an
+              expiry time) on everything (post 16).
             </li>
             <li>
-              <strong>Protect against:</strong> stampedes, avalanches (TTL jitter), penetration and hot keys (post 16).
+              <strong>Protect against:</strong> stampedes (many requests miss the cache together), avalanches (many items
+              expire together; random TTL jitter helps), penetration (requests for data that does not exist, so the cache
+              never helps) and hot keys (one key with far more traffic than the rest) (post 16).
             </li>
             <li>
               <strong>Always plan for "the cache is down"</strong> (post 16).
@@ -268,51 +296,60 @@ export default function SdLessonSixEightPage() {
           </p>
           <ul>
             <li>
-              <strong>Default:</strong> <strong>PostgreSQL/MySQL</strong> with a <strong>primary + replicas</strong>{" "}
-              across zones (posts 5, 20 and 24).
+              <strong>Default:</strong> <strong>PostgreSQL/MySQL</strong> (relational databases) with a{" "}
+              <strong>primary + replicas</strong> across zones. The primary takes the writes. Replicas are copies that
+              serve reads and take over if the primary fails (posts 5, 20 and 24).
             </li>
             <li>
-              <strong>Scale path:</strong> indexes → caching → a bigger machine → read replicas → functional split →{" "}
-              <strong>sharding</strong> with a good shard key (posts 22 and 24–26).
+              <strong>Scale path:</strong> indexes (lookup tables that speed up queries) → caching → a bigger machine →
+              read replicas → functional split (different tables on different databases) → <strong>sharding</strong>{" "}
+              (splitting one table across machines) with a good shard key. The shard key is the field that decides which
+              machine holds a row (posts 22 and 24–26).
             </li>
             <li>
-              <strong>Special workloads:</strong> wide-column (Cassandra/ScyllaDB) for huge write-heavy streams like
-              chat messages. Key-value (DynamoDB) for simple lookups at massive scale (posts 20 and 29).
+              <strong>Special workloads:</strong> wide-column databases (Cassandra/ScyllaDB) suit huge streams of writes,
+              like chat messages. Key-value databases (DynamoDB) suit simple lookups by key at massive scale (posts 20
+              and 29).
             </li>
             <li>
-              <strong>Correctness:</strong> transactions and isolation levels, unique constraints, idempotency keys
-              (posts 21 and 34).
+              <strong>Correctness:</strong> a transaction is a group of changes that all succeed or all fail. Isolation
+              levels say how much running transactions can see of each other. Unique constraints stop duplicate values.
+              Idempotency keys make repeated requests safe (posts 21 and 34).
             </li>
             <li>
-              <strong>Consistency:</strong> strong for money and uniqueness, eventual for feeds and counts (posts
-              27–28).
+              <strong>Consistency:</strong> strong consistency (everyone sees the latest data) for money and uniqueness.
+              Eventual consistency (copies may differ for a short time) for feeds and counts (posts 27–28).
             </li>
             <li>
-              <strong>Backups + PITR</strong> in another region: <strong>replication is not a backup</strong> (post 45).
+              <strong>Backups + PITR</strong> in another region. PITR (point-in-time recovery) lets you restore the
+              database to an exact moment, such as just before a mistake. <strong>Replication is not a backup</strong>,
+              because replicas copy mistakes too (post 45).
             </li>
           </ul>
           <h3 id="layer-7-object-storage">Layer 7: Object storage</h3>
           <p>
-            <strong>What:</strong> files, images, videos, documents, exports and backups (post 17).
+            <strong>What:</strong> a service that stores files as objects, such as Amazon S3. It holds images, videos,
+            documents, exports and backups (post 17).
           </p>
           <ul>
             <li>
-              <strong>Pre-signed URLs:</strong> clients upload and download <strong>directly</strong>, without going
-              through app servers.
+              <strong>Pre-signed URLs:</strong> a pre-signed URL is a link with a built-in, time-limited permission.
+              Clients upload and download <strong>directly</strong>, without going through app servers.
             </li>
             <li>
               <strong>The CDN</strong> in front for fast delivery.
             </li>
             <li>
-              <strong>Lifecycle rules</strong> move old data to cheaper storage classes.
+              <strong>Lifecycle rules</strong> move old data to cheaper storage classes automatically.
             </li>
             <li>
-              <strong>Private by default</strong>, encrypted, and versioned for important data.
+              <strong>Private by default</strong>, encrypted, and versioned (old copies are kept) for important data.
             </li>
           </ul>
           <h3 id="layer-8-search">Layer 8: Search</h3>
           <p>
-            <strong>What:</strong> full-text search, filters and facets, and sometimes vector search (post 19).
+            <strong>What:</strong> full-text search (finding words inside text), filters and facets (counts per
+            category), and sometimes vector search (finding items with similar meaning) (post 19).
           </p>
           <ul>
             <li>
@@ -320,8 +357,9 @@ export default function SdLessonSixEightPage() {
               needs.
             </li>
             <li>
-              <strong>Kept in sync</strong> via <strong>CDC or events</strong>, never as the source of truth (it can
-              always be rebuilt).
+              <strong>Kept in sync</strong> via <strong>CDC or events</strong>. CDC (change data capture) reads the
+              database's changes and sends them on. Search is never the source of truth, because it can always be
+              rebuilt from the database.
             </li>
           </ul>
           <h3 id="layer-9-asynchronous-processing">Layer 9: Asynchronous processing</h3>
@@ -330,22 +368,27 @@ export default function SdLessonSixEightPage() {
           </p>
           <ul>
             <li>
-              <strong>Queues</strong> (SQS, RabbitMQ) for jobs: emails, image processing, reports (posts 18 and 38).
+              <strong>Queues</strong> (SQS, RabbitMQ) hold jobs until a worker takes them: emails, image processing,
+              reports (posts 18 and 38).
             </li>
             <li>
-              <strong>An event log (Kafka)</strong> for event streaming between services, CDC and analytics pipelines
-              (posts 35–36 and 39).
+              <strong>An event log (Kafka)</strong> stores events in order so many services can read them. It is used for
+              event streaming between services, CDC and analytics pipelines (posts 35–36 and 39).
             </li>
             <li>
-              <strong>The outbox pattern + CDC</strong> reliably connect database changes to events (post 37).
+              <strong>The outbox pattern + CDC</strong> reliably connect database changes to events. The service saves
+              the event in an "outbox" table in the same transaction as the data. A separate step then publishes it
+              (post 37).
             </li>
             <li>
-              <strong>Workers</strong> with <strong>idempotent processing</strong>,{" "}
-              <strong>retries with backoff</strong> and <strong>DLQs</strong> (posts 37–38).
+              <strong>Workers</strong> are programs that take jobs from a queue. They use <strong>idempotent
+              processing</strong> (doing a job twice is safe) and <strong>retries with backoff</strong> (wait longer
+              after each try). Jobs that keep failing go to a <strong>DLQ</strong>, a dead-letter queue, which holds
+              them for a person to check (posts 37–38).
             </li>
             <li>
-              <strong>Workflows and sagas</strong> for multi-step business processes, with compensating actions (post
-              39).
+              <strong>Workflows and sagas</strong> handle business processes with many steps. If one step fails, a saga
+              runs compensating actions, which undo the earlier steps (post 39).
             </li>
           </ul>
           <p>
@@ -359,11 +402,12 @@ export default function SdLessonSixEightPage() {
           <ul>
             <li>
               <strong>Data flows</strong> from databases and events (via CDC or Kafka) into a{" "}
-              <strong>warehouse or lake</strong> (BigQuery, Snowflake, ClickHouse).
+              <strong>warehouse or lake</strong>. A warehouse is a database built for large reports (BigQuery,
+              Snowflake, ClickHouse). A lake stores raw data files cheaply.
             </li>
             <li>
-              <strong>Stream processing</strong> (Flink, Kafka Streams) for real-time metrics, fraud detection and
-              alerts.
+              <strong>Stream processing</strong> (Flink, Kafka Streams) works on events as they arrive. It is used for
+              real-time metrics, fraud detection and alerts.
             </li>
             <li>
               <strong>Keep heavy analytics away</strong> from the production database (post 5).
@@ -375,15 +419,17 @@ export default function SdLessonSixEightPage() {
           </p>
           <ul>
             <li>
-              <strong>Treat them as unreliable:</strong> timeouts, retries only for transient errors,{" "}
-              <strong>circuit breakers</strong>, and <strong>backup providers</strong> for critical channels (posts
-              41–42 and 62).
+              <strong>Treat them as unreliable.</strong> Use timeouts. Retry only for transient errors (short problems
+              that go away). Add <strong>circuit breakers</strong> and <strong>backup providers</strong> for critical
+              channels (posts 41–42 and 62).
             </li>
             <li>
-              <strong>Respect their rate limits</strong> with token buckets (post 43).
+              <strong>Respect their rate limits</strong> with token buckets. A token bucket gives you a few "tokens" per
+              second, and each call spends one (post 43).
             </li>
             <li>
-              <strong>Verify webhooks</strong> with signatures, and handle them idempotently (post 34).
+              <strong>Verify webhooks</strong> with signatures, and handle them idempotently. A webhook is a call that
+              the other service sends to your server when something happens. A signature proves it is real (post 34).
             </li>
           </ul>
           <h3 id="layer-12-cross-cutting-concerns">Layer 12: Cross-cutting concerns</h3>
@@ -395,14 +441,19 @@ export default function SdLessonSixEightPage() {
           </p>
           <ul>
             <li>
-              structured logs, metrics (Golden Signals, RED, USE) and distributed traces with{" "}
-              <strong>OpenTelemetry</strong>,
+              structured logs (records in a fixed format), metrics (numbers over time) and distributed traces (the path
+              of one request across services). Use the Golden Signals (latency, traffic, errors, saturation), RED (rate,
+              errors, duration) and USE (utilisation, saturation, errors) as checklists. <strong>OpenTelemetry</strong>{" "}
+              is a standard set of tools for collecting all of this,
             </li>
             <li>
-              <strong>SLOs and error budgets</strong> for key user journeys,
+              <strong>SLOs and error budgets</strong> for key user journeys. An SLO is a reliability goal. An error
+              budget is how much failure the goal still allows,
             </li>
             <li>
-              <strong>symptom-based alerts</strong>, runbooks, on-call and <strong>blameless postmortems</strong>.
+              <strong>symptom-based alerts</strong> (alert on what users feel), runbooks (written steps for fixing a
+              problem), on-call (someone is ready to respond) and <strong>blameless postmortems</strong> (outage
+              reports that look for system causes, not people to blame).
             </li>
           </ul>
           <p>
@@ -410,16 +461,18 @@ export default function SdLessonSixEightPage() {
           </p>
           <ul>
             <li>
-              <strong>AuthN</strong> (sessions, JWT, OAuth/OIDC, MFA, passkeys) and <strong>AuthZ</strong> (per-object
-              checks, RBAC/ReBAC),
+              <strong>AuthN</strong> (authentication: proving who you are, with sessions, JWT, OAuth/OIDC, MFA or
+              passkeys) and <strong>AuthZ</strong> (authorisation: what you may do, with per-object checks and RBAC/ReBAC,
+              which grant access by role or by relationship),
             </li>
             <li>
-              <strong>TLS everywhere, mTLS</strong> between services, <strong>KMS and envelope encryption</strong>, and
-              a <strong>secrets manager</strong>,
+              <strong>TLS everywhere, mTLS</strong> between services (both sides prove who they are),{" "}
+              <strong>KMS and envelope encryption</strong> (a key service that protects the keys which encrypt your
+              data), and a <strong>secrets manager</strong> (a safe place for passwords and keys),
             </li>
             <li>
-              <strong>OWASP basics:</strong> parameterised queries, patched dependencies, SSRF protections, security
-              headers, logging.
+              <strong>OWASP basics.</strong> OWASP is a group that lists the most common web security problems. The
+              basics are parameterised queries, patched dependencies, SSRF protections, security headers and logging.
             </li>
           </ul>
           <p>
@@ -427,12 +480,15 @@ export default function SdLessonSixEightPage() {
           </p>
           <ul>
             <li>
-              <strong>CI:</strong> build, test and scan every change. <strong>CD:</strong> canary or blue-green rollouts
-              with automatic rollback.
+              <strong>CI</strong> (continuous integration): build, test and scan every change. <strong>CD</strong>{" "}
+              (continuous delivery): release with canary or blue-green rollouts and automatic rollback. A canary sends
+              the new version to a few users first. Blue-green runs the old and new versions side by side and switches
+              traffic.
             </li>
             <li>
-              <strong>Feature flags</strong>, <strong>expand-and-contract</strong> database migrations, and{" "}
-              <strong>GitOps</strong>.
+              <strong>Feature flags</strong> (switches that turn features on or off), <strong>expand-and-contract</strong>{" "}
+              database migrations (first add the new column, then move the code, then remove the old column), and{" "}
+              <strong>GitOps</strong> (the live system is set by files in Git).
             </li>
           </ul>
           <p>
@@ -440,11 +496,13 @@ export default function SdLessonSixEightPage() {
           </p>
           <ul>
             <li>
-              <strong>cloud regions and AZs</strong>, VPC networking and <strong>infrastructure as code</strong>,
+              <strong>cloud regions and AZs</strong> (a region is a place in the world; an AZ is one data centre inside
+              it), VPC networking (your own private network in the cloud) and <strong>infrastructure as code</strong>{" "}
+              (servers and networks created from files, not by hand),
             </li>
             <li>
-              <strong>Kubernetes</strong> (or a simpler managed platform), <strong>autoscaling</strong>, and{" "}
-              <strong>cost management</strong>.
+              <strong>Kubernetes</strong> (or a simpler managed platform), <strong>autoscaling</strong> (adding or
+              removing servers as load changes), and <strong>cost management</strong>.
             </li>
           </ul>
           <p>
@@ -452,12 +510,14 @@ export default function SdLessonSixEightPage() {
           </p>
           <ul>
             <li>
-              no single points of failure, <strong>multi-AZ</strong> by default, <strong>multi-region</strong> for
-              critical systems,
+              no single points of failure (one part that stops everything if it breaks), <strong>multi-AZ</strong> by
+              default, <strong>multi-region</strong> for critical systems,
             </li>
             <li>
-              <strong>load shedding and graceful degradation</strong>, <strong>backups, PITR and DR drills</strong>, and{" "}
-              <strong>chaos testing</strong>.
+              <strong>load shedding</strong> (refuse some requests on purpose during overload) and{" "}
+              <strong>graceful degradation</strong> (turn off less important features), <strong>backups, PITR and DR
+              drills</strong> (DR is disaster recovery, and a drill is a practice run), and <strong>chaos testing</strong>{" "}
+              (breaking things on purpose to see how the system reacts).
             </li>
           </ul>
           <hr />
@@ -814,7 +874,10 @@ export default function SdLessonSixEightPage() {
                   <td>
                     <strong>Durability</strong>
                   </td>
-                  <td>Replication, WAL, object storage, backups + PITR, off-site copies</td>
+                  <td>
+                    Replication, WAL (write-ahead log: the database writes each change to a log first, so it can recover
+                    after a crash), object storage, backups + PITR, off-site copies
+                  </td>
                 </tr>
                 <tr>
                   <td>
@@ -858,10 +921,12 @@ export default function SdLessonSixEightPage() {
               ❌ <strong>Everything synchronous:</strong> one slow dependency makes every page slow.
             </li>
             <li>
-              ❌ <strong>A shared database between many services:</strong> a "distributed monolith" (post 53).
+              ❌ <strong>A shared database between many services:</strong> this is a "distributed monolith" (post 53). The
+              services look separate, but they still depend on each other through the same tables.
             </li>
             <li>
-              ❌ <strong>No timeouts:</strong> a cascading failure waiting to happen (post 41).
+              ❌ <strong>No timeouts:</strong> a cascading failure (one failure causing the next) is waiting to happen
+              (post 41).
             </li>
             <li>
               ❌ <strong>A cache without a plan for failure:</strong> the database dies when the cache does (post 16).
@@ -893,16 +958,18 @@ export default function SdLessonSixEightPage() {
               paying for.
             </li>
             <li>
-              <strong>Microservices + Kafka + Kubernetes</strong> give team autonomy and independent scaling, at a high{" "}
-              <strong>complexity</strong> cost. Only worth it with the team size and platform maturity to match.
+              <strong>Microservices + Kafka + Kubernetes</strong> give teams freedom and let each part scale on its own.
+              The cost is high <strong>complexity</strong>. They are only worth it when your team size and platform skills
+              match.
             </li>
             <li>
               <strong>Multi-region</strong> survives region failures and serves global users fast, but makes{" "}
               <strong>data consistency</strong> and costs much harder.
             </li>
             <li>
-              <strong>Managed cloud services</strong> reduce operations but add <strong>cost and lock-in</strong>.
-              Self-hosting gives control, but you do the work.
+              <strong>Managed cloud services</strong> (the provider runs the software for you) reduce operations work but
+              add <strong>cost and lock-in</strong>. Lock-in means it is hard to move away later. Self-hosting gives you
+              control, but you do the work.
             </li>
           </ul>
         </Section>
@@ -928,8 +995,10 @@ export default function SdLessonSixEightPage() {
               versioning, rate limiting and load shedding.
             </li>
             <li>
-              <strong>Amazon</strong> popularised <strong>service ownership</strong>, cell-based isolation, static
-              stability and safe, automated deployments, much of it shared in the AWS Builders' Library.
+              <strong>Amazon</strong> made popular <strong>service ownership</strong> (one team owns a service from start
+              to finish), cell-based isolation (split the system into independent cells so a failure stays small), static
+              stability (keep working when a control service fails) and safe, automated deployments. Much of it is shared
+              in the AWS Builders' Library.
             </li>
           </ul>
           <p>
@@ -945,11 +1014,11 @@ export default function SdLessonSixEightPage() {
                 a: (
                   <>
                     <p>
-                      Clients hit DNS and a CDN/WAF at the edge, then load balancers and an API gateway for auth, rate
-                      limits and routing. Stateless services run across availability zones and read from a cache before
-                      the database (primary, replicas, shards). Files live in object storage, search indexes and
-                      analytics are fed by CDC and events, and slow work goes through queues to workers — all observed,
-                      secured and deployed through CI/CD.
+                      Clients first reach DNS and a CDN/WAF at the edge. Next come load balancers and an API gateway,
+                      which handle auth, rate limits and routing. Stateless services run across availability zones and
+                      read from a cache before the database (primary, replicas, shards). Files live in object storage.
+                      Search indexes and analytics are fed by CDC and events. Slow work goes through queues to workers.
+                      All of it is watched, secured and deployed through CI/CD.
                     </p>
                   </>
                 ),
@@ -959,10 +1028,11 @@ export default function SdLessonSixEightPage() {
                 a: (
                   <>
                     <p>
-                      Databases (replication across AZs with automatic failover, plus backups and PITR), caches
-                      (replicas or clusters, and an app that survives cache loss), queues and Kafka (replicated
-                      partitions), object storage (replicated by the provider), and WebSocket gateways (reconnect with
-                      jitter plus sync from storage). Everything else is stateless and simply scaled out.
+                      Stateful means the part keeps data that must not be lost. These parts are: databases (replicated
+                      across AZs with automatic failover, plus backups and PITR), caches (replicas or clusters, and an
+                      app that still works if the cache is lost), queues and Kafka (replicated partitions), object
+                      storage (replicated by the provider), and WebSocket gateways (clients reconnect with jitter and
+                      sync from storage). Everything else is stateless and is simply scaled out.
                     </p>
                   </>
                 ),
@@ -984,9 +1054,9 @@ export default function SdLessonSixEightPage() {
                 a: (
                   <>
                     <p>
-                      Inside the service that owns the data: the state change and the event are written in one local
-                      transaction, then a relay or CDC publishes to Kafka. It removes the dual-write gap between the
-                      database and the event stream.
+                      Inside the service that owns the data. The data change and the event are written in one local
+                      transaction. Then a relay or CDC publishes the event to Kafka. This removes the dual-write problem,
+                      where you write to the database and to Kafka separately and one of them can fail.
                     </p>
                   </>
                 ),

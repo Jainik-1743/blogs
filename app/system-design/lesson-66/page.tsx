@@ -39,10 +39,10 @@ export default function SdLessonSixSixPage() {
             <strong>what happens when you type a URL and press Enter?</strong>
           </p>
           <p>
-            Since then, we've followed packets across the internet, learned how databases keep data safe, split data
-            across machines, sent messages through queues, survived failures, watched systems with logs and traces,
-            protected them from attackers, shipped them safely, and designed complete systems like chat apps and news
-            feeds.
+            Since then, we have followed data packets across the internet. We learned how databases keep data safe and
+            how to split data across machines. We sent messages through queues and learned how to survive failures. We
+            watched systems with logs and traces, protected them from attackers, and released them safely. Last, we
+            designed complete systems like chat apps and news feeds.
           </p>
           <p>This final post brings it all together:</p>
           <ul>
@@ -76,7 +76,8 @@ export default function SdLessonSixSixPage() {
                   </td>
                   <td>Networking, HTTP, TLS, threads, SQL</td>
                   <td>
-                    Every system is machines talking over a network. Round trips, protocols and databases decide speed.
+                    Every system is machines talking over a network. Round trips (a request and its reply), protocols
+                    (agreed rules for talking) and databases decide the speed.
                   </td>
                 </tr>
                 <tr>
@@ -95,7 +96,7 @@ export default function SdLessonSixSixPage() {
                   </td>
                   <td>DNS, load balancers, proxies, CDNs, caches, object storage, queues, search</td>
                   <td>
-                    Most systems are the <strong>same few building blocks</strong>, combined differently.
+                    Most systems are the <strong>same few building blocks</strong>, put together in different ways.
                   </td>
                 </tr>
                 <tr>
@@ -104,7 +105,8 @@ export default function SdLessonSixSixPage() {
                   </td>
                   <td>SQL vs NoSQL, ACID, indexes, replication, sharding, CAP, consistency</td>
                   <td>
-                    <strong>Data is the hardest part.</strong> Choose the model, consistency and partitioning carefully.
+                    <strong>Data is the hardest part.</strong> Choose the data model, the consistency level (how up to
+                    date every copy must be) and the partitioning (how data is split) with care.
                   </td>
                 </tr>
                 <tr>
@@ -113,7 +115,8 @@ export default function SdLessonSixSixPage() {
                   </td>
                   <td>REST, gRPC, GraphQL, real-time, idempotency, pagination, versioning</td>
                   <td>
-                    APIs are <strong>contracts</strong>. Make them predictable, safe to retry and able to evolve.
+                    An API is a <strong>contract</strong>: a promise about how programs talk to your system. Make it
+                    predictable, safe to retry and able to change over time.
                   </td>
                 </tr>
                 <tr>
@@ -122,7 +125,8 @@ export default function SdLessonSixSixPage() {
                   </td>
                   <td>Queues, pub/sub, Kafka, delivery semantics, jobs, event-driven</td>
                   <td>
-                    <strong>Do only what's needed now.</strong> Everything else can happen reliably a moment later.
+                    <strong>Do only what is needed now.</strong> Everything else can happen reliably a moment later, in
+                    the background.
                   </td>
                 </tr>
                 <tr>
@@ -131,7 +135,8 @@ export default function SdLessonSixSixPage() {
                   </td>
                   <td>SPOFs, timeouts, retries, circuit breakers, rate limits, load shedding, backups</td>
                   <td>
-                    <strong>Everything fails.</strong> Decide in advance what your system does when it does.
+                    <strong>Everything fails.</strong> Decide in advance what your system will do when it does. (SPOF
+                    means single point of failure: one part that stops everything if it breaks.)
                   </td>
                 </tr>
                 <tr>
@@ -140,7 +145,8 @@ export default function SdLessonSixSixPage() {
                   </td>
                   <td>Logs, metrics, traces, SLOs, alerting, postmortems</td>
                   <td>
-                    You can't fix what you can't see. <strong>Measure what users feel.</strong>
+                    You cannot fix what you cannot see. <strong>Measure what users feel.</strong> (SLO means service
+                    level objective, a reliability goal you promise to meet.)
                   </td>
                 </tr>
                 <tr>
@@ -149,7 +155,8 @@ export default function SdLessonSixSixPage() {
                   </td>
                   <td>AuthN/AuthZ, OAuth, encryption, secrets, OWASP</td>
                   <td>
-                    Most breaches exploit <strong>basic mistakes</strong>. Get the basics right everywhere.
+                    Most breaches use <strong>basic mistakes</strong>. Get the basics right everywhere. (AuthN means
+                    authentication: proving who you are. AuthZ means authorisation: what you are allowed to do.)
                   </td>
                 </tr>
                 <tr>
@@ -158,7 +165,7 @@ export default function SdLessonSixSixPage() {
                   </td>
                   <td>Monolith vs microservices, discovery, Docker, Kubernetes, cloud, CI/CD</td>
                   <td>
-                    Architecture follows <strong>team size and maturity</strong>. Ship{" "}
+                    Architecture follows <strong>team size and maturity</strong>. Release{" "}
                     <strong>small, safe, reversible</strong> changes.
                   </td>
                 </tr>
@@ -185,15 +192,15 @@ export default function SdLessonSixSixPage() {
               <strong>how well</strong> it must do it (in numbers).
             </li>
             <li>
-              <strong>Estimate before you design.</strong> "40 writes per second" and "40,000 writes per second" are
-              completely different systems.
+              <strong>Estimate before you design.</strong> Make a rough guess of the load. "40 writes per second" and
+              "40,000 writes per second" need completely different systems.
             </li>
             <li>
               <strong>There's no perfect design, only trade-offs.</strong> Say what you gain and what you give up.
             </li>
             <li>
-              <strong>Start simple.</strong> A well-tuned monolith and one database can go very far. Add complexity only
-              when numbers demand it.
+              <strong>Start simple.</strong> A well-tuned monolith (one application) and one database can go very far.
+              Add complexity only when the numbers demand it.
             </li>
             <li>
               <strong>Design for your next 12–24 months</strong>, with a clear path to grow, not for Google's scale on
@@ -203,31 +210,37 @@ export default function SdLessonSixSixPage() {
           <h3 id="data">Data</h3>
           <ol start={6}>
             <li>
-              <strong>Pick the data model from the access patterns</strong>, not from hype. PostgreSQL + Redis is a
-              strong default.
+              <strong>Pick the data model from the access patterns</strong> (how your code reads and writes the data),
+              not from hype. PostgreSQL (a relational database) plus Redis (a fast in-memory store) is a strong default.
             </li>
             <li>
-              <strong>Decide consistency per feature.</strong> Money and uniqueness need strong consistency; likes and
-              feeds can be eventually consistent.
+              <strong>Decide consistency for each feature.</strong> Money and uniqueness need strong consistency, which
+              means every reader sees the latest data. Likes and feeds can be eventually consistent, which means copies
+              may differ for a short time and then agree.
             </li>
             <li>
               <strong>
                 Replication is for availability and reads. Sharding is for writes and size. Backups are for going back
                 in time.
               </strong>{" "}
-              You need all three, eventually.
+              Replication keeps extra copies of data on other machines. Sharding splits data across machines. A backup
+              is a saved copy from an earlier moment. You will need all three, in time.
             </li>
             <li>
-              <strong>Choose shard keys and IDs carefully.</strong> They're very hard to change later.
+              <strong>Choose shard keys and IDs carefully.</strong> A shard key is the field that decides which machine
+              holds a row. It is very hard to change later.
             </li>
             <li>
-              <strong>Cache aggressively, but plan for stale data, stampedes and cache failure.</strong>
+              <strong>Cache a lot, but plan for stale data, stampedes and cache failure.</strong> A cache is a fast copy
+              of data. Stale means old. A stampede is when many requests miss the cache together and hit the database.
             </li>
           </ol>
           <h3 id="communication">Communication</h3>
           <ol start={11}>
             <li>
-              <strong>Make every write safe to retry</strong>, using idempotency keys, unique constraints and dedup.
+              <strong>Make every write safe to retry</strong>. Idempotency means doing an action twice has the same
+              result as doing it once. Use idempotency keys (a unique ID sent with each request), unique constraints
+              and dedup (removing duplicates).
             </li>
             <li>
               <strong>Use queues for work the user doesn't need to wait for</strong>, and expect messages to arrive{" "}
@@ -241,35 +254,38 @@ export default function SdLessonSixSixPage() {
           <h3 id="reliability">Reliability</h3>
           <ol start={14}>
             <li>
-              <strong>Every network call needs a timeout</strong>, limited retries with{" "}
-              <strong>backoff and jitter</strong>, and a plan for when the other side is down.
+              <strong>Every network call needs a timeout</strong> (a limit on how long you wait). Allow only a few
+              retries, with <strong>backoff and jitter</strong>: wait longer after each try, plus a random extra time.
+              Also have a plan for when the other side is down.
             </li>
             <li>
               <strong>Remove single points of failure</strong>, spread across zones, and{" "}
               <strong>test failover and restores</strong> regularly.
             </li>
             <li>
-              <strong>Protect yourself from overload</strong> with rate limits for clients, and load shedding and
-              graceful degradation for the system.
+              <strong>Protect yourself from overload.</strong> Use rate limits (a cap on requests per client). Use load
+              shedding (refuse some requests on purpose) and graceful degradation (turn off less important features) to
+              keep the system alive.
             </li>
           </ol>
           <h3 id="operations-and-security">Operations and security</h3>
           <ol start={17}>
             <li>
-              <strong>Measure what users experience</strong>: SLOs, p99 latency and error budgets. Alert on symptoms,
-              not noise.
+              <strong>Measure what users experience</strong>: SLOs, p99 latency and error budgets. p99 latency is the
+              time that 99 of 100 requests beat. An error budget is how much failure your SLO still allows. Alert on
+              symptoms that users feel, not on noise.
             </li>
             <li>
-              <strong>Most outages start with a change</strong>, so deploy small, gradually (canaries, feature flags)
-              and reversibly.
+              <strong>Most outages start with a change</strong>, so deploy in small steps, gradually and reversibly. A
+              canary sends a new version to a few users first. A feature flag turns a feature on or off without a deploy.
             </li>
             <li>
-              <strong>Security basics beat clever tricks</strong>: authorise every object, parameterise queries, patch
-              dependencies, keep secrets out of code, and encrypt everywhere.
+              <strong>Security basics beat clever tricks</strong>. Authorise every object. Parameterise queries (send
+              user input as data, never as SQL code). Patch dependencies. Keep secrets out of code. Encrypt everywhere.
             </li>
             <li>
-              <strong>Learn blamelessly.</strong> Write postmortems, share them, and fix the system rather than blaming
-              the person.
+              <strong>Learn blamelessly.</strong> Write postmortems (reports about an outage), share them, and fix the
+              system instead of blaming a person.
             </li>
           </ol>
         </Section>
@@ -319,7 +335,7 @@ export default function SdLessonSixSixPage() {
               <span aria-hidden="true" className="mr-1.5 font-mono text-sky">
                 ☐
               </span>
-              Average and peak QPS (reads and writes separately)
+              Average and peak QPS (queries per second; count reads and writes separately)
             </li>
             <li>
               <span aria-hidden="true" className="mr-1.5 font-mono text-sky">
@@ -430,7 +446,7 @@ export default function SdLessonSixSixPage() {
               <span aria-hidden="true" className="mr-1.5 font-mono text-sky">
                 ☐
               </span>
-              Observability: SLIs/SLOs, dashboards, alerts
+              Observability: SLIs (the measured numbers) and SLOs (the goals for them), dashboards, alerts
             </li>
             <li>
               <span aria-hidden="true" className="mr-1.5 font-mono text-sky">
@@ -442,7 +458,8 @@ export default function SdLessonSixSixPage() {
               <span aria-hidden="true" className="mr-1.5 font-mono text-sky">
                 ☐
               </span>
-              Backups and disaster recovery (RPO/RTO)
+              Backups and disaster recovery (RPO is how much data you can afford to lose; RTO is how long you can be
+              down)
             </li>
           </ul>
           <p>
@@ -472,7 +489,7 @@ export default function SdLessonSixSixPage() {
 
         <Section id="how-the-pieces-fit-together" title="How the Pieces Fit Together">
           <p>
-            Here's the "big picture" in one small diagram. (The companion reference post,{" "}
+            Here is the "big picture" in one small diagram. (The companion reference post,{" "}
             <em>"The Complete System Design Architecture"</em>, goes through every layer in detail.)
           </p>
           <Layers
@@ -540,10 +557,12 @@ export default function SdLessonSixSixPage() {
               ❌ <strong>Ignoring failure:</strong> assuming every dependency is always up and fast.
             </li>
             <li>
-              ❌ <strong>Treating replication as backup.</strong>
+              ❌ <strong>Treating replication as backup.</strong> Replication copies mistakes too. If you delete a table,
+              the replicas delete it as well.
             </li>
             <li>
-              ❌ <strong>Using averages instead of percentiles.</strong>
+              ❌ <strong>Using averages instead of percentiles.</strong> An average hides slow requests. A percentile
+              such as p99 shows them.
             </li>
             <li>
               ❌ <strong>Unsafe retries</strong> that double-charge customers.
@@ -552,7 +571,7 @@ export default function SdLessonSixSixPage() {
               ❌ <strong>Logging secrets</strong>, or trusting the client.
             </li>
             <li>
-              ❌ <strong>Big-bang releases and big-bang rewrites.</strong>
+              ❌ <strong>Big-bang releases and big-bang rewrites</strong> (changing everything at once).
             </li>
             <li>
               ❌ <strong>Blaming people</strong> instead of fixing systems.
@@ -583,8 +602,8 @@ export default function SdLessonSixSixPage() {
               next step for most readers.
             </li>
             <li>
-              <strong>Practise the framework</strong> on new problems: design YouTube, Google Drive, a ride-hailing app,
-              a payment system, a web crawler, a search autocomplete.
+              <strong>Practise the framework</strong> on new problems. Design YouTube, Google Drive, a ride-hailing app,
+              a payment system, a web crawler or search autocomplete.
             </li>
             <li>
               <strong>Write about it.</strong> Explaining something is the fastest way to truly understand it.
@@ -594,8 +613,8 @@ export default function SdLessonSixSixPage() {
 
         <Section id="thank-you" title="Thank You">
           <p>
-            Thank you for reading this series, whether you followed every post or jumped straight to the topics you
-            needed. System design isn't about memorising architectures. It's about{" "}
+            Thank you for reading this series, whether you read every post or went straight to the topics you needed.
+            System design is not about memorising architectures. It is about{" "}
             <strong>
               asking the right questions, understanding the trade-offs, and learning from how real systems succeed and
               fail
@@ -613,9 +632,9 @@ export default function SdLessonSixSixPage() {
                 a: (
                   <>
                     <p>
-                      Choosing and connecting a small set of well-understood building blocks to meet measurable
-                      requirements, and being explicit about the trade-offs you accept — especially around data, failure
-                      and change.
+                      System design means choosing and connecting a small set of well-known building blocks to meet
+                      requirements you can measure. You also say clearly which trade-offs you accept, especially about
+                      data, failure and change.
                     </p>
                   </>
                 ),
@@ -625,9 +644,9 @@ export default function SdLessonSixSixPage() {
                 a: (
                   <>
                     <p>
-                      Clarify requirements, including what's out of scope and the non-functional targets as numbers;
-                      estimate the size of the problem; then define the API and data model and their access patterns.
-                      Only then draw the boxes.
+                      First, clarify the requirements. Include what is out of scope, and give the non-functional targets
+                      (speed, availability) as numbers. Second, estimate the size of the problem. Third, define the API,
+                      the data model and how the data is accessed. Only then draw the boxes.
                     </p>
                   </>
                 ),
@@ -637,8 +656,8 @@ export default function SdLessonSixSixPage() {
                 a: (
                   <>
                     <p>
-                      The good one ties every component to a requirement or a number, walks each use case through the
-                      diagram, handles failures and hot spots explicitly, states trade-offs honestly, and knows what it
+                      A good answer ties every component to a requirement or a number. It walks each use case through the
+                      diagram and handles failures and hot spots clearly. It states trade-offs honestly, and says what it
                       would monitor and do next.
                     </p>
                   </>
@@ -649,8 +668,8 @@ export default function SdLessonSixSixPage() {
                 a: (
                   <>
                     <p>
-                      Small, reversible, observable changes, backed by blameless learning when things go wrong. Most
-                      outages start with a change, and most improvements come from studying the ones that got through.
+                      Make small changes that you can undo and can watch. When things go wrong, learn without blame. Most
+                      outages start with a change, and most improvements come from studying the outages that happened.
                     </p>
                   </>
                 ),

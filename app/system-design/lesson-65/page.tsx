@@ -44,12 +44,13 @@ export default function SdLessonSixFivePage() {
             <li>and they were migrated, rewritten, un-rewritten and patched for years.</li>
           </ul>
           <p>
-            The best way to learn how systems <strong>really</strong> evolve is to read the stories engineers publish
-            themselves: <strong>engineering blogs, conference talks, research papers and public postmortems</strong>.
-            Throughout this series, I've pointed to many of them (Discord, Stripe, Netflix, Cloudflare, Instagram,
-            Notion, GitHub, Google, Amazon). In this final post, I'll share <strong>how to read them</strong>, the{" "}
-            <strong>lessons that keep repeating</strong>, and <strong>a reading list</strong> to keep learning after
-            this series.
+            The best way to learn how systems <strong>really</strong> change over time is to read the stories engineers
+            publish themselves. These are <strong>engineering blogs, conference talks, research papers and public
+            postmortems</strong>. A postmortem is a written report about an outage. It says what happened, why it
+            happened, and how to stop it happening again. Throughout this series, I have pointed to many of these
+            stories (Discord, Stripe, Netflix, Cloudflare, Instagram, Notion, GitHub, Google, Amazon). In this post, I
+            will share <strong>how to read them</strong>, the <strong>lessons that keep repeating</strong>, and{" "}
+            <strong>a reading list</strong> to keep learning after the case studies.
           </p>
         </Section>
 
@@ -57,9 +58,9 @@ export default function SdLessonSixFivePage() {
           <p>
             Reading engineering blogs is like{" "}
             <strong>
-              reading the travel diaries of people who've already climbed the mountain you're about to climb
+              reading the travel diaries of people who have already climbed the mountain you are about to climb
             </strong>
-            . They tell you:
+            . The diaries tell you:
           </p>
           <ul>
             <li>which paths looked easy but led to cliffs,</li>
@@ -80,7 +81,10 @@ export default function SdLessonSixFivePage() {
           <h3 id="how-to-read-an-engineering-post-and-actually-learn-from-it">
             How to read an engineering post (and actually learn from it)
           </h3>
-          <p>Don't just skim for "they used Kafka". For each post, write down five things:</p>
+          <p>
+            Do not just look for "they used Kafka". For each post, write down five things. Kafka is a system that stores
+            a stream of events in order, so many programs can read them.
+          </p>
           <Flow
             caption="Five notes to take on every engineering post — and the question to ask afterwards."
             nodes={[
@@ -102,15 +106,16 @@ export default function SdLessonSixFivePage() {
               <strong>Would this apply to my system?</strong> At my scale, with my team?
             </li>
             <li>
-              <strong>Which building block from this series is this really about?</strong> (caching? sharding?
-              idempotency? load shedding?)
+              <strong>Which building block from this series is this really about?</strong> For example: caching (keeping
+              a quick copy of data), sharding (splitting data across machines), idempotency (an action is safe to
+              repeat), or load shedding (refusing some requests so the system survives).
             </li>
             <li>
-              <strong>What's the "boring" lesson under the exciting headline?</strong>
+              <strong>What is the "boring" lesson behind the exciting headline?</strong>
             </li>
           </ul>
           <p>
-            <strong>A healthy dose of scepticism helps:</strong>
+            <strong>Be a little sceptical (do not believe everything):</strong>
           </p>
           <ul>
             <li>
@@ -120,18 +125,19 @@ export default function SdLessonSixFivePage() {
               Solutions are tuned to <strong>that company's scale</strong>. What Netflix needs may be overkill for you.
             </li>
             <li>
-              Posts age. Check the <strong>date</strong>, and whether the company later changed its approach (many
-              did!).
+              Posts get old. Check the <strong>date</strong>, and check whether the company later changed its approach.
+              Many did.
             </li>
           </ul>
           <h3 id="the-lessons-that-keep-repeating">The lessons that keep repeating</h3>
           <p>After reading many engineering blogs and postmortems, the same themes appear again and again.</p>
           <p>
             <strong>1. Start simple, and scale when the numbers say so.</strong> Instagram, Stack Overflow, Shopify,
-            Notion and many others grew very large on <strong>relational databases</strong>, caching and replicas before
-            doing anything exotic. Notion and Figma only sharded Postgres when their single database was clearly
-            reaching its limits (post 25). Stack Overflow is famous for serving a massive audience with a small number
-            of powerful servers (post 7).
+            Notion and many others grew very large on <strong>relational databases</strong> (databases with tables and
+            SQL), caching and replicas (extra copies of the database) before they tried anything unusual. Notion and
+            Figma only sharded Postgres (split it across many machines) when their single database was clearly reaching
+            its limits (post 25). Stack Overflow is famous for serving a very large audience with a small number of
+            powerful servers (post 7).
           </p>
           <blockquote>
             <p>
@@ -142,9 +148,11 @@ export default function SdLessonSixFivePage() {
           <p>
             <strong>2. Migrations are the real work.</strong> Discord went from MongoDB to Cassandra to ScyllaDB.
             Facebook Messenger moved from HBase to MySQL/MyRocks. Uber moved some systems from Postgres to MySQL.
-            Dropbox moved storage off S3 to its own system. Every one of these posts spends more time on{" "}
-            <strong>how they migrated safely</strong> (dual writes, backfills, shadow reads, verification, gradual
-            cut-over) than on the new technology (post 29).
+            Dropbox moved file storage off Amazon S3 to its own system. Every one of these posts spends more time on{" "}
+            <strong>how they migrated safely</strong> than on the new technology (post 29). The safe steps include:
+            dual writes (write to the old and new system at the same time), backfills (copy the old data over), shadow
+            reads (read from the new system quietly and compare the answers), verification, and a gradual cut-over
+            (move users over a little at a time).
           </p>
           <blockquote>
             <p>
@@ -152,10 +160,11 @@ export default function SdLessonSixFivePage() {
             </p>
           </blockquote>
           <p>
-            <strong>3. Architecture swings back and forth.</strong> Amazon and Netflix moved from monoliths to services.
+            <strong>3. Architecture swings back and forth.</strong> A monolith is one big application. Microservices
+            are many small applications that talk to each other. Amazon and Netflix moved from monoliths to services.
             Segment moved <strong>back</strong> from 100+ microservices to one service. Amazon Prime Video moved one
-            monitoring tool from distributed serverless components to a single application and cut costs by about 90%.
-            Uber grouped thousands of microservices into domains (post 53).
+            monitoring tool from many distributed serverless components to a single application. It cut the cost of that
+            tool by about 90%. Uber grouped thousands of microservices into domains (post 53).
           </p>
           <blockquote>
             <p>
@@ -166,12 +175,16 @@ export default function SdLessonSixFivePage() {
           <p>
             <strong>4. Caching is everywhere, and so are its bugs.</strong> Facebook's memcache paper, Twitter's Redis
             timelines, Instagram's Redis tuning and Etsy's cache smearing (posts 15–16, 64) all show that caching makes
-            huge systems possible. Facebook's 2010 outage, caused by a feedback loop between caches and the database,
-            shows how caches can <strong>cause</strong> outages too.
+            huge systems possible. Cache smearing means spreading out when cached items expire, so they do not all
+            expire at once. Facebook's 2010 outage shows that caches can <strong>cause</strong> outages too. A bad
+            setting made many clients ask the database for data at the same time. Each failed attempt made the overload
+            worse, which is a feedback loop.
           </p>
           <blockquote>
             <p>
-              Lesson: <strong>cache aggressively, but design for stampedes, invalidation and cache failure.</strong>
+              Lesson: <strong>cache a lot, but design for stampedes, invalidation and cache failure.</strong> A stampede
+              is when many requests all miss the cache together and hit the database. Invalidation means removing or
+              updating cached data when the real data changes.
             </p>
           </blockquote>
           <p>
@@ -182,25 +195,35 @@ export default function SdLessonSixFivePage() {
           </p>
           <blockquote>
             <p>
-              Lesson: <strong>small, gradual, observable, reversible changes</strong> (canaries, feature flags, staged
-              rollouts) prevent more outages than any other single practice.
+              Lesson: <strong>small, gradual, observable, reversible changes</strong> prevent more outages than any
+              other single practice. A canary release sends a new version to a few users first. A feature flag is a
+              switch that turns a feature on or off without a new deploy. A staged rollout grows the number of users
+              step by step.
             </p>
           </blockquote>
           <p>
-            <strong>6. Failure handling is where the design really lives.</strong> Netflix built Chaos Monkey and
-            Hystrix, AWS writes about static stability, shuffle sharding and load shedding, and Google's SRE books focus
-            on overload and cascading failures (posts 40–44).
+            <strong>6. Failure handling is where the design really lives.</strong> Netflix built Chaos Monkey (a tool
+            that randomly turns off servers to test the system) and Hystrix (a library that stops calls to a failing
+            service). AWS writes about static stability (keep working even if a control service fails), shuffle sharding
+            (give each customer a random group of servers, so one bad customer hurts fewer others) and load shedding.
+            Google's SRE books focus on overload and cascading failures, where one failure causes the next (posts
+            40–44).
           </p>
           <blockquote>
             <p>
               Lesson: <strong>assume every dependency will be slow or down</strong>, and decide in advance what your
-              system does then: timeouts, retries with jitter, circuit breakers, bulkheads, fallbacks and load shedding.
+              system does then. Use timeouts (stop waiting after a set time), retries with jitter (wait a random extra
+              time before trying again), circuit breakers (stop calling a service that keeps failing), bulkheads (keep
+              resources separate so one failure cannot use them all), fallbacks (a simpler backup answer) and load
+              shedding.
             </p>
           </blockquote>
           <p>
-            <strong>7. Idempotency and "exactly-once" are business problems, not just technical ones.</strong> Stripe's
-            writing on idempotency keys, Confluent's on Kafka's exactly-once semantics, and many payment-system
-            postmortems show that <strong>duplicate or lost messages cost real money</strong> (posts 34 and 37).
+            <strong>7. Idempotency and "exactly-once" are business problems, not just technical ones.</strong> An action
+            is idempotent if doing it twice has the same result as doing it once. Exactly-once means every message is
+            processed one time, no more and no less. Stripe's writing on idempotency keys, Confluent's writing on
+            Kafka's exactly-once semantics, and many payment-system postmortems show that{" "}
+            <strong>duplicate or lost messages cost real money</strong> (posts 34 and 37).
           </p>
           <blockquote>
             <p>
@@ -209,9 +232,12 @@ export default function SdLessonSixFivePage() {
             </p>
           </blockquote>
           <p>
-            <strong>8. Observability pays for itself.</strong> Google's Dapper paper, the birth of Prometheus at
-            SoundCloud, Honeycomb's writing on high-cardinality events, and SRE practices around SLOs and error budgets
-            all point the same way (posts 46–48).
+            <strong>8. Observability pays for itself.</strong> Observability means being able to see what is happening
+            inside your system from its logs, metrics and traces. Google's Dapper paper (about tracing one request across
+            many services), the birth of Prometheus (a metrics tool) at SoundCloud, Honeycomb's writing on
+            high-cardinality events (data with very many different values), and SRE practices around SLOs and error
+            budgets all point the same way (posts 46–48). An SLO is a reliability goal, such as "99.9% of requests
+            succeed". An error budget is how much failure the SLO still allows.
           </p>
           <blockquote>
             <p>
@@ -220,9 +246,10 @@ export default function SdLessonSixFivePage() {
             </p>
           </blockquote>
           <p>
-            <strong>9. Security failures are usually basic.</strong> Equifax (unpatched software), Capital One (SSRF),
-            Uber and Toyota (leaked secrets), MOVEit (SQL injection) and Log4Shell and xz (dependencies and the supply
-            chain) were rarely exotic (posts 49–52).
+            <strong>9. Security failures are usually basic.</strong> Equifax (software that was not patched), Capital One
+            (SSRF, where an attacker tricks a server into calling internal addresses), Uber and Toyota (leaked secrets),
+            MOVEit (SQL injection, where input is run as database commands) and Log4Shell and xz (attacks through
+            dependencies, also called the supply chain) were rarely clever tricks (posts 49–52).
           </p>
           <blockquote>
             <p>
@@ -230,13 +257,16 @@ export default function SdLessonSixFivePage() {
               <strong>
                 patch, scan, least privilege, no secrets in code, and check authorisation on every object.
               </strong>{" "}
-              The basics stop most attacks.
+              Least privilege means giving each user or service only the access it needs. The basics stop most
+              attacks.
             </p>
           </blockquote>
           <p>
-            <strong>10. People and culture matter as much as technology.</strong> Amazon's two-pizza teams, Etsy's
-            blameless postmortems, Google's design docs and SRE error budgets, and Conway's Law (post 53) all show that{" "}
-            <strong>how teams are organised and how they learn</strong> shapes the systems they build.
+            <strong>10. People and culture matter as much as technology.</strong> Amazon's two-pizza teams (teams small
+            enough to feed with two pizzas), Etsy's blameless postmortems (reports that look for system causes, not
+            people to blame), Google's design docs and SRE error budgets, and Conway's Law (post 53) all show that{" "}
+            <strong>how teams are organised and how they learn</strong> shapes the systems they build. Conway's Law
+            says a system tends to copy the communication structure of the team that builds it.
           </p>
           <blockquote>
             <p>
@@ -260,7 +290,7 @@ export default function SdLessonSixFivePage() {
             ]}
           />
           <h3 id="a-reading-list-to-continue">A reading list to continue</h3>
-          <p>Here are some engineering blogs and resources worth following. Search for them by name.</p>
+          <p>Here are some engineering blogs and resources worth following. Search the web for them by name.</p>
           <p>
             <strong>Engineering blogs:</strong>
           </p>
@@ -336,8 +366,9 @@ export default function SdLessonSixFivePage() {
               consistent databases.
             </li>
             <li>
-              <strong>Dynamo</strong> (Amazon, 2007): highly available key-value storage, consistent hashing and
-              quorums.
+              <strong>Dynamo</strong> (Amazon, 2007): highly available key-value storage. It uses consistent hashing
+              (a way to spread keys over servers so few keys move when servers change) and quorums (a vote among
+              replicas).
             </li>
             <li>
               <strong>Kafka</strong> (LinkedIn, 2011) and Jay Kreps' essay <strong>"The Log"</strong>: log-based
@@ -357,10 +388,11 @@ export default function SdLessonSixFivePage() {
               <strong>Borg</strong> (2015): cluster management, and the roots of Kubernetes.
             </li>
             <li>
-              <strong>Raft</strong> (2014): understandable consensus.
+              <strong>Raft</strong> (2014): an understandable consensus algorithm. Consensus is how several machines
+              agree on one value even if some fail.
             </li>
             <li>
-              <strong>Zanzibar</strong> (2019): global authorisation.
+              <strong>Zanzibar</strong> (2019): Google's global system for authorisation (deciding who may do what).
             </li>
           </ul>
           <p>
@@ -404,8 +436,8 @@ export default function SdLessonSixFivePage() {
               <strong>5-line summary</strong> using the template above.
             </li>
             <li>
-              <strong>Map each post</strong> to the concepts in this series: "This is really about hot keys and
-              sharding."
+              <strong>Map each post</strong> to the concepts in this series. For example: "This is really about hot keys
+              (one key with far more traffic than the rest) and sharding."
             </li>
             <li>
               <strong>Redesign it yourself:</strong> "If I had Discord's problem with <em>my</em> team, what would I
@@ -433,7 +465,7 @@ export default function SdLessonSixFivePage() {
               classics (DDIA, the Dynamo paper, the SRE book) gives deep understanding. Do both.
             </li>
             <li>
-              <strong>Following trends vs fundamentals:</strong> tools change every few years, but{" "}
+              <strong>Following trends vs basic ideas:</strong> tools change every few years, but the{" "}
               <strong>fundamentals</strong> (caching, replication, partitioning, consistency, idempotency, failure
               handling) stay relevant for decades.
             </li>
@@ -444,10 +476,12 @@ export default function SdLessonSixFivePage() {
           <p>Every idea in this series came from somewhere real:</p>
           <ul>
             <li>
-              <strong>Consistent hashing</strong> started as an MIT paper and helped create Akamai (post 26).
+              <strong>Consistent hashing</strong> started as an MIT research paper and helped start Akamai, a CDN
+              company (post 26).
             </li>
             <li>
-              <strong>Kafka</strong> began as LinkedIn's answer to its data integration mess (post 36).
+              <strong>Kafka</strong> began at LinkedIn as a way to move data between its many systems in an orderly
+              way (post 36).
             </li>
             <li>
               <strong>Circuit breakers and bulkheads</strong> became mainstream through Michael Nygard's book and
@@ -477,10 +511,10 @@ export default function SdLessonSixFivePage() {
                 a: (
                   <>
                     <p>
-                      Pick one and walk through problem, constraints, options, decision and result — for example
-                      Discord's move from Cassandra to ScyllaDB: rising p99 latency and operational pain at trillions of
-                      messages, the migration with dual reads and validation, and the lesson that migrations dominate
-                      the work.
+                      Pick one and walk through problem, constraints, options, decision and result. For example,
+                      Discord moved from Cassandra to ScyllaDB. The problem was slow p99 latency (the slowest 1% of
+                      requests) and hard day-to-day operation with trillions of messages. They migrated carefully and
+                      checked the results. The lesson is that the migration is most of the work.
                     </p>
                   </>
                 ),
@@ -490,9 +524,9 @@ export default function SdLessonSixFivePage() {
                 a: (
                   <>
                     <p>
-                      They're written after success, often leave out the messy parts, are tuned to that company's scale,
-                      team and budget, and may be outdated — many companies later reversed the approach they wrote
-                      about.
+                      They are written after success and often leave out the messy parts. They fit that company's
+                      scale, team and budget, which may be different from mine. They may also be out of date. Many
+                      companies later reversed the approach they wrote about.
                     </p>
                   </>
                 ),
@@ -502,9 +536,9 @@ export default function SdLessonSixFivePage() {
                 a: (
                   <>
                     <p>
-                      A change — a deploy, a configuration update, a command or an automated action — which is why
-                      canaries, feature flags, staged rollouts and fast rollbacks prevent more outages than any other
-                      single practice.
+                      A change: a deploy, a configuration update, a command or an automated action. That is why canaries,
+                      feature flags, staged rollouts and fast rollbacks (going back to the old version) prevent more
+                      outages than any other single practice.
                     </p>
                   </>
                 ),
@@ -514,9 +548,9 @@ export default function SdLessonSixFivePage() {
                 a: (
                   <>
                     <p>
-                      That splitting too finely creates operational overhead, duplicated code and slow development;
-                      merging back into one service improved productivity and reliability. Architecture should follow
-                      team size and workload, not fashion.
+                      Splitting a system into too many small services creates extra operational work, repeated code and
+                      slow development. Segment merged back into one service, and work became faster and more reliable.
+                      Architecture should follow team size and workload, not fashion.
                     </p>
                   </>
                 ),
@@ -526,9 +560,9 @@ export default function SdLessonSixFivePage() {
                 a: (
                   <>
                     <p>
-                      Follow a few engineering blogs, read public postmortems regularly, read the classic papers behind
-                      the tools you use (Dynamo, Bigtable, Kafka, Spanner), and — best of all — build and operate
-                      something small, then write down what broke.
+                      Follow a few engineering blogs. Read public postmortems regularly. Read the classic papers behind
+                      the tools you use (Dynamo, Bigtable, Kafka, Spanner). Best of all, build and run something small,
+                      then write down what broke.
                     </p>
                   </>
                 ),
@@ -607,9 +641,10 @@ export default function SdLessonSixFivePage() {
           </ul>
           <hr />
           <p>
-            <strong>That's the end of this 65-post series on system design.</strong> We started with what happens when
-            you type a URL and press Enter, and finished designing chat systems and news feeds used by millions. Thank
-            you for reading along. Now go build something, measure it, break it safely, and write about what you learn.
+            <strong>That is the end of the main lessons in this system design series.</strong> The next pages are a
+            conclusion and quick reference sheets. We started with what happens when you type a URL and press Enter. We
+            finished by designing chat systems and news feeds used by millions of people. Thank you for reading along.
+            Now go build something, measure it, break it safely, and write about what you learn.
           </p>
         </Section>
       </div>

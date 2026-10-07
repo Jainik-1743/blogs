@@ -54,8 +54,9 @@ export default function SdLessonSixFourPage() {
         <Section id="the-problem" title="The Problem" kind="problem">
           <p>
             Open Instagram, X (Twitter), LinkedIn or Facebook, and within a second you see a{" "}
-            <strong>personalised feed</strong>: posts from people you follow, newest (or most relevant) first, with
-            photos, like counts and comments, and it scrolls forever.
+            <strong>personalised feed</strong>. A feed is a list of posts from the people you follow. The newest (or most
+            relevant) posts come first. Each post has photos, like counts and comments. The list keeps loading as you
+            scroll.
           </p>
           <p>Behind that simple screen is one of the hardest problems in system design:</p>
           <ul>
@@ -73,9 +74,12 @@ export default function SdLessonSixFourPage() {
             </li>
           </ul>
           <p>
-            The naive approach, "find everyone I follow, get all their recent posts, sort them, show the top 20", works
-            for 1,000 users. At 100 million, it collapses. This case study is about the central trade-off of feed
-            design: <strong>do the work when someone posts, or when someone reads?</strong>
+            The simple approach is: find everyone I follow, get all their recent posts, sort them, and show the top 20.
+            This works for 1,000 users. At 100 million users, it fails. This case study is about the main trade-off
+            (a choice where you gain one thing and lose another) in feed design:{" "}
+            <strong>do the work when someone posts, or when someone reads?</strong>
+            Doing work when someone posts is called <strong>fan-out on write</strong>. Fan-out means copying one post
+            out to many followers. Doing the work when someone reads is called <strong>fan-out on read</strong>.
           </p>
         </Section>
 
@@ -84,21 +88,22 @@ export default function SdLessonSixFourPage() {
             Imagine a <strong>newspaper delivery service</strong> in a big city.
           </p>
           <p>
-            <strong>Option 1: deliver to every doorstep (fan-out on write / push).</strong> When a newspaper is printed,
-            delivery staff put a copy in <strong>every subscriber's letterbox</strong>. Reading is instant: open the
-            letterbox. But when a newspaper has <strong>50 million subscribers</strong>, printing one edition means{" "}
+            <strong>Option 1: deliver to every doorstep (fan-out on write, also called push).</strong> Push means the
+            system sends the work out ahead of time. When a newspaper is printed, delivery staff put a copy in{" "}
+            <strong>every subscriber's letterbox</strong>. Reading is instant: you open the letterbox. But if a
+            newspaper has <strong>50 million subscribers</strong>, printing one edition means{" "}
             <strong>50 million deliveries</strong>.
           </p>
           <p>
-            <strong>Option 2: everyone collects from the newsstand (fan-out on read / pull).</strong> Newspapers stay at
-            the <strong>newsstand</strong>. Each reader goes and <strong>collects</strong> the papers they subscribe to,
-            and combines them. Printing is cheap, but every reader does more work, and a reader who subscribes to 500
-            papers has a long, slow trip.
+            <strong>Option 2: everyone collects from the newsstand (fan-out on read, also called pull).</strong> Pull
+            means the reader fetches the data when they need it. Newspapers stay at the <strong>newsstand</strong>. Each
+            reader goes and <strong>collects</strong> the papers they subscribe to, and puts them together. Printing is
+            cheap. But every reader does more work, and a reader who subscribes to 500 papers has a long, slow trip.
           </p>
           <p>
-            <strong>Option 3: the hybrid.</strong> Deliver <strong>local newspapers</strong> (normal accounts) to
-            doorsteps, but for the <strong>huge national papers</strong> (celebrities), readers pick them up from the
-            newsstand and <strong>combine</strong> them with what's in their letterbox.
+            <strong>Option 3: the hybrid.</strong> A hybrid mixes both options. Deliver <strong>local newspapers</strong>{" "}
+            (normal accounts) to doorsteps. For the <strong>huge national papers</strong> (celebrities), readers pick
+            them up from the newsstand and <strong>combine</strong> them with what is in their letterbox.
           </p>
           <p>
             Real feeds use the <strong>hybrid</strong>.
@@ -138,7 +143,8 @@ export default function SdLessonSixFourPage() {
           <ul>
             <li>
               <strong>Fast reads:</strong> the feed loads in <strong>&lt; 500 ms</strong> (p99), because this is the
-              app's main screen.
+              app's main screen. p99 means 99 out of 100 requests are at least this fast. Only the slowest 1 in 100 may
+              take longer.
             </li>
             <li>
               <strong>Freshness:</strong> new posts appear in followers' feeds within{" "}
@@ -155,14 +161,16 @@ export default function SdLessonSixFourPage() {
               <strong>Scalable</strong> to hundreds of millions of users, including <strong>celebrity accounts</strong>.
             </li>
             <li>
-              <strong>Eventual consistency is acceptable</strong> for feeds and counts (post 28).
+              <strong>Eventual consistency is acceptable</strong> for feeds and counts (post 28). Eventual consistency
+              means different copies of the data may differ for a short time, but they all become equal soon.
             </li>
           </ul>
           <h3 id="step-2-estimation">Step 2: Estimation</h3>
           <p>Assumptions:</p>
           <ul>
             <li>
-              <strong>100M daily active users (DAU)</strong>, each opening the feed <strong>10 times per day</strong>.
+              <strong>100M daily active users (DAU)</strong>. DAU is the number of different people who use the app on
+              one day. Each opens the feed <strong>10 times per day</strong>.
             </li>
             <li>
               <strong>10% of DAU post once per day</strong>, which is <strong>10M posts per day</strong>.
@@ -202,11 +210,15 @@ export default function SdLessonSixFourPage() {
               cache writes per second), but <strong>celebrities break it</strong> (50M writes for one post).
             </li>
             <li>
-              <strong>The feed cache</strong> (lists of IDs) is around a terabyte, which is a{" "}
-              <strong>sharded Redis cluster</strong>, affordable if we only keep it for <strong>active</strong> users.
+              <strong>The feed cache</strong> (lists of IDs) is around a terabyte. That needs a{" "}
+              <strong>sharded Redis cluster</strong>. Redis is a fast database that keeps data in memory. Sharded means
+              the data is split across many machines. This is affordable if we only keep feeds for{" "}
+              <strong>active</strong> users.
             </li>
             <li>
-              <strong>Media</strong> must go through <strong>object storage + CDN</strong> (posts 14 and 17).
+              <strong>Media</strong> (photos and video) must go through <strong>object storage + CDN</strong> (posts 14
+              and 17). Object storage keeps big files cheaply. A CDN (content delivery network) keeps copies of files
+              close to users.
             </li>
           </ul>
           <h3 id="step-3-api-and-data-model">Step 3: API and data model</h3>
@@ -215,16 +227,17 @@ export default function SdLessonSixFourPage() {
           </p>
           <CodeBlock lang="http" code={code1} />
           <p>
-            Use <strong>cursor-based pagination</strong> (post 34). New posts arriving at the top must not cause
-            duplicates or gaps while scrolling.
+            Use <strong>cursor-based pagination</strong> (post 34). Pagination means sending a long list in small pages.
+            A cursor is a marker that says "continue after this item". New posts arriving at the top must not cause
+            duplicates or gaps while you scroll.
           </p>
           <p>
             <strong>Data model:</strong>
           </p>
           <CodeBlock code={code2} />
           <p>
-            The <strong>social graph</strong> (follows) can live in a sharded relational or wide-column database, or in
-            a dedicated graph store (post 20). Facebook built TAO for exactly this.
+            The <strong>social graph</strong> is the web of who follows whom. It can live in a sharded relational or
+            wide-column database, or in a dedicated graph store (post 20). Facebook built TAO for exactly this.
           </p>
           <h3 id="step-4-high-level-design">Step 4: High-level design</h3>
           <Compare
@@ -253,12 +266,15 @@ export default function SdLessonSixFourPage() {
           />
           <ul>
             <li>
-              <strong>The write path</strong> is fast for the author. The post is saved, an event is published, and the
-              "posted!" response returns immediately. Fan-out happens <strong>asynchronously</strong> (posts 18 and 39).
+              <strong>The write path</strong> is fast for the author. The post is saved, an event is published to Kafka
+              (a system that stores a stream of events in order), and the "posted!" response returns immediately.
+              Fan-out happens <strong>asynchronously</strong>, which means in the background, after the reply (posts 18
+              and 39).
             </li>
             <li>
               <strong>The read path</strong> is mostly <strong>cache reads</strong>: a list of IDs, then{" "}
-              <strong>hydration</strong> (turning IDs into full objects) from caches, in <strong>batches</strong>.
+              <strong>hydration</strong> (turning IDs into full objects, such as the post text and author name) from
+              caches, in <strong>batches</strong> (many items in one request).
             </li>
           </ul>
           <h3 id="step-5-deep-dives">Step 5: Deep dives</h3>
@@ -274,8 +290,9 @@ export default function SdLessonSixFourPage() {
             </li>
             <li>✅ Simple read path, and a predictable read latency.</li>
             <li>
-              ❌ <strong>Celebrity problem:</strong> 50M followers means 50M writes, which take minutes and flood the
-              system (the "hot key" and write-amplification problem).
+              ❌ <strong>Celebrity problem:</strong> 50M followers means 50M writes. These take minutes and flood the
+              system. A "hot key" is one piece of data that gets far more traffic than the rest. Write amplification
+              means one action causes many writes.
             </li>
             <li>
               ❌ <strong>Wasted work:</strong> many followers are <strong>inactive</strong> and will never read those
@@ -296,8 +313,9 @@ export default function SdLessonSixFourPage() {
               inactive users.
             </li>
             <li>
-              ❌ <strong>Slow, expensive reads:</strong> fetching from hundreds of authors per feed view × 35,000 views
-              per second is enormous. Latency is dominated by the slowest fetch (tail latency, post 8).
+              ❌ <strong>Slow, expensive reads:</strong> fetching from hundreds of authors for each feed view, at 35,000
+              views per second, is a huge amount of work. The total time is set by the slowest fetch. This is called
+              tail latency (post 8): when you wait for many calls, the slowest one decides the speed.
             </li>
           </ul>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">
@@ -349,20 +367,22 @@ export default function SdLessonSixFourPage() {
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Deep dive 4: The feed cache</h4>
           <ul>
             <li>
-              <strong>Redis sorted sets</strong> keyed by user: <code>feed:&#123;user_id&#125;</code>, with score =
-              timestamp (or rank score), and member = post_id.
+              <strong>Redis sorted sets</strong> keyed by user: <code>feed:&#123;user_id&#125;</code>. A sorted set is a
+              Redis data type that holds unique items, each with a number called a score. Redis keeps the items ordered
+              by score. Here the score is the timestamp (or a rank score), and the item (the "member") is the post_id.
             </li>
             <li>
-              <strong>Keep only the latest N</strong> (for example, 500–1,000) entries per user, and trim on insert (
-              <code>ZREMRANGEBYRANK</code>). Older content is fetched from storage if someone scrolls very far.
+              <strong>Keep only the latest N</strong> (for example, 500–1,000) entries per user. Trim the list on each
+              insert with <code>ZREMRANGEBYRANK</code>, a Redis command that removes items by their position in the
+              order. Older content is fetched from storage if someone scrolls very far.
             </li>
             <li>
               <strong>Store IDs, not full posts.</strong> It's small, and edits or deletions are reflected when
               hydrating.
             </li>
             <li>
-              <strong>Shard by user_id</strong> across a Redis cluster (post 25), with replicas for availability (post
-              24).
+              <strong>Shard by user_id</strong> across a Redis cluster (post 25). Each user's feed lives on one shard. Add
+              replicas (extra copies) so the feed stays available if a machine fails (post 24).
             </li>
             <li>
               <strong>Cache miss or rebuild:</strong> if a user's feed cache is empty (new user, eviction or returning
@@ -376,8 +396,9 @@ export default function SdLessonSixFourPage() {
           </p>
           <ul>
             <li>
-              <strong>Batch fetch</strong> everything (multi-get from caches), <strong>never one by one</strong>. That's
-              the N+1 problem again (posts 5 and 32).
+              <strong>Batch fetch</strong> everything (multi-get from caches), <strong>never one by one</strong>. The
+              N+1 problem happens when you make 1 call for the list and then N more calls, one for each item. It is slow
+              (posts 5 and 32).
             </li>
             <li>
               <strong>Layered caches:</strong> a post cache (hot posts are read by millions), a user or profile cache,
@@ -388,13 +409,14 @@ export default function SdLessonSixFourPage() {
               store.
             </li>
             <li>
-              <strong>Parallel calls</strong> with <strong>timeouts</strong>. If counters are slow, show the post{" "}
-              <strong>without</strong> counts rather than failing (post 44).
+              <strong>Parallel calls</strong> (all at the same time) with <strong>timeouts</strong> (a limit on how long
+              to wait). If counters are slow, show the post <strong>without</strong> counts instead of failing (post 44).
             </li>
           </ul>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Deep dive 6: Ranking</h4>
           <p>
-            Many feeds are <strong>ranked</strong>, not purely chronological:
+            Many feeds are <strong>ranked</strong>. Ranking means sorting posts by how useful they are to you, not only
+            by time:
           </p>
           <Flow
             caption="Ranking a feed in five steps."
@@ -421,7 +443,8 @@ export default function SdLessonSixFourPage() {
             </li>
             <li>
               <strong>Pagination with ranked feeds</strong> needs care. Store the <strong>ranked session</strong> (or a
-              snapshot of candidates) so page 2 is consistent with page 1, and use an opaque cursor.
+              snapshot of the candidates) so page 2 matches page 1. Use an opaque cursor, which is a token that the
+              client cannot read or change.
             </li>
             <li>
               Keep a <strong>chronological option</strong> where users want it.
@@ -430,19 +453,20 @@ export default function SdLessonSixFourPage() {
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Deep dive 7: Counters, likes and consistency</h4>
           <ul>
             <li>
-              <strong>Like counts</strong> are updated <strong>asynchronously</strong> with batched increments in Redis,
-              flushed periodically to the database (write-behind, post 16). Counts may lag slightly, which is acceptable
-              (post 28).
+              <strong>Like counts</strong> are updated <strong>asynchronously</strong>. Redis collects the increments in
+              batches and saves them to the database every so often. This is called write-behind (post 16). Counts may
+              lag a little, which is acceptable (post 28).
             </li>
             <li>
               <strong>Very hot posts</strong> (viral content) are <strong>hot keys</strong>. Use{" "}
-              <strong>sharded counters</strong> (split a counter into several keys and sum them) and local caching (post
-              16).
+              <strong>sharded counters</strong> (split one counter into several keys, and add them up when you read) and
+              local caching (post 16).
             </li>
             <li>
-              <strong>Read-your-writes for my own actions:</strong> after I like a post, <strong>my</strong> view shows
-              it as liked immediately (optimistic UI, plus reading my own like state from the source), even if the
-              global count updates a few seconds later (post 24).
+              <strong>Read-your-writes for my own actions:</strong> after I like a post, I must see my own change
+              right away. So <strong>my</strong> view shows it as liked immediately, even if the global count updates a
+              few seconds later (post 24). Two things help here. Optimistic UI means the app shows the result before
+              the server confirms it. The app also reads my own like state from the source of truth.
             </li>
           </ul>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Deep dive 8: Edits, deletes, privacy and unfollows</h4>
@@ -463,7 +487,7 @@ export default function SdLessonSixFourPage() {
             </li>
             <li>
               <strong>New follow:</strong> optionally <strong>backfill</strong> a few recent posts from the new account
-              into the follower's feed.
+              into the follower's feed. Backfill means adding old items that were missed.
             </li>
           </ul>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Deep dive 9: Reliability and performance</h4>
@@ -474,8 +498,9 @@ export default function SdLessonSixFourPage() {
               posts without counts (post 44).
             </li>
             <li>
-              <strong>Queue-based fan-out</strong> absorbs bursts (for example, everyone posting during a big match).
-              Monitor <strong>fan-out lag</strong> (Kafka consumer lag, post 36) as a key freshness metric.
+              <strong>Queue-based fan-out</strong> absorbs bursts (for example, everyone posting during a big match). A
+              queue holds work until a worker is free. Monitor <strong>fan-out lag</strong> (how far the workers are
+              behind, called consumer lag in Kafka, post 36) as a key freshness measure.
             </li>
             <li>
               <strong>Multi-region:</strong> users read from their nearest region's caches. Posts and events replicate
@@ -486,8 +511,8 @@ export default function SdLessonSixFourPage() {
               locally for instant app opens.
             </li>
             <li>
-              <strong>SLOs:</strong> feed p99 latency, fan-out delay ("99% of posts in followers' feeds within 60 s"),
-              and error rate (post 47).
+              <strong>SLOs</strong> (service level objectives, which are goals you promise to meet): feed p99 latency,
+              fan-out delay ("99% of posts in followers' feeds within 60 s"), and error rate (post 47).
             </li>
           </ul>
           <h3 id="wrap-up">Wrap-up</h3>
@@ -527,7 +552,8 @@ export default function SdLessonSixFourPage() {
             </li>
             <li>
               <strong>Next steps:</strong> recommendation-driven content from accounts you don't follow, ads insertion,
-              video-heavy feeds, and real-time "new posts" banners via SSE or WebSockets (post 33).
+              video-heavy feeds, and real-time "new posts" banners via SSE or WebSockets (post 33). Both are ways for the server to push updates
+              to the browser.
             </li>
           </ul>
         </Section>
@@ -587,11 +613,12 @@ export default function SdLessonSixFourPage() {
 
         <Section id="in-the-real-world" title="In the Real World" kind="real">
           <p>
-            <strong>Twitter's timelines.</strong> In a well-known 2013 talk, "Timelines at Scale", Twitter engineer
-            Raffi Krikorian explained that Twitter <strong>precomputed home timelines</strong> in Redis, fanning each
-            tweet out to followers' timelines (lists of tweet IDs), because reads vastly outnumbered writes. For
-            accounts with <strong>very large follower counts</strong>, fanning out to everyone was too slow, so their
-            tweets were <strong>merged in at read time</strong>. It's the hybrid model described above.
+            <strong>Twitter's timelines.</strong> In a well-known 2012 talk at QCon San Francisco, "Timelines at Scale",
+            Twitter engineer Raffi Krikorian explained that Twitter <strong>precomputed home timelines</strong> in
+            Redis. Each tweet was fanned out to followers' timelines (lists of tweet IDs), because reads far outnumbered
+            writes. For accounts with <strong>very large follower counts</strong>, fanning out to everyone was too
+            slow, so their tweets were <strong>merged in at read time</strong>. This is the hybrid model described
+            above.
           </p>
           <p>
             <strong>Facebook's TAO and News Feed.</strong> Facebook built <strong>TAO</strong>, a distributed, cached
@@ -627,10 +654,11 @@ export default function SdLessonSixFourPage() {
                 a: (
                   <>
                     <p>
-                      On write (push) precomputes each follower's feed, so reads are one cheap cache lookup, but
-                      celebrity posts create millions of writes and work is wasted on inactive users. On read (pull)
-                      keeps writes cheap but makes every feed open merge many timelines. Most systems use a hybrid: push
-                      for normal authors, pull for celebrities, merged at read time.
+                      Fan-out on write (push) builds each follower's feed ahead of time. Reads are then one cheap cache
+                      lookup. But a celebrity post creates millions of writes, and work is wasted on inactive users.
+                      Fan-out on read (pull) keeps writes cheap. But every time someone opens the feed, the system must
+                      merge many timelines. Most systems use a hybrid: push for normal authors, pull for celebrities,
+                      and merge both at read time.
                     </p>
                   </>
                 ),
@@ -640,9 +668,9 @@ export default function SdLessonSixFourPage() {
                 a: (
                   <>
                     <p>
-                      As a capped list or sorted set of post IDs per user in Redis — just IDs and scores, a few KB per
-                      user — then hydrate the full post, author and counter objects in batches from their own caches at
-                      read time. Inactive users' feeds can expire and be rebuilt on demand.
+                      As a capped list or sorted set of post IDs for each user in Redis. It holds just IDs and scores, so
+                      it is small. At read time, I hydrate the full post, author and counter objects in batches from
+                      their own caches. Inactive users' feeds can expire and be rebuilt when they come back.
                     </p>
                   </>
                 ),
@@ -652,8 +680,9 @@ export default function SdLessonSixFourPage() {
                 a: (
                   <>
                     <p>
-                      With cursor (keyset) pagination based on the last item's score or timestamp and ID, not offsets —
-                      new posts arriving at the top then never cause duplicates or skips as the user scrolls.
+                      With cursor (keyset) pagination. The cursor is based on the last item's score or timestamp, plus
+                      its ID. I do not use offsets (page numbers), because new posts at the top would shift the list.
+                      With a cursor, the user never sees duplicates or skipped posts while scrolling.
                     </p>
                   </>
                 ),
@@ -663,9 +692,10 @@ export default function SdLessonSixFourPage() {
                 a: (
                   <>
                     <p>
-                      Keep counters in Redis, incremented atomically, and persist them asynchronously to the database.
-                      Display them as eventually consistent (approximate for huge numbers), and read likedByMe from a
-                      per-user set or a membership check.
+                      Keep counters in Redis and increase them atomically (as one step that cannot be split). Save them
+                      to the database in the background. Show them as eventually consistent, which means they may be
+                      slightly old, or approximate for huge numbers. Read likedByMe from a per-user set, which is a quick
+                      "is this item in the set?" check.
                     </p>
                   </>
                 ),
@@ -687,9 +717,10 @@ export default function SdLessonSixFourPage() {
                 a: (
                   <>
                     <p>
-                      Generate candidates (followed accounts' recent posts, celebrity pulls, recommendations), compute
-                      features, score with an ML model predicting engagement, then re-rank for diversity, freshness and
-                      integrity before returning a page.
+                      First, collect candidates (recent posts from followed accounts, celebrity posts, recommendations).
+                      Next, look up features (facts about each post and the user). Then score each post with a machine
+                      learning model that predicts whether the user will like, comment or share. Last, re-rank with
+                      rules for variety, freshness and safety, and return one page.
                     </p>
                   </>
                 ),
@@ -731,7 +762,7 @@ export default function SdLessonSixFourPage() {
               <em>System Design Interview</em> by Alex Xu (chapter 11, "Design A News Feed System")
             </li>
             <li>The System Design Primer on GitHub ("Design the Twitter timeline and search" solution)</li>
-            <li>Raffi Krikorian's talk "Timelines at Scale" (QCon, 2013)</li>
+            <li>Raffi Krikorian's talk "Timelines at Scale" (QCon San Francisco, 2012)</li>
             <li>The TAO paper, "TAO: Facebook's Distributed Data Store for the Social Graph" (USENIX ATC 2013)</li>
             <li>Instagram Engineering blog posts on feed ranking</li>
             <li>Pinterest and LinkedIn engineering blog posts on their home feed architectures</li>
