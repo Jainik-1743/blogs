@@ -9,18 +9,18 @@ export default function Questions() {
         title="House robber"
         level="Medium"
         examples={[
-          { input: "nums = [1,2,3,1]", output: "4", why: "Rob house 0 (1) and house 2 (3): 1 + 3 = 4. They are not neighbours." },
+          { input: "nums = [1,2,3,1]", output: "4", why: "Rob house 0 (1) and house 2 (3): 1 + 3 = 4. They are not next to each other." },
           { input: "nums = [2,7,9,3,1]", output: "12", why: "Rob houses 0, 2 and 4: 2 + 9 + 1 = 12." },
         ]}
         hints={[
-          <>Complete the sentence: &ldquo;best(i) is the most money from houses i onward.&rdquo;</>,
+          <>Finish the sentence: &ldquo;best(i) is the most money from house i to the end.&rdquo;</>,
           <>For house i you either skip it or rob it. What is left to decide after each choice?</>,
-          <>Each answer only reads the previous two. Do you need a whole array?</>,
+          <>Each answer reads only the two before it. Do you need a whole array?</>,
         ]}
         approaches={[
           {
             name: "Recursion with memo (top-down)",
-            idea: <p>Define <code>best(i)</code> as the most money from house <code>i</code> to the end. Either skip (<code>best(i + 1)</code>) or rob (<code>nums[i] + best(i + 2)</code>). Cache each result. Without the cache this is O(2<sup>n</sup>).</p>,
+            idea: <p>Define <code>best(i)</code> as the most money from house <code>i</code> to the end. Either skip (<code>best(i + 1)</code>) or rob (<code>nums[i] + best(i + 2)</code>). Save each result in a cache. Without the cache the time is O(2<sup>n</sup>).</p>,
             code: `function rob(nums) {
   const memo = new Map();
   function best(i) {
@@ -35,7 +35,7 @@ export default function Questions() {
 
 console.log(rob([1, 2, 3, 1]));    // 4
 console.log(rob([2, 7, 9, 3, 1])); // 12`,
-            explain: <p>There are only n distinct values of <code>i</code>, and each is solved once, so time and space are O(n) (the recursion is up to n deep).</p>,
+            explain: <p>There are only n different values of <code>i</code>, and each is solved once. So the time and space are O(n). The recursion goes up to n levels deep.</p>,
           },
           {
             name: "Table (bottom-up)",
@@ -52,11 +52,11 @@ console.log(rob([2, 7, 9, 3, 1])); // 12`,
 
 console.log(rob([1, 2, 3, 1]));    // 4
 console.log(rob([2, 7, 9, 3, 1])); // 12`,
-            explain: <p>The same recurrence, filled left to right with no recursion. O(n) time, O(n) space.</p>,
+            explain: <p>This uses the same formula, filled from left to right with no recursion. The time is O(n) and the space is O(n).</p>,
           },
           {
             name: "Two variables",
-            idea: <p>Keep only <code>dp[i - 2]</code> and <code>dp[i - 1]</code> as <code>twoBack</code> and <code>oneBack</code>, and slide them forward each step.</p>,
+            idea: <p>Keep only <code>dp[i - 2]</code> and <code>dp[i - 1]</code>, in two variables called <code>twoBack</code> and <code>oneBack</code>. Move them forward at each step.</p>,
             code: `function rob(nums) {
   let twoBack = 0, oneBack = 0;
   for (const money of nums) {
@@ -69,13 +69,13 @@ console.log(rob([2, 7, 9, 3, 1])); // 12`,
 
 console.log(rob([1, 2, 3, 1]));    // 4
 console.log(rob([2, 7, 9, 3, 1])); // 12`,
-            explain: <p>O(n) time and O(1) space. Trace [1,2,3,1]: (0,0) then (0,1), (1,2), (2,4), (4,4); the answer is 4.</p>,
+            explain: <p>The time is O(n) and the space is O(1). Step by step on [1,2,3,1]: (0,0), then (0,1), (1,2), (2,4), (4,4). The answer is 4.</p>,
           },
         ]}
-        compare={<p>Start with the memoised recursion to get the state right, then convert to the two-variable loop: it is short, fast and uses constant space. (LeetCode 198.)</p>}
+        compare={<p>Start with the memoised recursion to get the state right. Then change it to the two-variable loop. It is short, fast and uses a fixed amount of space. (LeetCode 198.)</p>}
       >
         <p>
-          Houses in a row hold <code>nums[i]</code> money each. You cannot rob two adjacent houses. Return the maximum you can rob.
+          Houses in a row hold <code>nums[i]</code> money each. You cannot rob two houses that are next to each other. Return the most money you can rob.
         </p>
       </Problem>
 
@@ -88,14 +88,14 @@ console.log(rob([2, 7, 9, 3, 1])); // 12`,
           { input: "nums = [1,2,3,1]", output: "4", why: "Rob house 0 (1) and house 2 (3). House 3 is next to house 0, so it is not used." },
         ]}
         hints={[
-          <>The only new rule is that the first and last houses are neighbours.</>,
-          <>Any valid plan skips the first house or skips the last house (or both).</>,
-          <>Run the line version twice, on two ranges, and take the maximum. Watch the one-house case.</>,
+          <>The only new rule is that the first house and the last house are neighbours.</>,
+          <>Any valid plan skips the first house, or skips the last house, or skips both.</>,
+          <>Run the straight-row version twice, on two ranges, and take the larger answer. Watch out for the case with one house.</>,
         ]}
         approaches={[
           {
             name: "Two line problems",
-            idea: <p>Best of: robbing within <code>nums[0..n-2]</code> (last house excluded) and within <code>nums[1..n-1]</code> (first house excluded), each solved with the house-robber loop.</p>,
+            idea: <p>Take the better of two answers. One is robbing within <code>nums[0..n-2]</code> (last house left out). The other is robbing within <code>nums[1..n-1]</code> (first house left out). Solve each with the house-robber loop.</p>,
             code: `function robLine(nums, lo, hi) {
   let twoBack = 0, oneBack = 0;
   for (let i = lo; i <= hi; i++) {
@@ -114,11 +114,11 @@ function rob(nums) {
 console.log(rob([2, 3, 2]));    // 3
 console.log(rob([1, 2, 3, 1])); // 4
 console.log(rob([5]));          // 5`,
-            explain: <p>The two ranges together cover every valid plan: a plan that uses the first house cannot use the last (range 1), and any other plan is inside range 2. O(n) time, O(1) space.</p>,
+            explain: <p>The two ranges together cover every valid plan. A plan that uses the first house cannot use the last house (range 1). Any other plan fits inside range 2. The time is O(n) and the space is O(1).</p>,
           },
           {
             name: "Memo with a flag",
-            idea: <p>Recurse over <code>(i, tookFirst)</code>. Once the first house is robbed, the last house is forbidden. This needs twice as many states but keeps the circle in the state itself.</p>,
+            idea: <p>Recurse over <code>(i, tookFirst)</code>. If the first house was robbed, the last house is not allowed. This needs twice as many states, but the circle rule is kept inside the state itself.</p>,
             code: `function rob(nums) {
   const n = nums.length;
   if (n === 1) return nums[0];
@@ -140,13 +140,13 @@ console.log(rob([5]));          // 5`,
 console.log(rob([2, 3, 2]));    // 3
 console.log(rob([1, 2, 3, 1])); // 4
 console.log(rob([5]));          // 5`,
-            explain: <p>2n states, each O(1): O(n) time and space. It is more flexible for circle variants but longer than the two-range trick.</p>,
+            explain: <p>There are 2n states and each takes O(1), so the time and space are O(n). It is more flexible for other circle problems, but longer than the two-range trick.</p>,
           },
         ]}
-        compare={<p>The two-range trick: reuse the solved line problem rather than reinventing it. &ldquo;Reduce the new problem to one you already solved&rdquo; is worth remembering. (LeetCode 213.)</p>}
+        compare={<p>Use the two-range trick. Reuse the straight-row problem you already solved instead of inventing something new. Remember this idea: &ldquo;turn the new problem into one you already solved&rdquo;. (LeetCode 213.)</p>}
       >
         <p>
-          The same as house robber, but the houses stand in a circle: the first and last houses are adjacent. Return the maximum you can rob.
+          This is the same as house robber, but the houses stand in a circle. The first and last houses are next to each other. Return the most money you can rob.
         </p>
       </Problem>
 
@@ -155,19 +155,19 @@ console.log(rob([5]));          // 5`,
         title="Coin change"
         level="Medium"
         examples={[
-          { input: "coins = [1,2,5], amount = 11", output: "3", why: "5 + 5 + 1 = 11 uses three coins." },
-          { input: "coins = [2], amount = 3", output: "-1", why: "No combination of 2s makes 3." },
-          { input: "coins = [1], amount = 0", output: "0", why: "Zero coins make zero." },
+          { input: "coins = [1,2,5], amount = 11", output: "3", why: "5 + 5 + 1 = 11, which uses three coins." },
+          { input: "coins = [2], amount = 3", output: "-1", why: "You cannot make 3 from coins of 2." },
+          { input: "coins = [1], amount = 0", output: "0", why: "Zero coins make the amount zero." },
         ]}
         hints={[
-          <>Greedy (always the biggest coin) fails for coins [1,3,4] and amount 6. Can you see why?</>,
-          <>State: dp[a] is the fewest coins for exactly the amount a. What was the last coin?</>,
-          <>Use Infinity for &ldquo;impossible&rdquo; and convert to -1 only at the end.</>,
+          <>Greedy (always taking the biggest coin) fails for coins [1,3,4] and amount 6. Can you see why?</>,
+          <>State: dp[a] is the fewest coins for exactly the amount a. Which coin was used last?</>,
+          <>Use Infinity for &ldquo;impossible&rdquo;, and change it to -1 only at the end.</>,
         ]}
         approaches={[
           {
             name: "Recursion with memo",
-            idea: <p><code>fewest(rest)</code> tries each coin and recurses on <code>rest - coin</code>. A negative remainder returns <code>Infinity</code> (overshoot). Cache by remainder. Without the cache it is exponential.</p>,
+            idea: <p><code>fewest(rest)</code> tries each coin and recurses on <code>rest - coin</code>. A negative remainder returns <code>Infinity</code> (you went over the amount). Save the results by remainder. Without the cache the time grows exponentially.</p>,
             code: `function coinChange(coins, amount) {
   const memo = new Map();
   function fewest(rest) {
@@ -186,11 +186,11 @@ console.log(rob([5]));          // 5`,
 console.log(coinChange([1, 2, 5], 11)); // 3
 console.log(coinChange([2], 3));        // -1
 console.log(coinChange([1], 0));        // 0`,
-            explain: <p>There are at most <code>amount + 1</code> distinct remainders and each tries every coin: O(amount × coins) time, O(amount) space. For a big amount, the recursion can be thousands of calls deep.</p>,
+            explain: <p>There are at most <code>amount + 1</code> different remainders and each one tries every coin. The time is O(amount × coins) and the space is O(amount). For a big amount, the recursion can go thousands of calls deep.</p>,
           },
           {
             name: "Table (bottom-up)",
-            idea: <p>Fill <code>dp[0..amount]</code> with <code>Infinity</code>, set <code>dp[0] = 0</code>, then for each amount try every coin that fits.</p>,
+            idea: <p>Fill <code>dp[0..amount]</code> with <code>Infinity</code>, set <code>dp[0] = 0</code>, then for each amount, try every coin that fits.</p>,
             code: `function coinChange(coins, amount) {
   const dp = new Array(amount + 1).fill(Infinity);
   dp[0] = 0;
@@ -205,14 +205,14 @@ console.log(coinChange([1], 0));        // 0`,
 console.log(coinChange([1, 2, 5], 11)); // 3
 console.log(coinChange([2], 3));        // -1
 console.log(coinChange([1], 0));        // 0`,
-            explain: <p>The same recurrence, iterative. For [1,2,5] the table runs 0, 1, 1, 2, 2, 1, 2, 2, 3, 3, 2, 3 for amounts 0 to 11. O(amount × coins) time, O(amount) space. Never fill with <code>-1</code>: <code>-1 + 1 = 0</code> would look like a great answer.</p>,
+            explain: <p>This is the same formula, written as a loop. For [1,2,5] the table is 0, 1, 1, 2, 2, 1, 2, 2, 3, 3, 2, 3 for amounts 0 to 11. The time is O(amount × coins) and the space is O(amount). Never fill the table with <code>-1</code>, because <code>-1 + 1 = 0</code> would look like a great answer.</p>,
           },
         ]}
-        compare={<p>The table: no recursion depth problems and very short. The memo version is better when only a few amounts are ever reached. (LeetCode 322.)</p>}
+        compare={<p>The table is short and has no problem with deep recursion. The memo version is better when only a few amounts are ever reached. (LeetCode 322.)</p>}
       >
         <p>
-          Given coin denominations (unlimited supply of each) and a target <code>amount</code>, return the fewest coins that make exactly that
-          amount, or <code>-1</code> if it cannot be made.
+          You are given coin values (you have as many coins of each value as you want) and a target <code>amount</code>. Return the fewest coins that make exactly that
+          amount. Return <code>-1</code> if it cannot be made.
         </p>
       </Problem>
 
@@ -223,17 +223,17 @@ console.log(coinChange([1], 0));        // 0`,
         examples={[
           { input: 's = "12"', output: "2", why: "1|2 is AB, and 12 is L." },
           { input: 's = "226"', output: "3", why: "2|2|6 (BBF), 22|6 (VF) and 2|26 (BZ)." },
-          { input: 's = "06"', output: "0", why: "A leading zero cannot be decoded: there is no letter for 0 or 06." },
+          { input: 's = "06"', output: "0", why: "A zero at the start cannot be decoded. There is no letter for 0 or for 06." },
         ]}
         hints={[
           <>State: dp[i] is the number of ways to decode the first i characters.</>,
-          <>The last letter came from one digit or two digits. When is each allowed?</>,
-          <>One digit must not be &ldquo;0&rdquo;. Two digits must be between 10 and 26.</>,
+          <>The last letter came from one digit or from two digits. When is each one allowed?</>,
+          <>One digit must not be &ldquo;0&rdquo;. Two digits must make a number from 10 to 26.</>,
         ]}
         approaches={[
           {
             name: "Recursion with memo",
-            idea: <p><code>ways(i)</code> counts decodings of the suffix starting at <code>i</code>. A <code>&quot;0&quot;</code> there gives 0. Otherwise take one digit, plus two digits if they form 10 to 26.</p>,
+            idea: <p><code>ways(i)</code> counts the ways to decode the rest of the string, starting at <code>i</code>. If there is a <code>&quot;0&quot;</code> there, the answer is 0. Otherwise take one digit, and also take two digits if they make a number from 10 to 26.</p>,
             code: `function numDecodings(s) {
   const memo = new Map();
   function ways(i) {
@@ -251,11 +251,11 @@ console.log(coinChange([1], 0));        // 0`,
 console.log(numDecodings("12"));  // 2
 console.log(numDecodings("226")); // 3
 console.log(numDecodings("06"));  // 0`,
-            explain: <p>The leading digit is not &ldquo;0&rdquo; when we reach the two-digit check, so the value is at least 10. O(n) time and space.</p>,
+            explain: <p>When we reach the two-digit check, the first digit is not &ldquo;0&rdquo;, so the value is at least 10. The time and space are O(n).</p>,
           },
           {
             name: "Table with a rolling pair",
-            idea: <p>Fill <code>dp[i]</code> from <code>dp[i - 1]</code> (last digit alone) and <code>dp[i - 2]</code> (last two digits), then keep just two variables.</p>,
+            idea: <p>Fill <code>dp[i]</code> from <code>dp[i - 1]</code> (the last digit alone) and <code>dp[i - 2]</code> (the last two digits). Then keep just two variables.</p>,
             code: `function numDecodings(s) {
   let twoBack = 0;   // dp[i - 2], unused until i = 2
   let oneBack = 1;   // dp[0] = 1: the empty prefix
@@ -275,13 +275,13 @@ console.log(numDecodings("06"));  // 0`,
 console.log(numDecodings("12"));  // 2
 console.log(numDecodings("226")); // 3
 console.log(numDecodings("06"));  // 0`,
-            explain: <p>At <code>i = 1</code> the two-digit branch is skipped, and <code>twoBack</code> is set properly by the end of that iteration. O(n) time, O(1) space.</p>,
+            explain: <p>At <code>i = 1</code> the two-digit case is skipped, and <code>twoBack</code> is set correctly by the end of that step. The time is O(n) and the space is O(1).</p>,
           },
         ]}
-        compare={<p>Both are fine; the rolling version is the one to write once you trust the recurrence. It has the same shape as climbing stairs, with validity checks on each step. (LeetCode 91.)</p>}
+        compare={<p>Both are fine. Write the two-variable version once you trust the formula. It has the same shape as climbing stairs, with a validity check at each step. (LeetCode 91.)</p>}
       >
         <p>
-          A message is encoded as digits with <code>A = 1, B = 2, &hellip;, Z = 26</code>. Given a digit string, return the number of ways to decode it.
+          A message is written as digits with <code>A = 1, B = 2, &hellip;, Z = 26</code>. Given a string of digits, return the number of ways to decode it.
         </p>
       </Problem>
 
@@ -291,18 +291,18 @@ console.log(numDecodings("06"));  // 0`,
         level="Medium"
         examples={[
           { input: 's = "leetcode", wordDict = ["leet","code"]', output: "true", why: "leet + code." },
-          { input: 's = "applepenapple", wordDict = ["apple","pen"]', output: "true", why: "apple + pen + apple. Words may be reused." },
-          { input: 's = "catsandog", wordDict = ["cats","dog","sand","and","cat"]', output: "false", why: "cats + and + og fails, and cat + sand + og fails: nothing covers the trailing og." },
+          { input: 's = "applepenapple", wordDict = ["apple","pen"]', output: "true", why: "apple + pen + apple. A word can be used more than once." },
+          { input: 's = "catsandog", wordDict = ["cats","dog","sand","and","cat"]', output: "false", why: "cats + and + og fails, and cat + sand + og fails. No word covers the last part, og." },
         ]}
         hints={[
           <>State: dp[i] is true when the first i characters can be split into words.</>,
-          <>The last word is s[j..i). What must be true about j and about that slice?</>,
-          <>Put the dictionary into a Set for fast lookups.</>,
+          <>The last word is s[j..i). What must be true about j and about that slice of the string?</>,
+          <>Put the dictionary into a Set so lookups are fast.</>,
         ]}
         approaches={[
           {
             name: "Recursion with memo",
-            idea: <p><code>canBreak(start)</code> asks whether the suffix from <code>start</code> can be split. Try each end; when <code>s[start..end)</code> is a word and the rest works, the answer is true. Cache by <code>start</code>, because failures are what blow up the plain recursion.</p>,
+            idea: <p><code>canBreak(start)</code> asks whether the rest of the string, from <code>start</code>, can be split. Try each end. If <code>s[start..end)</code> is a word and the rest works, the answer is true. Save the answer for each <code>start</code>. Failed tries are what make the plain recursion so slow.</p>,
             code: `function wordBreak(s, wordDict) {
   const words = new Set(wordDict);
   const memo = new Map();
@@ -322,11 +322,11 @@ console.log(numDecodings("06"));  // 0`,
 console.log(wordBreak("leetcode", ["leet", "code"]));                       // true
 console.log(wordBreak("applepenapple", ["apple", "pen"]));                  // true
 console.log(wordBreak("catsandog", ["cats", "dog", "sand", "and", "cat"])); // false`,
-            explain: <p>n starting points, each trying up to n ends with a slice: O(n²) slices (about O(n³) character work). Without the memo, strings like <code>&quot;aaaa...ab&quot;</code> with word <code>&quot;a&quot;</code> repeat the same failing suffix exponentially often.</p>,
+            explain: <p>There are n starting points, and each tries up to n ends with a slice. That is O(n²) slices, or about O(n³) work on characters. Without the memo, a string like <code>&quot;aaaa...ab&quot;</code> with the word <code>&quot;a&quot;</code> repeats the same failing end part an enormous number of times.</p>,
           },
           {
             name: "Table (bottom-up)",
-            idea: <p><code>dp[i]</code> is true if some <code>j &lt; i</code> has <code>dp[j]</code> true and <code>s[j..i)</code> in the dictionary. We can limit <code>j</code> to the longest word length.</p>,
+            idea: <p><code>dp[i]</code> is true if some <code>j &lt; i</code> has <code>dp[j]</code> true and <code>s[j..i)</code> is in the dictionary. We can limit <code>j</code> to the length of the longest word.</p>,
             code: `function wordBreak(s, wordDict) {
   const words = new Set(wordDict);
   const longest = Math.max(...wordDict.map((w) => w.length));
@@ -343,14 +343,14 @@ console.log(wordBreak("catsandog", ["cats", "dog", "sand", "and", "cat"])); // f
 console.log(wordBreak("leetcode", ["leet", "code"]));                       // true
 console.log(wordBreak("applepenapple", ["apple", "pen"]));                  // true
 console.log(wordBreak("catsandog", ["cats", "dog", "sand", "and", "cat"])); // false`,
-            explain: <p>O(n × L) slices where L is the longest word, O(n) space. For "leetcode": dp[4] = true (leet), dp[8] = true because dp[4] is true and "code" is a word.</p>,
+            explain: <p>There are O(n × L) slices, where L is the length of the longest word. The space is O(n). For "leetcode": dp[4] = true (leet). dp[8] = true because dp[4] is true and "code" is a word.</p>,
           },
         ]}
-        compare={<p>Either is accepted; the table is easier to reason about, and the longest-word bound is a cheap speed-up. (LeetCode 139.)</p>}
+        compare={<p>Either one is accepted. The table is easier to think about, and the longest-word limit is a cheap way to go faster. (LeetCode 139.)</p>}
       >
         <p>
-          Given a string <code>s</code> and a list of words, return <code>true</code> if <code>s</code> can be split into a sequence of one or more
-          dictionary words (words may be reused).
+          Given a string <code>s</code> and a list of words, return <code>true</code> if <code>s</code> can be split into one or more
+          dictionary words in a row. A word can be used more than once.
         </p>
       </Problem>
 
@@ -361,17 +361,17 @@ console.log(wordBreak("catsandog", ["cats", "dog", "sand", "and", "cat"])); // f
         examples={[
           { input: "nums = [10,9,2,5,3,7,101,18]", output: "4", why: "One longest chain is 2, 3, 7, 101 (or 2, 5, 7, 18)." },
           { input: "nums = [0,1,0,3,2,3]", output: "4", why: "0, 1, 2, 3." },
-          { input: "nums = [7,7,7,7]", output: "1", why: "The chain must be strictly increasing, so equal values do not extend it." },
+          { input: "nums = [7,7,7,7]", output: "1", why: "The chain must be strictly increasing, so equal values cannot be added to it." },
         ]}
         hints={[
-          <>A subsequence skips elements but keeps order. Try defining dp[i] as the best chain that ends exactly at i.</>,
-          <>To end at i, look at every j before it with nums[j] &lt; nums[i].</>,
+          <>A subsequence skips some items but keeps the order. Try to define dp[i] as the best chain that ends exactly at i.</>,
+          <>To end at i, look at every j before it where nums[j] &lt; nums[i].</>,
           <>The answer is the largest dp[i], not dp[n - 1].</>,
         ]}
         approaches={[
           {
             name: "Take or skip with memo",
-            idea: <p><code>best(i, prev)</code> is the longest chain using elements from <code>i</code> onward when the last kept index is <code>prev</code>. Skip element i, or keep it if it is larger than <code>nums[prev]</code>. Cache by <code>(i, prev)</code>.</p>,
+            idea: <p><code>best(i, prev)</code> is the longest chain you can make from item <code>i</code> onward, when the last kept position is <code>prev</code>. Either skip item i, or keep it if it is larger than <code>nums[prev]</code>. Save the answers by <code>(i, prev)</code>.</p>,
             code: `function lengthOfLIS(nums) {
   const n = nums.length;
   const memo = new Map();
@@ -392,11 +392,11 @@ console.log(wordBreak("catsandog", ["cats", "dog", "sand", "and", "cat"])); // f
 console.log(lengthOfLIS([10, 9, 2, 5, 3, 7, 101, 18])); // 4
 console.log(lengthOfLIS([0, 1, 0, 3, 2, 3]));           // 4
 console.log(lengthOfLIS([7, 7, 7, 7]));                  // 1`,
-            explain: <p>Without the memo the recursion explores all 2<sup>n</sup> subsequences. With it there are O(n²) states, each O(1): O(n²) time and space.</p>,
+            explain: <p>Without the memo, the recursion tries all 2<sup>n</sup> subsequences. With the memo there are O(n²) states and each takes O(1). So the time and space are O(n²).</p>,
           },
           {
             name: "dp[i] = best chain ending at i",
-            idea: <p>Every element starts as a chain of 1. For each earlier smaller <code>nums[j]</code>, <code>dp[i] = max(dp[i], dp[j] + 1)</code>. Return the maximum of the table.</p>,
+            idea: <p>Every item starts as a chain of length 1. For each earlier, smaller <code>nums[j]</code>, set <code>dp[i] = max(dp[i], dp[j] + 1)</code>. Return the biggest value in the table.</p>,
             code: `function lengthOfLIS(nums) {
   const dp = new Array(nums.length).fill(1);
   let best = 0;
@@ -412,13 +412,13 @@ console.log(lengthOfLIS([7, 7, 7, 7]));                  // 1`,
 console.log(lengthOfLIS([10, 9, 2, 5, 3, 7, 101, 18])); // 4
 console.log(lengthOfLIS([0, 1, 0, 3, 2, 3]));           // 4
 console.log(lengthOfLIS([7, 7, 7, 7]));                  // 1`,
-            explain: <p>O(n²) time, O(n) space. For [10,9,2,5,3,7,101,18] the table is 1, 1, 1, 2, 2, 3, 4, 4. A binary-search method gets O(n log n); see lesson 57.</p>,
+            explain: <p>The time is O(n²) and the space is O(n). For [10,9,2,5,3,7,101,18] the table is 1, 1, 1, 2, 2, 3, 4, 4. A method with binary search gets O(n log n). See lesson 57.</p>,
           },
         ]}
-        compare={<p>Use the ending-at-i table: it is simple and fine for n up to a few thousand. If n reaches 10<sup>5</sup>, you need the O(n log n) method in lesson 57. (LeetCode 300.)</p>}
+        compare={<p>Use the &ldquo;ends at i&rdquo; table. It is simple and fine for n up to a few thousand. If n reaches 10<sup>5</sup>, you need the O(n log n) method in lesson 57. (LeetCode 300.)</p>}
       >
         <p>
-          Given an integer array, return the length of the longest strictly increasing subsequence.
+          Given an array of whole numbers, return the length of the longest strictly increasing subsequence (every number is bigger than the one before).
         </p>
       </Problem>
 
@@ -428,18 +428,18 @@ console.log(lengthOfLIS([7, 7, 7, 7]));                  // 1`,
         level="Medium"
         examples={[
           { input: "nums = [2,3,-2,4]", output: "6", why: "The subarray [2,3] has product 6." },
-          { input: "nums = [-2,0,-1]", output: "0", why: "Any subarray touching the 0 gives 0; [-2] and [-1] are negative." },
-          { input: "nums = [-2,3,-4]", output: "24", why: "The whole array: (-2) × 3 × (-4) = 24. Two negatives make a positive." },
+          { input: "nums = [-2,0,-1]", output: "0", why: "Any subarray that includes the 0 gives 0. [-2] and [-1] are negative." },
+          { input: "nums = [-2,3,-4]", output: "24", why: "Take the whole array: (-2) × 3 × (-4) = 24. Two negative numbers multiply to a positive number." },
         ]}
         hints={[
-          <>Try the max-sum idea: the best product ending at i. What breaks?</>,
-          <>A very negative product can become the largest after multiplying by another negative. Track the smallest product ending at i too.</>,
-          <>At each element the candidates are: the element alone, max × element, min × element.</>,
+          <>Try the max-sum idea: the best product ending at i. What goes wrong?</>,
+          <>A very negative product can become the largest after you multiply it by another negative number. So also keep track of the smallest product ending at i.</>,
+          <>At each item there are three choices: the item alone, max × item, or min × item.</>,
         ]}
         approaches={[
           {
             name: "Brute force over all subarrays",
-            idea: <p>For each start, extend the end while multiplying a running product and remember the largest.</p>,
+            idea: <p>For each start position, move the end forward while you multiply a running product. Remember the largest product.</p>,
             code: `function maxProduct(nums) {
   let best = -Infinity;
   for (let start = 0; start < nums.length; start++) {
@@ -455,11 +455,11 @@ console.log(lengthOfLIS([7, 7, 7, 7]));                  // 1`,
 console.log(maxProduct([2, 3, -2, 4])); // 6
 console.log(maxProduct([-2, 0, -1]));   // 0
 console.log(maxProduct([-2, 3, -4]));   // 24`,
-            explain: <p>O(n²) time, O(1) space. Correct, but too slow for large inputs.</p>,
+            explain: <p>The time is O(n²) and the space is O(1). It is correct, but too slow for large inputs.</p>,
           },
           {
             name: "Track the max and the min ending here",
-            idea: <p>Keep <code>curMax</code> and <code>curMin</code>, the largest and smallest products of a subarray ending at the current element. A negative number swaps their roles, so the new values come from the element alone, <code>curMax * x</code> and <code>curMin * x</code>.</p>,
+            idea: <p>Keep <code>curMax</code> and <code>curMin</code>. These are the largest and smallest products of a subarray that ends at the current item. A negative number swaps their roles. So the new values come from the item alone, <code>curMax * x</code> and <code>curMin * x</code>.</p>,
             code: `function maxProduct(nums) {
   let curMax = nums[0], curMin = nums[0], best = nums[0];
   for (let i = 1; i < nums.length; i++) {
@@ -475,13 +475,13 @@ console.log(maxProduct([-2, 3, -4]));   // 24`,
 console.log(maxProduct([2, 3, -2, 4])); // 6
 console.log(maxProduct([-2, 0, -1]));   // 0
 console.log(maxProduct([-2, 3, -4]));   // 24`,
-            explain: <p>On [-2,3,-4]: after -2 the pair is (-2,-2); at 3 it is (3,-6); at -4 it is (24,-12), so the answer is 24. A zero resets both to 0 and the next element starts fresh. O(n) time, O(1) space.</p>,
+            explain: <p>On [-2,3,-4]: after -2 the pair is (-2,-2). At 3 it is (3,-6). At -4 it is (24,-12), so the answer is 24. A zero resets both to 0, and the next item starts fresh. The time is O(n) and the space is O(1).</p>,
           },
         ]}
-        compare={<p>The max/min pair is the intended answer; the min is needed only because a negative can flip it into the next maximum. (LeetCode 152.)</p>}
+        compare={<p>The max and min pair is the expected answer. You need the min only because a negative number can flip it into the next maximum. (LeetCode 152.)</p>}
       >
         <p>
-          Given an integer array, find the contiguous subarray (at least one element) with the largest product and return that product.
+          Given an array of whole numbers, find the subarray (one unbroken piece, at least one item) with the largest product, and return that product.
         </p>
       </Problem>
     </>

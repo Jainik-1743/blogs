@@ -165,42 +165,42 @@ function stairsTrace() {
   let calls = 0;
   let hits = 0;
   const snap = () => ({ stack: [...stack], memo, calls, hits });
-  t.step(1, "start", "memo = empty Map", "The notebook where we will write down every answer we compute.", { memo }, "memo");
+  t.step(1, "start", "memo = empty Map", "The notebook where we will write down every answer we work out.", { memo }, "memo");
 
   function ways(n: number): number {
     calls++;
     stack.push(n);
-    t.step(2, "run", `call ways(${n})`, `Call number ${calls}. The stack of open calls is shown below.`, snap(), "stack");
+    t.step(2, "run", `call ways(${n})`, `This is call number ${calls}. The list of calls that are still open (the stack) is shown below.`, snap(), "stack");
     if (n <= 1) {
-      t.step(3, "check", `base case: ways(${n}) = 1`, `There is exactly one way to reach step ${n}. No recursion needed.`, snap());
+      t.step(3, "check", `base case: ways(${n}) = 1`, `There is exactly one way to reach step ${n}, so no more recursion is needed.`, snap());
       stack.pop();
       return 1;
     }
     if (memo.has(n)) {
       hits++;
-      t.step(4, "check", `cache hit: ways(${n}) = ${memo.get(n)}`, `We solved ways(${n}) earlier, so we just read it. This one hit removes an entire subtree of calls.`, snap(), "hits");
+      t.step(4, "check", `cache hit: ways(${n}) = ${memo.get(n)}`, `We solved ways(${n}) earlier, so we just read the answer. This one hit removes a whole part of the tree of calls.`, snap(), "hits");
       stack.pop();
       return memo.get(n)!;
     }
-    t.step(4, "check", `cache miss for ${n}`, `Nothing written down for ${n} yet, so we must compute it from ways(${n - 1}) and ways(${n - 2}).`, snap());
+    t.step(4, "check", `cache miss for ${n}`, `Nothing is written down for ${n} yet, so we must work it out from ways(${n - 1}) and ways(${n - 2}).`, snap());
     const a = ways(n - 1);
     const b = ways(n - 2);
     const result = a + b;
-    t.step(5, "update", `ways(${n}) = ${a} + ${b} = ${result}`, `Both smaller answers are known, so add them.`, { ...snap(), result }, "result");
+    t.step(5, "update", `ways(${n}) = ${a} + ${b} = ${result}`, `We know both smaller answers now, so we add them.`, { ...snap(), result }, "result");
     memo.set(n, result);
-    t.step(6, "update", `memo[${n}] = ${result}`, `Write the answer down before returning, so any later call for ${n} is free.`, { ...snap(), result }, "memo");
+    t.step(6, "update", `memo[${n}] = ${result}`, `Write the answer down before returning. Then any later call for ${n} costs nothing.`, { ...snap(), result }, "memo");
     stack.pop();
     return result;
   }
 
   const answer = ways(5);
-  t.step(9, "done", `ways(5) = ${answer}`, `Only ${calls} calls instead of 15 for the plain recursion: ${hits} of them were cache hits that skipped a whole subtree.`, { answer, ...snap() });
+  t.step(9, "done", `ways(5) = ${answer}`, `Only ${calls} calls instead of 15 for the plain recursion. ${hits} of them were cache hits that skipped a whole part of the tree.`, { answer, ...snap() });
   return t.steps;
 }
 
 const propertyRows: string[][] = [
-  ["Overlapping subproblems", "the same smaller question comes up many times", "fib(3) is needed by both fib(5) and fib(4)", "caching pays off"],
-  ["Optimal substructure", "the best answer is built from best answers to smaller questions", "the cheapest way to reach step 5 uses the cheapest way to reach step 4 or 3", "the transition is valid"],
+  ["Overlapping subproblems", "the same smaller question comes up many times", "fib(3) is needed by both fib(5) and fib(4)", "saving answers (caching) pays off"],
+  ["Optimal substructure", "the best answer is built from the best answers to smaller questions", "the cheapest way to reach step 5 uses the cheapest way to reach step 4 or step 3", "the transition formula is correct"],
 ];
 
 const recipeRows: string[][] = [
@@ -211,9 +211,9 @@ const recipeRows: string[][] = [
 ];
 
 const compareRows: string[][] = [
-  ["Plain recursion", "O(φⁿ), about 1.6ⁿ", "O(n) call stack", "never reuses anything"],
-  ["Memoisation (top-down)", "O(n)", "O(n) cache + O(n) call stack", "easy to write from the recursion; only computes what is needed"],
-  ["Tabulation (bottom-up)", "O(n)", "O(n) table", "no recursion, so no stack overflow; computes every entry"],
+  ["Plain recursion", "O(φⁿ), about 1.6ⁿ", "O(n) call stack", "never reuses any answer"],
+  ["Memoisation (top-down)", "O(n)", "O(n) cache + O(n) call stack", "easy to write from the recursion; only works out what is needed"],
+  ["Tabulation (bottom-up)", "O(n)", "O(n) table", "no recursion, so no stack overflow; fills every entry"],
   ["Space-reduced", "O(n)", "O(1)", "keep only the last few entries"],
 ];
 
@@ -232,52 +232,52 @@ export default function DsaLessonFiftyFourPage() {
     <DsaLessonPage lesson={lesson} outline={outline}>
       <h2 id="why">The same work, again and again</h2>
       <p>
-        Part 14 is about one big idea: <strong>dynamic programming</strong> (DP). Despite the grand name, it is just{" "}
-        &ldquo;recursion that remembers&rdquo;. You break a problem into smaller versions of itself, as in Part 8, but you refuse to
-        solve the same small version twice.
+        Part 14 is about one big idea: <strong>dynamic programming</strong> (DP). The name sounds grand, but it is just{" "}
+        &ldquo;recursion that remembers&rdquo;. Recursion means a function that calls itself. You break a problem into smaller copies of itself, as in Part 8. But you never
+        solve the same small copy twice.
       </p>
       <p>
-        Lesson 32 introduced <strong>recursion trees</strong>, with every call drawn as a node. Here is the plain Fibonacci
-        function (each number is the sum of the previous two) with a counter for the calls it makes:
+        Lesson 32 introduced <strong>recursion trees</strong>, where every call is drawn as a box (a node). Here is the plain Fibonacci
+        function. In Fibonacci, each number is the sum of the two numbers before it. This version also counts how many calls it makes:
       </p>
       <CodeBlock lang="js" code={plainCode} />
       <p>
-        Just to compute <code>fib(20)</code> the function runs 21,891 times. For 30 it is far worse:
+        To compute <code>fib(20)</code>, the function runs 21,891 times. For 30 it is much worse:
       </p>
       <CodeBlock lang="js" code={plainBigCode} />
       <p>
-        Nearly 2.7 million calls for an answer that is only the 30th term. Each call to <code>fib(n)</code> spawns two more, so the
-        tree roughly doubles at each level. The cause is visible in the tree: <code>fib(5)</code> calls <code>fib(4)</code> and{" "}
-        <code>fib(3)</code>, but <code>fib(4)</code> also calls <code>fib(3)</code>. That <code>fib(3)</code> subtree is built twice,
-        and inside it <code>fib(2)</code> is built again and again. There are only n + 1 <em>different</em> questions, yet we answer
-        them exponentially many times.
+        That is nearly 2.7 million calls for the 30th term. Each call to <code>fib(n)</code> starts two more calls, so the
+        tree about doubles at each level. The reason is easy to see in the tree. <code>fib(5)</code> calls <code>fib(4)</code> and{" "}
+        <code>fib(3)</code>, but <code>fib(4)</code> also calls <code>fib(3)</code>. So the <code>fib(3)</code> part of the tree is built twice,
+        and inside it <code>fib(2)</code> is built again and again. There are only n + 1 <em>different</em> questions, but we answer
+        them an enormous number of times (exponentially many).
       </p>
 
       <h2 id="two">Two properties that make DP work</h2>
       <p>
-        DP applies when a problem has both of these:
+        DP works when a problem has both of these properties:
       </p>
       <DryRun
         title="the DP checklist"
         cols={["Property", "Meaning", "Example", "What it gives us"]}
         rows={propertyRows}
-        note="Fibonacci and climbing stairs do not minimise anything, so optimal substructure is trivially true there. It starts to matter when a problem asks for a minimum, a maximum or a count."
+        note="Fibonacci and climbing stairs do not look for a smallest or biggest value, so optimal substructure is true there without any effort. It starts to matter when a problem asks for a minimum, a maximum or a count."
       />
       <p>
-        The word <strong>subproblem</strong> just means &ldquo;the same question with a smaller input&rdquo;. If subproblems
-        do <em>not</em> overlap (merge sort&apos;s two halves never share work) then caching does nothing, and plain divide and conquer is
-        the right tool. If they overlap, DP turns exponential time into polynomial time.
+        A <strong>subproblem</strong> is just &ldquo;the same question with a smaller input&rdquo;. Sometimes subproblems
+        do <em>not</em> overlap. Merge sort&apos;s two halves never share work, so saving answers does nothing, and plain divide and conquer
+        (split, solve each part, join) is the right tool. If subproblems do overlap, DP turns a very slow (exponential) solution into a fast (polynomial) one.
       </p>
 
       <h2 id="recipe">The four questions</h2>
       <p>
-        Every DP solution answers the same four questions. Write them down before any code:
+        Every DP solution answers the same four questions. Write them down before you write any code:
       </p>
       <ol>
-        <li><strong>State.</strong> What small set of values identifies one subproblem? (For Fibonacci: just <code>i</code>.)</li>
-        <li><strong>Transition.</strong> How is the answer for a state built from answers to smaller states?</li>
-        <li><strong>Base cases.</strong> Which states can be answered immediately, with no recursion?</li>
-        <li><strong>Order.</strong> In what order must we fill states so that everything a state needs is already known? (Smaller to larger, for most 1-D problems.)</li>
+        <li><strong>State.</strong> Which few values pick out one subproblem? (For Fibonacci: just <code>i</code>.)</li>
+        <li><strong>Transition.</strong> How do you build the answer for a state from the answers to smaller states?</li>
+        <li><strong>Base cases.</strong> Which states have an answer right away, with no recursion?</li>
+        <li><strong>Order.</strong> In what order should you fill the states, so that everything a state needs is already known? (For most 1-D problems: from small to large.)</li>
       </ol>
       <DryRun
         title="the four questions, applied"
@@ -285,104 +285,103 @@ export default function DsaLessonFiftyFourPage() {
         rows={recipeRows}
       />
       <p>
-        Once you can state the transition as a formula, the three coding styles below are mostly mechanical translations.
+        When you can write the transition as a formula, the three ways of coding it below are mostly a copy of the formula into code.
       </p>
 
       <h2 id="plain">Step 1: plain recursion</h2>
       <p>
-        Always start here. Write the recursion that is obviously right, even if it is slow: it is your specification, and it
-        tells you the state and the transition. The Fibonacci function at the top of this lesson is already that first step.
-        (Lesson 47&apos;s brute-force coin counter is another: &ldquo;try every first coin&rdquo;.)
+        Always start here. Write the recursion that is clearly correct, even if it is slow. It is your plan for the solution, and it
+        shows you the state and the transition. The Fibonacci function at the top of this lesson is already this first step.
+        (The brute-force coin counter in lesson 47 is another one: &ldquo;try every first coin&rdquo;.)
       </p>
 
       <h2 id="memo">Step 2: memoisation (top-down)</h2>
       <p>
-        <strong>Memoisation</strong> (from &ldquo;memo&rdquo;, a note to yourself, not &ldquo;memorisation&rdquo;) keeps the
-        recursion exactly as it was and adds a notebook: before computing a state, look it up; after computing it, write it down.
-        The cache is usually a <code>Map</code> (lesson 32 used the same trick) or an array indexed by the state. It is called{" "}
-        <strong>top-down</strong> because you start at the big question and let recursion find the smaller ones.
+        <strong>Memoisation</strong> comes from &ldquo;memo&rdquo;, a note to yourself. It is not &ldquo;memorisation&rdquo;. You keep the
+        recursion exactly as it was and add a notebook. Before you work out a state, look it up in the notebook. After you work it out, write it down.
+        The notebook (the cache) is usually a <code>Map</code> (lesson 32 used the same trick) or an array indexed by the state. It is called{" "}
+        <strong>top-down</strong> because you start from the big question and let the recursion find the smaller ones.
       </p>
       <CodeBlock lang="js" code={memoCode} />
       <p>
         Now <code>fibMemo(30)</code> makes 59 calls instead of 2.7 million. Why 59? Each of the 29 states from 2 to 30 does real work
-        once (that is 29 calls that go on to recurse), and each of those makes two calls, 58 in total, plus the first call: 1 + 58 = 59.
-        In general about 2n calls, so O(n) time. The notebook costs O(n) space, and the recursion depth is O(n) too.
+        only once (that is 29 calls that go on to call more). Each of those makes two calls, 58 in total. Add the first call: 1 + 58 = 59.
+        In general it is about 2n calls, so the time is O(n). The notebook uses O(n) space, and the recursion depth is O(n) too.
       </p>
 
       <h2 id="trace">Traced: climbing stairs with a cache</h2>
       <p>
-        Here is the stairs problem you will meet shortly: <code>ways(n)</code> counts the ways to climb n stairs taking 1 or 2 steps
-        at a time. Watch the notebook fill, and look for the <strong>cache hits</strong>, the moments a whole branch of the
+        Here is the stairs problem you will meet soon. <code>ways(n)</code> counts the ways to climb n stairs if you take 1 or 2 steps
+        at a time. Watch the notebook fill up. Look for the <strong>cache hits</strong>. These are the moments when a whole branch of the
         tree is skipped.
       </p>
       <CodeTrace
         code={traceSrc}
         steps={stairsTrace()}
-        caption="Fifteen calls shrink to nine. The hit on ways(2) saves a subtree under ways(4), and the hit on ways(3) saves another under ways(5)."
+        caption="Fifteen calls become nine. The hit on ways(2) saves a part of the tree under ways(4), and the hit on ways(3) saves another part under ways(5)."
       />
 
       <h2 id="tab">Step 3: tabulation (bottom-up)</h2>
       <p>
-        <strong>Tabulation</strong> flips the direction: skip the recursion, build a table <code>dp</code> (a plain array), fill in the base
-        cases, then loop from small states to large so that every value you need is already in the table. It is called{" "}
+        <strong>Tabulation</strong> goes the other way. Skip the recursion. Make a table <code>dp</code> (a plain array) and fill in the base
+        cases. Then loop from small states to large ones, so every value you need is already in the table. This is called{" "}
         <strong>bottom-up</strong>.
       </p>
       <CodeBlock lang="js" code={tabCode} />
       <p>
-        There is no call stack to overflow, and the loop is tight and fast. The cost is that you must get the <em>order</em> right yourself,
-        and you fill every entry even if the final answer only needs some.
+        There is no call stack to overflow (the call stack is the computer&apos;s list of unfinished function calls), and the loop is short and fast. The cost is that you must get the <em>order</em> right yourself.
+        Also, you fill every entry, even if the final answer needs only some of them.
       </p>
 
       <h2 id="space">Step 4: reducing space</h2>
       <p>
         Look at the transition: <code>dp[i]</code> reads only <code>dp[i-1]</code> and <code>dp[i-2]</code>. Older entries are never
-        touched again, so the full table is wasted. Keep just the last two values:
+        used again, so the full table wastes space. Keep only the last two values:
       </p>
       <CodeBlock lang="js" code={spaceCode} />
       <DryRun
         title="the same problem, four ways"
         cols={["Style", "Time", "Space", "Notes"]}
         rows={compareRows}
-        note="Rule of thumb: write the recursion, add the memo if it is slow, convert to a table if you want to avoid recursion, and shrink the table last, only if the transition looks back a fixed distance."
+        note="A simple rule: write the recursion first. Add the memo if it is slow. Change to a table if you want to avoid recursion. Make the table smaller last, and only if the transition looks back a fixed distance."
       />
       <Callout kind="warn" label="Recursion depth in JavaScript">
-        The memoised version recurses n levels deep. For n in the tens of thousands, the call stack can overflow, which is one practical
+        The memoised version goes n levels deep. When n is in the tens of thousands, the call stack can overflow (run out of room). This is one practical
         reason to prefer the bottom-up loop on large inputs.
       </Callout>
 
       <h2 id="stairs">Climbing stairs and minimum cost</h2>
       <p>
-        <strong>Climbing stairs</strong>: you may take 1 or 2 steps at a time; in how many different ways can you reach step n? Your last move
-        was either a 1-step from step n − 1 or a 2-step from step n − 2, and those two cases never overlap, so{" "}
-        <code>ways(n) = ways(n-1) + ways(n-2)</code>. It is Fibonacci in disguise, only with different base cases (one way to reach step 0 by
-        doing nothing, one way to reach step 1).
+        <strong>Climbing stairs</strong>: you can take 1 or 2 steps at a time. In how many different ways can you reach step n? Your last move
+        was either a 1-step from step n − 1 or a 2-step from step n − 2. These two cases never overlap, so{" "}
+        <code>ways(n) = ways(n-1) + ways(n-2)</code>. It is Fibonacci in disguise, but with different base cases. There is one way to reach step 0 (do nothing) and one way to reach step 1.
       </p>
       <CodeBlock lang="js" code={stairsCode} />
       <p>
-        <strong>Min cost climbing stairs</strong> adds a price per stair and asks for the cheapest route. The state is the step we are
-        standing on, and the transition takes the cheaper of the two ways to arrive. Now optimal substructure is doing real work: the cheapest
-        route to step i must contain a cheapest route to whichever step it came from.
+        <strong>Min cost climbing stairs</strong> gives each stair a price and asks for the cheapest route. The state is the step we are
+        standing on. The transition picks the cheaper of the two ways to arrive. Here optimal substructure does real work: the cheapest
+        route to step i must contain a cheapest route to the step it came from.
       </p>
       <CodeBlock lang="js" code={minCostCode} />
 
       <h2 id="greedy">When greedy fails, DP still works</h2>
       <p>
-        Lesson 47 ended with a counterexample: with coins 1, 3 and 4 and an amount of 6, the greedy rule &ldquo;take the biggest coin
-        that fits&rdquo; gives 4 + 1 + 1 (three coins), but 3 + 3 uses only two. Greedy commits to one choice and never looks back. DP
-        instead <em>tries every possible last coin</em> and trusts the already-computed best answer for what remains.
+        Lesson 47 ended with an example where greedy fails. The coins are 1, 3 and 4, and the amount is 6. The greedy rule &ldquo;take the biggest coin
+        that fits&rdquo; gives 4 + 1 + 1 (three coins). But 3 + 3 needs only two coins. Greedy picks one choice and never goes back. DP
+        instead <em>tries every possible last coin</em> and trusts the best answer it already worked out for the rest.
       </p>
       <CodeBlock lang="js" code={coinCode} />
       <DryRun
         title="dp[a] for coins 1, 3, 4"
         cols={["Amount a", "dp[a]", "How"]}
         rows={coinRows}
-        note="Lesson 55 builds this out properly as the coin change problem; for now, notice that it has the same four ingredients as Fibonacci."
+        note="Lesson 55 covers this fully as the coin change problem. For now, notice that it has the same four parts as Fibonacci."
       />
 
       <h2 id="practice">Practice questions</h2>
       <p>
-        For each one, write the state, the transition and the base cases first. Then code the plain recursion, add the cache, and
-        try to shrink it.
+        For each question, first write the state, the transition and the base cases. Then code the plain recursion, add the cache, and
+        try to make it smaller.
       </p>
 
       <Questions />
@@ -390,19 +389,19 @@ export default function DsaLessonFiftyFourPage() {
       <h2 id="recall">Make it stick</h2>
       <Recall
         items={[
-          <>Explain why plain recursive Fibonacci is exponential, using the recursion tree.</>,
+          <>Use the recursion tree to explain why plain recursive Fibonacci is so slow (exponential).</>,
           <>Name the two properties of a DP problem and give an example of each.</>,
           <>List the four questions: state, transition, base cases, order.</>,
           <>Turn a recursive function into a memoised one by adding a cache lookup and a cache write.</>,
-          <>Convert the memoised version to a bottom-up table, then reduce it to O(1) space.</>,
-          <>Show with coins 1, 3, 4 and amount 6 why greedy fails but DP succeeds.</>,
+          <>Change the memoised version into a bottom-up table, then reduce it to O(1) space.</>,
+          <>Show with coins 1, 3, 4 and amount 6 why greedy fails but DP works.</>,
         ]}
       />
 
       <h2 id="next">What&apos;s next</h2>
       <p>
-        <strong>Lesson 55</strong> practises this recipe on classic 1-D problems: house robber (take or skip), coin change,
-        decode ways, word break and the longest increasing subsequence. In each, the whole trick is choosing the state and the transition.
+        In <strong>Lesson 55</strong> you will practise this recipe on classic 1-D problems: house robber (take or skip), coin change,
+        decode ways, word break and the longest increasing subsequence. In each one, the main work is choosing the state and the transition.
       </p>
     </DsaLessonPage>
   );

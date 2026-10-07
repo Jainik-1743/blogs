@@ -9,18 +9,18 @@ export default function Questions() {
         title="Number of provinces"
         level="Medium"
         examples={[
-          { input: "isConnected = [[1,1,0],[1,1,0],[0,0,1]]", output: "2", why: "Cities 0 and 1 are connected; city 2 is alone." },
+          { input: "isConnected = [[1,1,0],[1,1,0],[0,0,1]]", output: "2", why: "Cities 0 and 1 are connected. City 2 is alone." },
           { input: "isConnected = [[1,0,0],[0,1,0],[0,0,1]]", output: "3", why: "No two different cities are connected, so each is its own province." },
         ]}
         hints={[
-          <>A province is a connected component. <code>isConnected[i][j] = 1</code> is an edge between cities i and j.</>,
-          <>Start with n groups. Every time two cities that were in different groups get joined, the number of groups drops by one.</>,
-          <>Only the cells above the diagonal matter, since the matrix is symmetric.</>,
+          <>A province is a connected component (a group of cities linked together). <code>isConnected[i][j] = 1</code> is an edge (a link) between cities i and j.</>,
+          <>Start with n groups. Each time two cities from different groups are joined, the number of groups goes down by one.</>,
+          <>Only the cells above the diagonal matter, because the matrix is the same on both sides of the diagonal (symmetric).</>,
         ]}
         approaches={[
           {
             name: "DFS from each unvisited city",
-            idea: <p>Walk the matrix as an adjacency matrix: from a city, visit every city it is directly connected to, recursively. Each fresh start is a new province.</p>,
+            idea: <p>Read the matrix as a table of links (an adjacency matrix). From a city, visit every city it is directly linked to, and keep going the same way (recursion). Each time you have to start from a new city, that is a new province.</p>,
             code: `function findCircleNum(isConnected) {
   const n = isConnected.length;
   const visited = new Array(n).fill(false);
@@ -39,11 +39,11 @@ export default function Questions() {
 
 console.log(findCircleNum([[1, 1, 0], [1, 1, 0], [0, 0, 1]])); // 2
 console.log(findCircleNum([[1, 0, 0], [0, 1, 0], [0, 0, 1]])); // 3`,
-            explain: <p>Each city is visited once, and visiting scans its whole row, so O(n²) time (the input itself has n² cells). Space is O(n) for the visited array and the recursion.</p>,
+            explain: <p>Each city is visited once, and visiting it reads its whole row. So the time is O(n²), and the input itself has n² cells. The space is O(n) for the visited array and the recursion.</p>,
           },
           {
             name: "Union-find with a counter",
-            idea: <p>Start with <code>count = n</code>. For every pair <code>i &lt; j</code> with a 1, union them; each successful merge subtracts one from <code>count</code>.</p>,
+            idea: <p>Start with <code>count = n</code>. For every pair <code>i &lt; j</code> with a 1, union them. Each merge that works lowers <code>count</code> by one.</p>,
             code: `function findCircleNum(isConnected) {
   const n = isConnected.length;
   const parent = Array.from({ length: n }, (_, i) => i);
@@ -69,15 +69,14 @@ console.log(findCircleNum([[1, 0, 0], [0, 1, 0], [0, 0, 1]])); // 3`,
 
 console.log(findCircleNum([[1, 1, 0], [1, 1, 0], [0, 0, 1]])); // 2
 console.log(findCircleNum([[1, 0, 0], [0, 1, 0], [0, 0, 1]])); // 3`,
-            explain: <p>Still O(n² × α(n)), because we must read every cell of the matrix. The union-find only wins when edges arrive one at a time or as a short list; here it is equal to DFS but shows the pattern you will reuse below.</p>,
+            explain: <p>The time is still O(n² × α(n)), because we must read every cell of the matrix. Union-find only wins when edges arrive one at a time or as a short list. Here it is no better than DFS, but it shows the pattern you will use again below.</p>,
           },
         ]}
-        compare={<p>Both are fine and take O(n²). Choose DFS for simplicity, or union-find if you want practice with the template. (LeetCode 547.)</p>}
+        compare={<p>Both are fine and take O(n²). Choose DFS to keep it simple, or union-find if you want to practise the template. (LeetCode 547.)</p>}
       >
         <p>
-          There are <code>n</code> cities. <code>isConnected[i][j] = 1</code> means city i and city j are directly connected (and the
-          relation is symmetric; <code>isConnected[i][i] = 1</code>). Connections are transitive through other cities. A{" "}
-          <strong>province</strong> is a group of cities connected directly or indirectly, with none connected to a city outside the
+          There are <code>n</code> cities. <code>isConnected[i][j] = 1</code> means city i and city j are directly connected. This works the same in both directions, and <code>isConnected[i][i] = 1</code>. If a city links to a second city, and the second links to a third, the first and third are also connected. A{" "}
+          <strong>province</strong> is a group of cities connected directly or through other cities, with none connected to a city outside the
           group. Return the number of provinces.
         </p>
       </Problem>
@@ -87,18 +86,18 @@ console.log(findCircleNum([[1, 0, 0], [0, 1, 0], [0, 0, 1]])); // 3`,
         title="Redundant connection"
         level="Medium"
         examples={[
-          { input: "edges = [[1,2],[1,3],[2,3]]", output: "[2,3]", why: "The edges form a triangle. Removing [2,3] leaves a tree; so would [1,2] or [1,3], but [2,3] comes last." },
-          { input: "edges = [[1,2],[2,3],[3,4],[1,4],[1,5]]", output: "[1,4]", why: "1-2-3-4 is already connected when [1,4] arrives, so it closes the cycle." },
+          { input: "edges = [[1,2],[1,3],[2,3]]", output: "[2,3]", why: "The edges form a triangle. Removing [2,3] leaves a tree. Removing [1,2] or [1,3] would also work, but [2,3] comes last." },
+          { input: "edges = [[1,2],[2,3],[3,4],[1,4],[1,5]]", output: "[1,4]", why: "1, 2, 3 and 4 are already connected when [1,4] arrives, so it closes the cycle." },
         ]}
         hints={[
-          <>A tree on n vertices has n − 1 edges; this graph has n, so exactly one edge creates a cycle.</>,
-          <>Add the edges in order. Which edge is the first one whose endpoints are already connected?</>,
-          <>That is precisely a union that returns &ldquo;same root&rdquo;.</>,
+          <>A tree with n vertices has n − 1 edges. This graph has n edges, so exactly one edge makes a cycle.</>,
+          <>Add the edges in order. Which edge is the first one whose two ends are already connected?</>,
+          <>That is exactly a union that finds &ldquo;same root&rdquo;.</>,
         ]}
         approaches={[
           {
             name: "DFS check before each edge",
-            idea: <p>Keep an adjacency list of the edges added so far. Before adding edge <code>[a, b]</code>, search whether b is already reachable from a. If so, this edge is the answer.</p>,
+            idea: <p>Keep a list of each vertex&apos;s neighbours for the edges added so far (an adjacency list). Before adding edge <code>[a, b]</code>, search to see if you can already get from a to b. If you can, this edge is the answer.</p>,
             code: `function findRedundantConnection(edges) {
   const graph = new Map();
   function connected(a, b, seen) {
@@ -121,11 +120,11 @@ console.log(findCircleNum([[1, 0, 0], [0, 1, 0], [0, 0, 1]])); // 3`,
 
 console.log(findRedundantConnection([[1, 2], [1, 3], [2, 3]]));                  // [ 2, 3 ]
 console.log(findRedundantConnection([[1, 2], [2, 3], [3, 4], [1, 4], [1, 5]]));  // [ 1, 4 ]`,
-            explain: <p>Each search is O(V + E), done once per edge: O(n²) overall. It is fine for the small limits here, but wasteful, since it forgets what it learned between edges.</p>,
+            explain: <p>Each search is O(V + E), and we do one per edge, so the total is O(n²). It is fine for the small limits here, but it wastes work because it forgets what it learned before.</p>,
           },
           {
             name: "Union-find",
-            idea: <p>Process the edges in order. If <code>union(a, b)</code> fails because the roots match, return that edge.</p>,
+            idea: <p>Go through the edges in order. If <code>union(a, b)</code> fails because the roots are the same, return that edge.</p>,
             code: `function findRedundantConnection(edges) {
   const parent = Array.from({ length: edges.length + 1 }, (_, i) => i);   // vertices are 1..n
   const size = new Array(edges.length + 1).fill(1);
@@ -145,15 +144,15 @@ console.log(findRedundantConnection([[1, 2], [2, 3], [3, 4], [1, 4], [1, 5]])); 
 
 console.log(findRedundantConnection([[1, 2], [1, 3], [2, 3]]));                  // [ 2, 3 ]
 console.log(findRedundantConnection([[1, 2], [2, 3], [3, 4], [1, 4], [1, 5]]));  // [ 1, 4 ]`,
-            explain: <p>One pass, O(n × α(n)) time and O(n) space. Returning the first failing edge in input order matches the requirement to return the answer that occurs last in the input: the cycle is closed exactly when its last edge arrives.</p>,
+            explain: <p>It needs one pass. The time is O(n × α(n)) and the space is O(n). The first edge that fails is also the one that comes last in the cycle. This matches the rule to return the answer that occurs last in the input, because the cycle is closed exactly when its last edge arrives.</p>,
           },
         ]}
-        compare={<p>Union-find: a one-line change from the template turns it into cycle detection. (LeetCode 684.)</p>}
+        compare={<p>Use union-find. A one-line change to the template turns it into cycle detection. (LeetCode 684.)</p>}
       >
         <p>
-          A graph started as a tree with <code>n</code> vertices labelled <code>1..n</code>; then one extra edge was added, giving{" "}
-          <code>edges</code> (<code>n</code> edges in total). Return an edge that can be removed so the result is a tree again. If there
-          are several answers, return the one that occurs last in the input.
+          A graph started as a tree with <code>n</code> vertices labelled <code>1..n</code>. Then one extra edge was added, which gives{" "}
+          <code>edges</code> (<code>n</code> edges in total). Return an edge you can remove so that the result is a tree again. If there
+          are several answers, return the one that comes last in the input.
         </p>
       </Problem>
 
@@ -165,23 +164,23 @@ console.log(findRedundantConnection([[1, 2], [2, 3], [3, 4], [1, 4], [1, 5]])); 
           {
             input: 'accounts = [["John","a@x","b@x"],["John","b@x","c@x"],["Mary","m@x"]]',
             output: '[["John","a@x","b@x","c@x"],["Mary","m@x"]]',
-            why: "The first two accounts share b@x, so they belong to the same person and merge. Emails are sorted within each merged account.",
+            why: "The first two accounts share b@x, so they belong to the same person and are merged. The emails in each merged account are sorted.",
           },
           {
             input: 'accounts = [["Sam","s@x"],["Sam","t@x"]]',
             output: '[["Sam","s@x"],["Sam","t@x"]]',
-            why: "Same name but no shared email: two different people.",
+            why: "The name is the same but no email is shared, so these are two different people.",
           },
         ]}
         hints={[
-          <>Two accounts belong to the same person only if they share at least one email. Names alone prove nothing.</>,
-          <>Treat each email as a vertex. All emails in one account are connected to each other.</>,
-          <>Union the emails of an account with its first email, then group emails by root.</>,
+          <>Two accounts belong to the same person only if they share at least one email. The name alone proves nothing.</>,
+          <>Treat each email as a vertex (a dot). All emails in one account are connected to each other.</>,
+          <>Union every email of an account with its first email. Then group the emails by their root.</>,
         ]}
         approaches={[
           {
             name: "Graph of emails, DFS",
-            idea: <p>Build an adjacency list that links every email in an account to the account&apos;s first email (both directions). Each connected component of emails is one person; sort it and put the name in front.</p>,
+            idea: <p>Build a list of neighbours for each email (an adjacency list). Link every email in an account to the account&apos;s first email, in both directions. Each group of linked emails is one person. Sort the emails and put the name in front.</p>,
             code: `function accountsMerge(accounts) {
   const graph = new Map();                   // email -> neighbouring emails
   const owner = new Map();                   // email -> name
@@ -217,11 +216,11 @@ console.log(findRedundantConnection([[1, 2], [2, 3], [3, 4], [1, 4], [1, 5]])); 
 
 console.log(accountsMerge([["John", "a@x", "b@x"], ["John", "b@x", "c@x"], ["Mary", "m@x"]])); // [ [ 'John', 'a@x', 'b@x', 'c@x' ], [ 'Mary', 'm@x' ] ]
 console.log(accountsMerge([["Sam", "s@x"], ["Sam", "t@x"]]));                                    // [ [ 'Sam', 's@x' ], [ 'Sam', 't@x' ] ]`,
-            explain: <p>With N the total number of emails, building the graph and the traversal are O(N); sorting each group gives O(N log N) overall. Components are returned in first-seen order here; LeetCode accepts any order of accounts.</p>,
+            explain: <p>Let N be the total number of emails. Building the graph and walking through it take O(N). Sorting each group makes the total O(N log N). Here the groups come out in the order we first see them. LeetCode accepts any order of accounts.</p>,
           },
           {
             name: "Union-find on account indices",
-            idea: <p>Remember which account first used each email. When an email appears again, union the two accounts. Finally collect every email under the root of its account.</p>,
+            idea: <p>Remember which account used each email first. When an email shows up again, union the two accounts. At the end, collect every email under the root of its account.</p>,
             code: `function accountsMerge(accounts) {
   const parent = Array.from({ length: accounts.length }, (_, i) => i);
   function find(x) {
@@ -248,16 +247,16 @@ console.log(accountsMerge([["Sam", "s@x"], ["Sam", "t@x"]]));                   
 
 console.log(accountsMerge([["John", "a@x", "b@x"], ["John", "b@x", "c@x"], ["Mary", "m@x"]])); // [ [ 'John', 'a@x', 'b@x', 'c@x' ], [ 'Mary', 'm@x' ] ]
 console.log(accountsMerge([["Sam", "s@x"], ["Sam", "t@x"]]));                                    // [ [ 'Sam', 's@x' ], [ 'Sam', 't@x' ] ]`,
-            explain: <p>The groups are accounts, not emails, so the union-find array is small. The merge step here skips union by size for brevity; with compression alone it is still fast. Overall O(N log N), dominated by sorting.</p>,
+            explain: <p>The groups are accounts, not emails, so the union-find array is small. To keep the code short, the merge step here skips union by size. With path compression alone it is still fast. The total is O(N log N), and most of that is the sorting.</p>,
           },
         ]}
-        compare={<p>Union-find on the accounts is the usual interview answer, but the DFS version is just as correct and easier to reason about. (LeetCode 721.)</p>}
+        compare={<p>Union-find on the accounts is the usual interview answer. The DFS version is just as correct and easier to think about. (LeetCode 721.)</p>}
       >
         <p>
-          <code>accounts[i]</code> is a list whose first element is a person&apos;s name and the rest are their emails. Two accounts
-          belong to the same person if they share any email (people may have several accounts, and different people may have the same
-          name). Merge the accounts: return, for each person, their name followed by their emails <strong>sorted</strong>. The accounts
-          can be returned in any order.
+          <code>accounts[i]</code> is a list. Its first item is a person&apos;s name and the rest are their emails. Two accounts
+          belong to the same person if they share any email. (A person may have several accounts, and different people may have the same
+          name.) Merge the accounts. For each person, return their name followed by their emails in <strong>sorted</strong> order. You can
+          return the accounts in any order.
         </p>
       </Problem>
 
@@ -266,18 +265,18 @@ console.log(accountsMerge([["Sam", "s@x"], ["Sam", "t@x"]]));                   
         title="Min cost to connect all points"
         level="Medium"
         examples={[
-          { input: "points = [[0,0],[2,2],[3,10],[5,2],[7,0]]", output: "20", why: "A cheapest set of 4 segments (cost = Manhattan distance |x1−x2| + |y1−y2|) links the five points for a total of 20." },
+          { input: "points = [[0,0],[2,2],[3,10],[5,2],[7,0]]", output: "20", why: "The cheapest set of 4 segments links the five points for a total of 20. The cost of a segment is the Manhattan distance |x1−x2| + |y1−y2| (the distance if you can only move along the grid)." },
           { input: "points = [[3,12],[-2,5],[-4,1]]", output: "18", why: "(−4,1)–(−2,5) costs 6 and (−2,5)–(3,12) costs 12." },
         ]}
         hints={[
-          <>Connecting every point at minimum total cost is exactly a minimum spanning tree.</>,
-          <>Make an edge between every pair of points with weight equal to the Manhattan distance, then run Kruskal.</>,
-          <>There is also a version that never builds the edge list: grow the tree one point at a time, always adding the closest outside point.</>,
+          <>Linking every point at the lowest total cost is exactly a minimum spanning tree (MST).</>,
+          <>Make an edge between every pair of points. Give it a weight equal to the Manhattan distance. Then run Kruskal.</>,
+          <>There is also a way that never builds the edge list. Grow the tree one point at a time, and always add the closest point that is not in the tree yet.</>,
         ]}
         approaches={[
           {
             name: "Kruskal with union-find",
-            idea: <p>Generate all n(n−1)/2 edges, sort by cost, and add each edge that joins two different groups. Stop at n − 1 edges.</p>,
+            idea: <p>Make all n(n−1)/2 edges and sort them by cost. Add each edge that joins two different groups. Stop when you have n − 1 edges.</p>,
             code: `function minCostConnectPoints(points) {
   const n = points.length;
   const edges = [];
@@ -310,11 +309,11 @@ console.log(accountsMerge([["Sam", "s@x"], ["Sam", "t@x"]]));                   
 console.log(minCostConnectPoints([[0, 0], [2, 2], [3, 10], [5, 2], [7, 0]])); // 20
 console.log(minCostConnectPoints([[3, 12], [-2, 5], [-4, 1]]));              // 18
 console.log(minCostConnectPoints([[0, 0]]));                                  // 0`,
-            explain: <p>E = n(n−1)/2 edges, so sorting is O(n² log n) time and O(n²) space for the edge list.</p>,
+            explain: <p>There are E = n(n−1)/2 edges, so sorting takes O(n² log n) time. The edge list takes O(n²) space.</p>,
           },
           {
             name: "Prim's algorithm without a heap",
-            idea: <p>Keep, for each point not yet in the tree, its cheapest distance to the tree so far. Repeatedly pick the cheapest outside point, add its cost, and update the others&apos; distances.</p>,
+            idea: <p>For each point that is not in the tree yet, keep its cheapest distance to the tree so far. Again and again, pick the cheapest outside point and add its cost. Then update the distances of the other points.</p>,
             code: `function minCostConnectPoints(points) {
   const n = points.length;
   const dist = new Array(n).fill(Infinity);  // cheapest known link from the tree to each point
@@ -340,15 +339,15 @@ console.log(minCostConnectPoints([[0, 0]]));                                  //
 console.log(minCostConnectPoints([[0, 0], [2, 2], [3, 10], [5, 2], [7, 0]])); // 20
 console.log(minCostConnectPoints([[3, 12], [-2, 5], [-4, 1]]));              // 18
 console.log(minCostConnectPoints([[0, 0]]));                                  // 0`,
-            explain: <p><strong>Prim&apos;s algorithm</strong> is the other classic MST method: grow one tree outwards instead of merging many small ones. With a plain array scan it is O(n²) time and only O(n) space, which beats Kruskal on this complete graph.</p>,
+            explain: <p><strong>Prim&apos;s algorithm</strong> is the other well-known MST method. It grows one tree outwards instead of merging many small ones. With a plain array scan, the time is O(n²) and the space is only O(n). This beats Kruskal on this graph, where every pair of points has an edge.</p>,
           },
         ]}
-        compare={<p>Kruskal is what this lesson taught and is perfectly acceptable. Prim with an array is leaner when the graph is dense (every pair has an edge). (LeetCode 1584.)</p>}
+        compare={<p>Kruskal is what this lesson taught, and it is a fine answer. Prim with an array is leaner when the graph is dense (almost every pair has an edge). (LeetCode 1584.)</p>}
       >
         <p>
-          You are given <code>points</code>, where <code>points[i] = [xi, yi]</code>. The cost of connecting two points is their
-          Manhattan distance <code>|xi − xj| + |yi − yj|</code>. Return the minimum total cost to make all points connected, so that there is
-          exactly one simple path between any two points.
+          You are given <code>points</code>, where <code>points[i] = [xi, yi]</code>. The cost of linking two points is their
+          Manhattan distance <code>|xi − xj| + |yi − yj|</code>. Return the lowest total cost to connect all points, so that there is
+          exactly one path between any two points.
         </p>
       </Problem>
 
@@ -361,13 +360,13 @@ console.log(minCostConnectPoints([[0, 0]]));                                  //
           { input: "n = 5, edges = [[0,1],[1,2],[2,3],[3,4]]", output: "1", why: "One long path connects all five vertices." },
         ]}
         hints={[
-          <>Lesson 50&apos;s traversal counted components; union-find can count them too.</>,
-          <>Begin with n components. What happens to the count for each edge that merges two different groups?</>,
+          <>In lesson 50, a traversal counted the components. Union-find can count them too.</>,
+          <>Begin with n components. What happens to the count each time an edge merges two different groups?</>,
         ]}
         approaches={[
           {
             name: "BFS from every unvisited vertex",
-            idea: <p>Build the adjacency list, then start a traversal at each vertex that has not been seen yet; each start is one component.</p>,
+            idea: <p>Build the adjacency list (each vertex&apos;s list of neighbours). Then start a traversal at each vertex you have not seen yet. Each start is one component.</p>,
             code: `function countComponents(n, edges) {
   const graph = Array.from({ length: n }, () => []);
   for (const [a, b] of edges) { graph[a].push(b); graph[b].push(a); }
@@ -391,11 +390,11 @@ console.log(minCostConnectPoints([[0, 0]]));                                  //
 
 console.log(countComponents(5, [[0, 1], [1, 2], [3, 4]]));          // 2
 console.log(countComponents(5, [[0, 1], [1, 2], [2, 3], [3, 4]]));  // 1`,
-            explain: <p>O(V + E) time and space.</p>,
+            explain: <p>The time and space are both O(V + E).</p>,
           },
           {
             name: "Union-find with a counter",
-            idea: <p>Start the counter at n, and subtract one for every edge whose union succeeds.</p>,
+            idea: <p>Start the counter at n. Subtract one for every edge whose union works.</p>,
             code: `function countComponents(n, edges) {
   const parent = Array.from({ length: n }, (_, i) => i);
   const size = new Array(n).fill(1);
@@ -418,14 +417,14 @@ console.log(countComponents(5, [[0, 1], [1, 2], [2, 3], [3, 4]]));  // 1`,
 console.log(countComponents(5, [[0, 1], [1, 2], [3, 4]]));          // 2
 console.log(countComponents(5, [[0, 1], [1, 2], [2, 3], [3, 4]]));  // 1
 console.log(countComponents(3, []));                                  // 3`,
-            explain: <p>O(n + E × α(n)) time, O(n) space, and no adjacency list to build.</p>,
+            explain: <p>The time is O(n + E × α(n)) and the space is O(n). You do not need to build an adjacency list.</p>,
           },
         ]}
-        compare={<p>Union-find avoids building the graph and reads the edge list once; BFS/DFS is equally correct. This is a premium problem on LeetCode (323, &quot;Number of Connected Components in an Undirected Graph&quot;), so the statement is reproduced here.</p>}
+        compare={<p>Union-find does not need to build the graph, and it reads the edge list only once. BFS or DFS is just as correct. This is a premium (paid) problem on LeetCode (323, &quot;Number of Connected Components in an Undirected Graph&quot;), so the statement is copied here.</p>}
       >
         <p>
           You have a graph of <code>n</code> vertices labelled <code>0</code> to <code>n − 1</code> and a list <code>edges</code> where{" "}
-          <code>edges[i] = [a, b]</code> is an undirected edge. Return the number of connected components.
+          <code>edges[i] = [a, b]</code> is an undirected edge (a link with no direction). Return the number of connected components (separate groups).
         </p>
       </Problem>
 
@@ -434,19 +433,19 @@ console.log(countComponents(3, []));                                  // 3`,
         title="Satisfiability of equality equations"
         level="Medium"
         examples={[
-          { input: 'equations = ["a==b","b!=a"]', output: "false", why: "a equals b, yet b must differ from a." },
-          { input: 'equations = ["a==b","b==c","a==c"]', output: "true", why: "All three variables can hold the same value." },
-          { input: 'equations = ["a==b","b!=c","c==a"]', output: "false", why: "a==b and c==a force b==c, which contradicts b!=c." },
+          { input: 'equations = ["a==b","b!=a"]', output: "false", why: "a equals b, but b must be different from a." },
+          { input: 'equations = ["a==b","b==c","a==c"]', output: "true", why: "All three variables can have the same value." },
+          { input: 'equations = ["a==b","b!=c","c==a"]', output: "false", why: "a==b and c==a mean b==c must be true. This contradicts b!=c." },
         ]}
         hints={[
-          <>Each equation is exactly four characters: a letter, <code>==</code> or <code>!=</code>, a letter.</>,
-          <>&ldquo;Equal&rdquo; is transitive, so all letters linked by <code>==</code> must share one value. That is a group.</>,
-          <>Process every <code>==</code> first. Then no <code>!=</code> may join two letters from the same group.</>,
+          <>Each equation has exactly four characters: a letter, then <code>==</code> or <code>!=</code>, then a letter.</>,
+          <>&ldquo;Equal&rdquo; carries over: if a equals b and b equals c, then a equals c. So all letters linked by <code>==</code> must have the same value. That is a group.</>,
+          <>Handle every <code>==</code> first. After that, no <code>!=</code> may connect two letters from the same group.</>,
         ]}
         approaches={[
           {
             name: "Graph search over the equalities",
-            idea: <p>Build a graph with an edge for every <code>==</code>. For each <code>!=</code>, search whether its two letters are connected in that graph; if so, the equations are contradictory.</p>,
+            idea: <p>Build a graph with an edge for every <code>==</code>. For each <code>!=</code>, search to see if its two letters are connected in that graph. If they are, the equations contradict each other.</p>,
             code: `function equationsPossible(equations) {
   const graph = Array.from({ length: 26 }, () => []);
   const code = (ch) => ch.charCodeAt(0) - 97;
@@ -478,11 +477,11 @@ console.log(countComponents(3, []));                                  // 3`,
 console.log(equationsPossible(["a==b", "b!=a"]));          // false
 console.log(equationsPossible(["a==b", "b==c", "a==c"]));  // true
 console.log(equationsPossible(["a==b", "b!=c", "c==a"]));  // false`,
-            explain: <p>Each <code>!=</code> costs a search over at most 26 vertices and the equality edges, so O(E × (26 + E)) in the worst case. It works, but each check starts from scratch.</p>,
+            explain: <p>Each <code>!=</code> costs a search over at most 26 vertices and the equality edges. So the worst case is O(E × (26 + E)). It works, but every check starts from nothing.</p>,
           },
           {
             name: "Union-find over 26 letters",
-            idea: <p>First pass: union the two letters of every <code>==</code>. Second pass: for every <code>!=</code>, if both letters have the same root, return false. Otherwise return true.</p>,
+            idea: <p>First pass: union the two letters of every <code>==</code>. Second pass: for every <code>!=</code>, if both letters have the same root, return false. If no <code>!=</code> fails, return true.</p>,
             code: `function equationsPossible(equations) {
   const parent = Array.from({ length: 26 }, (_, i) => i);
   function find(x) {
@@ -503,15 +502,15 @@ console.log(equationsPossible(["a==b", "b!=a"]));          // false
 console.log(equationsPossible(["a==b", "b==c", "a==c"]));  // true
 console.log(equationsPossible(["a==b", "b!=c", "c==a"]));  // false
 console.log(equationsPossible(["a!=a"]));                  // false`,
-            explain: <p>O(E × α(26)), essentially O(E). The order matters: all equalities must be applied before any inequality is checked, otherwise a later <code>==</code> could invalidate an earlier check. A pair like <code>a!=a</code> fails immediately because a letter always shares a root with itself.</p>,
+            explain: <p>The time is O(E × α(26)), which is basically O(E). The order matters. Apply all the equalities before you check any inequality. Otherwise a later <code>==</code> could make an earlier check wrong. A pair like <code>a!=a</code> fails at once, because a letter always has the same root as itself.</p>,
           },
         ]}
-        compare={<p>Union-find: two simple loops over a 26-element array. (LeetCode 990.)</p>}
+        compare={<p>Use union-find: two simple loops over an array of 26 items. (LeetCode 990.)</p>}
       >
         <p>
-          You are given an array of strings <code>equations</code>, each of the form <code>&quot;xi==yi&quot;</code> or{" "}
-          <code>&quot;xi!=yi&quot;</code>, where <code>xi</code> and <code>yi</code> are lowercase letters standing for integer variables.
-          Return <code>true</code> if the variables can be assigned integer values that satisfy every equation, otherwise{" "}
+          You are given an array of strings <code>equations</code>. Each one looks like <code>&quot;xi==yi&quot;</code> or{" "}
+          <code>&quot;xi!=yi&quot;</code>, where <code>xi</code> and <code>yi</code> are lowercase letters that stand for whole-number variables.
+          Return <code>true</code> if you can give the variables whole-number values so that every equation is true. Otherwise return{" "}
           <code>false</code>.
         </p>
       </Problem>
@@ -521,19 +520,19 @@ console.log(equationsPossible(["a!=a"]));                  // false`,
         title="Number of operations to make network connected"
         level="Medium"
         examples={[
-          { input: "n = 4, connections = [[0,1],[0,2],[1,2]]", output: "1", why: "The cable 1-2 is spare (0-1 and 0-2 already link those three). Move it to connect computer 3." },
-          { input: "n = 6, connections = [[0,1],[0,2],[0,3],[1,2],[1,3]]", output: "2", why: "Two spare cables, and the network has three components ({0,1,2,3}, {4}, {5}), so two moves join them." },
-          { input: "n = 6, connections = [[0,1],[0,2],[0,3],[1,2]]", output: "-1", why: "Only 4 cables, but 5 are needed to connect 6 computers." },
+          { input: "n = 4, connections = [[0,1],[0,2],[1,2]]", output: "1", why: "The cable 1-2 is spare, because 0-1 and 0-2 already link those three computers. Move it to connect computer 3." },
+          { input: "n = 6, connections = [[0,1],[0,2],[0,3],[1,2],[1,3]]", output: "2", why: "There are two spare cables. The network has three groups ({0,1,2,3}, {4}, {5}), so two moves join them." },
+          { input: "n = 6, connections = [[0,1],[0,2],[0,3],[1,2]]", output: "-1", why: "There are only 4 cables, but you need 5 to connect 6 computers." },
         ]}
         hints={[
-          <>To connect n computers you need at least n − 1 cables, whatever the layout. If there are fewer, the answer is −1.</>,
-          <>Otherwise you can always do it. Every component beyond the first needs one moved cable to join it.</>,
-          <>So the answer is the number of components minus one. Count them with union-find or a traversal.</>,
+          <>To connect n computers you need at least n − 1 cables, however they are laid out. If there are fewer, the answer is −1.</>,
+          <>If there are enough cables, you can always do it. Every group after the first needs one moved cable to join it.</>,
+          <>So the answer is the number of components (groups) minus one. Count them with union-find or a traversal.</>,
         ]}
         approaches={[
           {
             name: "Count components with DFS",
-            idea: <p>If <code>connections.length &lt; n − 1</code> return −1. Otherwise count components by traversal and return <code>components − 1</code>.</p>,
+            idea: <p>If <code>connections.length &lt; n − 1</code>, return −1. Otherwise count the components with a traversal and return <code>components − 1</code>.</p>,
             code: `function makeConnected(n, connections) {
   if (connections.length < n - 1) return -1;
   const graph = Array.from({ length: n }, () => []);
@@ -553,11 +552,11 @@ console.log(equationsPossible(["a!=a"]));                  // false`,
 console.log(makeConnected(4, [[0, 1], [0, 2], [1, 2]]));                          // 1
 console.log(makeConnected(6, [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3]]));          // 2
 console.log(makeConnected(6, [[0, 1], [0, 2], [0, 3], [1, 2]]));                  // -1`,
-            explain: <p>O(n + E) time and space. The only subtle step is the early check: with at least n − 1 cables there are always enough spare cables, because each component with c computers needs only c − 1 of its own cables to stay connected.</p>,
+            explain: <p>The time and space are O(n + E). The early check is the tricky part. With at least n − 1 cables there are always enough spare cables, because a group of c computers needs only c − 1 of its own cables to stay connected.</p>,
           },
           {
             name: "Union-find with a counter",
-            idea: <p>Same check, then union every cable. The number of successful unions leaves <code>count</code> components; the answer is <code>count − 1</code>.</p>,
+            idea: <p>Do the same check, then union every cable. After the successful unions, <code>count</code> is the number of components. The answer is <code>count − 1</code>.</p>,
             code: `function makeConnected(n, connections) {
   if (connections.length < n - 1) return -1;
   const parent = Array.from({ length: n }, (_, i) => i);
@@ -581,16 +580,16 @@ console.log(makeConnected(6, [[0, 1], [0, 2], [0, 3], [1, 2]]));                
 console.log(makeConnected(4, [[0, 1], [0, 2], [1, 2]]));                          // 1
 console.log(makeConnected(6, [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3]]));          // 2
 console.log(makeConnected(6, [[0, 1], [0, 2], [0, 3], [1, 2]]));                  // -1`,
-            explain: <p>The failed unions are exactly the spare cables, which ties together the two ideas from this lesson: redundant edges are the supply, and components minus one is the demand. O(n + E × α(n)).</p>,
+            explain: <p>The unions that fail are exactly the spare cables. This joins two ideas from this lesson: redundant edges are what you have to give, and components minus one is what you need. The time is O(n + E × α(n)).</p>,
           },
         ]}
-        compare={<p>Either; union-find is shorter here and shows the spare-cable idea directly. (LeetCode 1319.)</p>}
+        compare={<p>Either way works. Union-find is shorter here and shows the spare-cable idea directly. (LeetCode 1319.)</p>}
       >
         <p>
-          There are <code>n</code> computers numbered <code>0</code> to <code>n − 1</code> and a list of ethernet cables{" "}
+          There are <code>n</code> computers numbered <code>0</code> to <code>n − 1</code> and a list of network cables{" "}
           <code>connections</code>, where <code>connections[i] = [a, b]</code> links computers a and b. You can unplug any cable and
-          plug it between two computers that are not directly connected. Return the minimum number of such moves needed to connect
-          all computers, or −1 if it is impossible.
+          plug it between two computers that are not directly connected. Return the smallest number of such moves needed to connect
+          all computers. Return −1 if it is impossible.
         </p>
       </Problem>
     </>

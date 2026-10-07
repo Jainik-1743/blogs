@@ -17,13 +17,13 @@ export const metadata: Metadata = {
 };
 
 const outline = [
-  { id: "dag", label: "Prerequisites are directed edges" },
+  { id: "dag", label: "Prerequisites are arrows" },
   { id: "kahn", label: "Kahn's algorithm" },
   { id: "trace", label: "Traced: Kahn on six tasks" },
   { id: "dfs", label: "DFS-based ordering" },
-  { id: "cycle", label: "Cycle detection in directed graphs" },
+  { id: "cycle", label: "Finding loops in directed graphs" },
   { id: "course", label: "Course schedule" },
-  { id: "choose", label: "Kahn or DFS?" },
+  { id: "choose", label: "Kahn or DFS: which one?" },
   { id: "practice", label: "Practice questions (7)" },
   { id: "recall", label: "Make it stick" },
   { id: "next", label: "What's next" },
@@ -185,86 +185,89 @@ function kahnTrace() {
   const queue: number[] = [];
   const waiting = () => queue.slice(head);
   let head = 0;
-  t.step(1, "start", "Prepare the queue", `indegree = ${JSON.stringify(indegree)}: task 0 waits for two others (5 and 4), task 1 for two (4 and 3), and so on.`, { indegree: [...indegree] });
+  t.step(1, "start", "Prepare the queue", `indegree = ${JSON.stringify(indegree)}. This counts how many tasks each task still waits for. Task 0 waits for two tasks (5 and 4). Task 1 waits for two tasks (4 and 3). And so on.`, { indegree: [...indegree] });
   for (let v = 0; v < n; v++) if (indegree[v] === 0) queue.push(v);
-  t.step(2, "update", "Seed with the ready tasks", "Tasks 4 and 5 wait for nobody, so they can start immediately.", { indegree: [...indegree], queue: waiting() }, "queue");
-  t.step(3, "update", "head = 0", "head is the front of the queue.", { indegree: [...indegree], queue: waiting(), head }, "head");
+  t.step(2, "update", "Add the ready tasks to the queue", "Tasks 4 and 5 wait for nobody, so they can start right now.", { indegree: [...indegree], queue: waiting() }, "queue");
+  t.step(3, "update", "head = 0", "head is a number that marks the front of the queue.", { indegree: [...indegree], queue: waiting(), head }, "head");
   const order: number[] = [];
-  t.step(4, "update", "order = []", "order will hold the finished schedule.", { indegree: [...indegree], queue: waiting(), order: [...order] }, "order");
+  t.step(4, "update", "order = []", "order will hold the final schedule.", { indegree: [...indegree], queue: waiting(), order: [...order] }, "order");
   while (head < queue.length) {
     const v = queue[head++];
-    t.step(6, "update", `take ${v} from the front`, `${v} has no unfinished prerequisites, so do it now.`, { v, queue: waiting(), order: [...order] }, "v");
+    t.step(6, "update", `take ${v} from the front`, `${v} has no unfinished prerequisites, so we can do it now.`, { v, queue: waiting(), order: [...order] }, "v");
     order.push(v);
-    t.step(7, "update", `order gets ${v}`, `${v} is scheduled. Now tell the tasks that were waiting for it.`, { v, queue: waiting(), order: [...order] }, "order");
+    t.step(7, "update", `order gets ${v}`, `${v} is now in the schedule. Next, tell the tasks that were waiting for it.`, { v, queue: waiting(), order: [...order] }, "order");
     for (const next of graph[v]) {
       indegree[next]--;
-      t.step(9, "update", `indegree[${next}] drops to ${indegree[next]}`, `${next} has one fewer prerequisite waiting.`, { v, next, indegree: [...indegree], queue: waiting() }, "indegree");
+      t.step(9, "update", `indegree[${next}] drops to ${indegree[next]}`, `${next} now waits for one task less.`, { v, next, indegree: [...indegree], queue: waiting() }, "indegree");
       if (indegree[next] === 0) {
         queue.push(next);
-        t.step(10, "update", `${next} is ready: enqueue it`, `Its last prerequisite just finished.`, { v, next, indegree: [...indegree], queue: waiting() }, "queue");
+        t.step(10, "update", `${next} is ready: add it to the queue`, `Its last prerequisite just finished.`, { v, next, indegree: [...indegree], queue: waiting() }, "queue");
       }
     }
   }
   t.print(order);
-  t.step(13, "done", "order has all 6 tasks", "Queue empty and order.length === n, so there is no cycle. Every arrow goes from an earlier task to a later one.", { indegree: [...indegree], order: [...order] }, "order");
+  t.step(13, "done", "order has all 6 tasks", "The queue is empty and order.length === n, so there is no cycle. Every arrow goes from an earlier task to a later task.", { indegree: [...indegree], order: [...order] }, "order");
   return t.steps;
 }
 
 const chooseRows: string[][] = [
-  ["Core idea", "peel off tasks with no remaining prerequisites", "reverse the order in which DFS finishes tasks"],
-  ["Data structure", "queue + in-degree array", "recursion (or a stack) + 3 states"],
-  ["Cycle detection", "fewer than n tasks come out", "an arrow into a VISITING task"],
-  ["Gives the order", "front to back, as it goes", "after reversing the finishing list"],
-  ["Level by level (e.g. parallel courses)", "natural: process the queue in rounds", "needs extra bookkeeping"],
-  ["Deep chains", "no recursion, so no stack overflow", "recursion can overflow on ~10,000+ chains"],
+  ["Core idea", "take away tasks that have no prerequisites left", "reverse the order in which DFS finishes tasks"],
+  ["Data structure", "queue + in-degree array", "recursion (or a stack) + 3 states per task"],
+  ["Cycle detection", "fewer than n tasks come out of the queue", "an arrow that points to a VISITING task"],
+  ["Gives the order", "front to back, while it runs", "after reversing the finishing list"],
+  ["Level by level (e.g. parallel courses)", "easy: process the queue one round at a time", "needs extra work"],
+  ["Deep chains", "no recursion, so no stack overflow (the call stack running out of room)", "recursion can overflow on chains of about 10,000 or more"],
   ["Time and space", "O(V + E), O(V)", "O(V + E), O(V)"],
 ];
 
 const stateRows: string[][] = [
-  ["UNSEEN (0)", "not visited yet", "visit it if we reach it"],
-  ["VISITING (1)", "on the path we are walking right now", "reaching it again means a cycle"],
-  ["DONE (2)", "fully explored, nothing left to do", "safe to skip: it cannot lead back to us"],
+  ["UNSEEN (0)", "not visited yet", "visit it when we reach it"],
+  ["VISITING (1)", "on the path we are walking right now", "reaching it again means there is a cycle"],
+  ["DONE (2)", "fully explored, nothing left to do here", "safe to skip: it cannot lead back to where we are"],
 ];
 
 export default function DsaLessonFiftyOnePage() {
   return (
     <DsaLessonPage lesson={lesson} outline={outline}>
-      <h2 id="dag">Prerequisites are directed edges</h2>
+      <h2 id="dag">Prerequisites are arrows</h2>
       <p>
-        Some jobs must happen in a certain order: you put on socks before shoes, and you take Algebra before Calculus. We model that
-        with a <strong>directed graph</strong> (lesson 49), where each edge is an arrow <code>b → a</code> meaning
-        &quot;<code>b</code> must come before <code>a</code>&quot;. A <strong>topological order</strong> (or <em>topological sort</em>) lines up all
-        the vertices so that every arrow points forward: for every <code>b → a</code>, <code>b</code> appears earlier than{" "}
+        Some jobs must happen in a set order. You put on socks before shoes. You take Algebra before Calculus. We draw this as a{" "}
+        <strong>directed graph</strong> (lesson 49). A directed graph is a set of dots (called vertices) joined by one-way arrows. Each arrow <code>b → a</code> means
+        &quot;<code>b</code> must come before <code>a</code>&quot;. A <strong>topological order</strong> (also called <em>topological sort</em>) is a line-up
+        of all the dots where every arrow points forward. For every <code>b → a</code>, <code>b</code> appears earlier than{" "}
         <code>a</code>.
       </p>
       <p>
-        Such an order exists exactly when the graph has no cycle. If A needs B, B needs C and C needs A, nobody can go first. A directed graph
-        with no cycle is called a <strong>DAG</strong> (directed acyclic graph). Every DAG has at least one topological order, often many; any
-        valid one is acceptable unless a problem says otherwise.
+        Such an order exists only when the graph has no cycle. A cycle is a loop of arrows that leads back to where it started. Say A needs B,
+        B needs C and C needs A. Nobody can go first. A directed graph with no cycle is called a <strong>DAG</strong> (directed acyclic graph,
+        which just means &quot;one-way arrows, no loops&quot;). Every DAG has at least one topological order, and often many. Any valid one is fine unless
+        the problem says otherwise.
       </p>
       <p>
-        One more word: the <strong>in-degree</strong> of a vertex is the number of arrows pointing <em>into</em> it, which here means the
-        number of prerequisites it is still waiting for. A task with in-degree 0 is free to start.
+        One more word: the <strong>in-degree</strong> of a dot is the number of arrows pointing <em>into</em> it. Here it means the
+        number of prerequisites the task still waits for. A task with in-degree 0 is free to start.
       </p>
-      <Callout kind="warn" label="Mind the direction">
-        LeetCode writes <code>[a, b]</code> as &quot;to take <code>a</code> you must first take <code>b</code>&quot;, so the arrow is{" "}
-        <code>b → a</code>, the opposite of the order the numbers appear in. Reading the pair backwards is the most common bug in this topic.
+      <Callout kind="warn" label="Check the direction">
+        LeetCode writes <code>[a, b]</code> as &quot;to take <code>a</code> you must first take <code>b</code>&quot;. So the arrow is{" "}
+        <code>b → a</code>. That is the opposite of the order the numbers appear in. Reading the pair backwards is the most common mistake in this topic.
       </Callout>
       <CodeBlock lang="js" code={buildCode} />
 
       <h2 id="kahn">Kahn&apos;s algorithm</h2>
       <p>
-        <strong>Kahn&apos;s algorithm</strong> turns the idea &quot;do what is ready, then see what that makes ready&quot; into code:
+        <strong>Kahn&apos;s algorithm</strong> turns a simple idea into code: &quot;do what is ready, then see what that makes ready.&quot; A queue is a line
+        where the first item in is the first item out. The steps:
       </p>
       <ol>
-        <li>Count every vertex&apos;s in-degree.</li>
-        <li>Put all vertices with in-degree 0 into a queue.</li>
-        <li>Take one from the queue and append it to the answer. For each vertex it points to, subtract 1 from that vertex&apos;s in-degree; if it reaches 0, enqueue it.</li>
+        <li>Count the in-degree of every dot.</li>
+        <li>Put every dot with in-degree 0 into a queue.</li>
+        <li>Take one dot from the queue and add it to the answer. Look at each dot it points to and subtract 1 from that dot&apos;s in-degree. If the number reaches 0, add that dot to the queue.</li>
         <li>Repeat until the queue is empty.</li>
       </ol>
       <p>
-        If the answer contains all n vertices you have a valid order. If it is shorter, the leftover vertices all wait on each other in
-        a cycle, so none ever reached in-degree 0. The same queue-with-a-head-index trick as BFS keeps it at O(V + E) time: every vertex is enqueued once and every edge is looked at once.
+        If the answer has all n dots, you have a valid order. If it is shorter, the dots left over all wait on each other in
+        a cycle, so none of them ever reached in-degree 0. Use the same trick as BFS (breadth-first search): keep a head number for the front of the queue instead of removing items.
+        This keeps the time at O(V + E), where V is the number of dots and E is the number of arrows. Every dot goes into the queue once and every arrow is looked at once.
       </p>
       <CodeBlock lang="js" code={kahnCode} />
 
@@ -272,58 +275,59 @@ export default function DsaLessonFiftyOnePage() {
       <CodeTrace
         code={traceSrc}
         steps={kahnTrace()}
-        caption="Watch the indegree array: a task enters the queue the instant its count hits 0. The finished order is 4, 5, 2, 0, 3, 1."
+        caption="Watch the indegree array. A task joins the queue the moment its count hits 0. The final order is 4, 5, 2, 0, 3, 1."
       />
 
       <h2 id="dfs">DFS-based ordering</h2>
       <p>
-        There is a second way. Run DFS, and record each vertex at the moment it is <em>finished</em> (all the vertices it points to are
-        already finished). A vertex always finishes after everything it unlocks, so the finishing list is a valid order{" "}
-        <em>backwards</em>. Reverse it and you have a topological order. Finishing is called the <strong>post-order</strong> of the DFS.
+        There is a second way. DFS (depth-first search) means you follow one path as deep as you can before you go back. Run DFS and write down each dot at the moment it is <em>finished</em>.
+        A dot is finished when every dot it points to is already finished. So a dot always finishes after everything it unlocks.
+        That means the finishing list is a valid order <em>backwards</em>. Reverse it and you have a topological order. The finishing order is called the{" "}
+        <strong>post-order</strong> of the DFS.
       </p>
       <p>
-        To also detect cycles we give every vertex one of three states (a &quot;three-colour&quot; DFS):
+        To also find cycles, we give every dot one of three states. This is called a &quot;three-colour&quot; DFS.
       </p>
       <DryRun title="the three states of a vertex" cols={["State", "Meaning", "If DFS meets it"]} rows={stateRows} />
       <CodeBlock lang="js" code={dfsOrderCode} />
       <p>
-        The answer differs from Kahn&apos;s ([5, 4, 2, 3, 1, 0] vs [4, 5, 2, 0, 3, 1]), and both are correct: check any arrow, for
-        instance 2 → 3 (2 comes first in both) or 4 → 0.
+        This answer is different from Kahn&apos;s ([5, 4, 2, 3, 1, 0] vs [4, 5, 2, 0, 3, 1]). Both are correct. Check any arrow, for
+        example 2 → 3 (2 comes first in both) or 4 → 0.
       </p>
 
-      <h2 id="cycle">Cycle detection in directed graphs</h2>
+      <h2 id="cycle">Finding loops in directed graphs</h2>
       <p>
-        For an <em>undirected</em> graph, meeting an already-visited vertex (other than the one you came from) means a cycle. That rule is
-        <strong> wrong for directed graphs</strong>. Take the diamond 0 → 1 → 3 and 0 → 2 → 3. Vertex 3 is reached twice, once via 1 and once
-        via 2, yet there is no cycle: both arrows head the same way. &quot;Seen before&quot; only becomes a cycle if the earlier visit is still{" "}
-        <em>on the path we are walking</em>, which is exactly what the VISITING state remembers and a plain visited set cannot.
+        In an <em>undirected</em> graph (arrows can go both ways), meeting a dot you already visited means a cycle. The one exception is the dot you just came from. That rule is
+        <strong> wrong for directed graphs</strong>. Look at the diamond 0 → 1 → 3 and 0 → 2 → 3. Dot 3 is reached twice, once through 1 and once
+        through 2. Still, there is no cycle, because both arrows go the same way. &quot;Seen before&quot; is a cycle only if the earlier visit is still{" "}
+        <em>on the path we are walking now</em>. The VISITING state remembers exactly this. A plain visited set cannot.
       </p>
       <CodeBlock lang="js" code={wrongCycleCode} />
-      <Callout kind="note" label="Two valid detectors">
-        Kahn&apos;s count (&quot;did all n vertices come out?&quot;) and the three-colour DFS (&quot;did I meet a VISITING vertex?&quot;) always agree.
-        Choose whichever fits the rest of the problem.
+      <Callout kind="note" label="Two ways to find a cycle">
+        Kahn&apos;s count (&quot;did all n dots come out?&quot;) and the three-colour DFS (&quot;did I meet a VISITING dot?&quot;) always give the same answer.
+        Pick the one that fits the rest of the problem.
       </Callout>
 
       <h2 id="course">Course schedule</h2>
       <p>
-        <strong>Course Schedule</strong> (LeetCode 207) asks only whether every course can be finished, which is the same as asking whether the
-        prerequisite graph is a DAG. Run Kahn and compare how many courses you managed to take with the total. Its sibling{" "}
-        <strong>Course Schedule II</strong> (210) wants the actual order, which Kahn already produces.
+        <strong>Course Schedule</strong> (LeetCode 207) only asks: can every course be finished? That is the same as asking whether the
+        prerequisite graph is a DAG. Run Kahn, then compare the number of courses you took with the total. Its sibling{" "}
+        <strong>Course Schedule II</strong> (210) wants the actual order. Kahn already gives you that.
       </p>
       <CodeBlock lang="js" code={courseCode} />
 
-      <h2 id="choose">Kahn or DFS?</h2>
+      <h2 id="choose">Kahn or DFS: which one?</h2>
       <DryRun
         title="the two topological sorts side by side"
         cols={["", "Kahn (BFS-style)", "DFS post-order"]}
         rows={chooseRows}
-        note="Kahn is the safer default in interviews: no recursion, and the cycle check is just a count. Use the DFS form when the problem is already a DFS (for example 'is this node safe?')."
+        note="Kahn is the safer first choice in interviews. It uses no recursion, and the cycle check is just a count. Use the DFS version when the problem is already a DFS problem (for example 'is this node safe?')."
       />
 
       <h2 id="practice">Practice questions</h2>
       <p>
-        Ask first: what are the &quot;tasks&quot;, and what does &quot;must come before&quot; mean here? Sometimes the edges are given (courses), sometimes you must
-        discover them (alien dictionary, recipes), and sometimes the trick is to peel from the outside in (minimum height trees).
+        First ask: what are the &quot;tasks&quot;, and what does &quot;must come before&quot; mean here? Sometimes the arrows are given (courses). Sometimes you must
+        find them yourself (alien dictionary, recipes). Sometimes the trick is to remove dots from the outside in (minimum height trees).
       </p>
 
       <Questions />
@@ -331,19 +335,19 @@ export default function DsaLessonFiftyOnePage() {
       <h2 id="recall">Make it stick</h2>
       <Recall
         items={[
-          <>Define topological order and DAG, and say which graphs have no valid order.</>,
+          <>Say what a topological order and a DAG are, and which graphs have no valid order.</>,
           <>Write Kahn&apos;s algorithm from memory, including the cycle check.</>,
           <>Explain the three DFS states and why reversing the finish order works.</>,
-          <>Explain why a plain visited set misreports a cycle on a directed diamond.</>,
+          <>Explain why a plain visited set gives a wrong cycle answer on a directed diamond.</>,
           <>Say which way the arrow points for the pair [a, b] in Course Schedule.</>,
-          <>Name two problems where the graph must be built from other data first.</>,
+          <>Name two problems where you must build the graph from other data first.</>,
         ]}
       />
 
       <h2 id="next">What&apos;s next</h2>
       <p>
-        So far every edge counted the same, or had no length at all. <strong>Lesson 52</strong> gives edges costs: BFS for equal costs, then{" "}
-        <strong>Dijkstra</strong> with a priority queue to find the cheapest route, and Bellman–Ford when the number of stops is limited.
+        So far every arrow counted the same, or had no length at all. In <strong>Lesson 52</strong> arrows get costs. You will use BFS when all costs are equal. Then you will use{" "}
+        <strong>Dijkstra</strong> with a priority queue (a line where the smallest item always comes out first) to find the cheapest route. Last comes Bellman–Ford, for when the number of stops is limited.
       </p>
     </DsaLessonPage>
   );

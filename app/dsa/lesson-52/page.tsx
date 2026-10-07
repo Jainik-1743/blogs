@@ -230,18 +230,18 @@ function dijkstraTrace() {
   let pq: [number, number][] = [];
   const shown = () => pq.map(([d, v]) => `${d}@${v}`);
   const sortPq = () => pq.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
-  t.step(1, "start", "dist = all Infinity", "No distance is known yet.", { dist: [...dist] }, "dist");
+  t.step(1, "start", "dist = all Infinity", "We do not know any distance yet.", { dist: [...dist] }, "dist");
   dist[src] = 0;
-  t.step(2, "update", "dist[0] = 0", "The source is 0 away from itself.", { dist: [...dist] }, "dist");
-  t.step(3, "update", "create the heap", "Entries are [distance, vertex]; the smallest distance comes out first.", { dist: [...dist], heap: shown() }, "heap");
+  t.step(2, "update", "dist[0] = 0", "The start vertex is 0 away from itself.", { dist: [...dist] }, "dist");
+  t.step(3, "update", "create the heap", "Each entry is [distance, vertex]. The entry with the smallest distance comes out first.", { dist: [...dist], heap: shown() }, "heap");
   pq.push([0, src]);
-  t.step(4, "update", "push [0, 0]", "Start from the source.", { dist: [...dist], heap: shown() }, "heap");
+  t.step(4, "update", "push [0, 0]", "Start from the start vertex.", { dist: [...dist], heap: shown() }, "heap");
   while (pq.length) {
     sortPq();
     const [d, v] = pq.shift()!;
-    t.step(6, "update", `pop [${d}, ${v}]`, `The closest unfinished entry: vertex ${v} at distance ${d}.`, { d, v, dist: [...dist], heap: shown() }, "v");
+    t.step(6, "update", `pop [${d}, ${v}]`, `This is the closest entry not yet finished: vertex ${v} at distance ${d}.`, { d, v, dist: [...dist], heap: shown() }, "v");
     if (d > dist[v]) {
-      t.step(7, "check", `stale: ${d} > dist[${v}] = ${dist[v]}`, `A shorter route to ${v} was found after this entry was pushed, so skip it.`, { d, v, dist: [...dist], heap: shown() }, "d");
+      t.step(7, "check", `stale: ${d} > dist[${v}] = ${dist[v]}`, `A shorter route to ${v} was found after this entry was added, so skip it.`, { d, v, dist: [...dist], heap: shown() }, "d");
       continue;
     }
     for (const [next, w] of graph[v]) {
@@ -249,30 +249,30 @@ function dijkstraTrace() {
         const old = dist[next];
         dist[next] = d + w;
         pq.push([dist[next], next]);
-        t.step(11, "update", `dist[${next}] = ${d + w}`, `${d} + ${w} = ${d + w} beats ${old === Infinity ? "Infinity" : old}. Push the new entry.`, { d, v, next, dist: [...dist], heap: shown() }, "dist");
+        t.step(11, "update", `dist[${next}] = ${d + w}`, `${d} + ${w} = ${d + w} beats ${old === Infinity ? "Infinity" : old}. Add the new entry to the heap.`, { d, v, next, dist: [...dist], heap: shown() }, "dist");
       } else {
-        t.step(9, "check", `${d + w} does not beat dist[${next}] = ${dist[next]}`, `Going through ${v} to ${next} costs ${d + w}, no better than what we have.`, { d, v, next, dist: [...dist], heap: shown() }, "next");
+        t.step(9, "check", `${d + w} does not beat dist[${next}] = ${dist[next]}`, `Going through ${v} to ${next} costs ${d + w}. That is no better than what we already have.`, { d, v, next, dist: [...dist], heap: shown() }, "next");
       }
     }
   }
   t.print(dist);
-  t.step(14, "done", "heap is empty", "Every vertex is final: the cheapest costs from vertex 0 are [0, 3, 1, 4, 7].", { dist: [...dist], heap: shown() }, "dist");
+  t.step(14, "done", "heap is empty", "Every vertex is final. The cheapest costs from vertex 0 are [0, 3, 1, 4, 7].", { dist: [...dist], heap: shown() }, "dist");
   return t.steps;
 }
 
 const chooseRows: string[][] = [
   ["Every edge costs 1 (or all equal)", "BFS", "O(V + E)"],
   ["Costs differ, none negative", "Dijkstra", "O((V + E) log V)"],
-  ["Some costs negative, or a cap on the number of edges used", "Bellman–Ford", "O(V × E), or O(k × E) for k rounds"],
-  ["Cost is the largest (or smallest) edge on the path, not the sum", "Dijkstra with max/min instead of +", "O((V + E) log V)"],
+  ["Some costs are negative, or there is a limit on the number of edges used", "Bellman–Ford", "O(V × E), or O(k × E) for k rounds"],
+  ["The cost is the largest (or smallest) edge on the path, not the sum", "Dijkstra with max/min instead of adding", "O((V + E) log V)"],
   ["Costs are only 0 or 1", "0-1 BFS (a deque) or Dijkstra", "O(V + E)"],
 ];
 
 const gridRows: string[][] = [
   ["Moves cost 1 each", "BFS from the start", "queue + a distance grid"],
   ["Entering a cell costs its value", "Dijkstra on cells", "heap of [cost, row, col]"],
-  ["Cost is the biggest height jump (or biggest height) so far", "Dijkstra with max()", "heap of [worst so far, row, col]"],
-  ["8 directions allowed", "same BFS, 8 offsets", "diagonal steps still cost 1"],
+  ["The cost is the biggest height jump (or biggest height) so far", "Dijkstra with max()", "heap of [worst so far, row, col]"],
+  ["8 directions allowed", "the same BFS, with 8 steps", "a diagonal step still costs 1"],
 ];
 
 export default function DsaLessonFiftyTwoPage() {
@@ -280,104 +280,104 @@ export default function DsaLessonFiftyTwoPage() {
     <DsaLessonPage lesson={lesson} outline={outline}>
       <h2 id="why">What a shortest path means</h2>
       <p>
-        Lesson 50 found the fewest <em>edges</em> between two vertices. Real maps are not that simple: roads have lengths, flights have prices,
-        network links have delays. When edges carry a number, called a <strong>weight</strong> (or cost), the <strong>shortest path</strong> is the
-        route whose weights add up to the smallest total, even if it uses more edges than another route.
+        Lesson 50 found the fewest <em>edges</em> between two vertices. An edge is a link between two points (vertices). Real maps are not that simple. Roads have lengths, flights have prices,
+        and network links have delays. When an edge carries a number, we call it a <strong>weight</strong> (or cost). The <strong>shortest path</strong> is the
+        route whose weights add up to the smallest total. It can use more edges than another route and still be the shortest.
       </p>
       <p>
-        Which algorithm to use depends on the weights. Equal weights: BFS. Different but never negative: <strong>Dijkstra</strong>. Negative
-        weights, or a limit on how many edges you may use: <strong>Bellman–Ford</strong>. The rest of the lesson takes them in that order.
+        Which algorithm (set of steps) to use depends on the weights. Equal weights: BFS. Different weights that are never negative: <strong>Dijkstra</strong>. Negative
+        weights, or a limit on how many edges you may use: <strong>Bellman–Ford</strong>. The lesson covers them in that order.
       </p>
 
       <h2 id="bfs">BFS when every edge costs the same</h2>
       <p>
-        BFS visits vertices in order of how many edges they are from the start, so the first time it reaches the target, it has found a path
-        with the fewest edges. If every edge costs the same, that is the cheapest path. A <strong>grid</strong> is the most common case: each
-        cell is a vertex, each step to a neighbouring open cell is an edge of cost 1.
+        BFS (breadth-first search) visits vertices in order of how many edges they are from the start. So the first time it reaches the target, it has found a path
+        with the fewest edges. If every edge costs the same, that is the cheapest path. A <strong>grid</strong> is the most common case. Each
+        cell is a vertex. Each step to a next-door open cell is an edge of cost 1.
       </p>
       <CodeBlock lang="js" code={bfsGridCode} />
       <p>
-        Two details worth repeating from lesson 50: mark cells when you <em>enqueue</em> them, and move a <code>head</code> index instead of
-        calling <code>queue.shift()</code>. Allowing diagonal moves just means eight offsets instead of four.
+        Two tips from lesson 50. First, mark a cell when you <em>add it to the queue</em>, not when you take it out. Second, move a <code>head</code> number instead of
+        calling <code>queue.shift()</code>. If you also allow diagonal moves, use eight steps instead of four.
       </p>
 
       <h2 id="heap">A heap in JavaScript</h2>
       <p>
-        With different weights the next vertex to process is no longer &quot;the oldest in line&quot; but &quot;the one with the smallest total
-        so far&quot;. A <strong>priority queue</strong> hands out the smallest item each time, and it is usually built on a{" "}
-        <strong>binary heap</strong>: an array that is kept so that each item is smaller than its two children (item <code>i</code> has children at{" "}
-        <code>2i + 1</code> and <code>2i + 2</code>). Adding or removing the smallest costs O(log n), where scanning for the minimum would cost O(n).
+        With different weights, the next vertex to process is no longer &quot;the one that has waited longest&quot;. It is &quot;the one with the smallest total
+        so far&quot;. A <strong>priority queue</strong> is a line that always gives you the smallest item first. It is usually built on a{" "}
+        <strong>binary heap</strong>. A binary heap is an array kept in a special order: each item is smaller than its two children (item <code>i</code> has children at{" "}
+        <code>2i + 1</code> and <code>2i + 2</code>). Adding an item or removing the smallest one costs O(log n). Searching the whole list for the smallest would cost O(n).
       </p>
       <p>
-        JavaScript has no built-in heap, so interviews expect you to write one (or say you would use a library). Here is a compact one with a
-        comparator, which you can paste into any solution:
+        JavaScript has no built-in heap. In interviews you are expected to write one, or to say you would use a library. Here is a short one that takes a
+        comparator (a small function that says which of two items goes first). You can paste it into any solution:
       </p>
       <CodeBlock lang="js" code={heapCode} />
 
       <h2 id="dijkstra">Dijkstra&apos;s algorithm</h2>
       <p>
-        <strong>Dijkstra&apos;s algorithm</strong> keeps a best-known distance <code>dist[v]</code> for every vertex (starting at infinity) and
-        repeats one step: take the vertex with the smallest tentative distance and <strong>relax</strong> its outgoing edges, which means
-        &quot;if going through me to my neighbour is cheaper than what the neighbour has now, update it&quot;.
+        <strong>Dijkstra&apos;s algorithm</strong> keeps the best distance found so far, <code>dist[v]</code>, for every vertex. At the start every distance is infinity. Then it
+        repeats one step. Take the vertex with the smallest distance and <strong>relax</strong> its outgoing edges. To relax means:
+        &quot;if going through me to my neighbour is cheaper than what the neighbour has now, update the neighbour.&quot;
       </p>
       <p>
-        Why is the vertex we take final? Every other unfinished vertex is at least as far away, and weights are never negative, so any detour
-        through them can only add cost. Nothing can improve the vertex we just took.
+        Why is the vertex we take final? Every other unfinished vertex is at least as far away. Weights are never negative, so a detour
+        through them can only add cost. Nothing can make the vertex we just took any cheaper.
       </p>
       <p>
-        With a heap, we push <code>[distance, vertex]</code> whenever a distance improves. A vertex can then be in the heap more than once. We do
-        not search for and delete the old entry (a plain heap cannot do that cheaply); instead, when an entry is popped and its distance is
-        larger than <code>dist[v]</code>, it is <strong>stale</strong> and we skip it. This trick is called <strong>lazy deletion</strong>.
+        With a heap, we push <code>[distance, vertex]</code> whenever a distance gets better. So a vertex can be in the heap more than once. We do
+        not search for the old entry and delete it, because a plain heap cannot do that cheaply. Instead, when we pop an entry whose distance is
+        larger than <code>dist[v]</code>, we know it is <strong>stale</strong> (out of date) and we skip it. This trick is called <strong>lazy deletion</strong>.
       </p>
       <CodeBlock lang="js" code={dijkstraCode} />
       <p>
-        There are at most E pushes, each costing O(log E) = O(log V), so the total is O((V + E) log V), usually written O(E log V). To recover the
-        actual route, also store <code>parent[next] = v</code> whenever you improve <code>dist[next]</code>, and walk the parents backwards from the target.
+        There are at most E pushes (E is the number of edges). Each push costs O(log E) = O(log V), where V is the number of vertices. So the total is O((V + E) log V), usually written O(E log V). To get the
+        actual route, also save <code>parent[next] = v</code> whenever you improve <code>dist[next]</code>. Then walk the parents backwards from the target.
       </p>
 
       <h2 id="trace">Traced: Dijkstra on five vertices</h2>
       <CodeTrace
         code={traceSrc}
         steps={dijkstraTrace()}
-        caption="Watch vertex 1: it is first reached at cost 4, then improved to 3 through vertex 2. The old entry 4@1 stays in the heap and is skipped as stale when it is popped. (The heap is shown sorted, entries written distance@vertex.)"
+        caption="Watch vertex 1. It is first reached at cost 4, then improved to 3 through vertex 2. The old entry 4@1 stays in the heap. It is skipped as stale when it is popped. (The heap is shown in sorted order. Each entry is written distance@vertex.)"
       />
 
       <h2 id="negative">Why negative weights break it</h2>
       <p>
-        The argument above leaned on &quot;a detour can only add cost&quot;. A negative edge makes a detour able to <em>subtract</em> cost, so a vertex
-        finalised early can later be improved. In the example, vertex 1 looks best at 2 and is finalised, but the longer route
+        The reason above used the idea that &quot;a detour can only add cost&quot;. A negative edge lets a detour <em>remove</em> cost. So a vertex
+        we finalised early can still get better later. In the example, vertex 1 looks best at 2 and is finalised. But the longer route
         0 → 2 → 1 costs 3 + (−2) = 1.
       </p>
       <CodeBlock lang="js" code={negativeCode} />
-      <Callout kind="warn" label="Even with lazy deletion, don't rely on it">
-        The heap version with the stale check happens to re-relax such a vertex and can return the right answer on some negative inputs, but it
-        can then take exponential time, and with a negative <em>cycle</em> (a loop whose total is below zero) the true shortest distance is minus
-        infinity and it never stops. If the weights can be negative, use Bellman–Ford.
+      <Callout kind="warn" label="Lazy deletion does not fix this either">
+        The heap version with the stale check may update such a vertex again, and on some inputs with negative weights it gives the right answer. But it
+        can then take an extremely long time (exponential time). If there is a negative <em>cycle</em> (a loop whose total cost is below zero), the true shortest distance is minus
+        infinity and the algorithm never stops. If weights can be negative, use Bellman–Ford.
       </Callout>
 
       <h2 id="grid">Shortest paths on a grid</h2>
       <p>
-        On a grid the vertices are cells and edges go to the four (or eight) neighbours. What the edge costs decides the tool:
+        On a grid, the vertices are cells and the edges go to the four (or eight) neighbours. The cost of one move decides which tool to use:
       </p>
       <DryRun title="grid problems and their tools" cols={["The cost of a move", "Use", "What goes in the queue / heap"]} rows={gridRows} />
       <p>
-        Dijkstra is not limited to sums. It works for any path cost that can only stay the same or grow as the path gets longer, with the
-        &quot;extend the path&quot; step replaced by <code>max</code>. For &quot;minimise the largest height jump on the way&quot; you push{" "}
-        <code>[max(worst so far, jump), r, c]</code>. Questions 3 and 6 do exactly that.
+        Dijkstra does not only work with sums. It works for any path cost that stays the same or grows as the path gets longer. You just replace the
+        &quot;add the edge cost&quot; step with <code>max</code>. For &quot;make the biggest height jump on the way as small as possible&quot;, you push{" "}
+        <code>[max(worst so far, jump), r, c]</code>. Questions 3 and 6 do exactly this.
       </p>
 
       <h2 id="bellman">Bellman–Ford and limited stops</h2>
       <p>
-        <strong>Bellman–Ford</strong> is simpler and slower: relax <em>every</em> edge, and repeat. After round <code>i</code>, every distance is
-        correct for paths with at most <code>i</code> edges. A shortest path with no repeated vertex has at most V − 1 edges, so V − 1 rounds
-        suffice, and it copes with negative weights. If one more round still improves something, there is a negative cycle. That round-by-round
-        meaning is also what makes it ideal for <strong>limited stops</strong>: stop after k + 1 rounds and you have the cheapest price using at
+        <strong>Bellman–Ford</strong> is simpler but slower. Relax <em>every</em> edge, then repeat. After round <code>i</code>, every distance is
+        correct for paths with at most <code>i</code> edges. A shortest path that never visits a vertex twice has at most V − 1 edges. So V − 1 rounds
+        are enough, and it works with negative weights. If one more round still improves something, there is a negative cycle. Counting rounds like this
+        also makes it a good fit for <strong>limited stops</strong>. Stop after k + 1 rounds and you have the cheapest price that uses at
         most k + 1 flights.
       </p>
       <CodeBlock lang="js" code={bellmanCode} />
       <p>
-        Note the copy: each round reads from <code>prices</code> and writes to <code>next</code>. Updating one array in place would let a single
-        round chain several flights together and break the stop limit.
+        Notice the copy. Each round reads from <code>prices</code> and writes to <code>next</code>. If you updated one array in place, a single
+        round could chain several flights together and break the stop limit.
       </p>
 
       <h2 id="choose">Which algorithm?</h2>
@@ -385,12 +385,12 @@ export default function DsaLessonFiftyTwoPage() {
         title="choosing a shortest-path tool"
         cols={["Situation", "Algorithm", "Time"]}
         rows={chooseRows}
-        note="When in doubt, read the weights: all equal means BFS, never negative means Dijkstra, otherwise Bellman–Ford."
+        note="If you are not sure, look at the weights. All equal: BFS. Never negative: Dijkstra. Otherwise: Bellman–Ford."
       />
 
       <h2 id="practice">Practice questions</h2>
       <p>
-        For each problem decide the vertices, what an edge costs, and how a path&apos;s cost is combined (sum or max), then pick BFS, Dijkstra or
+        For each problem, decide what the vertices are, what an edge costs, and how a path&apos;s cost is combined (sum or max). Then pick BFS, Dijkstra or
         Bellman–Ford.
       </p>
 
@@ -399,19 +399,19 @@ export default function DsaLessonFiftyTwoPage() {
       <h2 id="recall">Make it stick</h2>
       <Recall
         items={[
-          <>Say which algorithm handles equal weights, non-negative weights and negative weights.</>,
+          <>Say which algorithm to use for equal weights, for weights that are never negative, and for negative weights.</>,
           <>Write a binary min-heap with a comparator from memory.</>,
           <>Write Dijkstra with lazy deletion and explain the stale check.</>,
           <>Explain with an example why a negative edge breaks Dijkstra.</>,
           <>Explain why Bellman–Ford with k + 1 rounds respects a stop limit, and why it copies the array.</>,
-          <>Turn &quot;minimise the largest step&quot; into Dijkstra by replacing the sum with max.</>,
+          <>Turn &quot;make the biggest step as small as possible&quot; into Dijkstra by replacing the sum with max.</>,
         ]}
       />
 
       <h2 id="next">What&apos;s next</h2>
       <p>
-        Next, <strong>Lesson 53</strong> asks a different graph question: not how far, but <em>are these two things connected, and what happens when we
-        join them?</em> The <strong>Union-Find</strong> structure answers that in nearly constant time per operation.
+        <strong>Lesson 53</strong> asks a different graph question. It is not &quot;how far?&quot; but <em>&quot;are these two things connected, and what happens when we
+        join them?&quot;</em> The <strong>Union-Find</strong> structure (a tool that keeps track of groups of connected things) answers this in almost constant time per step.
       </p>
     </DsaLessonPage>
   );
