@@ -32,22 +32,20 @@ export default function SdLessonFourEightPage() {
       <div className="lesson">
         <Section id="the-problem" title="The Problem" kind="problem">
           <p>
-            It's 3:12 AM. The on-call engineer's phone buzzes: <strong>"CPU &gt; 80% on db-3."</strong> They wake up,
-            log in, and find… nothing wrong. Users are fine; it was a nightly batch job. At 3:40 AM:{" "}
+            It is 3:12 AM. The on-call engineer's phone buzzes. (On-call means it is this person's turn to respond to problems outside work hours.) The alert says: <strong>"CPU &gt; 80% on db-3."</strong> They wake up,
+            log in, and find… nothing wrong. Users are fine. It was only a nightly batch job (a task that runs by itself at night). An alert is an automatic message that tells people something may be wrong. At 3:40 AM:{" "}
             <strong>"Disk 75% on worker-12."</strong> Also fine. By the end of the week they've had 60 alerts, and 55 of
             them didn't matter.
           </p>
           <p>
-            So on Friday night, when a <strong>real</strong> alert fires ("checkout errors 12%"), it gets{" "}
-            <strong>snoozed</strong> with all the others. Customers can't pay for two hours.
+            So on Friday night, when a <strong>real</strong> alert fires ("checkout errors 12%"), it gets <strong>snoozed</strong> (ignored for a while) with all the others. Customers can't pay for two hours.
           </p>
           <p>
             Afterwards, a manager asks, <strong>"Whose fault was this?"</strong> The engineer who snoozed the alert gets
-            blamed. From then on, people start <strong>hiding</strong> mistakes instead of reporting them.
+            blamed. From then on, people start <strong>hiding</strong> their mistakes instead of reporting them.
           </p>
           <p>
-            Good monitoring, <strong>good alerts</strong>, and a <strong>healthy way to learn from incidents</strong>{" "}
-            are what turn observability data (posts 46–47) into a system that actually gets more reliable over time.
+            Three things turn observability data (posts 46–47) into a system that really gets more reliable over time: good monitoring, <strong>good alerts</strong> and a <strong>healthy way to learn from incidents</strong>. An incident is any unplanned event that hurts users.
           </p>
         </Section>
 
@@ -69,19 +67,17 @@ export default function SdLessonFourEightPage() {
             <strong>Postmortems are like how aviation handles incidents.</strong> When something goes wrong with a
             plane, investigators don't just ask "which pilot messed up?". They ask:{" "}
             <strong>what in the system allowed this to happen, and how do we stop it happening to anyone again?</strong>{" "}
-            Pilots are encouraged to report near-misses without fear of punishment. That culture is a big reason flying
-            is so safe.
+            Pilots are encouraged to report near-misses (events that almost caused harm) without fear of punishment. This culture is a big reason why flying is so safe.
           </p>
         </Section>
 
         <Section id="how-it-works" title="How It Works" kind="how">
           <h3 id="part-1-monitoring-and-dashboards">Part 1: Monitoring and dashboards</h3>
           <p>
-            <strong>Monitoring</strong> is continuously collecting and watching signals (metrics, logs, traces, post 46)
-            to know the health of your system.
+            <strong>Monitoring</strong> means you keep collecting and watching signals (metrics, logs and traces, post 46) to know how healthy your system is. A <strong>dashboard</strong> is one screen of graphs that shows these signals.
           </p>
           <p>
-            <strong>Useful dashboards, from the top down:</strong>
+            <strong>Useful dashboards, from the top down (start with the user, end with the machines):</strong>
           </p>
           <ol>
             <li>
@@ -89,11 +85,10 @@ export default function SdLessonFourEightPage() {
               search, checkout and so on (post 47).
             </li>
             <li>
-              <strong>Service overview:</strong> for each service, the <strong>golden signals</strong> (latency p50/p99,
-              traffic, errors, saturation), plus deploy markers showing when new versions went out.
+              <strong>Service overview:</strong> for each service, the <strong>golden signals</strong> (latency as the median and p99, traffic, errors, saturation), plus deploy markers. A deploy marker is a line on the graph that shows when a new version went out.
             </li>
             <li>
-              <strong>Dependency dashboards:</strong> databases, caches, queues (lag and depth), third-party APIs.
+              <strong>Dependency dashboards:</strong> databases, caches, queues and third-party APIs. For a queue, lag means how far behind the readers are. Depth means how many messages are waiting.
             </li>
             <li>
               <strong>Infrastructure:</strong> nodes, containers, CPU, memory, disks and networks (the USE method).
@@ -108,16 +103,13 @@ export default function SdLessonFourEightPage() {
           </p>
           <ul>
             <li>
-              <strong>Synthetic monitoring:</strong> scripted "robot users" that log in, search and check out every
-              minute from several locations. They catch problems even when real traffic is low, like at night.
+              <strong>Synthetic monitoring:</strong> scripted "robot users" that log in, search and check out every minute from several places. They find problems even when real traffic is low, like at night.
             </li>
             <li>
-              <strong>Real User Monitoring (RUM):</strong> measures what <strong>real users' browsers and apps</strong>{" "}
-              experience: page load times, JavaScript errors, crash rates, by device, country and network.
+              <strong>Real User Monitoring (RUM):</strong> measures what <strong>real users' browsers and apps</strong> experience. It collects page load times, JavaScript errors and crash rates, split by device, country and network.
             </li>
             <li>
-              <strong>Heartbeat / "dead man's switch" monitoring:</strong> alert when an{" "}
-              <strong>expected signal stops</strong>, like a nightly backup job that didn't report success (post 45).
+              <strong>Heartbeat / "dead man's switch" monitoring:</strong> you get an alert when an <strong>expected signal stops</strong>. For example, a nightly backup job did not report success (post 45). Here, silence is the warning.
             </li>
           </ul>
           <h3 id="part-2-alerting-that-people-trust">Part 2: Alerting that people trust</h3>
@@ -127,7 +119,7 @@ export default function SdLessonFourEightPage() {
               { title: <>Urgent?</>, desc: <>it needs action now, not tomorrow morning</> },
               {
                 title: <>Actionable?</>,
-                desc: <>there's something a human can actually do (and a runbook says what)</>,
+                desc: <>there is something a human can actually do (and a runbook says what)</>,
               },
               { title: <>User-impacting?</>, desc: <>real or imminent pain for users</> },
               { title: <>Passes all three</>, desc: <>page, with a runbook link</>, tone: "good" },
@@ -135,7 +127,7 @@ export default function SdLessonFourEightPage() {
             ]}
           />
           <p>
-            Every alert that <strong>wakes someone up</strong> (a <strong>page</strong>) should pass three tests:
+            An alert that <strong>wakes someone up</strong> is called a <strong>page</strong>. Every page should pass three tests:
           </p>
           <ol>
             <li>
@@ -149,11 +141,10 @@ export default function SdLessonFourEightPage() {
             </li>
           </ol>
           <p>
-            If an alert fails any test, it should be a <strong>ticket</strong> (handled during work hours), a{" "}
-            <strong>dashboard</strong> item, or <strong>deleted</strong>.
+            If an alert fails any test, it should be a <strong>ticket</strong> (a task handled during work hours), a <strong>dashboard</strong> item, or it should be <strong>deleted</strong>.
           </p>
           <p>
-            <strong>Alert on symptoms, investigate causes:</strong>
+            <strong>Alert on symptoms, investigate causes.</strong> A symptom is what users feel (errors, slowness). A cause is the reason inside the system (high CPU, a full disk).
           </p>
           <div className="table-wrap">
             <table>
@@ -188,17 +179,13 @@ export default function SdLessonFourEightPage() {
             investigation, and <strong>page on symptoms</strong>, ideally SLO burn rates (post 47).
           </p>
           <p>
-            <strong>Some cause-based alerts are still worth having</strong>, especially <strong>predictive</strong>{" "}
-            ones: "disk will be full in 4 hours at the current rate", or "certificate expires in 7 days". Those should
-            usually be <strong>tickets</strong>, not 3 AM pages, unless the deadline is imminent.
+            <strong>Some cause-based alerts are still worth having</strong>, especially <strong>predictive</strong> ones. A predictive alert looks ahead, for example "disk will be full in 4 hours at the current rate" or "certificate expires in 7 days". These should usually be <strong>tickets</strong>, not 3 AM pages, unless the deadline is very close.
           </p>
           <p>
-            <strong>Every alert needs a runbook.</strong> Each alert should link to a <strong>runbook</strong>: what the
-            alert means, how to check its impact, common causes, and step-by-step mitigation (roll back, fail over,
-            scale up, flip a kill switch). This lets anyone on call respond, not just the expert.
+            <strong>Every alert needs a runbook.</strong> A runbook is a short written guide that tells the on-call person what to do. It explains what the alert means, how to check the impact, the common causes, and the steps to reduce the harm (mitigation). Mitigation steps include rollback, failover, scale up and a kill switch. These are explained in Part 3. With a runbook, anyone on call can respond, not only the expert.
           </p>
           <p>
-            <strong>Fighting alert fatigue:</strong>
+            <strong>Fighting alert fatigue.</strong> Alert fatigue means people get so many alerts that they stop paying attention to them. Here is how to fight it:
           </p>
           <ul>
             <li>
@@ -206,11 +193,10 @@ export default function SdLessonFourEightPage() {
               or fix noisy ones.
             </li>
             <li>
-              <strong>Group and de-duplicate:</strong> one incident shouldn't produce 200 separate pages. Tools like
-              Prometheus Alertmanager or PagerDuty group related alerts.
+              <strong>Group and de-duplicate:</strong> one incident shouldn't produce 200 separate pages. Tools like Prometheus Alertmanager or PagerDuty group related alerts. (PagerDuty is a service that sends alerts to the on-call person's phone.)
             </li>
             <li>
-              <strong>Use sensible durations:</strong> "for 5 minutes", not on a single data point.
+              <strong>Use sensible durations:</strong> alert only when the problem lasts "for 5 minutes", not on a single data point.
             </li>
             <li>
               <strong>Route to the right team</strong>, based on service ownership.
@@ -229,11 +215,10 @@ export default function SdLessonFourEightPage() {
               <strong>secondary</strong> engineer.
             </li>
             <li>
-              <strong>Escalation policies:</strong> if the primary doesn't acknowledge within, say, 5 minutes, page the
-              secondary, then the manager.
+              <strong>Escalation policies:</strong> these are rules for who gets paged next. For example, if the primary does not acknowledge (reply to) the page within 5 minutes, page the secondary, then the manager.
             </li>
             <li>
-              <strong>Handoffs</strong> between shifts: ongoing issues and recent changes.
+              <strong>Handoffs</strong> between shifts: the outgoing person tells the next person about ongoing issues and recent changes.
             </li>
             <li>
               <strong>A sustainable load:</strong> compensate on-call time, and make fixing noisy alerts part of the
@@ -242,14 +227,13 @@ export default function SdLessonFourEightPage() {
           </ul>
           <h3 id="part-3-incident-response">Part 3: Incident response</h3>
           <p>
-            An <strong>incident</strong> is any unplanned event that hurts (or threatens) users or the business. A clear
-            process reduces chaos.
+            An <strong>incident</strong> is any unplanned event that hurts (or threatens) users or the business. A clear process keeps people calm and organised.
           </p>
           <p>
             <strong>The lifecycle:</strong>
           </p>
           <Flow
-            caption="The incident lifecycle. Stop the bleeding first; understand it second."
+            caption="The incident lifecycle. Reduce the harm first; understand the cause second."
             nodes={[
               { title: <>Detect</>, desc: <>an SLO alert, a synthetic check, or a user report</> },
               { title: <>Triage</>, desc: <>how bad (SEV1–3)? who's needed? declare an Incident Commander</> },
@@ -263,12 +247,11 @@ export default function SdLessonFourEightPage() {
             ]}
           />
           <p>
-            <strong>Severity levels</strong> set the urgency. For example:
+            <strong>Severity levels</strong> (SEV) say how serious an incident is, so people know how fast to act. For example:
           </p>
           <ul>
             <li>
-              <strong>SEV1:</strong> major outage, many users can't use a core feature (like payments). All hands,
-              public communication.
+              <strong>SEV1:</strong> major outage. Many users cannot use a core feature (like payments). Everyone helps, and you tell the public.
             </li>
             <li>
               <strong>SEV2:</strong> significant degradation or a partial outage.
@@ -278,13 +261,11 @@ export default function SdLessonFourEightPage() {
             </li>
           </ul>
           <p>
-            <strong>Clear roles</strong> for larger incidents (adapted from emergency services' incident command
-            systems):
+            <strong>Clear roles</strong> help in larger incidents. They come from the way emergency services run their incidents:
           </p>
           <ul>
             <li>
-              <strong>Incident Commander (IC):</strong> coordinates, makes decisions and keeps the big picture. The IC{" "}
-              <strong>doesn't</strong> debug.
+              <strong>Incident Commander (IC):</strong> leads the response, makes decisions and keeps the big picture. The IC <strong>does not</strong> debug (look for the bug).
             </li>
             <li>
               <strong>Operations / subject-matter experts:</strong> investigate and apply fixes.
@@ -294,8 +275,7 @@ export default function SdLessonFourEightPage() {
               intervals.
             </li>
             <li>
-              <strong>Scribe:</strong> records a timeline of what was seen, tried and decided. This is invaluable for
-              the postmortem.
+              <strong>Scribe:</strong> writes a timeline of what was seen, tried and decided. This is very useful for the postmortem.
             </li>
           </ul>
           <p>
@@ -304,17 +284,16 @@ export default function SdLessonFourEightPage() {
           </p>
           <ul>
             <li>
-              <strong>roll back</strong> the latest deploy (the most common fix, because most incidents follow a
-              change),
+              <strong>roll back</strong> the latest deploy. This means going back to the previous version. It is the most common fix, because most incidents follow a change,
             </li>
             <li>
-              <strong>fail over</strong> to another zone or region (post 40),
+              <strong>fail over</strong> to another zone or region. This means switching traffic to a healthy copy of the system (post 40),
             </li>
             <li>
-              <strong>scale up</strong>, or <strong>shed load</strong> (post 44),
+              <strong>scale up</strong> (add more servers), or <strong>shed load</strong> (refuse some requests on purpose so the rest still work) (post 44),
             </li>
             <li>
-              <strong>flip a feature flag / kill switch</strong> (post 44),
+              <strong>flip a feature flag / kill switch</strong>. A feature flag is a setting that turns a feature on or off without a new release. A kill switch is a flag for turning a feature off fast (post 44),
             </li>
             <li>
               <strong>block</strong> abusive traffic (post 43).
@@ -323,12 +302,10 @@ export default function SdLessonFourEightPage() {
           <p>Root-cause analysis can happen once users are safe.</p>
           <h3 id="part-4-blameless-postmortems">Part 4: Blameless postmortems</h3>
           <p>
-            After a significant incident, write a <strong>postmortem</strong> (also called an incident review or
-            retrospective). The goal is <strong>learning</strong>, not punishment.
+            After a serious incident, write a <strong>postmortem</strong>. A postmortem is a written review of what happened, why, and what to change. It is also called an incident review or retrospective. The goal is <strong>learning</strong>, not punishment.
           </p>
           <p>
-            <strong>Why blameless?</strong> Almost every incident involves a human action: someone deployed, someone ran
-            a command, someone missed an alert. But if people are <strong>punished</strong> for mistakes:
+            <strong>Why blameless?</strong> Almost every incident involves a human action. Someone deployed, someone ran a command, or someone missed an alert. But if people are <strong>punished</strong> for mistakes:
           </p>
           <ul>
             <li>
@@ -363,7 +340,7 @@ export default function SdLessonFourEightPage() {
                 items: [
                   {
                     sign: "+",
-                    text: <>Prod accepted a destructive command from a manual session with no confirmation</>,
+                    text: <>Prod (the live system) accepted a destructive command from a manual session with no confirmation</>,
                   },
                   { sign: "+", text: <>The script targeted prod by default</> },
                   { sign: "+", text: <>Backups hadn't been restore-tested in 6 months</> },
@@ -373,12 +350,12 @@ export default function SdLessonFourEightPage() {
             ]}
           />
           <p>
-            <strong>A postmortem template:</strong>
+            <strong>A postmortem usually has a timeline like this:</strong>
           </p>
           <Timeline
             caption="The postmortem's timeline, reconstructed from the scribe's notes."
             events={[
-              { time: <>19:02</>, text: <>deploy v2027.03.12-3 starts — canary stage skipped</> },
+              { time: <>19:02</>, text: <>deploy v2027.03.12-3 starts — canary stage (a small first release) skipped</> },
               { time: <>19:04</>, text: <>checkout error rate rises to 18%</>, tone: "bad" },
               { time: <>19:06</>, text: <>SLO burn-rate alert pages on-call</>, tone: "good" },
               {
@@ -396,26 +373,22 @@ export default function SdLessonFourEightPage() {
           </p>
           <ul>
             <li>
-              Look for <strong>contributing factors</strong>, plural. Complex failures rarely have a single "root
-              cause". Safety engineers often use the <strong>"Swiss cheese" model</strong>: an incident happens when
-              holes in several layers of defence line up.
+              Look for <strong>contributing factors</strong>, in the plural. Complex failures rarely have one "root cause" (the single main reason). Safety engineers often use the <strong>"Swiss cheese" model</strong>. Each layer of defence is a slice of cheese with holes. An incident happens when the holes in several slices line up.
             </li>
             <li>
-              <strong>"5 whys"</strong> can help you dig deeper, but don't stop at "human error". Keep asking{" "}
-              <em>why</em> the system allowed it.
+              <strong>"5 whys"</strong> means asking "why?" again and again. It helps you dig deeper. Do not stop at "human error". Keep asking <em>why</em> the system allowed it.
             </li>
             <li>
               Include <strong>what went well</strong>, so you keep doing it.
             </li>
             <li>
-              <strong>Action items</strong> must be <strong>specific, owned and tracked</strong> until done. Postmortems
-              with untracked actions are just stories.
+              <strong>Action items</strong> must be <strong>specific, owned and tracked</strong> until done. A postmortem whose actions nobody tracks is just a story.
             </li>
             <li>
               <strong>Share widely</strong>, internally and sometimes publicly. Other teams learn too.
             </li>
             <li>
-              <strong>Review near-misses</strong> as well. They're free lessons.
+              <strong>Review near-misses</strong> as well. They are free lessons.
             </li>
           </ul>
         </Section>
@@ -460,21 +433,16 @@ export default function SdLessonFourEightPage() {
           </p>
           <p>
             <strong>Public postmortems.</strong> Companies like Cloudflare, GitHub, GitLab and AWS publish detailed
-            public incident reports. Cloudflare's 2019 write-up about a single regular expression that pushed CPU to
-            100% across its global network (for about half an hour) explained exactly what happened and what changed
+            public incident reports. Cloudflare's 2019 write-up is about a single regular expression (a text-matching pattern) that pushed CPU to 100% across its global network for about half an hour. It explained exactly what happened and what changed
             afterwards. These reports are some of the best free learning material in the industry. (The GitHub
             collection "danluu/post-mortems" gathers hundreds of them.)
           </p>
           <p>
-            <strong>Knight Capital (2012).</strong> A trading firm deployed new software to its servers, but one of
-            eight servers was missed, and a reused configuration flag reactivated <strong>old, dormant code</strong> on
-            it. In about 45 minutes, automated trading caused losses of around $440 million, and the company never
-            recovered as an independent firm. It's often studied as a lesson in deployment safety, monitoring, runbooks
+            <strong>Knight Capital (2012).</strong> A trading firm deployed new software to its servers, but one of eight servers was missed. A reused configuration flag then switched on <strong>old, unused code</strong> on that server. In about 45 minutes, automated trading caused losses of about $440 million (the company's own figure). The company never recovered as an independent firm. It later merged with another firm. It's often studied as a lesson in deployment safety, monitoring, runbooks
             and incident response, far more than as one person's error.
           </p>
           <p>
-            <strong>Incident command in tech.</strong> PagerDuty's open incident-response documentation (based on
-            emergency-services incident command) is widely used by companies to define roles like Incident Commander,
+            <strong>Incident command in tech.</strong> PagerDuty's open incident-response documentation (based on the incident command used by emergency services) is widely used by companies to define roles like Incident Commander,
             scribe and communications lead.
           </p>
         </Section>

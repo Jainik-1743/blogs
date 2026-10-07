@@ -46,8 +46,7 @@ export default function SdLessonFiveZeroPage() {
       <div className="lesson">
         <Section id="the-problem" title="The Problem" kind="problem">
           <p>
-            A photo-printing website wants to print photos from your Google Photos. In the bad old days, it would ask
-            for your <strong>Google password</strong>. That meant:
+            A photo-printing website wants to print photos from your Google Photos. In the old days, it would ask for your <strong>Google password</strong>. That meant:
           </p>
           <ul>
             <li>the printing site could read your email, delete your files, and change your password,</li>
@@ -60,12 +59,10 @@ export default function SdLessonFiveZeroPage() {
           </ul>
           <p>
             Today you click "Sign in with Google" or "Allow access to your photos", approve a screen listing{" "}
-            <strong>exactly</strong> what's being shared, and never type your Google password anywhere else. That's{" "}
-            <strong>OAuth 2.0</strong> (for granting access) and <strong>OpenID Connect</strong> (for logging in).
+            <strong>exactly</strong> what's being shared, and never type your Google password anywhere else. This is done with two standards. <strong>OAuth 2.0</strong> is a standard way to let one app access your data in another service without your password. <strong>OpenID Connect</strong> is a standard way to log in with an account you already have.
           </p>
           <p>
-            They're behind almost every "Continue with Google/Apple/Microsoft/GitHub" button, and most modern API
-            security. They're also widely <strong>misunderstood</strong> and <strong>misused</strong>.
+            They are behind almost every "Continue with Google/Apple/Microsoft/GitHub" button, and behind most modern API security. Many people <strong>misunderstand</strong> and <strong>misuse</strong> them.
           </p>
         </Section>
 
@@ -87,7 +84,7 @@ export default function SdLessonFiveZeroPage() {
             </li>
           </ul>
           <p>
-            <strong>OAuth 2.0</strong> is a system for handing out <strong>valet keys (access tokens)</strong> to apps:
+            <strong>OAuth 2.0</strong> is a system for handing out <strong>valet keys</strong> to apps. The official name of a valet key is an <strong>access token</strong>: a small piece of text that an app sends to an API to prove it has permission. These keys are:
           </p>
           <ul>
             <li>
@@ -104,12 +101,11 @@ export default function SdLessonFiveZeroPage() {
             </li>
           </ul>
           <p>
-            <strong>OpenID Connect (OIDC)</strong> adds an <strong>ID card</strong> on top: a standard way for the app
-            to learn <strong>who you are</strong>, so it can log you in.
+            <strong>OpenID Connect (OIDC)</strong> is a thin layer on top of OAuth. It adds an <strong>ID card</strong>: a standard way for the app to learn <strong>who you are</strong>, so it can log you in.
           </p>
           <blockquote>
             <p>
-              <strong>OAuth 2.0 = authorization ("this app may access these things").</strong>
+              <strong>OAuth 2.0 = authorization ("this app may access these things").</strong>{" "}
               <strong>OpenID Connect = authentication ("this person is Asha, verified by Google").</strong>
             </p>
           </blockquote>
@@ -145,7 +141,7 @@ export default function SdLessonFiveZeroPage() {
                   <td>
                     <strong>Authorization server</strong>
                   </td>
-                  <td>Issues tokens after the user approves</td>
+                  <td>The server that gives out tokens after the user approves</td>
                   <td>Google's login and consent service</td>
                 </tr>
                 <tr>
@@ -161,35 +157,27 @@ export default function SdLessonFiveZeroPage() {
           <h3 id="key-terms">Key terms</h3>
           <ul>
             <li>
-              <strong>Access token:</strong> the "valet key" the client sends to the API (
-              <code>Authorization: Bearer &lt;token&gt;</code>). It's short-lived (minutes to an hour).
+              <strong>Access token:</strong> the "valet key" the client sends to the API in an HTTP header: <code>Authorization: Bearer &lt;token&gt;</code>. "Bearer" means whoever holds the token can use it. It is short-lived (minutes to an hour).
             </li>
             <li>
-              <strong>Refresh token:</strong> used to get new access tokens without asking the user again. It's
-              long-lived, stored securely, and revocable (post 49).
+              <strong>Refresh token:</strong> a token used to get new access tokens without asking the user again. It lives for a long time, must be stored safely, and can be revoked (cancelled) (post 49).
             </li>
             <li>
-              <strong>Scopes:</strong> <strong>what</strong> the token allows, such as <code>photos.read</code>,{" "}
-              <code>calendar.readonly</code> or <code>repo:status</code>.{" "}
-              <strong>Request the fewest scopes you need.</strong>
+              <strong>Scopes:</strong> a scope is a name for <strong>what</strong> the token allows, such as <code>photos.read</code>, <code>calendar.readonly</code> or <code>repo:status</code>. <strong>Ask for the fewest scopes you need.</strong>
             </li>
             <li>
               <strong>Consent:</strong> the screen where the user approves the requested scopes.
             </li>
             <li>
-              <strong>Redirect URI:</strong> where the authorization server sends the user back after approval. It{" "}
-              <strong>must be pre-registered</strong> and exactly matched.
+              <strong>Redirect URI:</strong> the address where the authorization server sends the user back after approval. You <strong>must register it in advance</strong>, and the server checks that it matches exactly.
             </li>
             <li>
-              <strong>Client ID / client secret:</strong> identify the app. <strong>Confidential clients</strong>{" "}
-              (server-side apps) can keep a secret. <strong>Public clients</strong> (mobile apps, single-page apps){" "}
-              <strong>can't</strong>, because anything in their code can be extracted.
+              <strong>Client ID / client secret:</strong> these identify the app. The client ID is public. The client secret is like the app's password. <strong>Confidential clients</strong> (server-side apps) can keep a secret. <strong>Public clients</strong> (mobile apps, single-page apps) <strong>cannot</strong>, because anyone can extract anything that is in their code.
             </li>
           </ul>
           <h3 id="the-main-flow-authorization-code-pkce">The main flow: Authorization Code + PKCE</h3>
           <p>
-            This is <strong>the recommended flow for almost every app</strong>: server-side web apps, single-page apps
-            and mobile apps.
+            A "flow" is the set of steps an app follows to get a token. This is <strong>the recommended flow for almost every app</strong>: server-side web apps, single-page apps and mobile apps.
           </p>
           <SequenceDiagram
             caption="Authorization Code + PKCE — the recommended flow for almost every app. The code travels through the browser; tokens never do."
@@ -215,15 +203,10 @@ export default function SdLessonFiveZeroPage() {
             ]}
           />
           <p>
-            <strong>Why the two-step "code, then token" dance?</strong> The authorization <strong>code</strong> travels
-            through the browser (in the redirect URL), which is a risky place. It's{" "}
-            <strong>short-lived, single-use</strong>, and useless on its own. The <strong>tokens</strong> are fetched in
-            a separate, direct request from the client to the authorization server.
+            <strong>Why two steps ("code first, then token")?</strong> The authorization <strong>code</strong> travels through the browser, in the redirect URL. This is a risky place. The code is <strong>short-lived and can be used only once</strong>, so it is useless on its own. The <strong>tokens</strong> are fetched in a separate, direct request from the client to the authorization server.
           </p>
           <p>
-            <strong>What PKCE adds.</strong> PKCE (Proof Key for Code Exchange, pronounced "pixy") protects against an
-            attacker who <strong>steals the authorization code</strong>, for example through a malicious app registered
-            for the same redirect scheme on a phone.
+            <strong>What PKCE adds.</strong> PKCE (Proof Key for Code Exchange, said "pixy") is an extra step that protects against an attacker who <strong>steals the authorization code</strong>. For example, a malicious app on a phone may register the same redirect address as your app.
           </p>
           <ul>
             <li>
@@ -231,31 +214,27 @@ export default function SdLessonFiveZeroPage() {
               <strong>
                 <code>code_verifier</code>
               </strong>{" "}
-              and sends only its <strong>hash</strong> (<code>code_challenge</code>) at the start.
+              and sends only its <strong>hash</strong> (<code>code_challenge</code>) at the start. A hash is a one-way fingerprint: you cannot get the verifier back from it.
             </li>
             <li>
               To swap the code for tokens, the client must present the <strong>original verifier</strong>.
             </li>
             <li>
-              An attacker with only the stolen code <strong>can't</strong> complete the exchange.
+              An attacker who has only the stolen code <strong>cannot</strong> complete the exchange.
             </li>
           </ul>
           <p>
-            PKCE was first designed for mobile apps, but is now <strong>recommended for all clients</strong>, including
-            server-side ones.
+            PKCE was first made for mobile apps. Now it is <strong>recommended for all clients</strong>, including server-side ones.
           </p>
           <p>
             <strong>
               What <code>state</code> does.
             </strong>{" "}
-            The <code>state</code> parameter is a random value the client generates and checks when the user comes back.
-            It stops <strong>CSRF-style attacks</strong>, where an attacker tricks your app into accepting{" "}
-            <em>their</em> authorization code and linking <em>their</em> account.
+            The <code>state</code> parameter is a random value. The client creates it and checks it when the user comes back. It stops <strong>CSRF-style attacks</strong> (forged requests), where an attacker tricks your app into accepting <em>their</em> authorization code and linking <em>their</em> account.
           </p>
           <h3 id="client-credentials-machine-to-machine">Client Credentials: machine-to-machine</h3>
           <p>
-            When <strong>no user</strong> is involved, for example a backend service calling another company's API, or
-            one internal service calling another:
+            Use this flow when <strong>no user</strong> is involved. For example, a backend service calls another company's API, or one internal service calls another:
           </p>
           <SequenceDiagram
             caption="Client Credentials — machine to machine, no user involved."
@@ -274,13 +253,11 @@ export default function SdLessonFiveZeroPage() {
             ]}
           />
           <p>
-            The service authenticates as <strong>itself</strong>. Keep its secret safe (post 51), or better, use
-            private-key JWT client authentication or mTLS instead of a shared secret.
+            The service logs in as <strong>itself</strong>. Keep its secret safe (post 51). Even better, use private-key JWT client authentication (the service signs a token with its private key) or mTLS (both sides show certificates) instead of a shared secret.
           </p>
           <h3 id="device-authorization-flow">Device Authorization flow</h3>
           <p>
-            This is for devices with <strong>no browser or keyboard</strong>, like smart TVs, game consoles and
-            command-line tools:
+            Use this flow for devices that have <strong>no browser or easy keyboard</strong>, like smart TVs, game consoles and command-line tools:
           </p>
           <SequenceDiagram
             caption="The Device Authorization flow — how you log in on a TV."
@@ -298,31 +275,22 @@ export default function SdLessonFiveZeroPage() {
           <h3 id="deprecated-flows-don-t-use-these">Deprecated flows: don't use these</h3>
           <ul>
             <li>
-              <strong>Implicit flow:</strong> tokens were returned directly in the browser URL. This leaked tokens
-              through history, logs and referrer headers. It's replaced by <strong>Authorization Code + PKCE</strong>.
+              <strong>Implicit flow:</strong> tokens were returned directly in the browser URL. They leaked through browser history, logs and referrer headers (a header that tells a site which page the user came from). It is replaced by <strong>Authorization Code + PKCE</strong>.
             </li>
             <li>
-              <strong>Resource Owner Password Credentials:</strong> the app collects the user's{" "}
-              <strong>password</strong> and sends it to the auth server. That defeats the whole point of OAuth. Don't
-              use it.
+              <strong>Resource Owner Password Credentials:</strong> the app collects the user's <strong>password</strong> and sends it to the auth server. This defeats the whole point of OAuth. Do not use it.
             </li>
           </ul>
           <p>
-            The <strong>OAuth 2.0 Security Best Current Practice (RFC 9700)</strong> and the upcoming{" "}
-            <strong>OAuth 2.1</strong> consolidate these rules: PKCE for everyone, no implicit or password grants, exact
-            redirect URI matching, and short-lived, sender-constrained or rotating tokens.
+            The <strong>OAuth 2.0 Security Best Current Practice (RFC 9700)</strong> and the <strong>OAuth 2.1</strong> draft put these rules together: PKCE for everyone, no implicit or password grants, exact redirect URI matching, and tokens that are short-lived, tied to the sender, or rotated. (An RFC is an official internet standards document. A "grant" is another word for a flow.)
           </p>
           <h3 id="access-token-formats">Access token formats</h3>
           <ul>
             <li>
-              <strong>Opaque tokens:</strong> random strings. The API must ask the authorization server "is this token
-              valid, and what are its scopes?" (called <strong>token introspection</strong>). They're easy to revoke,
-              but add a call per request (which can be cached).
+              <strong>Opaque tokens:</strong> random strings with no meaning that the API can read. The API must ask the authorization server "is this token valid, and what are its scopes?" This is called <strong>token introspection</strong>. Opaque tokens are easy to revoke, but they add one call per request (you can cache the answer).
             </li>
             <li>
-              <strong>JWT access tokens:</strong> self-contained and signed (post 49). The API{" "}
-              <strong>verifies them locally</strong> using the authorization server's public keys (from its{" "}
-              <strong>JWKS</strong> endpoint). That's fast, but revocation relies on <strong>short expiry</strong>.
+              <strong>JWT access tokens:</strong> these carry their own data and are signed (post 49). The API <strong>verifies them locally</strong> using the authorization server's public keys, which it gets from the server's <strong>JWKS</strong> endpoint (a URL that lists the keys). This is fast, but revoking a token relies on <strong>short expiry</strong>.
             </li>
           </ul>
           <p>
@@ -348,9 +316,7 @@ export default function SdLessonFiveZeroPage() {
           </ul>
           <h3 id="openid-connect-adding-login">OpenID Connect: adding login</h3>
           <p>
-            OAuth alone doesn't tell the client <strong>who the user is</strong>. An access token is meant for the{" "}
-            <strong>API</strong>, not for the client to read. Early "Login with X" features misused access tokens for
-            identity, causing security bugs. <strong>OpenID Connect (OIDC)</strong> fixes this.
+            OAuth alone does not tell the client <strong>who the user is</strong>. An access token is meant for the <strong>API</strong>, not for the client to read. Early "Login with X" features misused access tokens to find out who the user was, and this caused security bugs. <strong>OpenID Connect (OIDC)</strong> fixes this.
           </p>
           <p>
             <strong>What OIDC adds:</strong>
@@ -360,10 +326,10 @@ export default function SdLessonFiveZeroPage() {
               <strong>
                 The <code>openid</code> scope:
               </strong>{" "}
-              asking for it means "I want to log the user in".
+              if you ask for it, you are saying "I want to log the user in".
             </li>
             <li>
-              <strong>The ID token:</strong> a <strong>JWT for the client</strong>, describing the authenticated user:
+              <strong>The ID token:</strong> a <strong>JWT for the client</strong> that describes the user who logged in. Here is an example. The arrow note is only for explanation:
             </li>
           </ul>
           <CodeBlock lang="json" code={code1} />
@@ -372,7 +338,7 @@ export default function SdLessonFiveZeroPage() {
               <strong>
                 The <code>userinfo</code> endpoint:
               </strong>{" "}
-              fetches more profile details using the access token.
+              a URL where you can get more profile details by using the access token.
             </li>
             <li>
               <strong>Discovery:</strong> a standard URL (<code>/.well-known/openid-configuration</code>) lists the
@@ -383,7 +349,7 @@ export default function SdLessonFiveZeroPage() {
               <strong>
                 The <code>nonce</code>:
               </strong>{" "}
-              a random value the client sends and then checks in the ID token, to prevent replay attacks.
+              a random value that the client sends and then looks for in the ID token. It prevents replay attacks, where an attacker re-uses an old token.
             </li>
           </ul>
           <p>
@@ -432,7 +398,7 @@ export default function SdLessonFiveZeroPage() {
             <strong>
               Identify users by <code>iss</code> + <code>sub</code>, not by email.
             </strong>{" "}
-            Emails can change, and the same email might exist at different providers.
+            Emails can change, and the same email can exist at different providers. The <code>sub</code> value stays the same for one user at one provider.
           </p>
           <h3 id="security-checklist">Security checklist</h3>
           <ul>
@@ -441,12 +407,10 @@ export default function SdLessonFiveZeroPage() {
               OIDC).
             </li>
             <li>
-              ✅ <strong>Register exact redirect URIs</strong>, with no wildcards. Open redirects are a classic
-              token-stealing hole.
+              ✅ <strong>Register exact redirect URIs</strong>, with no wildcards. An open redirect (a page that sends users to any address it is given) is a classic way to steal tokens.
             </li>
             <li>
-              ✅ Request <strong>minimal scopes</strong>. Ask for more only when the user actually needs the feature
-              ("incremental consent").
+              ✅ Request <strong>minimal scopes</strong>. Ask for more only when the user really needs the feature. This is called "incremental consent".
             </li>
             <li>
               ✅ Keep <strong>access tokens short-lived</strong>. <strong>Rotate refresh tokens</strong> and store them
@@ -468,21 +432,20 @@ export default function SdLessonFiveZeroPage() {
               ✅ Let users <strong>see and revoke</strong> connected apps.
             </li>
             <li>
-              ✅ <strong>Use a well-tested library or identity provider.</strong> Don't hand-roll OAuth.
+              ✅ <strong>Use a well-tested library or identity provider.</strong> Do not write OAuth yourself from scratch.
             </li>
           </ul>
           <h3 id="build-or-buy">Build or buy?</h3>
           <p>
-            Running your own authorization server means handling login, MFA, passkeys, account recovery, token signing,
-            key rotation, consent, security patches and compliance. Most teams use:
+            Running your own authorization server means you must handle login, MFA, passkeys, account recovery, token signing, key rotation (changing keys regularly), consent, security patches and legal rules (compliance). So most teams use one of these instead:
           </p>
           <ul>
             <li>
-              <strong>managed identity providers:</strong> Auth0/Okta, Microsoft Entra ID, AWS Cognito, Google Identity
+              <strong>managed identity providers</strong> (another company runs them for you): Auth0/Okta, Microsoft Entra ID, AWS Cognito, Google Identity
               Platform, Firebase Auth, Clerk,
             </li>
             <li>
-              <strong>open-source servers:</strong> <strong>Keycloak</strong>, Ory, Authentik, Zitadel,
+              <strong>open-source servers</strong> that you run yourself: <strong>Keycloak</strong>, Ory, Authentik, Zitadel,
             </li>
             <li>
               <strong>social login:</strong> Google, Apple, Microsoft, GitHub.
@@ -519,8 +482,7 @@ export default function SdLessonFiveZeroPage() {
             relay address.
           </p>
           <p>
-            <strong>GitHub OAuth apps and fine-grained tokens.</strong> When a CI service or code-review tool asks to
-            access your GitHub repositories, it uses OAuth with <strong>scopes</strong>. GitHub has also introduced{" "}
+            <strong>GitHub OAuth apps and fine-grained tokens.</strong> A CI service (a service that builds and tests your code automatically) or a code-review tool may ask to access your GitHub repositories. When it does, it uses OAuth with <strong>scopes</strong>. GitHub also offers{" "}
             <strong>fine-grained tokens</strong> that limit access to specific repositories and permissions, which is
             least privilege in practice.
           </p>
@@ -529,14 +491,10 @@ export default function SdLessonFiveZeroPage() {
             your phone and entering a short code is the <strong>Device Authorization flow</strong> in action.
           </p>
           <p>
-            <strong>Open banking.</strong> In many countries, open-banking regulations let third-party apps (budgeting
-            tools, payment apps) access bank data or initiate payments only{" "}
-            <strong>with the customer's explicit consent</strong>, using OAuth 2.0-based security profiles with strict
-            extra requirements.
+            <strong>Open banking.</strong> In many countries, open-banking laws let third-party apps (budgeting tools, payment apps) read bank data or start payments, but only <strong>with the customer's clear consent</strong>. They use security profiles based on OAuth 2.0 with strict extra rules.
           </p>
           <p>
-            <strong>Enterprise SSO.</strong> Companies use identity providers like Okta or Microsoft Entra ID so
-            employees log in once and access Slack, email, HR tools and internal apps through OIDC or SAML. When someone
+            <strong>Enterprise SSO.</strong> Companies use identity providers like Okta or Microsoft Entra ID so employees log in once and access Slack, email, HR tools and internal apps through OIDC or SAML (SAML is an older XML-based login standard, common in companies). When someone
             leaves, disabling one account removes access everywhere.
           </p>
         </Section>

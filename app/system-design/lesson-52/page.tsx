@@ -41,20 +41,16 @@ export default function SdLessonFiveTwoPage() {
       <div className="lesson">
         <Section id="the-problem" title="The Problem" kind="problem">
           <p>
-            When you read about a major data breach, it's rarely a cinematic "genius hacker breaks unbreakable
-            encryption" story. It's usually something like:
+            A data breach is when attackers get data they should not have. When you read about a big one, it is rarely a "genius hacker breaks unbreakable encryption" story. It is usually something like this:
           </p>
           <ul>
             <li>an API that returned any customer's record if you changed the ID in the URL,</li>
-            <li>a login form that let a crafted input run database commands,</li>
+            <li>a login form where specially made input could run database commands,</li>
             <li>a server that was months behind on a security patch,</li>
-            <li>a cloud server tricked into revealing its own access credentials.</li>
+            <li>a cloud server that was tricked into giving away its own access credentials (the keys it uses to log in to cloud services).</li>
           </ul>
           <p>
-            The same few mistakes appear again and again. The <strong>OWASP Top 10</strong> is a list of the most
-            critical, most common web application security risks, published by <strong>OWASP</strong> (the Open
-            Worldwide Application Security Project), a non-profit community. For backend developers and system
-            designers, it's the best checklist to start with.
+            The same few mistakes appear again and again. The <strong>OWASP Top 10</strong> is a list of the most serious and most common security risks in web applications. It is published by <strong>OWASP</strong> (the Open Worldwide Application Security Project), a non-profit community. For backend developers and system designers, it is the best checklist to start with.
           </p>
         </Section>
 
@@ -67,14 +63,13 @@ export default function SdLessonFiveTwoPage() {
               the back door was left unlocked (<strong>broken access control</strong>),
             </li>
             <li>
-              a stranger was let in because they said "I'm from the gas company" (<strong>injection</strong>: trusting
-              input),
+              a stranger was let in because they said "I am from the gas company" (<strong>injection</strong>: trusting what people send you),
             </li>
             <li>
-              the lock was an old model with a known weakness (<strong>vulnerable components</strong>),
+              the lock was an old model with a known weakness (<strong>vulnerable components</strong>: old libraries with known bugs),
             </li>
             <li>
-              the spare key was under the doormat (<strong>misconfiguration</strong>),
+              the spare key was under the doormat (<strong>misconfiguration</strong>: unsafe settings),
             </li>
             <li>
               the alarm wasn't connected, so nobody noticed for weeks (<strong>logging and monitoring failures</strong>
@@ -82,8 +77,7 @@ export default function SdLessonFiveTwoPage() {
             </li>
           </ul>
           <p>
-            Burglars don't pick the hardest target. They check the <strong>common weak spots</strong>. Fix those first,
-            and most attacks fail.
+            Burglars do not pick the hardest house. They check the <strong>common weak spots</strong>. Fix those first, and most attacks fail.
           </p>
         </Section>
 
@@ -109,26 +103,22 @@ export default function SdLessonFiveTwoPage() {
           />
           <p>
             The list below follows the <strong>OWASP Top 10 (2021 edition)</strong>, which is still widely used in
-            training and audits. OWASP also published an updated <strong>2025 edition</strong> that reorganises some
-            categories. For example, software supply chain problems get their own category, and a new category covers
-            mishandling of errors and exceptional conditions. The ideas below still apply, but{" "}
-            <strong>check the official OWASP site for the current list and numbering</strong> before publishing or
-            auditing against it.
+            training and audits. OWASP also published a newer <strong>2025 edition</strong> that reorganises some categories. For example, software supply chain problems (attacks through the code and tools you depend on) get their own category. Another new category covers the mishandling of errors and unusual situations. The ideas below still apply. But <strong>check the official OWASP site for the current list and numbering</strong> before you publish or audit against it.
           </p>
           <hr />
           <h3 id="a01-broken-access-control">A01: Broken Access Control</h3>
           <p>
-            <strong>What it is:</strong> users can do or see things they shouldn't:
+            <strong>What it is:</strong> access control means rules about who may do what. It is "broken" when users can do or see things they should not:
           </p>
           <ul>
             <li>
-              reading other users' data by changing an ID (<strong>IDOR</strong>, post 49),
+              reading other users' data by changing an ID (<strong>IDOR</strong>, post 49: the server does not check who owns the record),
             </li>
             <li>calling admin endpoints as a normal user,</li>
             <li>
               modifying a price or <code>role</code> field in a request,
             </li>
-            <li>accessing another tenant's data in a SaaS app.</li>
+            <li>accessing another tenant's data in a SaaS app. (A tenant is one customer account. SaaS means software that customers use online, like a subscription app.)</li>
           </ul>
           <p>
             <strong>It's the #1 risk</strong> in the 2021 list.
@@ -139,23 +129,19 @@ export default function SdLessonFiveTwoPage() {
           </p>
           <ul>
             <li>
-              <strong>Check authorisation on every request, for every object</strong>, on the server. Never trust the
-              client.
+              <strong>Check permission on every request, for every object</strong>, on the server. Never trust the client (the browser or app), because users can change what it sends.
             </li>
             <li>
-              <strong>Deny by default.</strong> Endpoints require explicit permissions.
+              <strong>Deny by default.</strong> Access is refused unless a rule clearly allows it.
             </li>
             <li>
-              <strong>Scope queries</strong> to the current user or tenant (<code>WHERE tenant_id = ?</code>), and
-              consider database row-level security.
+              <strong>Limit queries</strong> to the current user or tenant (<code>WHERE tenant_id = ?</code>). Also consider row-level security, where the database itself hides rows a user may not see.
             </li>
             <li>
-              <strong>Allow-list the fields</strong> users can update, to avoid "mass assignment" (users setting{" "}
-              <code>role</code>, <code>price</code> or <code>is_verified</code>).
+              <strong>Allow-list the fields</strong> users can update. An allow-list is a list of what is permitted, and everything else is refused. This avoids "mass assignment", where a request sets fields it should not, like <code>role</code>, <code>price</code> or <code>is_verified</code>.
             </li>
             <li>
-              Use hard-to-guess IDs as an <strong>extra</strong> layer, but{" "}
-              <strong>never as the only protection</strong>.
+              Use IDs that are hard to guess (like random UUIDs) as an <strong>extra</strong> layer, but <strong>never as the only protection</strong>.
             </li>
             <li>
               <strong>Test access control</strong> with automated tests ("user A cannot read user B's order").
@@ -167,7 +153,7 @@ export default function SdLessonFiveTwoPage() {
             <strong>What it is:</strong> sensitive data isn't properly protected:
           </p>
           <ul>
-            <li>sent over plain HTTP,</li>
+            <li>sent over plain HTTP (not encrypted),</li>
             <li>stored unencrypted,</li>
             <li>passwords hashed with MD5 or SHA-1,</li>
             <li>weak or hard-coded keys,</li>
@@ -178,7 +164,7 @@ export default function SdLessonFiveTwoPage() {
           </p>
           <ul>
             <li>
-              <strong>HTTPS everywhere</strong>, with HSTS, and TLS between internal services.
+              <strong>HTTPS everywhere</strong>, with HSTS (a header that tells browsers to always use HTTPS for your site), and TLS between internal services.
             </li>
             <li>
               <strong>Encrypt sensitive data at rest</strong>, with field-level encryption or tokenisation for the most
@@ -197,9 +183,7 @@ export default function SdLessonFiveTwoPage() {
           <hr />
           <h3 id="a03-injection">A03: Injection</h3>
           <p>
-            <strong>What it is:</strong> untrusted input is treated as <strong>code or commands</strong>: SQL, NoSQL, OS
-            commands, LDAP, and template injection. (The 2021 edition also groups{" "}
-            <strong>cross-site scripting (XSS)</strong> here.)
+            <strong>What it is:</strong> the app treats input that it should not trust as <strong>code or commands</strong>. This can be SQL, NoSQL, operating-system commands, LDAP (a directory lookup language) or templates. The 2021 edition also puts <strong>cross-site scripting (XSS)</strong> here. XSS means an attacker makes their own JavaScript run on your web page.
           </p>
           <p>
             <strong>SQL injection example:</strong>
@@ -231,48 +215,41 @@ export default function SdLessonFiveTwoPage() {
           </p>
           <ul>
             <li>
-              <strong>Parameterised queries and prepared statements</strong>, always. ORMs do this by default, but be
-              careful with "raw query" features.
+              <strong>Parameterised queries and prepared statements</strong>, always. This means the SQL text and the user's values are sent to the database separately. ORMs (libraries that let you use the database through code objects) do this by default, but be careful with their "raw query" features.
             </li>
             <li>
-              <strong>Never build shell commands from input.</strong> Use safe library APIs, or strict allow-lists.
+              <strong>Never build shell commands from user input.</strong> Use safe library functions, or strict allow-lists.
             </li>
             <li>
-              <strong>Validate input</strong> (type, length, format, allowed values), and <strong>encode output</strong>{" "}
-              for its context (HTML, URL, JavaScript) to prevent XSS. Modern frameworks (React, Angular, template
-              engines) escape by default, so be careful with "raw HTML" features.
+              <strong>Validate input</strong> (check its type, length, format and allowed values). Also <strong>encode output</strong> for the place where it is shown (HTML, URL, JavaScript) to prevent XSS. Encoding turns special characters like <code>&lt;</code> into harmless text. Modern frameworks (React, Angular, template engines) do this by default, so be careful with their "raw HTML" features.
             </li>
             <li>
-              <strong>Least-privilege database accounts:</strong> the app's DB user shouldn't be able to{" "}
-              <code>DROP</code> tables.
+              <strong>Least-privilege database accounts:</strong> give the app's database user only the permissions it needs. It should not be able to <code>DROP</code> (delete) tables.
             </li>
           </ul>
           <hr />
           <h3 id="a04-insecure-design">A04: Insecure Design</h3>
           <p>
-            <strong>What it is:</strong> the <strong>design itself</strong> is unsafe, even if the code is written
-            perfectly. For example:
+            <strong>What it is:</strong> the <strong>design itself</strong> is unsafe, even if the code is perfect. For example:
           </p>
           <ul>
             <li>a password reset that relies on easily guessed "security questions",</li>
             <li>no limits on how many coupons one account can redeem,</li>
             <li>a checkout that trusts the price sent from the browser,</li>
-            <li>no rate limit on OTP attempts.</li>
+            <li>no rate limit on OTP attempts (an OTP is a one-time password; a rate limit caps how many tries are allowed).</li>
           </ul>
           <p>
             <strong>Fixes:</strong>
           </p>
           <ul>
             <li>
-              <strong>Threat modelling</strong> during design: ask "how could this feature be abused?" before building
-              it.
+              <strong>Threat modelling</strong> during design: before you build a feature, ask "how could someone abuse this?"
             </li>
             <li>
-              <strong>Secure design patterns:</strong> server-side price calculation, rate limits (post 43), idempotency
-              (post 34), and step-up authentication for sensitive actions.
+              <strong>Secure design patterns:</strong> work out prices on the server, use rate limits (post 43), use idempotency (post 34: repeating a request does not repeat its effect), and ask for an extra login check (step-up authentication) for sensitive actions.
             </li>
             <li>
-              <strong>Abuse-case tests</strong> alongside normal test cases.
+              <strong>Abuse-case tests</strong> (tests that act like an attacker) next to the normal tests.
             </li>
           </ul>
           <hr />
@@ -284,57 +261,51 @@ export default function SdLessonFiveTwoPage() {
             <li>default passwords left unchanged,</li>
             <li>public storage buckets,</li>
             <li>debug mode or detailed stack traces in production,</li>
-            <li>unnecessary open ports, admin panels exposed to the internet,</li>
+            <li>open network ports you do not need, and admin panels open to the whole internet,</li>
             <li>
-              permissive CORS (<code>Access-Control-Allow-Origin: *</code> with credentials),
+              CORS settings that are too open (CORS is the browser rule about which websites may call your API; <code>Access-Control-Allow-Origin: *</code> lets any site),
             </li>
-            <li>missing security headers.</li>
+            <li>missing security headers (HTTP headers that tell the browser to apply safety rules).</li>
           </ul>
           <p>
             <strong>Fixes:</strong>
           </p>
           <ul>
             <li>
-              <strong>Hardened, repeatable configuration</strong> through <strong>infrastructure as code</strong>,
-              reviewed like application code.
+              <strong>Safe, repeatable settings</strong> through <strong>infrastructure as code</strong> (you describe your servers and cloud setup in files). Review these files like application code.
             </li>
             <li>
               <strong>Disable</strong> debug mode, directory listings and default accounts in production.
             </li>
             <li>
-              <strong>Private by default</strong>: storage buckets, databases and admin tools aren't public (post 17).
+              <strong>Private by default</strong>: storage buckets, databases and admin tools are not public (post 17).
             </li>
             <li>
-              <strong>Security headers:</strong> <code>Content-Security-Policy</code>,{" "}
+              <strong>Security headers:</strong> <code>Content-Security-Policy</code> (limits which scripts the page may run),{" "}
               <code>Strict-Transport-Security</code>, <code>X-Content-Type-Options: nosniff</code>, and{" "}
               <code>frame-ancestors</code> (or <code>X-Frame-Options</code>).
             </li>
             <li>
-              <strong>Automated configuration scanning</strong> (cloud security posture tools, Kubernetes policy tools).
+              <strong>Automatic scanning of settings</strong> (cloud security tools and Kubernetes policy tools).
             </li>
           </ul>
           <hr />
           <h3 id="a06-vulnerable-and-outdated-components">A06: Vulnerable and Outdated Components</h3>
           <p>
-            <strong>What it is:</strong> using libraries, frameworks, operating systems or containers with{" "}
-            <strong>known vulnerabilities</strong>. Modern apps contain hundreds of dependencies, and one bad one is
-            enough.
+            <strong>What it is:</strong> using libraries, frameworks, operating systems or containers that have <strong>known vulnerabilities</strong>. A vulnerability is a weakness that attackers can use. Modern apps contain hundreds of dependencies (libraries they rely on), and one bad one is enough.
           </p>
           <p>
             <strong>Fixes:</strong>
           </p>
           <ul>
             <li>
-              <strong>Know what you run:</strong> keep a <strong>software bill of materials (SBOM)</strong> listing
-              every component.
+              <strong>Know what you run:</strong> keep a <strong>software bill of materials (SBOM)</strong>. This is a list of every component inside your software, like an ingredients list.
             </li>
             <li>
-              <strong>Automated dependency scanning</strong> (Dependabot, Renovate, Snyk, OSV-Scanner) and{" "}
-              <strong>container image scanning</strong>.
+              <strong>Automatic dependency scanning</strong> (Dependabot, Renovate, Snyk, OSV-Scanner) and <strong>container image scanning</strong>. These tools compare your libraries with lists of known weaknesses.
             </li>
             <li>
-              <strong>Patch quickly</strong>, especially for critical, actively exploited vulnerabilities. Have a
-              process to deploy urgent patches within hours or days.
+              <strong>Patch quickly</strong>. A patch is an update that fixes a weakness. Be fastest for serious weaknesses that attackers are already using. Have a process to release urgent patches within hours or days.
             </li>
             <li>
               <strong>Remove unused dependencies</strong>, and prefer well-maintained ones.
@@ -343,7 +314,7 @@ export default function SdLessonFiveTwoPage() {
           <hr />
           <h3 id="a07-identification-and-authentication-failures">A07: Identification and Authentication Failures</h3>
           <p>
-            <strong>What it is:</strong> weak login and session handling:
+            <strong>What it is:</strong> weak login and session handling (a session is how the server remembers you after login):
           </p>
           <ul>
             <li>allowing weak or breached passwords,</li>
@@ -371,7 +342,7 @@ export default function SdLessonFiveTwoPage() {
               ), <strong>session expiry</strong>, and <strong>new session IDs after login</strong>.
             </li>
             <li>
-              <strong>Single-use, short-lived, random</strong> reset tokens.
+              Password-reset tokens that are <strong>random, short-lived and usable once</strong>.
             </li>
             <li>
               <strong>Use a proven identity provider</strong> or library instead of building auth from scratch.
@@ -380,14 +351,13 @@ export default function SdLessonFiveTwoPage() {
           <hr />
           <h3 id="a08-software-and-data-integrity-failures">A08: Software and Data Integrity Failures</h3>
           <p>
-            <strong>What it is:</strong> trusting code or data <strong>without verifying it</strong>:
+            <strong>What it is:</strong> trusting code or data <strong>without checking it</strong>:
           </p>
           <ul>
             <li>installing unverified updates or plugins,</li>
             <li>insecure CI/CD pipelines,</li>
             <li>
-              <strong>deserialising</strong> untrusted data into objects (which can lead to remote code execution in
-              some languages),
+              <strong>deserialising</strong> untrusted data into objects (turning received bytes back into program objects; in some languages this lets an attacker run code on your server, called remote code execution),
             </li>
             <li>webhooks accepted without checking signatures.</li>
           </ul>
@@ -400,29 +370,25 @@ export default function SdLessonFiveTwoPage() {
           </p>
           <ul>
             <li>
-              <strong>Verify signatures</strong> on artefacts and updates, and <strong>sign</strong> your own builds
-              (for example with Sigstore). Follow frameworks like <strong>SLSA</strong> for build integrity.
+              <strong>Check signatures</strong> on build outputs (artefacts) and updates, and <strong>sign</strong> your own builds (for example with Sigstore, a free signing service). Follow frameworks like <strong>SLSA</strong>, a set of rules for keeping the build process trustworthy.
             </li>
             <li>
-              <strong>Lock dependency versions</strong> (lockfiles), use trusted registries, and review new
-              dependencies.
+              <strong>Lock dependency versions</strong> with lockfiles (files that record the exact versions you use). Use trusted registries (the public stores of packages), and review new dependencies.
             </li>
             <li>
-              <strong>Protect CI/CD:</strong> least-privilege tokens, protected branches, required code reviews, and
-              OIDC instead of long-lived cloud keys (post 51).
+              <strong>Protect CI/CD</strong> (the automatic build and release pipeline): use tokens with few permissions, protected branches, required code reviews, and OIDC instead of long-lived cloud keys (post 51).
             </li>
             <li>
-              <strong>Avoid unsafe deserialisation.</strong> Use simple data formats (JSON) with schema validation.
+              <strong>Avoid unsafe deserialisation.</strong> Use simple data formats (like JSON) and check them against a schema (a description of the allowed shape).
             </li>
             <li>
-              <strong>Verify webhook signatures</strong> (HMAC, post 34).
+              <strong>Verify webhook signatures</strong> (post 34). A webhook is a call that another service sends to your server. A signature made with HMAC (a keyed hash, post 51) proves it is genuine.
             </li>
           </ul>
           <hr />
           <h3 id="a09-security-logging-and-monitoring-failures">A09: Security Logging and Monitoring Failures</h3>
           <p>
-            <strong>What it is:</strong> attacks happen, and <strong>nobody notices</strong>, or there are no logs to
-            investigate afterwards. Breaches often go undetected for months.
+            <strong>What it is:</strong> attacks happen and <strong>nobody notices</strong>, or there are no logs to study afterwards. Breaches often stay hidden for months.
           </p>
           <p>
             <strong>Fixes (posts 46–48):</strong>
@@ -433,7 +399,7 @@ export default function SdLessonFiveTwoPage() {
               changes, access denials, admin actions and high-value transactions.
             </li>
             <li>
-              <strong>Centralise logs</strong>, protect them from tampering, and keep them long enough to investigate.
+              <strong>Collect logs in one place</strong>, protect them from changes, and keep them long enough to investigate.
             </li>
             <li>
               <strong>Alert</strong> on suspicious patterns: spikes in failed logins, access from unusual locations,
@@ -443,16 +409,13 @@ export default function SdLessonFiveTwoPage() {
               <strong>Never log secrets or sensitive data</strong> (post 51).
             </li>
             <li>
-              <strong>Have an incident response plan</strong>, and practise it (post 48).
+              <strong>Have an incident response plan</strong> (a plan for what to do during an attack) and practise it (post 48).
             </li>
           </ul>
           <hr />
           <h3 id="a10-server-side-request-forgery-ssrf">A10: Server-Side Request Forgery (SSRF)</h3>
           <p>
-            <strong>What it is:</strong> the attacker makes <strong>your server</strong> send requests to places it
-            shouldn't. For example, a "fetch image from URL" feature is abused to request{" "}
-            <strong>internal services</strong> or the <strong>cloud metadata endpoint</strong>, which can return{" "}
-            <strong>temporary cloud credentials</strong>.
+            <strong>What it is:</strong> the attacker makes <strong>your server</strong> send requests to places it should not. For example, an attacker abuses a "fetch image from URL" feature to reach <strong>internal services</strong> or the <strong>cloud metadata endpoint</strong>. The metadata endpoint is a special address (169.254.169.254) inside a cloud server that tells the server about itself. It can return <strong>temporary cloud credentials</strong>.
           </p>
           <SequenceDiagram
             caption="SSRF — making your own server fetch a URL it should never reach."
@@ -464,9 +427,7 @@ export default function SdLessonFiveTwoPage() {
                 label: (
                   <>
                     POST /preview-link &#123;url:{" "}
-                    <a href="http://169.254.169.254/…/credentials}" target="_blank" rel="noopener noreferrer">
-                      http://169.254.169.254/…/credentials&#125;
-                    </a>
+                    <code>http://169.254.169.254/…/credentials</code>&#125;
                   </>
                 ),
               },
@@ -498,22 +459,19 @@ export default function SdLessonFiveTwoPage() {
               and internal subnets, <strong>after DNS resolution</strong>. Also re-check after redirects.
             </li>
             <li>
-              Use <strong>IMDSv2</strong> on AWS (session-based metadata access), or the equivalent protections on other
-              clouds.
+              Use <strong>IMDSv2</strong> on AWS. This is the newer version of the metadata service, and it needs a session token, so a simple forged request does not work. Use the matching protections on other clouds.
             </li>
             <li>
-              Run URL-fetching features in an <strong>isolated network</strong> or service with no access to internal
-              systems.
+              Run features that fetch URLs in an <strong>isolated network</strong> or service that cannot reach internal systems.
             </li>
             <li>
-              Give servers <strong>least-privilege cloud roles</strong>, so stolen credentials can do little.
+              Give servers <strong>cloud roles with the fewest permissions</strong>, so stolen credentials can do very little.
             </li>
           </ul>
           <hr />
           <h3 id="beyond-the-top-10-apis">Beyond the Top 10: APIs</h3>
           <p>
-            OWASP also publishes an <strong>API Security Top 10</strong>, which matters a lot for backend and mobile
-            systems. Its top risks include:
+            OWASP also publishes an <strong>API Security Top 10</strong>. It matters a lot for backend and mobile systems. Its top risks include:
           </p>
           <ul>
             <li>
@@ -527,8 +485,7 @@ export default function SdLessonFiveTwoPage() {
               shouldn't touch),
             </li>
             <li>
-              <strong>unrestricted resource consumption</strong> (no rate limits, no pagination limits, posts 34 and
-              43),
+              <strong>unrestricted resource consumption</strong> (no rate limits and no limits on page size, posts 34 and 43),
             </li>
             <li>
               <strong>broken function-level authorisation</strong> (normal users calling admin functions).
@@ -537,28 +494,23 @@ export default function SdLessonFiveTwoPage() {
           <h3 id="building-security-into-the-process">Building security into the process</h3>
           <ul>
             <li>
-              <strong>Design:</strong> threat modelling ("what could go wrong?") for new features and architectures.
+              <strong>Design:</strong> threat modelling (asking "what could go wrong?") for new features and designs.
             </li>
             <li>
               <strong>Code:</strong> secure defaults, frameworks that escape output and parameterise queries, and{" "}
               <strong>code review</strong>.
             </li>
             <li>
-              <strong>CI/CD:</strong> static analysis (SAST), dependency and secret scanning, container scanning, and
-              infrastructure-as-code checks.
+              <strong>CI/CD:</strong> static analysis (SAST, a tool that reads your code to find weaknesses), dependency and secret scanning, container scanning, and checks of your infrastructure-as-code files.
             </li>
             <li>
-              <strong>Testing:</strong> dynamic scanning (DAST), security unit tests, and{" "}
-              <strong>penetration testing</strong> for important systems.
+              <strong>Testing:</strong> dynamic scanning (DAST, a tool that attacks your running app to find weaknesses), security unit tests, and <strong>penetration testing</strong> (hired experts try to break in) for important systems.
             </li>
             <li>
-              <strong>Production:</strong> a WAF (web application firewall) as an <strong>extra</strong> layer (not a
-              replacement for fixing code), monitoring, and a <strong>bug bounty or responsible-disclosure</strong>{" "}
-              programme.
+              <strong>Production:</strong> a WAF (web application firewall, which filters bad web requests) as an <strong>extra</strong> layer, not a replacement for fixing code. Also monitoring, and a <strong>bug bounty or responsible-disclosure</strong> programme (outsiders report weaknesses to you, and you may pay them).
             </li>
             <li>
-              <strong>People:</strong> training (for example, the free PortSwigger Web Security Academy labs), clear
-              security ownership, and blameless incident reviews.
+              <strong>People:</strong> training (for example, the free PortSwigger Web Security Academy labs), clear owners for security, and blameless incident reviews.
             </li>
           </ul>
         </Section>
@@ -570,16 +522,13 @@ export default function SdLessonFiveTwoPage() {
               a breach costs far more, in money, trust and legal consequences.
             </li>
             <li>
-              <strong>Automated scanners</strong> catch known issues cheaply, but produce false positives and miss logic
-              flaws (like broken access control). You need <strong>both</strong> tools and human review.
+              <strong>Automated scanners</strong> catch known issues cheaply, but they give false alarms (false positives) and miss flaws in business logic (like broken access control). You need <strong>both</strong> tools and human review.
             </li>
             <li>
-              <strong>WAFs</strong> give quick protection against common attacks, but can be bypassed and can block
-              legitimate traffic. They're a <strong>safety net, not a fix</strong>.
+              <strong>WAFs</strong> give quick protection against common attacks, but attackers can get around them and they can block real users. They are a <strong>safety net, not a fix</strong>.
             </li>
             <li>
-              <strong>Fast patching</strong> reduces exposure, but risks breaking changes. Good tests and staged
-              rollouts (Part 10) make fast patching safe.
+              <strong>Fast patching</strong> reduces the time you are exposed, but it risks breaking things. Good tests and staged rollouts (releasing to a few users first, Part 10) make fast patching safe.
             </li>
           </ul>
         </Section>
@@ -592,8 +541,7 @@ export default function SdLessonFiveTwoPage() {
             It's the classic example of <strong>A06: Vulnerable and Outdated Components</strong>.
           </p>
           <p>
-            <strong>Capital One (2019).</strong> An attacker used an <strong>SSRF</strong> weakness, made possible by a
-            misconfigured web application firewall, to reach the cloud <strong>metadata service</strong>, obtain
+            <strong>Capital One (2019).</strong> An attacker used an <strong>SSRF</strong> weakness, made possible by a wrongly configured web application firewall, to reach the cloud <strong>metadata service</strong>, obtain
             temporary credentials, and read data from storage buckets. Around <strong>100 million</strong> customers in
             the US and Canada were affected. It's a textbook <strong>A10: SSRF</strong> case, and a big reason cloud
             providers pushed stronger metadata protections like IMDSv2.
@@ -605,16 +553,13 @@ export default function SdLessonFiveTwoPage() {
             that injection is still a top threat decades after it was first understood.
           </p>
           <p>
-            <strong>Log4Shell (2021).</strong> A critical flaw in <strong>Log4j</strong>, a Java logging library used
-            almost everywhere, let attackers run code on servers just by getting a specially crafted string logged.
-            Organisations worldwide scrambled to <strong>find where Log4j was used</strong>, and that's exactly why{" "}
+            <strong>Log4Shell (2021).</strong> A critical flaw in <strong>Log4j</strong>, a Java logging library used almost everywhere, let attackers run code on servers just by getting a specially made text string written to the log. Organisations worldwide rushed to <strong>find where Log4j was used</strong>. This is exactly why{" "}
             <strong>SBOMs</strong> and dependency inventories matter.
           </p>
           <p>
             <strong>Supply-chain attacks: SolarWinds (2020) and the xz backdoor (2024).</strong> Attackers compromised
             SolarWinds' build system and shipped malicious updates to thousands of customers, including government
-            agencies. In 2024, a backdoor was discovered in the widely used <strong>xz</strong> compression library,
-            planted over years by a contributor who had gained maintainers' trust. It was caught by a Microsoft
+            agencies. In 2024, a backdoor (a hidden way in) was found in <strong>xz</strong>, a widely used compression library. A contributor had planted it over several years after gaining the maintainers' trust. It was caught by a Microsoft
             engineer, Andres Freund, who noticed SSH logins were slightly slower than expected. Both are{" "}
             <strong>A08: integrity failures</strong> that pushed the industry towards signed builds, SLSA and closer
             scrutiny of dependencies.

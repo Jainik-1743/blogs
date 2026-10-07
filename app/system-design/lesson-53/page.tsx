@@ -32,43 +32,33 @@ export default function SdLessonFiveThreePage() {
       <div className="lesson">
         <Section id="the-problem" title="The Problem" kind="problem">
           <p>
-            A five-person startup reads that Netflix and Uber use microservices, so they split their brand-new app into
-            14 services on day one. Six months later:
+            A five-person startup reads that Netflix and Uber use microservices (many small services that work together). So they split their brand-new app into 14 services on day one. Six months later:
           </p>
           <ul>
-            <li>adding one feature means changing 5 services, coordinating 5 deploys and debugging 5 sets of logs,</li>
-            <li>a simple "show order with customer name" page needs 3 network calls,</li>
-            <li>local development needs 14 containers running on a laptop,</li>
+            <li>adding one feature means changing 5 services, planning 5 deploys (releases to production) and reading 5 sets of logs,</li>
+            <li>a simple "show order with customer name" page needs 3 calls over the network,</li>
+            <li>working on the app needs 14 containers (small isolated boxes that each run one program) on a laptop,</li>
             <li>
               <strong>nobody</strong> remembers which service owns what.
             </li>
           </ul>
-          <p>Meanwhile, across town, a 300-engineer company has one giant codebase:</p>
+          <p>Meanwhile, a 300-engineer company has one giant codebase (all the source code in one place):</p>
           <ul>
             <li>every deploy takes 2 hours and includes 90 people's changes,</li>
             <li>one bug in the reporting code crashes checkout,</li>
             <li>teams constantly block each other.</li>
           </ul>
           <p>
-            Both companies chose the <strong>wrong architecture for their situation</strong>. The monolith vs
-            microservices debate isn't about which is "modern". It's about{" "}
-            <strong>team size, domain understanding and operational maturity</strong>.
+            Both companies chose the <strong>wrong architecture for their situation</strong>. The monolith vs microservices question is not about which one is "modern". It is about <strong>team size, how well you understand the business area (the domain), and how good you are at running software (operational maturity)</strong>.
           </p>
         </Section>
 
         <Section id="the-core-idea" title="The Core Idea" kind="idea">
           <p>
-            <strong>A monolith is like a big restaurant with one kitchen.</strong> Everyone cooks in the same room.
-            Chefs can easily pass ingredients around and coordinate. It's simple to run while the team is small. But
-            with 200 cooks in one kitchen, people bump into each other, one chef's fire alarm evacuates everyone, and
-            changing the menu requires the whole kitchen to agree.
+            <strong>A monolith is like a big restaurant with one kitchen.</strong> Everyone cooks in the same room. Chefs can easily pass ingredients around and work together. It is simple to run while the team is small. But with 200 cooks in one kitchen, people bump into each other. One chef's fire alarm sends everyone out. Changing the menu needs the whole kitchen to agree.
           </p>
           <p>
-            <strong>Microservices are like a food court.</strong> Separate stalls (pizza, dosa, biryani, desserts) each
-            run <strong>independently</strong>: their own staff, their own equipment, their own hours. The dosa stall
-            can change its menu or close for repairs without affecting the others. But now a customer who wants a combo
-            meal must visit <strong>several stalls</strong>, and someone has to manage shared seating, cleaning,
-            payments and coordination.
+            <strong>Microservices are like a food court.</strong> Each stall (pizza, dosa, biryani, desserts) runs <strong>on its own</strong>, with its own staff, equipment and opening hours. The dosa stall can change its menu or close for repairs without affecting the others. But a customer who wants a combo meal must visit <strong>several stalls</strong>. And someone has to manage the shared seating, cleaning, payments and teamwork.
           </p>
           <p>
             Neither is better. The right choice depends on{" "}
@@ -79,8 +69,7 @@ export default function SdLessonFiveThreePage() {
         <Section id="how-it-works" title="How It Works" kind="how">
           <h3 id="the-monolith">The monolith</h3>
           <p>
-            A <strong>monolith</strong> is one application, <strong>one codebase</strong> (usually),{" "}
-            <strong>deployed as one unit</strong>, typically with <strong>one database</strong>.
+            A <strong>monolith</strong> is one application. It usually has <strong>one codebase</strong>, it is <strong>deployed as one unit</strong> (all parts released together), and it typically uses <strong>one database</strong>.
           </p>
           <Layers
             caption="A monolith: one codebase, one deploy, one database. In-process calls, ACID transactions."
@@ -102,24 +91,22 @@ export default function SdLessonFiveThreePage() {
           </p>
           <ul>
             <li>
-              ✅ <strong>Simple to build, run and debug.</strong> One process, one log stream, one stack trace, and "go
-              to definition" works across everything.
+              ✅ <strong>Simple to build, run and debug.</strong> There is one process (one running program), one log stream and one stack trace (the list of function calls that led to an error). The "go to definition" feature of your editor works across all the code.
             </li>
             <li>
-              ✅ <strong>Fast function calls</strong> instead of network calls, with no serialisation, network failures
-              or timeouts between modules.
+              ✅ <strong>Fast function calls</strong> instead of network calls. There is no serialisation (turning data into bytes to send), no network failure and no timeout between modules.
             </li>
             <li>
-              ✅ <strong>Real ACID transactions</strong> across features (post 21).
+              ✅ <strong>Real ACID transactions</strong> across features (post 21). A transaction is a group of database changes that either all succeed or all fail. ACID is the set of guarantees that make this safe.
             </li>
             <li>
-              ✅ <strong>Easy refactoring</strong>, because moving code between modules is a normal code change.
+              ✅ <strong>Easy refactoring</strong> (cleaning up the structure of code), because moving code between modules is a normal code change.
             </li>
             <li>
-              ✅ <strong>Simple deployment and testing:</strong> one pipeline, one artefact.
+              ✅ <strong>Simple deployment and testing:</strong> one build pipeline and one output file (artefact) to release.
             </li>
             <li>
-              ✅ <strong>Scales further than people think:</strong> run many copies behind a load balancer (post 7).
+              ✅ <strong>Scales further than people think:</strong> run many copies behind a load balancer (a server that spreads requests across copies, post 7).
             </li>
           </ul>
           <p>
@@ -127,32 +114,27 @@ export default function SdLessonFiveThreePage() {
           </p>
           <ul>
             <li>
-              ❌ <strong>Team coupling:</strong> many teams in one codebase step on each other, and releases need
-              coordination.
+              ❌ <strong>Team coupling:</strong> many teams in one codebase get in each other's way, and releases need planning between teams.
             </li>
             <li>
               ❌ <strong>Slow builds and deploys</strong> as the code grows.
             </li>
             <li>
-              ❌ <strong>Blast radius:</strong> a memory leak in one feature can crash everything (post 40).
+              ❌ <strong>Blast radius:</strong> this means how much a failure can damage. A memory leak (a bug that slowly uses up memory) in one feature can crash everything (post 40).
             </li>
             <li>
-              ❌ <strong>You scale everything together</strong>, even if only search needs more CPU.
+              ❌ <strong>You scale everything together</strong>, even if only search needs more CPU. (To scale means to add more capacity.)
             </li>
             <li>
               ❌ <strong>One technology stack</strong> for everything.
             </li>
             <li>
-              ❌ <strong>Boundaries erode:</strong> without discipline, modules reach into each other's internals and it
-              becomes a "big ball of mud".
+              ❌ <strong>Boundaries wear away:</strong> without discipline, modules reach into each other's inner parts. The code becomes a "big ball of mud", which means a tangled mess.
             </li>
           </ul>
           <h3 id="microservices">Microservices</h3>
           <p>
-            <strong>Microservices</strong> split the system into{" "}
-            <strong>small, independently deployable services</strong>, each owning{" "}
-            <strong>one business capability</strong> and <strong>its own data</strong>, communicating over the network
-            (REST, gRPC, events).
+            <strong>Microservices</strong> split the system into <strong>small services that can be deployed on their own</strong>. Each service owns <strong>one business capability</strong> (one job, like payments) and <strong>its own data</strong>. The services talk to each other over the network (REST, gRPC or events). REST and gRPC are two ways to call another service. An event is a message that says "something happened".
           </p>
           <Flow
             caption="Microservices: each service owns its code, its deploys and its data."
@@ -180,8 +162,7 @@ export default function SdLessonFiveThreePage() {
           </p>
           <ul>
             <li>
-              <strong>Organised around business capabilities</strong> (orders, payments, catalogue), not technical
-              layers (a "database service" or a "UI service").
+              <strong>Organised around business capabilities</strong> (orders, payments, catalogue), not around technical layers (like a "database service" or a "UI service").
             </li>
             <li>
               <strong>Independently deployable:</strong> a team ships its service without coordinating with others.
@@ -194,7 +175,7 @@ export default function SdLessonFiveThreePage() {
               <strong>Owned by one team</strong> ("you build it, you run it").
             </li>
             <li>
-              <strong>Designed for failure:</strong> timeouts, retries, circuit breakers and fallbacks (Part 7).
+              <strong>Designed for failure:</strong> use timeouts, retries, circuit breakers (stop calling a service that keeps failing) and fallbacks (a backup answer) (Part 7).
             </li>
           </ul>
           <p>
@@ -202,14 +183,13 @@ export default function SdLessonFiveThreePage() {
           </p>
           <ul>
             <li>
-              ✅ <strong>Team autonomy:</strong> teams deploy on their own schedule, many times a day.
+              ✅ <strong>Team independence:</strong> teams deploy on their own schedule, many times a day.
             </li>
             <li>
-              ✅ <strong>Independent scaling:</strong> scale search to 50 instances and user profiles to 3.
+              ✅ <strong>Independent scaling:</strong> run search on 50 instances (copies) and user profiles on 3.
             </li>
             <li>
-              ✅ <strong>Fault isolation:</strong> if recommendations crash, checkout can keep working (with good
-              design, posts 42 and 44).
+              ✅ <strong>Fault isolation:</strong> a failure stays in one place. If recommendations crash, checkout can keep working (with good design, posts 42 and 44).
             </li>
             <li>
               ✅ <strong>Technology freedom:</strong> use the right language or database per service (with limits).
@@ -223,39 +203,31 @@ export default function SdLessonFiveThreePage() {
           </p>
           <ul>
             <li>
-              ❌ <strong>Network calls everywhere:</strong> latency, partial failures, timeouts and retries. The
-              "fallacies of distributed computing" apply (the network is <em>not</em> reliable, latency is <em>not</em>{" "}
-              zero).
+              ❌ <strong>Network calls everywhere:</strong> latency, partial failures, timeouts and retries. The "fallacies of distributed computing" (well-known wrong beliefs about networks) apply. The network is <em>not</em> reliable, and latency (the delay of a call) is <em>not</em> zero.
             </li>
             <li>
-              ❌ <strong>Distributed data:</strong> no cross-service transactions, so you need <strong>sagas</strong>,
-              eventual consistency and data duplication (posts 23, 28 and 39).
+              ❌ <strong>Distributed data:</strong> there are no transactions across services. So you need <strong>sagas</strong> (a chain of local steps, with undo steps if one fails), eventual consistency (data becomes the same everywhere after a short delay) and copies of data (posts 23, 28 and 39).
             </li>
             <li>
-              ❌ <strong>Operational overhead:</strong> dozens or hundreds of services to deploy, monitor, secure, patch
-              and pay for. You need strong <strong>CI/CD, containers, orchestration, observability and on-call</strong>{" "}
-              (posts 46–48 and 55–58).
+              ❌ <strong>Operational overhead:</strong> you must deploy, monitor, secure, patch and pay for dozens or hundreds of services. You need strong <strong>CI/CD (automatic build and release), containers, orchestration (a system that runs and manages containers), observability and on-call</strong> (posts 46–48 and 55–58).
             </li>
             <li>
               ❌ <strong>Harder debugging:</strong> one user request crosses 10 services, so you need{" "}
               <strong>distributed tracing</strong> (post 46).
             </li>
             <li>
-              ❌ <strong>Harder testing:</strong> integration and contract testing across services.
+              ❌ <strong>Harder testing:</strong> you need integration tests and contract tests across services. A contract test checks that two services still agree on the shape of their messages.
             </li>
             <li>
-              ❌ <strong>API versioning</strong> between services (post 34).
+              ❌ <strong>API versioning</strong> between services, so that old callers keep working when an API changes (post 34).
             </li>
             <li>
-              ❌ <strong>The "distributed monolith" trap:</strong> services that are split but{" "}
-              <strong>still tightly coupled</strong>. They must be deployed together, share a database, or call each
-              other in long synchronous chains. You get <strong>all the costs and none of the benefits</strong>.
+              ❌ <strong>The "distributed monolith" trap:</strong> the services are split, but they are <strong>still tightly coupled</strong> (they depend closely on each other). They must be deployed together, share a database, or call each other in long chains where each one waits for the next. You get <strong>all the costs and none of the benefits</strong>.
             </li>
           </ul>
           <h3 id="the-middle-path-the-modular-monolith">The middle path: the modular monolith</h3>
           <p>
-            A <strong>modular monolith</strong> is <strong>one deployable application</strong> with{" "}
-            <strong>strong internal boundaries</strong>:
+            A <strong>modular monolith</strong> is <strong>one deployable application</strong> that is split inside into modules (parts) with <strong>strong boundaries</strong>:
           </p>
           <Compare
             caption="The modular monolith: microservice-style boundaries, monolith-style operations."
@@ -304,18 +276,14 @@ export default function SdLessonFiveThreePage() {
           <h3 id="how-to-find-service-or-module-boundaries">How to find service (or module) boundaries</h3>
           <ul>
             <li>
-              <strong>Domain-Driven Design (DDD):</strong> split by <strong>bounded contexts</strong>, areas of the
-              business with their own language and rules. "Product" means different things to the catalogue team
+              <strong>Domain-Driven Design (DDD)</strong> is a way of designing software around the business. Split by <strong>bounded contexts</strong>, which are areas of the business with their own language and rules. "Product" means different things to the catalogue team
               (description, images), the inventory team (stock levels) and the pricing team (price rules).
             </li>
             <li>
-              <strong>High cohesion, low coupling:</strong> things that change together belong together. If two services
-              always change together, they should probably be one.
+              <strong>High cohesion, low coupling:</strong> cohesion means the parts of a module belong together. Coupling means how much modules depend on each other. Things that change together belong together. If two services always change together, they should probably be one.
             </li>
             <li>
-              <strong>Conway's Law:</strong> "organisations design systems that mirror their own communication
-              structure." Your architecture will end up matching your <strong>team structure</strong>, so design both
-              together. This deliberate approach is sometimes called the "inverse Conway manoeuvre".
+              <strong>Conway's Law:</strong> "organisations design systems that copy their own communication structure." Your architecture will end up matching your <strong>team structure</strong>, so plan both together. Doing this on purpose is sometimes called the "inverse Conway manoeuvre".
             </li>
             <li>
               <strong>Data ownership:</strong> who is the <strong>single source of truth</strong> for each piece of
@@ -324,8 +292,7 @@ export default function SdLessonFiveThreePage() {
           </ul>
           <h3 id="migrating-the-strangler-fig-pattern">Migrating: the strangler fig pattern</h3>
           <p>
-            Don't rewrite a monolith from scratch ("the big-bang rewrite" fails very often). Instead,{" "}
-            <strong>gradually</strong> replace pieces, like a strangler fig vine that slowly grows around a tree:
+            Do not rewrite a monolith from scratch in one go. This "big-bang rewrite" fails very often. Instead, replace the pieces <strong>step by step</strong>. This is like a strangler fig, a vine that slowly grows around a tree until it takes its place:
           </p>
           <Timeline
             caption="The strangler fig pattern — replace a monolith piece by piece, never in one big rewrite."
@@ -342,13 +309,13 @@ export default function SdLessonFiveThreePage() {
           />
           <ol>
             <li>
-              Put a <strong>proxy or gateway</strong> in front of the monolith (post 13).
+              Put a <strong>proxy or gateway</strong> in front of the monolith (post 13). A proxy is a server that receives requests and passes them on.
             </li>
             <li>
               Build <strong>one</strong> new service (say, payments) and route <strong>its</strong> requests to the new
               service.
             </li>
-            <li>Move data carefully, using dual writes, CDC and verification (post 29).</li>
+            <li>Move data carefully (post 29). Use dual writes (write to both old and new database), CDC (change data capture, which copies each database change to another system) and checks that both sides match.</li>
             <li>
               Repeat, <strong>one capability at a time</strong>, until the monolith is small, or gone.
             </li>
@@ -362,10 +329,10 @@ export default function SdLessonFiveThreePage() {
               the team is <strong>small</strong> (one or a few teams),
             </li>
             <li>
-              the <strong>domain is still changing fast</strong> and boundaries aren't clear yet,
+              the <strong>business area (domain) is still changing fast</strong> and the boundaries are not clear yet,
             </li>
             <li>
-              you <strong>don't yet have</strong> strong CI/CD, containers, monitoring and on-call practices,
+              you <strong>do not yet have</strong> strong CI/CD, containers, monitoring and on-call habits,
             </li>
             <li>speed of product iteration matters more than independent scaling.</li>
           </ul>
@@ -387,14 +354,11 @@ export default function SdLessonFiveThreePage() {
               <strong>boundaries are well understood</strong>, and
             </li>
             <li>
-              you have the <strong>platform maturity</strong> to run many services: automation, observability, service
-              discovery and security.
+              you have the <strong>platform maturity</strong> to run many services: automation, observability, service discovery (how services find each other, post 54) and security.
             </li>
           </ul>
           <p>
-            Martin Fowler's well-known advice: <strong>"Monolith first."</strong> Almost every successful microservices
-            story he saw started with a monolith that grew too big, while systems built as microservices from scratch
-            often ended up in trouble.
+            Martin Fowler's well-known advice is <strong>"Monolith first."</strong> Almost every successful microservices story he saw began with a monolith that grew too big. Systems built as microservices from the start often ran into trouble.
           </p>
         </Section>
 
@@ -471,32 +435,22 @@ export default function SdLessonFiveThreePage() {
 
         <Section id="in-the-real-world" title="In the Real World" kind="real">
           <p>
-            <strong>Amazon.</strong> In the early 2000s, Amazon's large monolithic application became a bottleneck. The
-            company moved to <strong>services with clear APIs</strong>, owned by small teams (the famous "two-pizza
-            teams", small enough to feed with two pizzas). That shift also laid the foundations for AWS.
+            <strong>Amazon.</strong> In the early 2000s, Amazon's large monolith slowed the company down (it became a bottleneck). Amazon moved to <strong>services with clear APIs</strong>, each owned by a small team. These are the famous "two-pizza teams", small enough to be fed with two pizzas. This change also helped lay the foundation for AWS.
           </p>
           <p>
-            <strong>Netflix.</strong> After a major database corruption in 2008 stopped DVD shipments for days, Netflix
-            began a years-long move from a monolith in its own data centre to{" "}
-            <strong>hundreds of microservices on AWS</strong>. It also built many open-source tools (like Eureka,
-            Hystrix and Zuul) to handle the complexity.
+            <strong>Netflix.</strong> In 2008, a major database corruption stopped DVD shipments for several days. After that, Netflix began a move that took years, from a monolith in its own data centre to <strong>hundreds of microservices on AWS</strong>. It also built many open-source tools (like Eureka, Hystrix and Zuul) to manage the complexity.
           </p>
           <p>
-            <strong>Segment's "Goodbye Microservices" (2018).</strong> Segment had split its data-delivery system into{" "}
-            <strong>more than a hundred microservices</strong>, one per destination. The result was huge operational
-            overhead, duplicated code and slow development. It <strong>merged them back into a single service</strong>,
+            <strong>Segment's "Goodbye Microservices" (2018).</strong> Segment had split its data-delivery system into <strong>more than a hundred microservices</strong>, one per destination. The result was a lot of operational work, copied code and slow development. It <strong>merged them back into a single service</strong>,
             and productivity and reliability improved. It's a famous example of microservices going too far.
           </p>
           <p>
-            <strong>Shopify's modular monolith.</strong> Shopify runs one of the world's largest Ruby on Rails
-            applications as a <strong>modular monolith</strong>, enforcing boundaries between components with tooling
-            (it even built an open-source tool, Packwerk, to check boundaries), instead of splitting into many services.
+            <strong>Shopify's modular monolith.</strong> Shopify runs one of the world's largest Ruby on Rails applications (Rails is a web framework) as a <strong>modular monolith</strong>. It keeps the boundaries between components with tools, and it even built an open-source tool, Packwerk, to check them. It did not split into many services.
           </p>
           <p>
             <strong>Amazon Prime Video (2023).</strong> A Prime Video team described moving its{" "}
             <strong>video-quality monitoring</strong> tool from a distributed, serverless and microservice design{" "}
-            <strong>to a single application</strong>, cutting infrastructure costs by around <strong>90%</strong> for
-            that tool. It sparked a big industry discussion, and the key lesson is that{" "}
+            <strong>to a single application</strong>, cutting infrastructure costs by about <strong>90%</strong> for that tool. It started a big discussion in the industry. The key lesson is that{" "}
             <strong>the right architecture depends on the workload</strong>.
           </p>
           <p>

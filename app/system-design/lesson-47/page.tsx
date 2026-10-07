@@ -52,24 +52,21 @@ export default function SdLessonFourSevenPage() {
       <div className="lesson">
         <Section id="the-problem" title="The Problem" kind="problem">
           <p>
-            The product team wants to ship new features every day. The operations team wants fewer changes, because{" "}
+            The product team wants to release new features every day. The operations team wants fewer changes, because{" "}
             <strong>most outages start with a change</strong>. Every week they argue:
           </p>
           <ul>
-            <li>"The site is unreliable, stop shipping!"</li>
+            <li>"The site is unreliable, stop releasing!"</li>
             <li>"It's fine! Users aren't complaining!"</li>
           </ul>
           <p>
-            Nobody can win, because nobody has agreed on <strong>what "reliable enough" means</strong>.
+            Nobody can win, because nobody has agreed on <strong>what "reliable enough" means</strong>. A service is reliable when it works correctly each time users need it.
           </p>
           <p>
-            Meanwhile, the monitoring dashboard has 400 graphs, and it's not clear which ones actually matter to{" "}
-            <strong>users</strong>.
+            Meanwhile, the monitoring dashboard (a screen of graphs) has 400 graphs, and it is not clear which ones really matter to <strong>users</strong>.
           </p>
           <p>
-            <strong>SLIs, SLOs and error budgets</strong> end this argument. They turn "reliable enough" into{" "}
-            <strong>a number everyone agrees on</strong>, and give a simple rule for when to move fast and when to slow
-            down.
+            <strong>SLIs, SLOs and error budgets</strong> end this argument. They turn "reliable enough" into <strong>a number everyone agrees on</strong>. They also give a simple rule for when to move fast and when to slow down.
           </p>
         </Section>
 
@@ -95,7 +92,7 @@ export default function SdLessonFourSevenPage() {
               {
                 name: <>Error budget</>,
                 tech: <>100% − SLO</>,
-                desc: <>the unreliability you're allowed to spend on shipping</>,
+                desc: <>the failure you are allowed to "spend" while you release changes</>,
               },
             ]}
           />
@@ -117,20 +114,16 @@ export default function SdLessonFourSevenPage() {
               month, season-ticket holders get a 10% refund".
             </li>
             <li>
-              <strong>The error budget</strong> is <strong>the allowed failure</strong>: with a 95% target, 5% of trains{" "}
-              <strong>may</strong> be late. If you still have plenty of "late budget" left this month, you can do track
-              maintenance that might cause delays. If you've used it all, maintenance waits until next month.
+              <strong>The error budget</strong> is <strong>the allowed failure</strong>. With a 95% target, 5% of trains <strong>may</strong> be late. Say you still have plenty of "late budget" left this month. Then you can do track work that might cause delays. If you have used it all, the track work waits until next month.
             </li>
           </ul>
           <p>Notice two things:</p>
           <ol>
             <li>
-              <strong>The SLO is not 100%.</strong> No real system is perfect, and chasing perfection costs enormous
-              amounts and slows everything down.
+              <strong>The SLO is not 100%.</strong> No real system is perfect. Chasing perfection costs a huge amount of money and slows everything down.
             </li>
             <li>
-              <strong>The SLA is looser than the SLO</strong>, so you notice problems and fix them{" "}
-              <strong>before</strong> you owe customers money.
+              <strong>The SLA is looser than the SLO</strong>. This way you notice problems and fix them <strong>before</strong> you owe customers money.
             </li>
           </ol>
         </Section>
@@ -138,7 +131,7 @@ export default function SdLessonFourSevenPage() {
         <Section id="how-it-works" title="How It Works" kind="how">
           <h3 id="sli-measure-what-users-experience">SLI: measure what users experience</h3>
           <p>
-            An SLI is usually a <strong>ratio of good events to total events</strong>:
+            An SLI is a number that measures one part of your service, as users experience it. It is usually a <strong>ratio of good events to valid events</strong>. A "valid" event is one that should count. For example, a request that fails only because the user sent bad input does not count. The valid events are the bottom number (the denominator) of the ratio.
           </p>
           <CodeBlock code={code1} />
           <p>
@@ -158,7 +151,7 @@ export default function SdLessonFourSevenPage() {
                   <td>
                     <strong>Availability</strong>
                   </td>
-                  <td>Request succeeded (not a 5xx)</td>
+                  <td>Request succeeded (not a 5xx, which is an HTTP status code from 500 to 599 that means the server failed)</td>
                   <td>99.95% of checkout requests succeeded</td>
                 </tr>
                 <tr>
@@ -194,7 +187,7 @@ export default function SdLessonFourSevenPage() {
                     <strong>Durability</strong>
                   </td>
                   <td>Data was not lost</td>
-                  <td>99.999999999% of stored objects retained</td>
+                  <td>99.999999999% (eleven nines) of stored objects retained</td>
                 </tr>
                 <tr>
                   <td>
@@ -211,16 +204,13 @@ export default function SdLessonFourSevenPage() {
           </p>
           <ul>
             <li>
-              <strong>Measure as close to the user as possible.</strong> Load balancer or gateway logs are better than
-              internal service metrics, and <strong>real-user monitoring</strong> (from browsers and apps) or{" "}
-              <strong>synthetic probes</strong> are even closer.
+              <strong>Measure as close to the user as possible.</strong> Logs from the load balancer (a server that spreads requests across many servers) or from the gateway are better than internal service metrics. Even closer to the user are <strong>real-user monitoring (RUM)</strong>, which measures what real browsers and apps experience, and <strong>synthetic probes</strong>, which are scripted fake users that call your service on a schedule.
             </li>
             <li>
-              <strong>Use percentiles for latency, never averages</strong> (post 8).
+              <strong>Use percentiles for latency, never averages</strong> (post 8). A percentile such as p99 means that 99% of requests were faster than that value. Latency means how long a request takes.
             </li>
             <li>
-              <strong>Exclude invalid events</strong> (like <code>400 Bad Request</code> caused by bad client input)
-              from the denominator.
+              <strong>Leave out invalid events</strong> (like <code>400 Bad Request</code>, which is caused by bad client input) from the ratio.
             </li>
             <li>
               <strong>Focus on user journeys:</strong> "log in", "search", "add to cart", "check out", "play video".
@@ -229,7 +219,7 @@ export default function SdLessonFourSevenPage() {
           </ul>
           <h3 id="slo-the-target">SLO: the target</h3>
           <p>
-            An SLO combines <strong>an SLI, a target and a time window</strong>:
+            An SLO is a target value for an SLI over a period of time. So it combines <strong>an SLI, a target and a time window</strong>:
           </p>
           <CodeBlock code={code2} />
           <p>
@@ -237,19 +227,16 @@ export default function SdLessonFourSevenPage() {
           </p>
           <ul>
             <li>
-              <strong>Start from what users need and what the business can afford</strong>, not from "what we get today"
-              or "as many nines as possible".
+              <strong>Start from what users need and what the business can afford.</strong> Do not start from "what we get today" or "as many nines as possible". (A "nine" is one digit 9 in a number like 99.9%.)
             </li>
             <li>
               <strong>Different journeys get different targets:</strong> checkout maybe 99.95%, recommendations 99.5%.
             </li>
             <li>
-              <strong>Remember your dependencies.</strong> You can't reliably beat the availability of what you depend
-              on (post 9).
+              <strong>Remember your dependencies.</strong> A dependency is another service you rely on. You cannot be more available than the services you depend on (post 9).
             </li>
             <li>
-              <strong>Start achievable, then tighten.</strong> An SLO you miss every month is ignored. One you always
-              beat by miles may be too loose, or may mean you're over-spending on reliability.
+              <strong>Start achievable, then tighten.</strong> An SLO you miss every month gets ignored. An SLO you always beat by a large margin may be too loose, or it may mean you spend too much on reliability.
             </li>
           </ul>
           <p>
@@ -257,18 +244,16 @@ export default function SdLessonFourSevenPage() {
           </p>
           <ul>
             <li>
-              <strong>Rolling (the last 28 or 30 days):</strong> always shows recent reliability, which is good for
-              operations.
+              <strong>Rolling (the last 28 or 30 days):</strong> the window moves forward every moment, so it always shows recent reliability. This is good for operations.
             </li>
             <li>
-              <strong>Calendar (per month or quarter):</strong> matches business reporting and SLAs. The budget "resets"
-              at the start of each period.
+              <strong>Calendar (per month or quarter):</strong> the window is fixed, like "March". It matches business reports and SLAs. The budget "resets" at the start of each period.
             </li>
           </ul>
           <h3 id="sla-the-contract">SLA: the contract</h3>
           <p>
             An <strong>SLA</strong> is a <strong>business agreement</strong> with customers, with{" "}
-            <strong>consequences</strong>, usually service credits or refunds, if it's missed.
+            <strong>consequences</strong> if it is missed. The usual consequence is service credits (free usage or money back) or refunds.
           </p>
           <ul>
             <li>It's written by business and legal teams, informed by engineering.</li>
@@ -291,8 +276,7 @@ export default function SdLessonFourSevenPage() {
           />
           <h3 id="error-budgets-turning-slos-into-decisions">Error budgets: turning SLOs into decisions</h3>
           <p>
-            <strong>Error budget = 100% − SLO.</strong> It's the amount of unreliability you're <strong>allowed</strong>
-            .
+            <strong>Error budget = 100% − SLO.</strong> It is the amount of failure you are <strong>allowed</strong>. Think of it as money you can spend on risky changes.
           </p>
           <p>
             <strong>Example:</strong> SLO = 99.9% of requests succeed over 30 days, with{" "}
@@ -311,31 +295,24 @@ export default function SdLessonFourSevenPage() {
           </p>
           <ul>
             <li>
-              <strong>Budget remaining → move fast.</strong> Ship features, run experiments, do risky migrations. Some
-              failures are <strong>expected and acceptable</strong>.
+              <strong>Budget remaining → move fast.</strong> Release features, run experiments and do risky migrations (moving data or systems to a new setup). Some failures are <strong>expected and acceptable</strong>.
             </li>
             <li>
-              <strong>Budget running low → be careful.</strong> Slow down rollouts and add more testing.
+              <strong>Budget running low → be careful.</strong> Slow down rollouts (releasing a change to users) and add more testing.
             </li>
             <li>
-              <strong>Budget exhausted → an error budget policy kicks in.</strong> For example: freeze non-critical
-              launches, focus engineering on reliability work, and require extra review for changes, until reliability
-              recovers.
+              <strong>Budget exhausted → an error budget policy kicks in.</strong> For example: freeze non-critical launches (stop releasing them), focus engineers on reliability work, and require extra review for changes, until reliability recovers.
             </li>
           </ul>
           <p>
-            The result: <strong>product and reliability teams now share one goal</strong>. Nobody argues about feelings.
-            They look at the budget. And spending the budget on <strong>innovation</strong> is a <em>good</em> thing: an
-            unused budget may mean you're being too cautious.
+            The result: <strong>product and reliability teams now share one goal</strong>. Nobody argues about feelings. They look at the budget. Spending the budget on <strong>new ideas</strong> is a <em>good</em> thing. An unused budget may mean you are too careful.
           </p>
           <p>
-            <strong>Write an error budget policy in advance</strong>, agreed by product and engineering leadership, so
-            decisions in a crisis aren't political.
+            <strong>Write an error budget policy in advance</strong>, agreed by product and engineering leadership, so decisions in a crisis are not a fight between teams.
           </p>
           <h3 id="burn-rate-how-fast-you-re-spending-the-budget">Burn rate: how fast you're spending the budget</h3>
           <p>
-            <strong>Burn rate</strong> tells you how quickly you're consuming the error budget, compared with the steady
-            rate that would use exactly 100% by the end of the window.
+            <strong>Burn rate</strong> tells you how quickly you are using up the error budget. It compares your speed with the steady speed that would use exactly 100% of the budget by the end of the window.
           </p>
           <Stats
             caption="Burn rate — how fast you're spending the budget compared with an even pace."
@@ -356,9 +333,7 @@ export default function SdLessonFourSevenPage() {
           </p>
           <h3 id="alerting-on-slos-multi-window-multi-burn-rate">Alerting on SLOs: multi-window, multi-burn-rate</h3>
           <p>
-            Instead of alerting on "CPU &gt; 80%" or "one error happened", alert when you're{" "}
-            <strong>burning budget fast enough to matter</strong>. Google's SRE Workbook recommends combinations like
-            these for a 30-day window:
+            Do not alert on "CPU &gt; 80%" or "one error happened". Alert when you are <strong>burning budget fast enough to matter</strong>. Google's SRE Workbook recommends combinations like these for a 30-day window. A "window" here is how far back you look when you measure the burn rate:
           </p>
           <div className="table-wrap">
             <table>
@@ -404,11 +379,10 @@ export default function SdLessonFourSevenPage() {
           </div>
           <ul>
             <li>
-              The <strong>long window</strong> confirms it's a real, sustained problem, not a blip.
+              The <strong>long window</strong> confirms it is a real problem that lasts, not a short blip.
             </li>
             <li>
-              The <strong>short window</strong> makes sure it's <strong>still happening now</strong>, so the alert stops
-              quickly after recovery.
+              The <strong>short window</strong> makes sure the problem is <strong>still happening now</strong>. This way the alert stops soon after things recover.
             </li>
             <li>
               The result: <strong>fewer, more meaningful alerts</strong>, each tied directly to user impact (more in
@@ -422,10 +396,10 @@ export default function SdLessonFourSevenPage() {
             nodes={[
               {
                 title: <>Plenty of budget left</>,
-                desc: <>ship features, run experiments, do the risky migration</>,
+                desc: <>release features, run experiments, do the risky migration</>,
                 tone: "good",
               },
-              { title: <>Budget running low</>, desc: <>slow rollouts, more canarying and review</>, tone: "warn" },
+              { title: <>Budget running low</>, desc: <>slow rollouts, more canary releases (first try a change on a few users) and review</>, tone: "warn" },
               {
                 title: <>Budget exhausted</>,
                 desc: <>freeze non-critical launches; reliability work first until the SLO holds for 7 days</>,
@@ -469,7 +443,7 @@ export default function SdLessonFourSevenPage() {
             </li>
             <li>
               <strong>Rolling windows:</strong> a responsive, operational view. <strong>Calendar windows:</strong>{" "}
-              simpler business reporting, but with budget "cliffs" at resets.
+              simpler business reports, but the budget jumps suddenly at each reset.
             </li>
             <li>
               <strong>SLO-based alerting:</strong> fewer, more relevant pages, but it takes effort to set up, and it's
@@ -483,13 +457,10 @@ export default function SdLessonFourSevenPage() {
             <strong>Google SRE.</strong> Google introduced the SLO and error-budget approach in its{" "}
             <em>Site Reliability Engineering</em> book (2016) and <em>The Site Reliability Workbook</em> (2018). Its key
             idea, that <strong>100% is the wrong reliability target</strong>, changed how many companies think about
-            reliability. Error budgets let product teams launch freely while budget remains, with SRE teams able to push
-            back when it's spent.
+            reliability. Error budgets let product teams launch freely while budget remains. When the budget is spent, the SRE team can say "wait".
           </p>
           <p>
-            <strong>Cloud provider SLAs.</strong> Major cloud providers publish SLAs (often 99.9%–99.99% depending on
-            the service and configuration) with <strong>service credits</strong> if they're missed. Internally, they run
-            to stricter SLOs so that SLA breaches are rare.
+            <strong>Cloud provider SLAs.</strong> Major cloud providers publish SLAs (often 99.9%–99.99%, depending on the service and set-up). If they miss one, you get <strong>service credits</strong>. Inside the company, they aim for stricter SLOs, so SLA breaches are rare.
           </p>
           <p>
             <strong>Status pages.</strong> Many companies (GitHub, Slack, Atlassian and others) publish public status
@@ -498,8 +469,7 @@ export default function SdLessonFourSevenPage() {
           </p>
           <p>
             <strong>Error budget freezes.</strong> Many engineering organisations adopting SRE practices use{" "}
-            <strong>deploy freezes</strong> when a service's error budget is exhausted. It's a clear example of the
-            policy turning a number into an action. Some companies also use budgets to justify <em>more</em> risk:
+            <strong>deploy freezes</strong> when a service's error budget is exhausted. This is a clear example of a policy turning a number into an action. Some companies also use budgets to justify <em>more</em> risk:
             "we're well within budget, let's do the migration this week."
           </p>
         </Section>

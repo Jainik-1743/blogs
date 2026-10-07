@@ -48,18 +48,16 @@ export default function SdLessonFiveFourPage() {
       <div className="lesson">
         <Section id="the-problem" title="The Problem" kind="problem">
           <p>
-            The order service needs to call the payment service. In the old days, you'd put its address in a config
-            file:
+            The order service needs to call the payment service. To call it, you need its address. An IP address is the number that identifies a computer on a network, like <code>10.0.4.17</code>. In the old days, you would write the address in a config file (a file of settings):
           </p>
           <CodeBlock code={code1} />
           <p>But in a modern system:</p>
           <ul>
             <li>
-              the payment service runs as <strong>12 containers</strong>, and auto-scaling adds and removes them all day
-              (post 7),
+              the payment service runs as <strong>12 containers</strong> (small isolated boxes that each run one program), and auto-scaling adds and removes them all day (post 7). Auto-scaling means the platform changes the number of copies by itself,
             </li>
             <li>
-              containers get <strong>new IP addresses</strong> every time they restart or are rescheduled,
+              containers get <strong>new IP addresses</strong> every time they restart or move to another machine,
             </li>
             <li>
               a deploy replaces <strong>every instance</strong> with new ones,
@@ -69,8 +67,7 @@ export default function SdLessonFiveFourPage() {
             </li>
           </ul>
           <p>
-            A hard-coded IP is out of date within minutes. <strong>Service discovery</strong> is how services find the{" "}
-            <strong>current, healthy</strong> addresses of the services they need.
+            An IP address written in a file is out of date within minutes. <strong>Service discovery</strong> is the way services find the <strong>current, healthy</strong> addresses of the other services they need.
           </p>
         </Section>
 
@@ -80,8 +77,7 @@ export default function SdLessonFiveFourPage() {
           </p>
           <ul>
             <li>
-              You don't memorise which room Dr. Mehta is in today. Doctors move between rooms, shifts change, and some
-              are on leave.
+              You do not memorise which room Dr. Mehta is in today. Doctors move between rooms, shifts change, and some are on leave.
             </li>
             <li>
               Instead, you ask the <strong>reception desk</strong>, which keeps an up-to-date <strong>directory</strong>
@@ -89,21 +85,19 @@ export default function SdLessonFiveFourPage() {
             </li>
             <li>
               When a doctor starts their shift, they <strong>check in</strong> with reception. When they leave, they{" "}
-              <strong>check out</strong>. If a doctor doesn't respond to the pager, reception stops sending patients to
-              them.
+              <strong>check out</strong>. If a doctor does not answer the pager, reception stops sending patients to that doctor.
             </li>
           </ul>
           <p>Service discovery works the same way:</p>
           <ul>
             <li>
-              A <strong>service registry</strong> is the directory of which instances of each service exist, where they
-              are, and whether they're healthy.
+              A <strong>service registry</strong> is a database that lists which instances of each service exist, where they are, and whether they are healthy. An instance is one running copy of a service.
             </li>
             <li>
               Services <strong>register</strong> when they start and <strong>deregister</strong> when they stop.
             </li>
             <li>
-              <strong>Health checks</strong> remove instances that stop responding.
+              <strong>Health checks</strong> are small tests that remove instances that stop answering.
             </li>
             <li>
               Callers <strong>look up</strong> the service by <strong>name</strong> ("payment-service") instead of by
@@ -116,9 +110,7 @@ export default function SdLessonFiveFourPage() {
           <h3 id="the-service-registry">The service registry</h3>
           <AsciiDiagram text={diagram1} />
           <p>
-            The registry must be <strong>highly available</strong>. If it's down, nobody can find anybody. So registries
-            usually run as a replicated cluster, often using <strong>consensus</strong> (Raft) for consistency (post
-            24).
+            The registry must be <strong>highly available</strong>, which means it must almost always be up. If it is down, nobody can find anybody. So registries usually run as a cluster (a group of servers that keep copies of the same data). They often use <strong>consensus</strong>, a way for servers to agree on one answer. Raft is a common consensus algorithm (post 24).
           </p>
           <p>
             <strong>Popular registries:</strong>
@@ -128,16 +120,16 @@ export default function SdLessonFiveFourPage() {
               <strong>Consul</strong> (HashiCorp): service registry, health checks, DNS interface and key-value store.
             </li>
             <li>
-              <strong>etcd</strong>: a consistent key-value store (the brain of Kubernetes).
+              <strong>etcd</strong>: a key-value store (a simple database of names and values) that always gives correct data. Kubernetes keeps its state in it.
             </li>
             <li>
-              <strong>Apache ZooKeeper</strong>: older, used by many big-data systems.
+              <strong>Apache ZooKeeper</strong>: an older coordination service, used by many big-data systems.
             </li>
             <li>
-              <strong>Netflix Eureka</strong>: built for AWS, favours availability over consistency.
+              <strong>Netflix Eureka</strong>: built for AWS. It favours availability over consistency, which means it keeps answering even if its data may be slightly old.
             </li>
             <li>
-              <strong>Kubernetes' built-in discovery</strong> (Services + DNS), the most common today.
+              <strong>Kubernetes' built-in discovery</strong> (Services + DNS), the most common today. Kubernetes is a system that runs and manages containers. DNS is the system that turns names into IP addresses.
             </li>
             <li>
               <strong>Cloud services</strong>: AWS Cloud Map, and similar.
@@ -145,20 +137,16 @@ export default function SdLessonFiveFourPage() {
           </ul>
           <h3 id="how-instances-get-registered">How instances get registered</h3>
           <p>
-            <strong>Self-registration.</strong> Each instance registers itself on startup, sends{" "}
-            <strong>heartbeats</strong>, and deregisters on shutdown.
+            <strong>Self-registration.</strong> Each instance adds itself to the registry when it starts. It sends <strong>heartbeats</strong> (a small "I am alive" message every few seconds) and removes itself when it stops.
           </p>
           <ul>
             <li>✅ Simple.</li>
             <li>
-              ❌ Every service needs registry code, and a crashed instance can't deregister itself. Heartbeat{" "}
-              <strong>timeouts</strong> (TTLs) handle that.
+              ❌ Every service needs registry code, and a crashed instance cannot remove itself. A heartbeat <strong>timeout</strong> handles that. A TTL (time to live) is the time after which an entry with no heartbeat is deleted.
             </li>
           </ul>
           <p>
-            <strong>Third-party registration.</strong> The <strong>platform</strong> registers instances automatically.
-            For example, Kubernetes knows exactly which pods are running and ready, and updates the service's endpoint
-            list itself.
+            <strong>Third-party registration.</strong> The <strong>platform</strong> registers instances for you. For example, Kubernetes knows exactly which pods are running and ready. A pod is the unit that runs your containers. Kubernetes updates the service's list of addresses (its endpoints) by itself.
           </p>
           <ul>
             <li>✅ No code in the services, and always accurate.</li>
@@ -170,8 +158,7 @@ export default function SdLessonFiveFourPage() {
           </p>
           <ul>
             <li>
-              the registry or platform <strong>polls</strong> a health endpoint (<code>/health</code>,{" "}
-              <code>/ready</code>),
+              the registry or platform <strong>polls</strong> a health endpoint. This means it calls a URL like <code>/health</code> or <code>/ready</code> again and again to ask "are you OK?",
             </li>
             <li>
               or instances send <strong>heartbeats</strong> within a TTL,
@@ -181,13 +168,11 @@ export default function SdLessonFiveFourPage() {
             </li>
           </ul>
           <p>
-            As in post 12: keep health checks focused on <strong>the instance itself</strong>. A deep check that fails
-            whenever a shared dependency hiccups can remove <strong>every</strong> instance at once.
+            As in post 12, keep health checks focused on <strong>the instance itself</strong>. A deep check also tests shared dependencies, like the database. If that dependency fails for a moment, such a check can remove <strong>every</strong> instance at once.
           </p>
           <h3 id="client-side-discovery">Client-side discovery</h3>
           <p>
-            The <strong>caller</strong> asks the registry for the list of instances, and{" "}
-            <strong>chooses one itself</strong> (load balancing in the client):
+            The <strong>caller</strong> asks the registry for the list of instances and <strong>picks one itself</strong>. Load balancing means spreading requests across instances, and here the client does it:
           </p>
           <SequenceDiagram
             caption="Client-side discovery. The caller asks the registry, then balances across instances itself."
@@ -195,31 +180,27 @@ export default function SdLessonFiveFourPage() {
             messages={[
               { from: 0, to: 1, label: <>where is payment-service?</> },
               { from: 1, to: 0, label: <>[10.0.4.17, 10.0.7.23] (healthy only)</>, reply: true },
-              { from: 0, to: 3, label: <>POST /charge</>, note: <>picked by round robin / least-loaded</> },
+              { from: 0, to: 3, label: <>POST /charge</>, note: <>picked by round robin (take turns) or least-loaded</> },
               { from: 3, to: 0, label: <>200 OK</>, reply: true },
             ]}
           />
           <ul>
             <li>
-              ✅ <strong>No extra hop</strong>, and the client can use smart balancing (like least-requests, or zone
-              awareness).
+              ✅ <strong>No extra hop</strong> (no extra server in the path), and the client can use smart balancing, like choosing the instance with the fewest requests or the one in the same zone.
             </li>
             <li>
-              ✅ Works well with <strong>gRPC</strong>, which needs per-request balancing on long-lived connections
-              (post 31).
+              ✅ Works well with <strong>gRPC</strong> (a fast way for services to call each other, post 31). gRPC keeps one connection open for a long time, so it needs balancing for each request.
             </li>
             <li>
-              ❌ <strong>Every client</strong> needs discovery and balancing logic, in every language you use.
+              ❌ <strong>Every client</strong> needs discovery and balancing code, in every programming language you use.
             </li>
             <li>
-              Example: Netflix's <strong>Eureka + Ribbon</strong> setup, and gRPC's built-in name resolvers and
-              balancers.
+              Examples: Netflix's <strong>Eureka + Ribbon</strong> setup (Ribbon is now in maintenance mode), and the name resolvers and balancers built into gRPC.
             </li>
           </ul>
           <h3 id="server-side-discovery">Server-side discovery</h3>
           <p>
-            The caller sends requests to a <strong>load balancer or router</strong> at a stable address, and{" "}
-            <strong>the router</strong> looks up the registry and forwards:
+            The caller sends requests to a <strong>load balancer or router</strong> that has a fixed address. <strong>The router</strong> looks up the registry and passes the request on:
           </p>
           <Flow
             caption="Server-side discovery. The caller uses one stable address; the router does the lookup."
@@ -233,20 +214,19 @@ export default function SdLessonFiveFourPage() {
           />
           <ul>
             <li>
-              ✅ <strong>Clients stay simple.</strong> They just call one address.
+              ✅ <strong>Clients stay simple.</strong> They only call one address.
             </li>
             <li>✅ Centralised control of balancing and routing.</li>
             <li>
               ❌ <strong>An extra network hop</strong>, and the router must itself be highly available.
             </li>
             <li>
-              Examples: <strong>AWS load balancers</strong> with target groups, and <strong>Kubernetes Services</strong>{" "}
-              (kube-proxy routes a virtual IP to pods).
+              Examples: <strong>AWS load balancers</strong> with target groups (lists of instances), and <strong>Kubernetes Services</strong>. In Kubernetes, kube-proxy sends traffic for a virtual IP (an address that belongs to no single machine) to the pods.
             </li>
           </ul>
           <h3 id="dns-based-discovery">DNS-based discovery</h3>
           <p>
-            The simplest interface: look up the service <strong>by name through DNS</strong>, and get back IP addresses.
+            This is the simplest way: you look up the service <strong>by name through DNS</strong> and get back IP addresses. DNS (Domain Name System) is the system that turns names into IP addresses.
           </p>
           <CodeBlock code={code2} />
           <p>
@@ -254,18 +234,16 @@ export default function SdLessonFiveFourPage() {
           </p>
           <ul>
             <li>
-              a <strong>Service</strong> gives a set of pods a <strong>stable name and virtual IP</strong>,
+              a <strong>Service</strong> gives a group of pods a <strong>name and a virtual IP that do not change</strong>,
             </li>
             <li>
-              cluster DNS (CoreDNS) resolves <code>payment-service</code> (within the same namespace) or{" "}
-              <code>payment-service.payments.svc.cluster.local</code>,
+              cluster DNS (CoreDNS, the DNS server inside Kubernetes) turns <code>payment-service</code> into an address when you are in the same namespace (a named group of resources). It also understands the full name <code>payment-service.payments.svc.cluster.local</code>,
             </li>
             <li>
-              traffic to the Service IP is spread across <strong>ready</strong> pods,
+              traffic to the Service IP is spread across the pods that are <strong>ready</strong>,
             </li>
             <li>
-              "headless" Services return <strong>individual pod IPs</strong>, for client-side balancing or stateful
-              apps.
+              "headless" Services (Services without a virtual IP) return the <strong>IP of each pod</strong>. They are used for client-side balancing or for stateful apps (apps that keep data, like databases).
             </li>
           </ul>
           <p>
@@ -273,23 +251,19 @@ export default function SdLessonFiveFourPage() {
           </p>
           <ul>
             <li>
-              <strong>Caching:</strong> clients and language runtimes may cache DNS answers longer than you expect, and
-              keep calling old, removed instances. Keep TTLs low and check your runtime's DNS caching behaviour.
+              <strong>Caching:</strong> clients and language runtimes may keep (cache) DNS answers longer than you expect, and keep calling old instances that are already gone. Keep TTLs low, and check how your runtime caches DNS.
             </li>
             <li>
               <strong>DNS gives addresses, not health or load.</strong> It relies on the platform keeping records up to
               date.
             </li>
             <li>
-              <strong>SRV records</strong> can include ports, but not every client supports them.
+              <strong>SRV records</strong> are a kind of DNS record that can also include a port number, but not every client supports them.
             </li>
           </ul>
           <h3 id="service-mesh-discovery">Service mesh discovery</h3>
           <p>
-            In a <strong>service mesh</strong> (Istio, Linkerd, Consul Connect), a <strong>sidecar proxy</strong> (often{" "}
-            <strong>Envoy</strong>) runs next to each service. The mesh's <strong>control plane</strong> watches the
-            registry (usually Kubernetes) and pushes up-to-date endpoint lists to every sidecar (Envoy calls these APIs{" "}
-            <strong>xDS</strong>).
+            A <strong>service mesh</strong> (Istio, Linkerd, Consul) is a layer that manages the traffic between services. In a mesh, a <strong>sidecar proxy</strong> runs next to each service. A sidecar is a small helper program, and it is often <strong>Envoy</strong>, a popular proxy. The mesh's <strong>control plane</strong> is the part that manages all the sidecars. It watches the registry (usually Kubernetes) and sends up-to-date address lists to every sidecar. Envoy calls these APIs <strong>xDS</strong>.
           </p>
           <Flow
             caption="Service-mesh discovery. Sidecars do discovery, balancing, retries and mTLS; the app just calls a name."
@@ -299,9 +273,7 @@ export default function SdLessonFiveFourPage() {
                 desc: (
                   <>
                     calls{" "}
-                    <a href="http://payment-service" target="_blank" rel="noopener noreferrer">
-                      http://payment-service
-                    </a>
+                    <code>http://payment-service</code>
                   </>
                 ),
               },
@@ -315,8 +287,7 @@ export default function SdLessonFiveFourPage() {
             ]}
           />
           <p>
-            Your application code just calls <code>http://payment-service</code>. The sidecar handles discovery, load
-            balancing, retries, timeouts, circuit breaking, mTLS (post 51) and metrics (post 46).
+            Your application code just calls <code>http://payment-service</code>. The sidecar handles discovery, load balancing, retries, timeouts, circuit breaking (stopping calls to a failing service), mTLS (both sides prove their identity, post 51) and metrics (post 46).
           </p>
           <h3 id="making-deploys-and-shutdowns-safe">Making deploys and shutdowns safe</h3>
           <Timeline
@@ -332,7 +303,7 @@ export default function SdLessonFiveFourPage() {
               },
             ]}
           />
-          <p>When an instance is being removed (a deploy, scale-down or node drain):</p>
+          <p>Sometimes an instance must be removed, for example during a deploy, when scaling down, or when a node (a machine) is drained. Do these steps:</p>
           <ol>
             <li>
               <strong>Mark it not-ready</strong>, so it's removed from discovery and load balancers{" "}
@@ -342,16 +313,14 @@ export default function SdLessonFiveFourPage() {
               <strong>wait</strong> for discovery to update everywhere (a few seconds),
             </li>
             <li>
-              <strong>drain</strong> in-flight requests, and let existing connections finish,
+              <strong>drain</strong> the instance. This means you let the requests that are still running (in-flight requests) and the open connections finish,
             </li>
             <li>
               <strong>then</strong> stop the process.
             </li>
           </ol>
           <p>
-            In Kubernetes, this means <strong>readiness probes</strong>, a <code>preStop</code> hook with a short sleep,
-            and a sensible <code>terminationGracePeriodSeconds</code>. Without this, callers keep sending requests to a
-            pod that's already shutting down, and users see errors on <strong>every deploy</strong>.
+            In Kubernetes, you use <strong>readiness probes</strong> (a check that tells Kubernetes if a pod can take traffic), a <code>preStop</code> hook (a command that runs just before the pod stops) with a short sleep, and a sensible <code>terminationGracePeriodSeconds</code> (the maximum time a pod gets to stop). Without these, callers keep sending requests to a pod that is already shutting down, and users see errors on <strong>every deploy</strong>.
           </p>
         </Section>
 
@@ -373,9 +342,7 @@ export default function SdLessonFiveFourPage() {
               resource overhead (a sidecar per pod) and a learning curve.
             </li>
             <li>
-              <strong>Strongly consistent registries</strong> (etcd, Consul, ZooKeeper) are accurate, but may refuse
-              updates during partitions. <strong>Availability-first registries</strong> (Eureka) keep serving possibly
-              stale lists (CAP, post 27).
+              <strong>Strongly consistent registries</strong> (etcd, Consul, ZooKeeper) are accurate, but they may refuse updates during a partition (when the network splits the servers into groups that cannot talk). <strong>Availability-first registries</strong> (Eureka) keep serving lists that may be out of date (CAP, post 27).
             </li>
           </ul>
         </Section>
@@ -383,19 +350,15 @@ export default function SdLessonFiveFourPage() {
         <Section id="in-the-real-world" title="In the Real World" kind="real">
           <p>
             <strong>Kubernetes Services and DNS.</strong> For most teams today, service discovery is simply{" "}
-            <strong>Kubernetes</strong>: every Service gets a DNS name, and traffic is routed to ready pods. Most
-            developers use it daily without thinking of it as "service discovery".
+            <strong>Kubernetes</strong>: every Service gets a DNS name, and traffic is routed to ready pods. Most developers use it every day without thinking of it as "service discovery".
           </p>
           <p>
             <strong>Netflix Eureka.</strong> Netflix built Eureka as its service registry on AWS, designed to{" "}
-            <strong>stay available</strong> during network problems even if its data is slightly stale. Netflix judged
-            that calling a possibly-outdated instance (and retrying) was better than having no directory at all. It's a
-            deliberate AP choice (post 27).
+            <strong>stay available</strong> during network problems even if its data is slightly stale. Netflix decided that calling an instance that might be gone (and trying again) was better than having no directory at all. This is a deliberate AP choice (post 27). AP means "available and partition-tolerant" and gives up strict consistency.
           </p>
           <p>
             <strong>Airbnb's SmartStack.</strong> Airbnb built and open-sourced <strong>SmartStack</strong> (around
-            2013), which used ZooKeeper plus a local HAProxy on each machine: an early version of the sidecar idea that
-            service meshes later made standard.
+            2013), which used ZooKeeper plus a local HAProxy (a load balancer program) on each machine. It was an early version of the sidecar idea that service meshes later made common.
           </p>
           <p>
             <strong>HashiCorp Consul</strong> is widely used for service discovery across mixed environments (VMs,
@@ -403,8 +366,7 @@ export default function SdLessonFiveFourPage() {
             discover services by name.
           </p>
           <p>
-            <strong>Envoy's xDS APIs</strong> have become a de facto standard for pushing discovery and routing
-            configuration to proxies. They're used by Istio and many other control planes.
+            <strong>Envoy's xDS APIs</strong> have become a common standard in practice for sending discovery and routing settings to proxies. They're used by Istio and many other control planes.
           </p>
         </Section>
 

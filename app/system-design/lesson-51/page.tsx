@@ -35,22 +35,17 @@ export default function SdLessonFiveOnePage() {
           <p>Three breaches from the same imaginary company:</p>
           <ol>
             <li>
-              An attacker gets onto the office Wi-Fi and reads traffic between two internal services. It wasn't
-              encrypted, because "it's inside our network".
+              An attacker gets onto the office Wi-Fi and reads the traffic between two internal services. The traffic was not encrypted, because "it is inside our network". (Encryption means scrambling data so only someone with the right key can read it.)
             </li>
             <li>
-              A backup of the customer database is left in a misconfigured storage bucket. It wasn't encrypted, so every
-              name, phone number and address leaks.
+              A backup of the customer database is left in a storage bucket with wrong settings. The backup was not encrypted, so every name, phone number and address leaks.
             </li>
             <li>
-              A developer pushes code to a public GitHub repo with <code>DB_PASSWORD=Sup3rS3cret!</code> in a config
-              file. Within minutes, automated bots find it and log into production.
+              A developer pushes code to a public GitHub repository with <code>DB_PASSWORD=Sup3rS3cret!</code> in a config file. Within minutes, automated bots find it and log into production (the live system).
             </li>
           </ol>
           <p>
-            None of these needed a genius hacker. They needed <strong>missing encryption</strong> and{" "}
-            <strong>badly handled secrets</strong>. For system designers, the question isn't "how does AES work
-            mathematically?". It's{" "}
+            None of these needed a genius hacker. They happened because of <strong>missing encryption</strong> and <strong>badly handled secrets</strong>. A secret is a value that must stay private, like a password or an API key. For system designers, the question is not "how does AES (a common encryption method) work in maths?". The question is{" "}
             <strong>
               where data is encrypted, who holds the keys, and how secrets are stored, delivered and rotated.
             </strong>
@@ -63,21 +58,16 @@ export default function SdLessonFiveOnePage() {
           </p>
           <ul>
             <li>
-              <strong>Encryption in transit</strong> is the <strong>armoured van</strong> that moves cash between
-              branches. Even if someone stops the van, they can't get at the money.
+              <strong>Encryption in transit</strong> protects data while it moves between computers. It is like the <strong>armoured van</strong> that moves cash between branches. Even if someone stops the van, they cannot get at the money.
             </li>
             <li>
-              <strong>Encryption at rest</strong> is the <strong>locked vault</strong>. If someone breaks into the
-              building, the cash is still locked away.
+              <strong>Encryption at rest</strong> protects data while it is stored on a disk. It is like the <strong>locked vault</strong>. If someone breaks into the building, the cash is still locked away.
             </li>
             <li>
-              <strong>Keys</strong> are the vault combinations. A vault is only as safe as its combination. If you write
-              the combination on a sticky note on the vault door, the vault is useless.
+              <strong>Keys</strong> are the vault combinations. A key is a secret value that locks and unlocks encrypted data. A vault is only as safe as its combination. If you write the combination on a note on the vault door, the vault is useless.
             </li>
             <li>
-              <strong>Secrets management</strong> is how the bank <strong>stores, hands out, changes and tracks</strong>{" "}
-              those combinations: only the right people get them, only when needed, they're changed regularly, and every
-              use is logged.
+              <strong>Secrets management</strong> is how the bank <strong>stores, hands out, changes and tracks</strong> those combinations. Only the right people get them, only when needed. They are changed regularly, and every use is written in a log.
             </li>
           </ul>
         </Section>
@@ -99,42 +89,42 @@ export default function SdLessonFiveOnePage() {
                   <td>
                     <strong>Symmetric encryption</strong> (AES-256-GCM, ChaCha20-Poly1305)
                   </td>
-                  <td>One key locks and unlocks. Very fast</td>
+                  <td>The same key locks and unlocks. Very fast</td>
                   <td>Encrypting files, database fields, TLS session data</td>
                 </tr>
                 <tr>
                   <td>
                     <strong>Asymmetric encryption</strong> (RSA, elliptic curves)
                   </td>
-                  <td>Public key locks, private key unlocks; slower</td>
+                  <td>A public key locks (anyone may have it), and a private key unlocks (only the owner has it). Slower</td>
                   <td>Key exchange in TLS, encrypting a key for someone</td>
                 </tr>
                 <tr>
                   <td>
                     <strong>Digital signatures</strong> (ECDSA, Ed25519, RSA)
                   </td>
-                  <td>Private key signs, public key verifies</td>
+                  <td>The private key signs, and the public key checks the signature. This proves who made the data and that it was not changed</td>
                   <td>JWTs (post 49), software updates, certificates</td>
                 </tr>
                 <tr>
                   <td>
                     <strong>Hashing</strong> (SHA-256)
                   </td>
-                  <td>One-way fingerprint; can't be reversed</td>
+                  <td>A one-way fingerprint of data. It cannot be reversed</td>
                   <td>Checksums, file integrity</td>
                 </tr>
                 <tr>
                   <td>
                     <strong>Password hashing</strong> (Argon2id, bcrypt)
                   </td>
-                  <td>Deliberately slow, salted hashing</td>
+                  <td>Hashing that is slow on purpose and uses a random salt (extra random data added to each password)</td>
                   <td>Storing passwords (post 49)</td>
                 </tr>
                 <tr>
                   <td>
                     <strong>HMAC</strong>
                   </td>
-                  <td>A keyed hash, proving a message wasn't altered and came from someone with the key</td>
+                  <td>A hash that also uses a secret key. It proves the message was not changed and came from someone who has the key</td>
                   <td>Webhook signatures (post 34), API request signing</td>
                 </tr>
               </tbody>
@@ -145,29 +135,25 @@ export default function SdLessonFiveOnePage() {
           </p>
           <ul>
             <li>
-              <strong>Base64 is encoding</strong>. Anyone can decode it, so it's <strong>not</strong> security.
+              <strong>Base64 is encoding</strong>. Encoding only changes how data is written. Anyone can decode it, so it is <strong>not</strong> security.
             </li>
             <li>
-              <strong>Encryption</strong> can be reversed <strong>with the key</strong>.
+              <strong>Encryption</strong> can be reversed <strong>with the key</strong>. The scrambled result is called ciphertext.
             </li>
             <li>
               <strong>Hashing</strong> can't be reversed at all.
             </li>
           </ul>
           <p>
-            <strong>Use authenticated encryption</strong> (like AES-GCM), which protects both <strong>secrecy</strong>{" "}
-            and <strong>integrity</strong>, so tampering is detected.
+            <strong>Use authenticated encryption</strong> (like AES-GCM). It protects both <strong>secrecy</strong> (nobody can read the data) and <strong>integrity</strong> (nobody can change it without being noticed).
           </p>
           <p>
-            <strong>Don't roll your own crypto.</strong> Use well-reviewed libraries (like libsodium or Google Tink, or
-            your platform's standard crypto library) and managed services. Most real crypto failures come from{" "}
-            <strong>misuse</strong>: reusing nonces, weak random numbers, hard-coded keys, or home-made schemes. Very
-            few come from breaking the algorithms.
+            <strong>Do not invent your own cryptography.</strong> Use well-reviewed libraries (like libsodium or Google Tink, or your platform's standard crypto library) and managed services. Most real failures come from <strong>misuse</strong>: reusing a nonce (a number that must be used only once), weak random numbers, keys written in the code, or home-made methods. Very few come from breaking the algorithms.
           </p>
           <hr />
           <h3 id="part-2-encryption-in-transit">Part 2: Encryption in transit</h3>
           <p>
-            <strong>Use TLS everywhere.</strong> It's not just between users and your load balancer (post 3), but also:
+            <strong>Use TLS everywhere.</strong> TLS is the protocol that encrypts data on the network. It is what makes HTTPS secure. Use it not only between users and your load balancer (post 3), but also:
           </p>
           <ul>
             <li>between the load balancer and app servers (re-encryption),</li>
@@ -176,13 +162,10 @@ export default function SdLessonFiveOnePage() {
             <li>between data centres and clouds.</li>
           </ul>
           <p>
-            The old idea of "inside our network, so it's safe" has been replaced by <strong>zero trust</strong>: assume
-            the internal network may be compromised, and <strong>authenticate and encrypt every connection</strong>.
+            The old idea "it is inside our network, so it is safe" has been replaced by <strong>zero trust</strong>. Zero trust means you assume the internal network may already be hacked, so you <strong>check who is calling and encrypt every connection</strong>.
           </p>
           <p>
-            <strong>mTLS (mutual TLS).</strong> With normal TLS, only the <strong>server</strong> proves its identity.
-            With <strong>mTLS</strong>, <strong>both sides</strong> present certificates, so service A knows it's really
-            talking to service B, and B knows the caller is really A.
+            <strong>mTLS (mutual TLS).</strong> With normal TLS, only the <strong>server</strong> proves who it is. With <strong>mTLS</strong>, <strong>both sides</strong> show a certificate. A certificate is a digital ID card signed by a trusted authority. So service A knows it is really talking to service B, and B knows the caller is really A.
           </p>
           <Compare
             caption="TLS proves the server; mTLS proves both sides."
@@ -210,11 +193,10 @@ export default function SdLessonFiveOnePage() {
           <p>Managing certificates for hundreds of services by hand is painful, so:</p>
           <ul>
             <li>
-              <strong>service meshes</strong> (Istio, Linkerd) automatically give each service a certificate, rotate it
-              often, and enforce mTLS between sidecars (post 13),
+              <strong>service meshes</strong> (Istio, Linkerd) give each service a certificate automatically, replace it often (rotate it), and force mTLS between sidecars. A sidecar is a small helper program that runs next to each service (post 13),
             </li>
             <li>
-              <strong>workload identity systems</strong> (like SPIFFE/SPIRE) issue short-lived identities to services.
+              <strong>workload identity systems</strong> (like SPIFFE/SPIRE) give services short-lived identities, so you do not manage keys by hand.
             </li>
           </ul>
           <p>
@@ -222,14 +204,13 @@ export default function SdLessonFiveOnePage() {
           </p>
           <ul>
             <li>
-              <strong>automate renewal</strong> (ACME / Let's Encrypt, cloud certificate managers),
+              <strong>renew certificates automatically</strong> (ACME is the protocol for this, and Let's Encrypt is a free service that uses it; cloud certificate managers do it too),
             </li>
             <li>
-              <strong>monitor expiry dates</strong>. Expired certificates are a classic outage (post 40),
+              <strong>watch the expiry dates</strong>. An expired certificate is a classic cause of outages (post 40),
             </li>
             <li>
-              use <strong>modern TLS versions</strong> (TLS 1.2 at minimum, TLS 1.3 preferred) and disable old, weak
-              ones.
+              use <strong>modern TLS versions</strong> (TLS 1.2 at least, TLS 1.3 preferred) and turn off old, weak ones.
             </li>
           </ul>
           <hr />
@@ -242,7 +223,7 @@ export default function SdLessonFiveOnePage() {
             layers={[
               {
                 name: <>4 · Application / field-level</>,
-                tech: <>Aadhaar, PAN, card numbers, health data</>,
+                tech: <>national ID numbers (like Aadhaar or PAN in India), card numbers, health data</>,
                 desc: <>protects fields even from DB admins and DB dumps</>,
               },
               { name: <>3 · Database (TDE)</>, tech: <>data files and backups</>, desc: <>protects stolen DB files</> },
@@ -260,50 +241,38 @@ export default function SdLessonFiveOnePage() {
           />
           <ul>
             <li>
-              <strong>Disk, volume and bucket encryption</strong> (usually on by default in the major clouds today)
-              protects against <strong>stolen or discarded hardware</strong>, and some misconfigurations.
+              <strong>Disk, volume and bucket encryption</strong> is usually on by default in the major clouds today. A volume is a virtual disk, and a bucket is a place to store files in the cloud. This protects against <strong>stolen or thrown-away hardware</strong> and some wrong settings.
             </li>
             <li>
-              <strong>Database Transparent Data Encryption (TDE)</strong> encrypts database files and backups
-              automatically.
+              <strong>Database Transparent Data Encryption (TDE)</strong> encrypts database files and backups automatically. "Transparent" means your app does not notice it.
             </li>
             <li>
-              <strong>Application-level (field-level) encryption</strong> means the app encrypts sensitive fields{" "}
-              <strong>before</strong> saving them, so the database only ever sees ciphertext.
+              <strong>Application-level (field-level) encryption</strong> means the app encrypts sensitive fields <strong>before</strong> saving them, so the database only ever sees ciphertext (the scrambled data).
             </li>
           </ul>
           <p>
-            <strong>Important:</strong> disk, volume and database encryption are <strong>transparent</strong>. Anyone
-            who can <strong>query</strong> the database (an attacker with stolen app credentials, or an SQL injection,
-            post 52) sees <strong>decrypted</strong> data. They mainly protect against{" "}
+            <strong>Important:</strong> disk, volume and database encryption are <strong>transparent</strong>. Anyone who can <strong>query</strong> the database sees <strong>decrypted</strong> data. This includes an attacker with stolen app credentials, or an attacker who uses SQL injection (post 52). SQL injection means sending SQL commands through a form field. They mainly protect against{" "}
             <strong>physical theft and some storage leaks</strong>. For the most sensitive data, add{" "}
             <strong>field-level encryption</strong>, <strong>tokenisation</strong>, and strict{" "}
             <strong>access control</strong>.
           </p>
           <p>
-            <strong>Tokenisation</strong> replaces sensitive data (like a card number) with a{" "}
-            <strong>meaningless token</strong> (<code>tok_9f3a…</code>). The real value is stored in a separate, highly
-            protected <strong>vault</strong>. Most of your systems only handle tokens, so a breach of them reveals
-            nothing useful. That's how payment providers keep merchants out of the scope of card-data regulations (PCI
-            DSS).
+            <strong>Tokenisation</strong> replaces sensitive data (like a card number) with a <strong>meaningless token</strong> such as <code>tok_9f3a…</code>. The real value is kept in a separate, highly protected <strong>vault</strong>. Most of your systems handle only tokens, so if they are breached, nothing useful leaks. This is how payment providers keep merchants out of the scope of the card-data rules (PCI DSS, the security standard for card payments).
           </p>
           <p>
-            <strong>Backups must be encrypted too</strong> (post 45), and their keys must be available during a
-            disaster, but <strong>not</strong> to an attacker.
+            <strong>Backups must be encrypted too</strong> (post 45). Their keys must be available during a disaster, but <strong>not</strong> to an attacker.
           </p>
           <hr />
           <h3 id="part-4-key-management-and-envelope-encryption">Part 4: Key management and envelope encryption</h3>
           <p>
-            Encryption moves the problem from "protect the data" to "<strong>protect the keys</strong>". Keys should:
+            Encryption changes the problem from "protect the data" to "<strong>protect the keys</strong>". Keys should:
           </p>
           <ul>
             <li>
-              <strong>never</strong> be hard-coded in source code,
+              <strong>never</strong> be written directly in the source code,
             </li>
             <li>
-              be stored in a <strong>Key Management Service (KMS)</strong> or a{" "}
-              <strong>Hardware Security Module (HSM)</strong>, which is special hardware designed so keys can't be
-              extracted,
+              be stored in a <strong>Key Management Service (KMS)</strong>, a service that keeps keys safe and does the encrypting for you, or in a <strong>Hardware Security Module (HSM)</strong>, which is special hardware built so that keys cannot be copied out,
             </li>
             <li>
               have <strong>strict access control</strong> and <strong>audit logs</strong> of every use,
@@ -313,8 +282,7 @@ export default function SdLessonFiveOnePage() {
             </li>
           </ul>
           <p>
-            <strong>Envelope encryption</strong> is how KMS systems (AWS KMS, Google Cloud KMS, Azure Key Vault,
-            HashiCorp Vault) work at scale:
+            <strong>Envelope encryption</strong> means you encrypt your data with a data key, and then you encrypt that data key with a master key. It is how KMS systems (AWS KMS, Google Cloud KMS, Azure Key Vault, HashiCorp Vault) work at scale. Think of a letter (the data) in a locked box (the data key), and the box key is kept in a bank safe (the master key):
           </p>
           <SequenceDiagram
             caption="Envelope encryption. The master key never leaves KMS; data is encrypted locally with a throwaway data key."
@@ -367,15 +335,13 @@ export default function SdLessonFiveOnePage() {
               what, and cut off access instantly.
             </li>
             <li>
-              <strong>Crypto-shredding:</strong> delete the key, and the data encrypted with it becomes unreadable.
-              That's useful for "delete my data" requests and for retiring old backups.
+              <strong>Crypto-shredding:</strong> if you delete the key, the data encrypted with it becomes unreadable. This is useful for "delete my data" requests and for retiring old backups.
             </li>
           </ul>
           <hr />
           <h3 id="part-5-end-to-end-encryption-e2ee">Part 5: End-to-end encryption (E2EE)</h3>
           <p>
-            With <strong>end-to-end encryption</strong>, data is encrypted <strong>on the sender's device</strong> and
-            only decrypted <strong>on the recipient's device</strong>. The{" "}
+            With <strong>end-to-end encryption</strong>, data is encrypted <strong>on the sender's device</strong> and is decrypted only <strong>on the recipient's device</strong>. The{" "}
             <strong>server in the middle can't read it at all</strong>.
           </p>
           <Compare
@@ -405,12 +371,10 @@ export default function SdLessonFiveOnePage() {
               ✅ The strongest privacy. Even the service provider, or anyone who breaches it, can't read messages.
             </li>
             <li>
-              ❌ <strong>Server-side features become hard:</strong> search, spam filtering, content moderation, backups
-              and multi-device sync all need special designs.
+              ❌ <strong>Server-side features become hard:</strong> search, spam filtering, content moderation (checking content for abuse), backups and multi-device sync all need special designs.
             </li>
             <li>
-              ❌ <strong>Key management moves to users' devices.</strong> If a user loses all their devices and backups,
-              their messages may be gone.
+              ❌ <strong>Key management moves to the users' devices.</strong> If a user loses all their devices and backups, their messages may be lost for ever.
             </li>
           </ul>
           <hr />
@@ -464,33 +428,24 @@ export default function SdLessonFiveOnePage() {
               <strong>Azure Key Vault</strong>,
             </li>
             <li>
-              <strong>Kubernetes Secrets</strong>. ⚠️ By default, these are only <strong>base64-encoded</strong> in
-              etcd, not encrypted. Enable <strong>encryption at rest</strong> for etcd, restrict access with RBAC, and
-              consider the <strong>External Secrets Operator</strong> (to sync from a cloud secrets manager),{" "}
-              <strong>Sealed Secrets</strong>, or <strong>SOPS</strong> for secrets stored in Git.
+              <strong>Kubernetes Secrets</strong>. ⚠️ By default, these are only <strong>base64-encoded</strong> in etcd (the database where Kubernetes keeps its data), not encrypted. Turn on <strong>encryption at rest</strong> for etcd and limit access with RBAC (role-based access control, post 49). You can also use the <strong>External Secrets Operator</strong> (it copies secrets from a cloud secrets manager), <strong>Sealed Secrets</strong> or <strong>SOPS</strong> (tools that let you store encrypted secrets in Git).
             </li>
           </ul>
           <p>
-            Apps fetch secrets <strong>at runtime</strong>. They're injected as files or environment variables by the
-            platform, or read through the secrets manager's API.
+            Apps get secrets <strong>at runtime</strong>, which means when they run. The platform puts them in as files or environment variables, or the app reads them through the secrets manager's API.
           </p>
           <p>
             <strong>Best: avoid long-lived secrets entirely.</strong>
           </p>
           <ul>
             <li>
-              <strong>Workload identity / IAM roles:</strong> your service runs with an <strong>identity</strong>{" "}
-              granted by the platform (like an AWS IAM role for a pod or VM), and gets{" "}
-              <strong>short-lived credentials automatically</strong>. There are no keys in configuration at all.
+              <strong>Workload identity / IAM roles:</strong> your service runs with an <strong>identity</strong> that the platform gives it (like an AWS IAM role for a pod or VM). A pod is a running unit in Kubernetes, and a VM is a virtual machine. The service gets <strong>short-lived credentials automatically</strong>, so there are no keys in the configuration at all.
             </li>
             <li>
-              <strong>Dynamic secrets:</strong> tools like Vault can create a{" "}
-              <strong>unique database username and password for each app instance</strong>, valid for an hour, then
-              delete it automatically.
+              <strong>Dynamic secrets:</strong> tools like Vault can create a <strong>new database username and password for each app instance</strong>. The login works for an hour, and then Vault deletes it.
             </li>
             <li>
-              <strong>OIDC federation from CI/CD:</strong> instead of storing cloud keys in GitHub Actions or GitLab,
-              the CI job presents a short-lived OIDC token, and the cloud exchanges it for temporary credentials.
+              <strong>OIDC federation from CI/CD:</strong> CI/CD is the automatic pipeline that builds and releases your code. Instead of storing cloud keys in GitHub Actions or GitLab, the job shows a short-lived OIDC token (post 50), and the cloud swaps it for temporary credentials.
             </li>
           </ul>
           <p>
@@ -502,8 +457,7 @@ export default function SdLessonFiveOnePage() {
               is suspected.
             </li>
             <li>
-              <strong>Design apps to handle rotation without downtime.</strong> For example, accept{" "}
-              <strong>both</strong> old and new keys during a transition window, and reload secrets without restarting.
+              <strong>Design apps so rotation causes no downtime.</strong> For example, accept <strong>both</strong> the old and the new key during a short change-over period, and reload secrets without restarting.
             </li>
             <li>
               <strong>Keep an inventory:</strong> which secrets exist, who owns them, what uses them, and when they were
@@ -515,13 +469,11 @@ export default function SdLessonFiveOnePage() {
           </p>
           <ul>
             <li>
-              <strong>Pre-commit hooks and CI scanners</strong> (gitleaks, trufflehog, detect-secrets) block commits
-              containing secrets.
+              <strong>Pre-commit hooks and CI scanners</strong> (gitleaks, trufflehog, detect-secrets) check your code and block commits that contain secrets. A pre-commit hook is a script that runs before each commit.
             </li>
             <li>
               <strong>GitHub secret scanning and push protection</strong> detect known key formats and can block pushes.
-              Many providers (like cloud and payment companies) automatically revoke their keys when they're found in
-              public repos.
+              Many providers (like cloud and payment companies) automatically cancel their keys when they find them in public repositories.
             </li>
           </ul>
           <p>
@@ -529,8 +481,7 @@ export default function SdLessonFiveOnePage() {
           </p>
           <ol>
             <li>
-              <strong>Revoke or rotate it immediately.</strong> Deleting the commit isn't enough; it's in Git history
-              and in scrapers' copies.
+              <strong>Revoke or rotate it immediately.</strong> Deleting the commit is not enough. The secret is still in the Git history and in the copies that bots already made.
             </li>
             <li>
               <strong>Check logs</strong> for any use of the leaked secret.
@@ -550,8 +501,7 @@ export default function SdLessonFiveOnePage() {
         <Section id="trade-offs" title="Trade-offs" kind="tradeoffs">
           <ul>
             <li>
-              <strong>Encryption everywhere:</strong> strong protection, at a small CPU and latency cost (usually
-              negligible with modern hardware and TLS 1.3), plus certificate and key management work.
+              <strong>Encryption everywhere:</strong> strong protection, at a small cost in CPU and latency (time). The cost is usually tiny with modern hardware and TLS 1.3. You also have extra work to manage certificates and keys.
             </li>
             <li>
               <strong>Field-level encryption:</strong> protects the most sensitive data even from database access, but
@@ -563,7 +513,7 @@ export default function SdLessonFiveOnePage() {
             </li>
             <li>
               <strong>Managed KMS and secrets managers:</strong> secure, audited and convenient, but cost money and add
-              a dependency. <strong>Cache</strong> secrets and data keys carefully, so a KMS blip doesn't take you down.
+              a dependency. <strong>Cache</strong> secrets and data keys carefully (keep a short-lived copy in memory), so a short KMS outage does not take you down.
             </li>
             <li>
               <strong>Short-lived, dynamic credentials:</strong> a tiny window for attackers, but more moving parts, and
@@ -574,10 +524,7 @@ export default function SdLessonFiveOnePage() {
 
         <Section id="in-the-real-world" title="In the Real World" kind="real">
           <p>
-            <strong>Uber (2016).</strong> Attackers found{" "}
-            <strong>cloud access credentials in a private code repository</strong> used by Uber engineers, then used
-            them to access stored data on tens of millions of riders and drivers. The incident, and the company's
-            handling of it, led to major fines and legal consequences. It's the textbook case for{" "}
+            <strong>Uber (2016).</strong> Attackers found <strong>cloud access credentials in a private code repository</strong> used by Uber engineers. They used them to reach stored data of tens of millions of riders and drivers. The incident, and the way the company handled it, led to large fines and legal action. It is the standard example for{" "}
             <strong>never storing secrets in code</strong>, even in private repositories.
           </p>
           <p>
@@ -586,16 +533,12 @@ export default function SdLessonFiveOnePage() {
             source code. It shows why <strong>automated secret scanning</strong> matters.
           </p>
           <p>
-            <strong>Heartbleed (2014).</strong> A bug in the widely used OpenSSL library let attackers read chunks of
-            server memory, potentially including <strong>private TLS keys</strong> and passwords. Huge numbers of
+            <strong>Heartbleed (2014).</strong> A bug in OpenSSL (a widely used library for TLS) let attackers read pieces of server memory, potentially including <strong>private TLS keys</strong> and passwords. Huge numbers of
             websites had to patch, <strong>revoke and reissue certificates</strong>, and rotate secrets. It showed how
             important <strong>key rotation</strong> and <strong>dependency updates</strong> are (post 52).
           </p>
           <p>
-            <strong>WhatsApp and Signal.</strong> WhatsApp completed its rollout of{" "}
-            <strong>end-to-end encryption</strong> for all messages in 2016, using the <strong>Signal Protocol</strong>,
-            which was developed by the team behind the Signal messaging app. Billions of people now use E2EE daily
-            without noticing.
+            <strong>WhatsApp and Signal.</strong> WhatsApp finished adding <strong>end-to-end encryption</strong> for all messages in 2016. It uses the <strong>Signal Protocol</strong>, which was created by the team behind the Signal messaging app. Billions of people now use E2EE every day without noticing.
           </p>
           <p>
             <strong>Payment tokenisation.</strong> When an online store saves "your card ending in 4242", it usually

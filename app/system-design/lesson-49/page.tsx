@@ -53,20 +53,16 @@ export default function SdLessonFourNinePage() {
       <div className="lesson">
         <Section id="the-problem" title="The Problem" kind="problem">
           <p>
-            A new API goes live. Every endpoint checks "is the user logged in?". Then someone notices that changing the
+            A new API goes live. An API is a way for programs to talk to your server, and an endpoint is one URL of that API. Every endpoint checks "is the user logged in?". Then someone notices that changing the
             number in the URL, from <code>GET /invoices/1001</code> to <code>GET /invoices/1002</code>, shows{" "}
             <strong>another customer's invoice</strong>. The user <em>was</em> logged in. They just weren't{" "}
             <em>allowed</em> to see that invoice.
           </p>
           <p>
-            Elsewhere, the team switches from server sessions to JWTs "because they scale better". Then an account is
-            hacked, and they discover they <strong>can't log the attacker out</strong>: the stolen token stays valid for
-            30 days.
+            Elsewhere, a team switches from server sessions to JWTs "because they scale better". A session is data the server keeps about a logged-in user. A JWT is a signed token (a small piece of text) that the user sends with each request. Then an account is hacked, and the team finds out they <strong>cannot log the attacker out</strong>. The stolen token stays valid for 30 days.
           </p>
           <p>
-            Most security problems in real systems aren't exotic cryptography attacks. They come from mixing up{" "}
-            <strong>who you are</strong> (authentication) with <strong>what you're allowed to do</strong>{" "}
-            (authorization), and from choosing session and token designs without understanding their trade-offs.
+            Most security problems in real systems are not clever attacks on cryptography. They come from mixing up <strong>who you are</strong> (authentication) with <strong>what you are allowed to do</strong> (authorization). They also come from choosing a session or token design without knowing its trade-offs. <strong>The difference in one line:</strong> authentication checks who you are, and authorization checks what you may do.
           </p>
         </Section>
 
@@ -109,71 +105,55 @@ export default function SdLessonFourNinePage() {
           </p>
           <ul>
             <li>
-              <strong>Never store passwords in plain text</strong> or with fast hashes like MD5 or SHA-256. Attackers
-              who steal the database can try billions of guesses per second against fast hashes.
+              <strong>Never store passwords in plain text</strong>. Do not use fast hashes like MD5 or SHA-256 either. A hash is a one-way function that turns a password into a fixed string that cannot be turned back. Attackers who steal the database can try billions of guesses per second against a fast hash.
             </li>
             <li>
-              Use a <strong>slow, salted password-hashing algorithm</strong> designed for this:{" "}
-              <strong>Argon2id</strong> (recommended first), <strong>scrypt</strong> or <strong>bcrypt</strong>. Each
-              password gets a random <strong>salt</strong>, so identical passwords produce different hashes.
+              Use a <strong>slow, salted password-hashing algorithm</strong> made for this: <strong>Argon2id</strong> (the first choice), <strong>scrypt</strong> or <strong>bcrypt</strong>. A <strong>salt</strong> is a random value added to each password before hashing. Because of the salt, two users with the same password get different hashes.
             </li>
             <li>
-              Check new passwords against lists of <strong>known breached passwords</strong>, and prefer{" "}
-              <strong>long passphrases</strong> over complex rules. (NIST's modern guidance recommends this, and
-              discourages forced periodic changes.)
+              Check new passwords against lists of <strong>known breached passwords</strong> (passwords that leaked before). Prefer <strong>long passphrases</strong> over complex rules. NIST (a US standards body) recommends this in its modern guidance. It also discourages forcing users to change passwords on a schedule.
             </li>
             <li>
-              Protect login from <strong>brute force</strong> with <strong>rate limiting</strong> per account and per IP
-              (post 43), and use CAPTCHA or step-up checks after repeated failures.
+              Protect login from <strong>brute force</strong> (trying many passwords one after another) with <strong>rate limiting</strong>. Rate limiting means allowing only a few attempts in a given time, per account and per IP address (post 43). After repeated failures, use a CAPTCHA (a test that a human can pass) or an extra check.
             </li>
             <li>
-              Use <strong>generic error messages</strong> ("invalid email or password"), so attackers can't discover
-              which emails have accounts.
+              Use <strong>generic error messages</strong> such as "invalid email or password". Then attackers cannot find out which emails have accounts.
             </li>
           </ul>
           <p>
-            <strong>Multi-factor authentication (MFA).</strong> A second factor stops most account takeovers, even when
-            passwords leak:
+            <strong>Multi-factor authentication (MFA)</strong> asks for a second proof besides the password, such as a code from your phone. A second factor stops most account takeovers, even when passwords leak. Common options:
           </p>
           <ul>
             <li>
-              <strong>TOTP apps</strong> (like Google Authenticator), which produce 6-digit codes that change every 30
-              seconds,
+              <strong>TOTP apps</strong> (time-based one-time password apps, like Google Authenticator), which show 6-digit codes that change every 30 seconds,
             </li>
             <li>
-              <strong>SMS OTP</strong>, which is better than nothing but vulnerable to SIM-swap attacks,
+              <strong>SMS OTP</strong> (a one-time password sent by text message), which is better than nothing but weak against SIM-swap attacks (an attacker moves your phone number to their own SIM card),
             </li>
             <li>
-              <strong>push approvals</strong>, which are convenient but vulnerable to "MFA fatigue" (spamming prompts
-              until someone taps approve). Use <strong>number matching</strong> to reduce this,
+              <strong>push approvals</strong>, which are easy to use but weak against "MFA fatigue". This is when an attacker sends prompt after prompt until the user taps approve by mistake. <strong>Number matching</strong> (the user must type a number shown on the login screen) reduces this,
             </li>
             <li>
               <strong>hardware security keys</strong> and <strong>passkeys</strong>, the strongest options.
             </li>
           </ul>
           <p>
-            <strong>Passkeys (WebAuthn / FIDO2).</strong> Passkeys replace passwords with{" "}
-            <strong>public-key cryptography</strong>. Your device stores a private key, and the website stores only the
-            public key. Signing in means your device proves it has the private key, unlocked by your fingerprint, face
-            or PIN.
+            <strong>Passkeys (WebAuthn / FIDO2)</strong> replace passwords with <strong>public-key cryptography</strong>. In public-key cryptography there are two linked keys. A private key stays secret, and a public key can be shared. Your device keeps the private key, and the website stores only the public key. To sign in, your device proves it has the private key. Your fingerprint, face or PIN unlocks it.
           </p>
           <ul>
             <li>
-              ✅ <strong>Phishing-resistant:</strong> a passkey only works on the real website's domain.
+              ✅ <strong>Phishing-resistant:</strong> a passkey only works on the real website's domain, so a fake site cannot use it. (Phishing means tricking users on a fake site.)
             </li>
             <li>✅ Nothing secret is stored on the server to steal.</li>
             <li>Apple, Google and Microsoft all support passkeys, and many major sites offer them.</li>
           </ul>
           <p>
-            <strong>Single sign-on (SSO).</strong> With SSO, users log in once with an{" "}
-            <strong>identity provider</strong> (Google, Microsoft Entra ID, Okta, a company's own login) and access many
-            apps. This uses <strong>OAuth 2.0 / OpenID Connect</strong> or <strong>SAML</strong> (post 50).
+            <strong>Single sign-on (SSO)</strong> lets users log in once and then use many apps. They log in with an <strong>identity provider</strong>, which is a service that keeps user accounts (Google, Microsoft Entra ID, Okta, or a company's own login). SSO uses <strong>OAuth 2.0 / OpenID Connect</strong> or <strong>SAML</strong>, which are standard login protocols (post 50).
           </p>
           <hr />
           <h3 id="part-2-staying-logged-in-sessions-vs-tokens">Part 2: Staying logged in, sessions vs tokens</h3>
           <p>
-            After login, the server needs a way to recognise the user on <strong>every request</strong>, because HTTP is
-            stateless (post 3). There are two main approaches.
+            After login, the server must recognise the user on <strong>every request</strong>. HTTP is stateless (post 3), which means the server does not remember earlier requests. So there are two main approaches.
           </p>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Option A: Server-side sessions</h4>
           <SequenceDiagram
@@ -197,11 +177,10 @@ export default function SdLessonFourNinePage() {
           />
           <ul>
             <li>
-              ✅ <strong>Easy to revoke.</strong> Delete the session and the user is logged out{" "}
-              <strong>instantly</strong>, everywhere you choose.
+              ✅ <strong>Easy to revoke.</strong> Revoke means to cancel. Delete the session and the user is logged out <strong>instantly</strong>, everywhere you choose.
             </li>
             <li>
-              ✅ <strong>Small cookie.</strong> Only a random ID travels. The data stays on the server.
+              ✅ <strong>Small cookie.</strong> A cookie is a small piece of data the browser stores and sends back with every request. Here only a random ID travels. The data stays on the server.
             </li>
             <li>✅ Simple, mature and well understood.</li>
             <li>
@@ -212,15 +191,14 @@ export default function SdLessonFourNinePage() {
           </ul>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Option B: Tokens (JWT)</h4>
           <p>
-            A <strong>JSON Web Token (JWT)</strong> is a <strong>signed</strong> piece of data that the client sends
-            with each request. The server can <strong>verify the signature</strong> without looking anything up.
+            A <strong>JSON Web Token (JWT)</strong> is a <strong>signed</strong> piece of data that the client sends with each request. A signature is a code made with a secret key. It proves that nobody changed the data. The server can <strong>verify the signature</strong> without looking anything up.
           </p>
           <p>
-            A JWT has three parts, <strong>header.payload.signature</strong>, each Base64URL-encoded:
+            A JWT has three parts, <strong>header.payload.signature</strong>. Each part is Base64URL-encoded. Base64URL is a way to write data as plain letters and digits that are safe in a URL. It is not encryption:
           </p>
           <JwtAnatomy caption="A JWT, colour-coded into its three parts. Try editing the payload and see why the server rejects it." />
           <p>
-            <strong>Standard claims:</strong>
+            <strong>Standard claims.</strong> A claim is one fact stored in the payload:
           </p>
           <ul>
             <li>
@@ -236,7 +214,7 @@ export default function SdLessonFourNinePage() {
               <code>exp</code> (expiry), <code>iat</code> (issued at), <code>nbf</code> (not before).
             </li>
             <li>
-              <code>jti</code>: a unique token ID (useful for revocation lists).
+              <code>jti</code>: a unique token ID (useful for a list of revoked tokens).
             </li>
           </ul>
           <p>
@@ -244,29 +222,25 @@ export default function SdLessonFourNinePage() {
           </p>
           <ul>
             <li>
-              <strong>HS256 (HMAC with a shared secret).</strong> The same secret signs and verifies, so{" "}
-              <strong>every service that verifies can also create tokens</strong>. It's only suitable within one trusted
-              service.
+              <strong>HS256 (HMAC with a shared secret).</strong> HMAC is a way to sign data with one shared secret. The same secret signs and verifies, so <strong>every service that verifies can also create tokens</strong>. Use it only inside one trusted service.
             </li>
             <li>
               <strong>RS256 / ES256 (public-key signatures).</strong> The auth server signs with a{" "}
               <strong>private key</strong>, and every other service verifies with the <strong>public key</strong>.
-              That's safer for many services. Public keys are often published at a <strong>JWKS</strong> (JSON Web Key
-              Set) endpoint.
+              This is safer when you have many services. The public keys are often published at a <strong>JWKS</strong> (JSON Web Key Set) endpoint, which is a URL that lists them.
             </li>
           </ul>
           <p>
             ⚠️ <strong>JWTs are signed, not encrypted.</strong> Anyone holding the token can{" "}
             <strong>decode and read</strong> the payload.{" "}
-            <strong>Never put secrets or sensitive personal data in a JWT.</strong> (Encrypted tokens, called JWE,
-            exist, but are less common.)
+            <strong>Never put secrets or sensitive personal data in a JWT.</strong> Encrypted tokens, called JWE, exist, but they are less common.
           </p>
           <p>
             <strong>Why people like JWTs:</strong>
           </p>
           <ul>
             <li>
-              ✅ <strong>Stateless verification:</strong> no session lookup, so any service can check the token locally.
+              ✅ <strong>Stateless verification:</strong> there is no session lookup, so any service can check the token on its own.
             </li>
             <li>
               ✅ Useful for <strong>APIs, mobile apps, and passing identity between services</strong>.
@@ -274,25 +248,21 @@ export default function SdLessonFourNinePage() {
             <li>✅ A standard format, widely supported by libraries and identity providers.</li>
           </ul>
           <p>
-            <strong>The big JWT problem: revocation.</strong> Because servers don't look tokens up,{" "}
-            <strong>a valid token keeps working until it expires</strong>, even after the user logs out, changes their
-            password, or is banned. Solutions:
+            <strong>The big JWT problem: revocation.</strong> Servers do not look tokens up. So <strong>a valid token keeps working until it expires</strong>, even after the user logs out, changes their password, or is banned. Here are some solutions:
           </p>
           <ul>
             <li>
               <strong>Short-lived access tokens</strong> (5–15 minutes) plus <strong>refresh tokens</strong> (below).
             </li>
             <li>
-              A <strong>deny list</strong> of revoked token IDs (<code>jti</code>) checked on each request. But that's a
-              lookup again, just like sessions.
+              A <strong>deny list</strong> of revoked token IDs (<code>jti</code>), checked on each request. But this is a lookup again, just like sessions.
             </li>
             <li>
-              <strong>Token versioning:</strong> store a <code>token_version</code> per user. Bump it to invalidate all
-              older tokens (this also needs a lookup, but it's small and easily cached).
+              <strong>Token versioning:</strong> store a <code>token_version</code> number for each user. Raise the number to cancel all older tokens. This also needs a lookup, but it is small and easy to cache (keep a copy in fast memory).
             </li>
           </ul>
           <p>
-            <strong>Common JWT mistakes (all real, all seen in production):</strong>
+            <strong>Common JWT mistakes (all of them have happened in real systems):</strong>
           </p>
           <ul>
             <li>
@@ -304,7 +274,7 @@ export default function SdLessonFourNinePage() {
               <strong>not checking</strong> <code>exp</code>, <code>aud</code> or <code>iss</code>,
             </li>
             <li>
-              <strong>algorithm confusion</strong>, like treating a public key as an HMAC secret,
+              <strong>algorithm confusion</strong>, such as a server that treats a public key as an HMAC secret,
             </li>
             <li>
               <strong>long expiry times</strong> (days or weeks) with no revocation plan,
@@ -316,14 +286,14 @@ export default function SdLessonFourNinePage() {
               <strong>
                 storing tokens in <code>localStorage</code>
               </strong>
-              , where any cross-site scripting (XSS) bug can steal them.
+              , where any cross-site scripting (XSS) bug can steal them. XSS means an attacker gets their own JavaScript to run on your page.
             </li>
           </ul>
           <p>
-            <strong>Use a well-maintained library</strong>, and follow the JWT Best Current Practices (RFC 8725).
+            <strong>Use a well-maintained library</strong>, and follow the JWT Best Current Practices (RFC 8725, an official internet standards document).
           </p>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Access tokens + refresh tokens</h4>
-          <p>A common, safer token design:</p>
+          <p>A common and safer design uses two tokens. An <strong>access token</strong> is short-lived and is sent with each API request. A <strong>refresh token</strong> is long-lived and is used only to get a new access token:</p>
           <SequenceDiagram
             caption="Access + refresh tokens with rotation. Stateless where it's hot, revocable where it matters."
             actors={["Client", "API", "Auth server"]}
@@ -348,7 +318,7 @@ export default function SdLessonFourNinePage() {
             </li>
             <li>
               <strong>Refresh token rotation:</strong> each use returns a new refresh token and invalidates the old one.
-              If an old refresh token is ever used again, that suggests it was stolen, so revoke the whole chain.
+              If an old refresh token is ever used again, it was probably stolen, so revoke the whole chain of tokens.
             </li>
           </ul>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Where to keep tokens in a browser</h4>
@@ -358,7 +328,7 @@ export default function SdLessonFourNinePage() {
                 <code>HttpOnly</code> cookies
               </strong>{" "}
               can't be read by JavaScript, which protects them from XSS theft.{" "}
-              <strong>This is the recommended place.</strong>
+              <strong>This is the recommended place.</strong> An HttpOnly cookie is a cookie that the browser keeps away from JavaScript.
             </li>
             <li>
               <strong>
@@ -367,8 +337,7 @@ export default function SdLessonFourNinePage() {
               is readable by any script on the page, so one XSS bug leaks every token.
             </li>
             <li>
-              For single-page apps, a common pattern is the <strong>Backend-for-Frontend (BFF)</strong> (post 13). The
-              BFF holds the tokens server-side and gives the browser only an <code>HttpOnly</code> session cookie.
+              For single-page apps, a common pattern is the <strong>Backend-for-Frontend (BFF)</strong> (post 13). A BFF is a small server that sits between your front end and the APIs. It keeps the tokens on the server and gives the browser only an <code>HttpOnly</code> session cookie.
             </li>
           </ul>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Cookie security settings</h4>
@@ -415,15 +384,14 @@ export default function SdLessonFourNinePage() {
             </li>
           </ul>
           <p>
-            <strong>CSRF (Cross-Site Request Forgery):</strong> a malicious site tricks your browser into sending a
-            request to another site <strong>with your cookies attached</strong>, such as "transfer money". Defences:
+            <strong>CSRF (Cross-Site Request Forgery)</strong> is an attack where a bad website tricks your browser into sending a request to another site <strong>with your cookies attached</strong>, such as "transfer money". Defences:
           </p>
           <ul>
             <li>
               <code>SameSite</code> cookies,
             </li>
             <li>
-              <strong>anti-CSRF tokens</strong> in forms and state-changing requests,
+              <strong>anti-CSRF tokens</strong> (secret values that only your own pages know) in forms and in requests that change data,
             </li>
             <li>
               checking the <code>Origin</code> header.
@@ -483,8 +451,7 @@ export default function SdLessonFourNinePage() {
             Common models:
           </p>
           <p>
-            <strong>RBAC (Role-Based Access Control).</strong> Users get <strong>roles</strong>, and roles have{" "}
-            <strong>permissions</strong>.
+            <strong>RBAC (Role-Based Access Control).</strong> Users get <strong>roles</strong> (like "admin" or "viewer"), and each role has a list of <strong>permissions</strong>.
           </p>
           <CodeBlock code={code2} />
           <p>
@@ -492,8 +459,7 @@ export default function SdLessonFourNinePage() {
             <em>their</em> team".
           </p>
           <p>
-            <strong>ABAC (Attribute-Based Access Control).</strong> Decisions use <strong>attributes</strong> of the
-            user, the resource and the context:
+            <strong>ABAC (Attribute-Based Access Control).</strong> Decisions use <strong>attributes</strong> (facts) about the user, the resource and the situation, such as the user's department, the document's secrecy level or the time of day. A rule might say "managers can read salary data during work hours":
           </p>
           <Compare
             caption="Three authorization models, from simplest to most expressive."
@@ -527,43 +493,38 @@ export default function SdLessonFourNinePage() {
               },
             ]}
           />
-          <p>It's very flexible, but harder to understand and audit.</p>
+          <p>ABAC is very flexible, but it is harder to understand and to audit (to check later who could do what).</p>
           <p>
             <strong>ReBAC (Relationship-Based Access Control).</strong> Permissions come from{" "}
             <strong>relationships</strong>: "Asha is an <strong>editor</strong> of document D because she's a{" "}
             <strong>member</strong> of team T, which <strong>owns</strong> folder F, which <strong>contains</strong> D."
-            It's perfect for sharing models like Google Drive, GitHub or Notion. Google described its system for this,{" "}
+            It fits sharing models like Google Drive, GitHub or Notion very well. Google described its system for this,{" "}
             <strong>Zanzibar</strong>, in a 2019 paper. Open-source systems inspired by it include{" "}
             <strong>SpiceDB</strong> and <strong>OpenFGA</strong>.
           </p>
           <p>
-            <strong>ACLs (Access Control Lists).</strong> Each resource lists who can do what. It's simple for small
-            systems.
+            <strong>ACLs (Access Control Lists).</strong> Each resource keeps its own list of who can do what. This is simple for small systems.
           </p>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Where to check permissions</h4>
           <ul>
             <li>
-              <strong>The API gateway</strong> can check "is there a valid token?" and coarse rules (post 13).
+              <strong>The API gateway</strong> (the front door server for all API calls) can check "is there a valid token?" and simple, broad rules (post 13).
             </li>
             <li>
               <strong>Each service must check object-level permissions:</strong> "is user 42 allowed to read{" "}
               <strong>invoice 1002</strong>?"
             </li>
             <li>
-              <strong>The data layer</strong> can add a safety net, like row-level security in PostgreSQL, or always
-              filtering queries by <code>tenant_id</code>.
+              <strong>The data layer</strong> can add a safety net. One way is row-level security in PostgreSQL, where the database itself hides rows a user may not see. Another way is to always filter queries by <code>tenant_id</code> (the customer account that owns the data).
             </li>
           </ul>
           <p>
-            <strong>The #1 API vulnerability</strong> is <strong>broken object-level authorization</strong> (also called
-            IDOR, Insecure Direct Object Reference): checking that a user is logged in, but <strong>not</strong>{" "}
-            checking that they own the object they're requesting. The invoice example at the start of this post is
+            <strong>The #1 API weakness</strong> is <strong>broken object-level authorization</strong>. It is also called IDOR (Insecure Direct Object Reference). The server checks that a user is logged in, but it does <strong>not</strong> check that the user owns the object (the record) they ask for. The invoice example at the start of this post is
             exactly this.
           </p>
           <CodeBlock lang="js" code={code3} />
           <p>
-            <strong>Policy engines</strong> let you write authorization rules <strong>outside</strong> application code,
-            so they're consistent and auditable:
+            <strong>Policy engines</strong> let you write authorization rules <strong>outside</strong> your application code, so the rules stay the same everywhere and are easy to audit:
           </p>
           <ul>
             <li>
@@ -584,17 +545,14 @@ export default function SdLessonFourNinePage() {
               <strong>OAuth client credentials:</strong> short-lived tokens (post 50).
             </li>
             <li>
-              <strong>mTLS (mutual TLS):</strong> both sides present certificates, and service meshes can automate this
-              (post 51).
+              <strong>mTLS (mutual TLS):</strong> both sides show a certificate (a digital ID card) to prove who they are. Service meshes (tools that manage traffic between services) can automate this (post 51).
             </li>
             <li>
-              <strong>Workload identity</strong> (for example, SPIFFE, cloud IAM roles): platform-issued identities
-              without hard-coded secrets.
+              <strong>Workload identity</strong> (for example, SPIFFE or cloud IAM roles): the platform gives each service an identity, so no secret is written into the code.
             </li>
           </ul>
           <p>
-            <strong>The principle of least privilege</strong> applies everywhere: every user, service and key should
-            have the <strong>minimum permissions needed</strong>, and nothing more.
+            <strong>The principle of least privilege</strong> applies everywhere. Every user, service and key should have the <strong>fewest permissions it needs</strong>, and nothing more.
           </p>
         </Section>
 
@@ -627,9 +585,7 @@ export default function SdLessonFourNinePage() {
 
         <Section id="in-the-real-world" title="In the Real World" kind="real">
           <p>
-            <strong>Facebook's plain-text password logs (2019).</strong> Facebook disclosed that it had found{" "}
-            <strong>hundreds of millions of user passwords stored in plain text in internal logs</strong>, accessible to
-            employees, though it said there was no evidence of misuse. It's a reminder that "never store passwords in
+            <strong>Facebook's plain-text password logs (2019).</strong> Facebook said it had found <strong>hundreds of millions of user passwords stored in plain text in internal logs</strong>. Employees could read them. Facebook said it had no evidence of misuse. It's a reminder that "never store passwords in
             plain text" includes <strong>logs</strong> (post 46).
           </p>
           <p>
@@ -643,9 +599,7 @@ export default function SdLessonFourNinePage() {
             volume. Its paper inspired a wave of open-source ReBAC systems.
           </p>
           <p>
-            <strong>JWT "alg: none" vulnerabilities.</strong> In 2015, security researchers showed that several popular
-            JWT libraries could be tricked into accepting <strong>unsigned</strong> tokens, or into confusing
-            algorithms. Libraries were fixed, and "always pin the algorithm" became standard advice.
+            <strong>JWT "alg: none" weaknesses.</strong> In 2015, security researchers showed that several popular JWT libraries could be tricked into accepting <strong>unsigned</strong> tokens, or into mixing up algorithms. Libraries were fixed, and "always pin the algorithm" became standard advice.
           </p>
           <p>
             <strong>Broken object-level authorization in the news.</strong> Many real data leaks, from telecom companies
