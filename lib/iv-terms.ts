@@ -247,6 +247,12 @@ export const IV_TERMS: Record<string, GlossaryEntry[]> = {
     { term: "accessible name", full: "Accessible name", desc: "The text a screen reader says for a control. It comes from its label, content or aria-label.", lesson: 6, group: "Testing and accessibility" },
   ],
   "fullstack-qa": [
+    { term: "microtask", aliases: ["microtasks"], full: "Microtask", desc: "A small job (like a promise callback) that runs as soon as the current code finishes, before timers and rendering.", lesson: 16, group: "JavaScript" },
+    { term: "structuredClone", full: "structuredClone", desc: "A built-in function that makes a deep copy of data, including Date, Map, Set and circular references. It cannot copy functions.", lesson: 15, group: "JavaScript" },
+    { term: "prototype chain", full: "Prototype chain", desc: "The chain of objects JavaScript follows to find a property that is not on the object itself.", lesson: 15, group: "JavaScript" },
+    { term: "debounce", full: "Debounce", desc: "Wait until calls stop for a set time, then run once. Good for search-as-you-type.", lesson: 17, group: "JavaScript" },
+    { term: "throttle", full: "Throttle", desc: "Run at most once in a set time, however many calls arrive. Good for scroll and resize handlers.", lesson: 17, group: "JavaScript" },
+    { term: "polyfill", aliases: ["polyfills"], full: "Polyfill", desc: "Code that adds a missing built-in feature to older environments.", lesson: 17, group: "JavaScript" },
     { term: "stacking context", aliases: ["stacking contexts"], full: "Stacking context", desc: "A group of elements that are painted together. A z-index only competes inside its own stacking context. Opacity, transform and filter can create one.", lesson: 1, group: "Frontend" },
     { term: "container query", aliases: ["container queries"], full: "Container query", desc: "A CSS rule that changes styles based on the size of a parent container, not the whole screen.", lesson: 1, group: "Frontend" },
     { term: "@layer", aliases: ["cascade layer", "cascade layers"], full: "Cascade layer", desc: "A CSS feature that sorts rules into ordered groups. A later layer wins over an earlier one, whatever the specificity.", lesson: 1, group: "Frontend" },

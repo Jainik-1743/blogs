@@ -25,7 +25,7 @@ export type IvSeries = {
  * How many lessons of each series (counted from the top) have a Markdown file. The rest are
  * listed as "coming soon" and are not routed. Raise a number as each lesson is written.
  */
-const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 15, "design-problems": 8, "frontend-depth": 7, "fullstack-qa": 15 };
+const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 15, "design-problems": 8, "frontend-depth": 7, "fullstack-qa": 18 };
 
 type Row = [title: string, summary: string, readTime: string, tags: string[]];
 
@@ -177,6 +177,9 @@ export const FULLSTACK_SERIES: IvSeries = {
     ["Meilisearch & Mixpanel Interview Questions", "Search relevance, indexing and security with Meilisearch; events, identity and funnels with Mixpanel.", "39 min", ["search", "analytics"]],
     ["Popular Libraries Interviewers Ask About", "TanStack Query, Zustand, Zod, React Hook Form, auth libraries, Redis, BullMQ, Stripe, testing tools and more.", "39 min", ["libraries"]],
     ["The Experience-Level Round", "Ownership, trade-offs, debugging stories, code review and system-design-lite questions with model answers.", "32 min", ["behavioural", "experience"]],
+    ["JavaScript Core Interview Questions", "Types and coercion, prototypes, classes, this, copying, Map and Set, iterators, modules, newer array methods and “what does this print” puzzles.", "39 min", ["javascript"]],
+    ["Async JavaScript, Promises and the Event Loop", "Order puzzles in the browser and Node, promise rules, combinators, concurrency limits, cancellation, race conditions and async memory leaks.", "36 min", ["javascript", "async"]],
+    ["JavaScript Coding Round: Polyfills and Utilities", "Tested solutions for debounce, throttle, curry, memoize, deep clone, promise polyfills, a pool, an event emitter, an LRU cache and live-coding tips.", "35 min", ["javascript", "coding"]],
   ], WRITTEN["fullstack-qa"]),
 };
 
