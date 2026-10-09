@@ -25,7 +25,7 @@ export type IvSeries = {
  * How many lessons of each series (counted from the top) have a Markdown file. The rest are
  * listed as "coming soon" and are not routed. Raise a number as each lesson is written.
  */
-const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 15, "design-problems": 8, "frontend-depth": 7 };
+const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 15, "design-problems": 8, "frontend-depth": 7, "fullstack-qa": 15 };
 
 type Row = [title: string, summary: string, readTime: string, tags: string[]];
 
@@ -153,7 +153,34 @@ export const FRONTEND_SERIES: IvSeries = {
   ], WRITTEN["frontend-depth"]),
 };
 
-export const IV_SERIES: IvSeries[] = [BROWSER_SERIES, BACKEND_SERIES, DEBUGGING_SERIES, DESIGN_SERIES, FRONTEND_SERIES];
+export const FULLSTACK_SERIES: IvSeries = {
+  slug: "fullstack-qa",
+  title: "Full-Stack Interview Questions for 4+ Years",
+  short: "Full-Stack Questions",
+  tagline:
+    "Real questions for a full-stack engineer with four or more years of experience: HTML and CSS, Tailwind, TypeScript, React, Next.js, Node.js, Express, MongoDB, Prisma, Hasura, LLMs, agents, RAG, the AI SDK, Meilisearch, Mixpanel and the libraries teams use every day. Every answer is written in plain English.",
+  started: "2026",
+  accent: "violet",
+  lessons: lessons([
+    ["How to Use This Question Bank", "What interviewers expect at 4+ years, how the questions are grouped, and a one-page map of every topic.", "8 min", ["roadmap", "interview"]],
+    ["HTML & CSS Interview Questions", "Semantic HTML, the cascade, layout with flexbox and grid, container queries, stacking contexts, and common CSS traps.", "32 min", ["html", "css"]],
+    ["Tailwind CSS Interview Questions", "Tailwind v4, how utilities are generated, dynamic class names, class merging, design tokens and keeping Tailwind code tidy.", "27 min", ["tailwind", "css"]],
+    ["TypeScript Interview Questions", "Generics, narrowing, utility types, tsconfig flags, typing React and APIs, and the errors that confuse people.", "31 min", ["typescript"]],
+    ["React Interview Questions", "Component design, hooks, rendering cost, forms, data fetching, React 19, and code-review style questions.", "36 min", ["react"]],
+    ["Next.js Interview Questions", "App Router, Server and Client Components, caching, Server Actions, proxy, rendering modes and deployment.", "34 min", ["nextjs"]],
+    ["Node.js & Express Interview Questions", "Event loop, streams, workers, Express 5, security, graceful shutdown and performance.", "29 min", ["nodejs", "express"]],
+    ["MongoDB Interview Questions", "Schema design, indexes, aggregation, transactions, replica sets, sharding and common anti-patterns.", "31 min", ["mongodb"]],
+    ["Prisma & SQL Interview Questions", "Prisma 7, migrations, relations, transactions, N+1, raw queries, and the SQL behind it.", "30 min", ["prisma", "sql"]],
+    ["Hasura & GraphQL Interview Questions", "How Hasura works, permissions, remote schemas, actions, events, subscriptions and GraphQL core ideas.", "29 min", ["hasura", "graphql"]],
+    ["LLMs, Agentic AI, RAG and Harnesses", "Agent vs agentic AI, workflows vs agents, the harness, MCP, RAG end to end, evaluation and safety.", "45 min", ["ai", "llm", "rag"]],
+    ["Vercel AI SDK Interview Questions", "streamText, tools, structured output, multi-step loops, useChat, testing and security.", "40 min", ["ai-sdk"]],
+    ["Meilisearch & Mixpanel Interview Questions", "Search relevance, indexing and security with Meilisearch; events, identity and funnels with Mixpanel.", "39 min", ["search", "analytics"]],
+    ["Popular Libraries Interviewers Ask About", "TanStack Query, Zustand, Zod, React Hook Form, auth libraries, Redis, BullMQ, Stripe, testing tools and more.", "39 min", ["libraries"]],
+    ["The Experience-Level Round", "Ownership, trade-offs, debugging stories, code review and system-design-lite questions with model answers.", "32 min", ["behavioural", "experience"]],
+  ], WRITTEN["fullstack-qa"]),
+};
+
+export const IV_SERIES: IvSeries[] = [BROWSER_SERIES, BACKEND_SERIES, DEBUGGING_SERIES, DESIGN_SERIES, FRONTEND_SERIES, FULLSTACK_SERIES];
 
 export function getIvSeries(slug: string): IvSeries | undefined {
   return IV_SERIES.find((s) => s.slug === slug);
