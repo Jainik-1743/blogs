@@ -25,7 +25,7 @@ export type IvSeries = {
  * How many lessons of each series (counted from the top) have a Markdown file. The rest are
  * listed as "coming soon" and are not routed. Raise a number as each lesson is written.
  */
-const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 15, "design-problems": 8, "frontend-depth": 7, "fullstack-qa": 18 };
+const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 15, "design-problems": 8, "frontend-depth": 7, "fullstack-qa": 28 };
 
 type Row = [title: string, summary: string, readTime: string, tags: string[]];
 
@@ -180,6 +180,16 @@ export const FULLSTACK_SERIES: IvSeries = {
     ["JavaScript Core Interview Questions", "Types and coercion, prototypes, classes, this, copying, Map and Set, iterators, modules, newer array methods and “what does this print” puzzles.", "39 min", ["javascript"]],
     ["Async JavaScript, Promises and the Event Loop", "Order puzzles in the browser and Node, promise rules, combinators, concurrency limits, cancellation, race conditions and async memory leaks.", "36 min", ["javascript", "async"]],
     ["JavaScript Coding Round: Polyfills and Utilities", "Tested solutions for debounce, throttle, curry, memoize, deep clone, promise polyfills, a pool, an event emitter, an LRU cache and live-coding tips.", "35 min", ["javascript", "coding"]],
+    ["Redis and Caching Interview Questions", "Cache-aside and the other patterns, TTL and invalidation, stampedes, data types, persistence, eviction, rate limiting, locks and client settings that matter.", "40 min", ["redis", "caching"]],
+    ["Queues, Background Jobs and Webhooks", "Why queues, BullMQ, retries and backoff, dead letters, idempotency, the outbox pattern, receiving and sending webhooks, RabbitMQ vs Kafka vs SQS.", "30 min", ["queues", "webhooks"]],
+    ["Realtime: WebSockets, SSE and Socket.IO", "Polling vs SSE vs WebSocket, handshake and heartbeats, Socket.IO rooms and acks, scaling with Redis, auth, backpressure and proxy timeouts.", "38 min", ["realtime"]],
+    ["Testing Tools: Jest, Vitest, Testing Library, Playwright", "Mocks and fake timers, MSW, user-event, testing hooks and Server Components, Playwright locators and flaky tests, database tests with Prisma.", "28 min", ["testing"]],
+    ["Auth Libraries, OAuth and OIDC", "OAuth vs OpenID Connect, code flow with PKCE, tokens and rotation, Auth.js and Better Auth, protecting Next.js 16, RBAC, passkeys and MFA.", "42 min", ["auth", "oauth"]],
+    ["Payments and Third-Party Integrations", "Stripe Checkout and Payment Intents, webhooks, idempotency keys, S3 uploads, email deliverability, timeouts, retries and circuit breakers.", "44 min", ["payments", "integrations"]],
+    ["Git, Team Workflow and Monorepos", "Merge vs rebase, undoing mistakes, reflog, bisect, branching models, code review, pnpm workspaces, Turborepo, changesets and versioning.", "30 min", ["git", "monorepo"]],
+    ["State and Data Libraries in Depth", "Redux Toolkit, TanStack Query v5, Zustand and Jotai, server state vs client state, optimistic updates, hydration with the App Router, forms with Zod.", "36 min", ["state", "react"]],
+    ["Deployment, CI/CD and Monitoring", "Vercel deploys, Docker for Node, GitHub Actions, feature flags, safe rollouts and migrations, Sentry, OpenTelemetry and SLOs.", "43 min", ["deploy", "monitoring"]],
+    ["SEO, i18n, PWA and PostgreSQL Deeper", "Next.js metadata and sitemaps, locale routing and plurals, service workers, window functions, JSONB, EXPLAIN, locks, vacuum and PgBouncer.", "41 min", ["seo", "postgres"]],
   ], WRITTEN["fullstack-qa"]),
 };
 
