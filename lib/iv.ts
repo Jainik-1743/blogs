@@ -25,7 +25,7 @@ export type IvSeries = {
  * How many lessons of each series (counted from the top) have a Markdown file. The rest are
  * listed as "coming soon" and are not routed. Raise a number as each lesson is written.
  */
-const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 15, "design-problems": 8, "frontend-depth": 7, "fullstack-qa": 28 };
+const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 15, "design-problems": 8, "frontend-depth": 7, "fullstack-qa": 28, "team-lead": 5 };
 
 type Row = [title: string, summary: string, readTime: string, tags: string[]];
 
@@ -193,7 +193,24 @@ export const FULLSTACK_SERIES: IvSeries = {
   ], WRITTEN["fullstack-qa"]),
 };
 
-export const IV_SERIES: IvSeries[] = [BROWSER_SERIES, BACKEND_SERIES, DEBUGGING_SERIES, DESIGN_SERIES, FRONTEND_SERIES, FULLSTACK_SERIES];
+export const TEAMLEAD_SERIES: IvSeries = {
+  slug: "team-lead",
+  title: "Team Lead & Development Mindset: The Questions Behind \"Why?\"",
+  short: "Team Lead Mindset",
+  tagline:
+    "How a team lead thinks and the questions they ask: why this package, why this language, what are you thinking, how long will it take, what if it fails. Simple answer shapes, checklists and model answers for developers who want to lead.",
+  started: "2026",
+  accent: "orange",
+  lessons: lessons([
+    ["How a Team Lead Thinks: The Questions Behind \"Why?\"", "The six-step answer shape (goal, options, choice, reason, risk, plan B), how to think out loud, and a map of the questions a lead asks.", "15 min", ["mindset", "leadership", "interview"]],
+    ["Why This Package? Choosing and Carrying Dependencies", "Six questions before you add a dependency, npm commands to check health, how to plan the exit, and a short decision-note template.", "14 min", ["packages", "npm", "dependencies"]],
+    ["Why This Language or Framework? Decisions You Can Explain Later", "Start from the problem and the team, boring technology and innovation tokens, handling a team that wants something new, and writing decision records.", "14 min", ["languages", "frameworks", "decisions"]],
+    ["Estimates, Code Review and Priorities", "Honest ranges with named unknowns, missed deadlines, quick fix versus proper fix, reviewing for better-not-perfect, and saying no with an option.", "15 min", ["estimates", "code-review", "priorities"]],
+    ["Incidents, Team Health and Growing as a Lead", "Fix first and be blameless, DORA delivery measures without a people scoreboard, feedback, juniors, and your first weeks as a lead.", "15 min", ["incidents", "leadership", "teams"]],
+  ], WRITTEN["team-lead"]),
+};
+
+export const IV_SERIES: IvSeries[] = [BROWSER_SERIES, BACKEND_SERIES, DEBUGGING_SERIES, DESIGN_SERIES, FRONTEND_SERIES, FULLSTACK_SERIES, TEAMLEAD_SERIES];
 
 export function getIvSeries(slug: string): IvSeries | undefined {
   return IV_SERIES.find((s) => s.slug === slug);
