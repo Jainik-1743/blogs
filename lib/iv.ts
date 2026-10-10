@@ -25,7 +25,7 @@ export type IvSeries = {
  * How many lessons of each series (counted from the top) have a Markdown file. The rest are
  * listed as "coming soon" and are not routed. Raise a number as each lesson is written.
  */
-const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 15, "design-problems": 8, "frontend-depth": 7, "fullstack-qa": 28, "team-lead": 6 };
+const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 15, "design-problems": 8, "frontend-depth": 7, "fullstack-qa": 28, "team-lead": 12 };
 
 type Row = [title: string, summary: string, readTime: string, tags: string[]];
 
@@ -207,6 +207,12 @@ export const TEAMLEAD_SERIES: IvSeries = {
     ["Why This Language or Framework? Decisions You Can Explain Later", "Start from the problem and the team, boring technology and innovation tokens, handling a team that wants something new, and writing decision records.", "14 min", ["languages", "frameworks", "decisions"]],
     ["Estimates, Code Review and Priorities", "Honest ranges with named unknowns, missed deadlines, quick fix versus proper fix, reviewing for better-not-perfect, and saying no with an option.", "15 min", ["estimates", "code-review", "priorities"]],
     ["Incidents, Team Health and Growing as a Lead", "Fix first and be blameless, DORA delivery measures without a people scoreboard, feedback, juniors, and your first weeks as a lead.", "15 min", ["incidents", "leadership", "teams"]],
+    ["Design Docs, RFCs and Writing Things Down", "What real projects (Rust, Kubernetes, Python) put in a design doc, status words, a simple review process, when not to write one, and tips for clear writing.", "15 min", ["design-docs", "rfc", "writing"]],
+    ["Technical Debt, Quality and the Rewrite Trap", "Debt as a loan with interest, refactor or rewrite, a test plan, what to monitor, and lessons from five famous public outages.", "16 min", ["technical-debt", "testing", "reliability"]],
+    ["Laws and Biases Every Lead Should Know", "Conway, Brooks, Goodhart, Gall, Hyrum, Chesterton and more, each in one sentence with a lead's use, plus common thinking biases.", "14 min", ["laws", "biases", "decisions"]],
+    ["1:1s, Feedback, Delegation and Conflict", "How to run a 1:1, give specific feedback, delegate with a clear owner, handle disagreement, and build trust.", "15 min", ["people", "feedback", "delegation"]],
+    ["Mentoring, Onboarding and Hiring", "Context before answers, a first-90-days plan for a new hire, fair work-like interviews, and what the popular lists say about hiring.", "15 min", ["mentoring", "onboarding", "hiring"]],
+    ["Stakeholders, Meetings and Change", "Explaining the why before the what, a five-line status update, fewer and better meetings, preparing people for change, and planning around outcomes.", "14 min", ["communication", "meetings", "planning"]],
     ["Sources and Reading List: Popular Repos and Documents", "The most-starred GitHub lists and well-known documents behind this series, which I read directly, which I only know from summaries, and which I could not open.", "10 min", ["sources", "reading", "learning"]],
   ], WRITTEN["team-lead"]),
 };
