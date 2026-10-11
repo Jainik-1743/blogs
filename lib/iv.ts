@@ -25,7 +25,7 @@ export type IvSeries = {
  * How many lessons of each series (counted from the top) have a Markdown file. The rest are
  * listed as "coming soon" and are not routed. Raise a number as each lesson is written.
  */
-const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 15, "design-problems": 8, "frontend-depth": 7, "fullstack-qa": 39, "team-lead": 12, "low-level-design": 10, "design-cases": 12, "cs-foundations": 8, "git-github": 6 };
+const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 15, "design-problems": 8, "frontend-depth": 7, "fullstack-qa": 39, "team-lead": 12, "low-level-design": 10, "design-cases": 12, "cs-foundations": 8, "git-github": 6, "testing": 6 };
 
 type Row = [title: string, summary: string, readTime: string, tags: string[]];
 
@@ -312,7 +312,25 @@ export const GITGITHUB_SERIES: IvSeries = {
   ], WRITTEN["git-github"]),
 };
 
-export const IV_SERIES: IvSeries[] = [BROWSER_SERIES, BACKEND_SERIES, DEBUGGING_SERIES, DESIGN_SERIES, FRONTEND_SERIES, FULLSTACK_SERIES, TEAMLEAD_SERIES, LLD_SERIES, DESIGNCASES_SERIES, CSFOUNDATIONS_SERIES, GITGITHUB_SERIES];
+export const TESTING_SERIES: IvSeries = {
+  slug: "testing",
+  title: "Testing From Zero: What, Why and How",
+  short: "Testing From Zero",
+  tagline:
+    "Testing from the first test to a team strategy: the shapes of a test suite, unit tests and test doubles, UI tests with Testing Library, API and integration tests, end-to-end tests with Playwright, and TDD, property-based and mutation testing. Every example was run.",
+  started: "2026",
+  accent: "lime",
+  lessons: lessons([
+    ["Why We Test, and the Shapes of a Test Suite", "What tests prove and do not prove, the pyramid, trophy and honeycomb as models, what to test, a first node:test run, and bad tests.", "12 min", ["testing", "fundamentals", "node-test"]],
+    ["Unit Tests and Test Doubles", "Arrange-act-assert, stubs, mocks, spies and fakes, fake timers, async errors, test isolation, and why mocking your own internals hurts.", "13 min", ["unit-testing", "vitest", "test-doubles"]],
+    ["Testing UI Components with Testing Library", "Queries by role, user-event, async UI, mocking the network with MSW, forms and error states.", "13 min", ["react-testing", "msw", "accessibility"]],
+    ["Integration and API Tests", "Testing an Express API in-process, test database strategies, contracts, webhooks and queues.", "15 min", ["testing", "api", "integration"]],
+    ["End-to-End Tests with Playwright, and Fixing Flaky Tests", "Playwright locators, auto-waiting, traces and isolation, with four flaky tests reproduced and fixed.", "17 min", ["playwright", "e2e", "flaky-tests"]],
+    ["TDD, Property-Based Testing, Mutation Testing and a Team Strategy", "A TDD kata, fast-check shrinking, Stryker mutation testing, coverage, and a one-page team test strategy.", "19 min", ["tdd", "mutation-testing", "strategy"]],
+  ], WRITTEN["testing"]),
+};
+
+export const IV_SERIES: IvSeries[] = [BROWSER_SERIES, BACKEND_SERIES, DEBUGGING_SERIES, DESIGN_SERIES, FRONTEND_SERIES, FULLSTACK_SERIES, TEAMLEAD_SERIES, LLD_SERIES, DESIGNCASES_SERIES, CSFOUNDATIONS_SERIES, GITGITHUB_SERIES, TESTING_SERIES];
 
 export function getIvSeries(slug: string): IvSeries | undefined {
   return IV_SERIES.find((s) => s.slug === slug);
