@@ -10,7 +10,7 @@ import GlossaryTooltips from "@/components/GlossaryTooltips";
 import { accentInitScript } from "@/lib/accents";
 import { ALL_SERIES } from "@/lib/series";
 import { robotsMeta, siteJsonLd } from "@/lib/seo";
-import { AUTHOR, HOME_DESCRIPTION, HOME_TITLE, SITE_LOCALE, SITE_NAME, SITE_URL } from "@/lib/site";
+import { AUTHOR, BING_VERIFICATION, GOOGLE_VERIFICATION, HOME_DESCRIPTION, HOME_TITLE, SITE_LOCALE, SITE_NAME, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
@@ -34,10 +34,10 @@ export const metadata: Metadata = {
   openGraph: { type: "website", siteName: SITE_NAME, locale: SITE_LOCALE, title: HOME_TITLE, description: HOME_DESCRIPTION, images: [{ url: "/og", width: 1200, height: 630 }] },
   twitter: { card: "summary_large_image", title: HOME_TITLE, description: HOME_DESCRIPTION, images: ["/og"] },
   robots: robotsMeta,
-  // Set these in Vercel (Project Settings, Environment Variables) after adding the site to the search consoles.
+  // Bing and Google site verification (see lib/site.ts; set GOOGLE_SITE_VERIFICATION in Vercel if you use the meta-tag method).
   verification: {
-    ...(process.env.GOOGLE_SITE_VERIFICATION ? { google: process.env.GOOGLE_SITE_VERIFICATION } : {}),
-    ...(process.env.BING_SITE_VERIFICATION ? { other: { "msvalidate.01": process.env.BING_SITE_VERIFICATION } } : {}),
+    ...(GOOGLE_VERIFICATION ? { google: GOOGLE_VERIFICATION } : {}),
+    other: { "msvalidate.01": BING_VERIFICATION },
   },
 };
 

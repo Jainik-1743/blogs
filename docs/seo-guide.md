@@ -36,7 +36,7 @@ Not added on purpose: FAQ markup (Google limits FAQ rich results to a small set 
 |---|---|
 | `NEXT_PUBLIC_SITE_URL` | Public URL, e.g. `https://example.com`. Optional if you use the Vercel domain |
 | `GOOGLE_SITE_VERIFICATION` | The content value of Google's verification meta tag |
-| `BING_SITE_VERIFICATION` | The content value of Bing's `msvalidate.01` meta tag |
+| `BING_SITE_VERIFICATION` | Optional override. The Bing token is already built into `lib/site.ts` and also served as `public/BingSiteAuth.xml` |
 
 Vercel sets `VERCEL_PROJECT_PRODUCTION_URL`, `VERCEL_URL` and `VERCEL_ENV` for you (the "Automatically expose System Environment Variables" setting is on by default).
 
