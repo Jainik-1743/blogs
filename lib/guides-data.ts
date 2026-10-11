@@ -275,6 +275,23 @@ export const GUIDES: GuideDef[] = [
     ],
   },
   {
+    slug: "behavioral-interview-guide",
+    title: "Behavioral Interview Guide for Developers: Stories to Salary",
+    description: "Answer the questions that are not about code: tell me about yourself, failure, conflict, leadership, tricky questions, salary and offers, with full model answers.",
+    intro: [
+      "Many developers pass the coding round and lose the offer on the conversation. This guide gives you a story bank, complete spoken answers for the common questions, and scripts for salary and offers.",
+      "Read it in order once, then practise the mock interview out loud.",
+    ],
+    audience: "Developers at any level preparing for interviews, and anyone about to negotiate an offer.",
+    sections: [
+      { heading: "How the round works", paths: ["/behavioral-interview/lesson-0"] },
+      { heading: "The questions everyone asks", paths: ["/behavioral-interview/lesson-1", "/behavioral-interview/lesson-2", "/behavioral-interview/lesson-3", "/behavioral-interview/lesson-4"] },
+      { heading: "Your questions, offers and salary", paths: ["/behavioral-interview/lesson-5", "/behavioral-interview/lesson-6"] },
+      { heading: "Working well on the job", paths: ["/behavioral-interview/lesson-7", "/team-lead/lesson-3"] },
+      { heading: "Practise", paths: ["/behavioral-interview/lesson-8", "/career/lesson-0"] },
+    ],
+  },
+  {
     slug: "ai-engineering-guide",
     title: "AI Engineering Guide: Build and Secure LLM Features",
     description: "From LLMs, agents and RAG to production: the OWASP Top 10 for LLM apps, prompt injection, evaluation, cost and latency, observability and guardrails.",
