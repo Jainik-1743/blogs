@@ -224,6 +224,57 @@ export const GUIDES: GuideDef[] = [
     ],
   },
   {
+    slug: "api-design-guide",
+    title: "API Design Guide: REST, Errors, Pagination and Versioning",
+    description: "Design APIs other developers enjoy: resources and URLs, methods and status codes, errors, pagination, versioning, idempotency, auth, OpenAPI, GraphQL and gRPC.",
+    intro: [
+      "A good API is predictable: the same ideas work the same way everywhere. This guide follows the API Design series from naming a resource to reviewing a whole API, with the security lessons that go with it.",
+      "Every example is a small server that was run, first the wrong way, then the right way.",
+    ],
+    audience: "Back-end and full-stack developers who design or consume APIs, and candidates for API design and system design interviews.",
+    sections: [
+      { heading: "The basics of a clean REST API", paths: ["/api-design/lesson-0", "/api-design/lesson-1", "/api-design/lesson-2"] },
+      { heading: "Lists and change over time", paths: ["/api-design/lesson-3", "/api-design/lesson-4"] },
+      { heading: "Reliability and safety", paths: ["/api-design/lesson-5", "/api-design/lesson-6", "/security/lesson-4", "/security/lesson-7"] },
+      { heading: "Contracts, GraphQL and gRPC", paths: ["/api-design/lesson-7", "/api-design/lesson-8"] },
+      { heading: "Review and interview", paths: ["/api-design/lesson-9", "/backend/lesson-3"] },
+    ],
+  },
+  {
+    slug: "react-guide",
+    title: "React Guide: Components, Hooks, State and Performance",
+    description: "Learn React in a clear order: components and JSX, state and rendering, effects, hooks, forms, data fetching, performance and testing, with a full interview Q&A.",
+    intro: [
+      "React is easy to start and easy to get subtly wrong. This guide follows the React in Depth series: how rendering really works first, then effects, hooks, forms and data, then performance, patterns and testing.",
+      "Every example was run with React 19, and the interview lesson collects the traps people fall into.",
+    ],
+    audience: "Front-end and full-stack developers learning React, and candidates preparing for React interviews.",
+    sections: [
+      { heading: "Components and rendering", paths: ["/react/lesson-0", "/react/lesson-1"] },
+      { heading: "Effects, hooks and forms", paths: ["/react/lesson-2", "/react/lesson-3", "/react/lesson-4"] },
+      { heading: "Data and shared state", paths: ["/react/lesson-5", "/react/lesson-6"] },
+      { heading: "Performance, patterns and tests", paths: ["/react/lesson-7", "/react/lesson-8", "/typescript/lesson-5"] },
+      { heading: "Interview practice", paths: ["/react/lesson-9", "/frontend-depth/lesson-0"] },
+    ],
+  },
+  {
+    slug: "nodejs-guide",
+    title: "Node.js Guide: Event Loop, Streams, Servers and Production",
+    description: "Learn Node.js from the runtime and event loop to streams, HTTP servers, Express, Fastify, errors, workers and production habits, with an interview Q&A.",
+    intro: [
+      "Node.js is simple until the event loop, streams and errors show up in production. This guide follows the Node.js From Zero series from how Node runs your code to how you ship and run it safely.",
+      "Every example was run on Node 22 and the real output is shown, including the memory and timing numbers.",
+    ],
+    audience: "Back-end and full-stack developers using Node.js, and candidates preparing for Node.js interviews.",
+    sections: [
+      { heading: "How Node runs your code", paths: ["/nodejs/lesson-0", "/nodejs/lesson-1"] },
+      { heading: "Files, streams and servers", paths: ["/nodejs/lesson-2", "/nodejs/lesson-3", "/nodejs/lesson-4"] },
+      { heading: "Frameworks and reliability", paths: ["/nodejs/lesson-5", "/nodejs/lesson-6", "/security/lesson-7"] },
+      { heading: "Scaling, testing and production", paths: ["/nodejs/lesson-7", "/nodejs/lesson-8", "/backend/lesson-3"] },
+      { heading: "Interview practice", paths: ["/nodejs/lesson-9"] },
+    ],
+  },
+  {
     slug: "ai-engineering-guide",
     title: "AI Engineering Guide: Build and Secure LLM Features",
     description: "From LLMs, agents and RAG to production: the OWASP Top 10 for LLM apps, prompt injection, evaluation, cost and latency, observability and guardrails.",
