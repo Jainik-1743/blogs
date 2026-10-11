@@ -25,7 +25,7 @@ export type IvSeries = {
  * How many lessons of each series (counted from the top) have a Markdown file. The rest are
  * listed as "coming soon" and are not routed. Raise a number as each lesson is written.
  */
-const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 15, "design-problems": 8, "frontend-depth": 7, "fullstack-qa": 28, "team-lead": 12 };
+const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 15, "design-problems": 8, "frontend-depth": 7, "fullstack-qa": 39, "team-lead": 12 };
 
 type Row = [title: string, summary: string, readTime: string, tags: string[]];
 
@@ -190,6 +190,17 @@ export const FULLSTACK_SERIES: IvSeries = {
     ["State and Data Libraries in Depth", "Redux Toolkit, TanStack Query v5, Zustand and Jotai, server state vs client state, optimistic updates, hydration with the App Router, forms with Zod.", "36 min", ["state", "react"]],
     ["Deployment, CI/CD and Monitoring", "Vercel deploys, Docker for Node, GitHub Actions, feature flags, safe rollouts and migrations, Sentry, OpenTelemetry and SLOs.", "43 min", ["deploy", "monitoring"]],
     ["SEO, i18n, PWA and PostgreSQL Deeper", "Next.js metadata and sitemaps, locale routing and plurals, service workers, window functions, JSONB, EXPLAIN, locks, vacuum and PgBouncer.", "41 min", ["seo", "postgres"]],
+    ["Accessibility Beyond the Basics", "WCAG 2.2 criteria in plain words, forms, focus and dialogs, live regions, ARIA, contrast numbers and testing, one level past Frontend Depth Lesson 6.", "20 min", ["accessibility", "wcag", "testing"]],
+    ["GraphQL Beyond Hasura", "Schema design, nullability, DataLoader, cursor pagination, errors, mutations, limits, subscriptions, federation, and when not to use GraphQL.", "22 min", ["graphql", "dataloader", "api-design"]],
+    ["tRPC, REST and OpenAPI", "tRPC for your own TypeScript app, REST plus OpenAPI for outside callers: generated clients, contract tests, breaking changes, problem-details errors and idempotency keys.", "24 min", ["trpc", "openapi", "api-design"]],
+    ["Security in Depth for Full-Stack Developers", "SSRF, path traversal, prototype pollution, ReDoS, unsafe deserialization, injection, password hashing, headers, rate limits, secrets, supply chain, uploads and a threat-model routine.", "32 min", ["security", "owasp", "nodejs"]],
+    ["Full-Stack Performance: From Database to Browser", "Find the bottleneck first, then fix the database, caching, compression, streaming and bundle size, and measure each change with p50, p95 and p99.", "42 min", ["performance", "postgres", "load-testing"]],
+    ["Node.js Internals Interviewers Ask About", "Event loop phases, microtask and nextTick order, the threadpool, backpressure, workers, memory, and the Node 22 tools with stable or experimental labels.", "43 min", ["nodejs", "event-loop", "internals"]],
+    ["Containers, Kubernetes, Terraform and AWS for Full-Stack Interviews", "Containers versus VMs, Kubernetes objects, probes, rollouts, Helm, platform choice, IAM, Terraform state, secrets and cost.", "38 min", ["kubernetes", "terraform", "aws"]],
+    ["Vector Databases, pgvector, Retrieval Evals and LLM Cost", "Distance measures, HNSW and IVFFlat, the filter trap, hybrid search, golden sets, judges, prompt caching and tracing.", "40 min", ["vector-db", "rag", "evals"]],
+    ["System Design Mock Interview: How to Talk Through It", "Say a system design answer out loud: the 45-minute clock, the first five minutes, drawing boxes, one-sentence trade-offs, failure questions, numbers and a full walkthrough with timings.", "30 min", ["system-design", "interview", "communication"]],
+    ["Live Coding and Take-Home Rounds", "A 45-minute routine, a take-home checklist and six full-stack tasks with tested code.", "42 min", ["live-coding", "take-home", "testing"]],
+    ["Behavioural Questions, Salary and Offers", "Behavioural answers, conflict stories, salary talks, offers and the first 90 days.", "28 min", ["behavioural", "salary", "offers"]],
   ], WRITTEN["fullstack-qa"]),
 };
 
