@@ -28,7 +28,7 @@ export const SERIES_GROUPS: { id: string; title: string; blurb: string; slugs: s
     id: "foundations",
     title: "Programming foundations",
     blurb: "Learn the building blocks from zero, with every example traced or run.",
-    slugs: ["dsa", "javascript", "javascript-2", "typescript", "sql-postgres", "git-github", "cs-foundations", "testing"],
+    slugs: ["dsa", "javascript", "javascript-2", "typescript", "sql-postgres", "git-github", "cs-foundations", "testing", "security"],
   },
   {
     id: "systems",
@@ -63,8 +63,8 @@ export const RELATED_SERIES: Record<string, string[]> = {
   devops: ["system-design", "backend", "git-github"],
   "system-design": ["design-cases", "design-problems", "backend"],
   "design-cases": ["system-design", "design-problems", "devops"],
-  backend: ["sql-postgres", "system-design", "browser"],
-  browser: ["frontend-depth", "backend", "javascript-2"],
+  backend: ["security", "sql-postgres", "system-design"],
+  browser: ["security", "frontend-depth", "backend"],
   "low-level-design": ["dsa", "design-problems", "typescript"],
   "fullstack-qa": ["frontend-depth", "backend", "typescript"],
   "frontend-depth": ["fullstack-qa", "browser", "typescript"],
@@ -73,4 +73,5 @@ export const RELATED_SERIES: Record<string, string[]> = {
   "ai-engineering": ["fullstack-qa", "backend", "testing"],
   career: ["dsa", "fullstack-qa", "team-lead"],
   "team-lead": ["career", "git-github", "fullstack-qa"],
+  security: ["browser", "backend", "testing"],
 };

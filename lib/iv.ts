@@ -428,7 +428,28 @@ export const CAREER_SERIES: IvSeries = {
   ], WRITTEN["career"]),
 };
 
-export const IV_SERIES: IvSeries[] = [BROWSER_SERIES, BACKEND_SERIES, DEBUGGING_SERIES, DESIGN_SERIES, FRONTEND_SERIES, FULLSTACK_SERIES, TEAMLEAD_SERIES, LLD_SERIES, DESIGNCASES_SERIES, CSFOUNDATIONS_SERIES, GITGITHUB_SERIES, TESTING_SERIES, TYPESCRIPT_SERIES, SQLPOSTGRES_SERIES, JAVASCRIPT2_SERIES, AIENGINEERING_SERIES, CAREER_SERIES];
+export const SECURITY_SERIES: IvSeries = {
+  slug: "security",
+  title: "Security for Developers: Web App Security From Zero",
+  short: "Security for Developers",
+  tagline:
+    "The security a working developer needs: how attackers think, injection, XSS and CSRF, passwords and login, access control, secrets and cryptography, dependencies and supply chain, and APIs. Small examples, every one run, based on OWASP, PortSwigger and the Node.js security guides.",
+  started: "2026",
+  accent: "violet",
+  lessons: lessons([
+    ["The Security Mindset: Threats, Attack Surface and the OWASP Top 10", "How attackers think, what to protect, threat modelling in four questions, defence in depth, least privilege, and a map of the OWASP Top 10 so you know where each lesson fits.", "12 min", ["security", "owasp", "threat-modeling", "beginner"]],
+    ["Injection: SQL Injection, Command Injection and How to Stop Them", "A real SQL injection on a tiny login, then the fix with parameterised queries. Also command injection, NoSQL injection and the rule behind all of them: never mix data into code.", "14 min", ["security", "injection", "sql", "owasp"]],
+    ["XSS, CSRF, Clickjacking and Security Headers", "How a script gets into your page and how to stop it with output encoding and CSP, how CSRF uses your cookies, SameSite and CSRF tokens, frame-ancestors, and the headers worth setting.", "16 min", ["security", "xss", "csrf", "csp", "headers"]],
+    ["Passwords and Login: Hashing, Sessions, MFA and Rate Limits", "Why you never store passwords, hashing with a salt (scrypt and Argon2), safe sessions and JWT mistakes, password reset flows, MFA, and stopping brute force.", "16 min", ["security", "auth", "passwords", "sessions", "jwt"]],
+    ["Access Control: IDOR, Roles and Mass Assignment", "The number one web risk: checking who you are but not what you may do. IDOR with a real example, deny by default, roles and ownership checks, and mass assignment.", "14 min", ["security", "authorization", "idor", "rbac"]],
+    ["Secrets, Encryption and Data Protection", "Where secrets leak (git, logs, front-end bundles), hashing vs encryption vs encoding, TLS in plain words, safe randomness, encrypting data with AES-GCM, and handling personal data.", "15 min", ["security", "secrets", "cryptography", "tls", "privacy"]],
+    ["Dependencies and the Supply Chain: npm, Lockfiles and GitHub Actions", "How a package you did not write can hurt you: typosquatting, install scripts, malicious updates. Lockfiles, npm audit, Dependabot, secret scanning and securing your CI.", "13 min", ["security", "supply-chain", "npm", "github-actions"]],
+    ["APIs and Servers: SSRF, File Uploads, Rate Limits and Misconfiguration", "Server-side request forgery, unsafe file uploads, missing rate limits, verbose errors, CORS mistakes and the OWASP API Top 10, each with a small example and a fix.", "15 min", ["security", "api", "ssrf", "uploads", "owasp"]],
+    ["Security in Practice: Code Review Checklist, Testing, Incidents and Interview Answers", "A review checklist you can use tomorrow, SAST, DAST and dependency scans, what to do in the first hour of an incident, and the security questions interviewers ask with model answers.", "16 min", ["security", "code-review", "incident-response", "interview"]],
+  ], WRITTEN["security"]),
+};
+
+export const IV_SERIES: IvSeries[] = [BROWSER_SERIES, BACKEND_SERIES, DEBUGGING_SERIES, DESIGN_SERIES, FRONTEND_SERIES, FULLSTACK_SERIES, TEAMLEAD_SERIES, LLD_SERIES, DESIGNCASES_SERIES, CSFOUNDATIONS_SERIES, GITGITHUB_SERIES, TESTING_SERIES, TYPESCRIPT_SERIES, SQLPOSTGRES_SERIES, JAVASCRIPT2_SERIES, AIENGINEERING_SERIES, CAREER_SERIES, SECURITY_SERIES];
 
 export function getIvSeries(slug: string): IvSeries | undefined {
   return IV_SERIES.find((s) => s.slug === slug);
