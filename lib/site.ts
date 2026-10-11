@@ -28,10 +28,10 @@ export const HOME_DESCRIPTION =
 
 /**
  * Search-console verification tokens. They are public by design (they appear in the page source).
- * The environment variable overrides the built-in Bing value if you ever need to change it.
+ * The environment variables override the built-in values if you ever need to change them.
  */
 export const BING_VERIFICATION = process.env.BING_SITE_VERIFICATION?.trim() || "41E1382079FD2DD0F83B6E56BB6CEC5A";
-export const GOOGLE_VERIFICATION = process.env.GOOGLE_SITE_VERIFICATION?.trim() || undefined;
+export const GOOGLE_VERIFICATION = process.env.GOOGLE_SITE_VERIFICATION?.trim() || "IhyCYXdVEQ5On3M67_WwZj62TSsABwuVcxplW0FBnb8";
 
 export const AUTHOR = {
   name: "Jainik",
