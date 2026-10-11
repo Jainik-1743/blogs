@@ -50,7 +50,12 @@ export default function SiteFooter() {
 
       <div className="border-t border-line">
         <div className="mx-auto flex max-w-[860px] flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-4 text-[0.8rem]">
-          <span>© {new Date().getFullYear()} Jainik</span>
+          <span>
+            © {new Date().getFullYear()} <Link href="/about" className="text-ink hover:text-sky hover:no-underline">Jainik</Link>
+            <span aria-hidden="true"> · </span>Senior Software Engineer
+            <span aria-hidden="true"> · </span>
+            <Link href="/about#contact" className="text-ink-dim hover:text-sky hover:no-underline">Contact</Link>
+          </span>
           <a href="#top" className="text-ink-dim hover:text-sky hover:no-underline">
             Back to top ↑
           </a>

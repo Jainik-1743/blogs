@@ -114,7 +114,7 @@ export function siteJsonLd(): Json {
         "@id": absoluteUrl("/#author"),
         ...personRef,
         jobTitle: AUTHOR.jobTitle,
-        description: "Software engineer who builds web applications with React, Next.js and Tailwind CSS and writes plain-English lessons for other developers.",
+        description: "Senior Software Engineer with five years of experience building web applications, who writes plain-English lessons for other developers.",
         knowsAbout: ["React", "Next.js", "Tailwind CSS", "JavaScript", "TypeScript", "Front-end architecture", "Web accessibility"],
       },
     ],

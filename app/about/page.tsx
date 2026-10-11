@@ -19,16 +19,14 @@ export default function AboutPage() {
         About this site and its author
       </h1>
       <p className={`${p} text-[1.1rem]`}>
-        I am Jainik, a senior software engineer. I build responsive web applications with React, Next.js and Tailwind CSS, and
-        I care about clean code, component performance and interfaces that are easy to use. This site is where I turn what I
-        learn into plain-English lessons, so other developers can learn it faster.
+        I am Jainik, a Senior Software Engineer with 5 years of experience building web applications. I focus on scalable
+        front-end architecture, clean code, performance and interfaces that are easy to use. React, Next.js and Tailwind CSS
+        are the tools I use most. This site is where I share plain-English lessons for developers who want to build and run
+        software well.
       </p>
 
       <h2 className={h2}>Who I am</h2>
-      <p className={p}>
-        I have more than four and a half years of experience in the React ecosystem, and I am still learning every week. My
-        work has included:
-      </p>
+      <p className={p}>Over those five years, my work has included:</p>
       <ul className="m-0 max-w-[66ch] list-disc space-y-1.5 pl-6">
         <li className={li}>Building reusable component libraries that cut repeated code and development time.</li>
         <li className={li}>Designing role-based access control for admin and user areas.</li>
