@@ -25,7 +25,7 @@ export type IvSeries = {
  * How many lessons of each series (counted from the top) have a Markdown file. The rest are
  * listed as "coming soon" and are not routed. Raise a number as each lesson is written.
  */
-const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 15, "design-problems": 8, "frontend-depth": 7, "fullstack-qa": 39, "team-lead": 18, "low-level-design": 10, "design-cases": 12, "cs-foundations": 8, "git-github": 6, "testing": 6, "typescript": 8, "sql-postgres": 8, "javascript-2": 8, "ai-engineering": 5, "career": 3, security: 9, "api-design": 10, "react": 10, "nodejs": 10 };
+const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 15, "design-problems": 8, "frontend-depth": 7, "fullstack-qa": 39, "team-lead": 18, "low-level-design": 10, "design-cases": 12, "cs-foundations": 8, "git-github": 6, "testing": 6, "typescript": 8, "sql-postgres": 8, "javascript-2": 8, "ai-engineering": 5, "career": 3, security: 9, "api-design": 10, "react": 10, "nodejs": 10, "nextjs": 0, "docker-kubernetes": 0, "behavioral-interview": 0 };
 
 type Row = [title: string, summary: string, readTime: string, tags: string[]];
 
@@ -515,7 +515,72 @@ export const NODEJS_SERIES: IvSeries = {
   ], WRITTEN["nodejs"]),
 };
 
-export const IV_SERIES: IvSeries[] = [BROWSER_SERIES, BACKEND_SERIES, DEBUGGING_SERIES, DESIGN_SERIES, FRONTEND_SERIES, FULLSTACK_SERIES, TEAMLEAD_SERIES, LLD_SERIES, DESIGNCASES_SERIES, CSFOUNDATIONS_SERIES, GITGITHUB_SERIES, TESTING_SERIES, TYPESCRIPT_SERIES, SQLPOSTGRES_SERIES, JAVASCRIPT2_SERIES, AIENGINEERING_SERIES, CAREER_SERIES, SECURITY_SERIES, APIDESIGN_SERIES, REACT_SERIES, NODEJS_SERIES];
+export const NEXTJS_SERIES: IvSeries = {
+  slug: "nextjs",
+  title: "Next.js App Router From Zero to Production",
+  short: "Next.js App Router",
+  tagline:
+    "Next.js 16 the practical way: routing and layouts, Server and Client Components, data fetching and caching, Server Actions and forms, route handlers, middleware and auth, performance and SEO, and deploying. Based on the official docs, with every example run.",
+  started: "2026",
+  accent: "violet",
+  lessons: lessons([
+    ["Next.js From Zero: Project Structure, Routing and Layouts", "What Next.js adds to React, the app folder, pages, layouts, dynamic routes, links and navigation, and the files with special names.", "13 min", ["nextjs", "routing", "layouts", "beginner"]],
+    ["Server Components and Client Components: What Runs Where", "Server by default, what use client really means, the boundary, passing props across it, and the mistakes that leak secrets or bloat the bundle.", "16 min", ["nextjs", "server-components", "client-components"]],
+    ["Data Fetching and Caching in the App Router", "Fetching in Server Components, parallel versus sequential requests, the caching layers, revalidation, and the current Next.js caching model from the bundled docs.", "16 min", ["nextjs", "data-fetching", "caching", "revalidation"]],
+    ["Server Actions, Forms and Mutations", "Forms that call server functions, validation, pending and error states, revalidating after a change, and the security rules for actions.", "15 min", ["nextjs", "server-actions", "forms", "security"]],
+    ["Route Handlers, Middleware (Proxy) and APIs", "Writing API endpoints, request and response helpers, the request interception layer in this Next.js version, headers, redirects and rewrites.", "14 min", ["nextjs", "route-handlers", "middleware", "api"]],
+    ["Authentication and Authorization in Next.js", "Sessions with cookies, checking auth close to the data, protecting routes and actions, and the common mistakes.", "15 min", ["nextjs", "auth", "sessions", "security"]],
+    ["Rendering Modes: Static, Dynamic, Streaming and Suspense", "Static and dynamic rendering, how Next.js decides, loading UI and streaming, partial prerendering ideas, and generateStaticParams.", "15 min", ["nextjs", "rendering", "streaming", "suspense"]],
+    ["Metadata, SEO, Images and Fonts", "The Metadata API, sitemap and robots, Open Graph images, next/image and next/font, and Core Web Vitals habits.", "14 min", ["nextjs", "seo", "metadata", "images", "performance"]],
+    ["Environment, Configuration, Deploying and Production Habits", "Environment variables and what reaches the browser, next.config, building and running, deploying to Vercel and to a container, logging and monitoring.", "14 min", ["nextjs", "deployment", "config", "production"]],
+    ["Next.js Interview Questions With Model Answers", "Rendering, caching, Server Components, actions, and the traps interviewers like, with model answers.", "16 min", ["nextjs", "interview"]],
+  ], WRITTEN["nextjs"]),
+};
+
+export const DOCKERK8S_SERIES: IvSeries = {
+  slug: "docker-kubernetes",
+  title: "Docker and Kubernetes From Zero",
+  short: "Docker & Kubernetes",
+  tagline:
+    "Containers and orchestration in plain English: images and layers, writing a good Dockerfile, volumes and networks, Docker Compose, then Kubernetes pods, deployments, services, config, scaling, rollouts and debugging. Commands run for real wherever the sandbox allows.",
+  started: "2026",
+  accent: "orange",
+  lessons: lessons([
+    ["Why Containers: Images, Containers and How They Differ From VMs", "The problem containers solve, namespaces and cgroups in plain words, images versus containers, registries, and the first docker run.", "12 min", ["docker", "containers", "beginner"]],
+    ["Writing a Dockerfile: Layers, Caching and Small Images", "Instruction by instruction, layer caching, multi-stage builds, base image choice, .dockerignore, and a Node app image built the right way.", "15 min", ["docker", "dockerfile", "images", "caching"]],
+    ["Volumes, Networks and Running Containers Safely", "Persisting data, bind mounts, networks and ports, environment variables and secrets, non-root users and other safety habits.", "14 min", ["docker", "volumes", "networking", "security"]],
+    ["Docker Compose: Running a Whole App Locally", "Services, networks, volumes, health checks and depends_on, a Node app with Postgres and Redis, and development habits.", "13 min", ["docker", "compose", "local-dev"]],
+    ["Kubernetes Core Ideas: Cluster, Pods and Deployments", "Why orchestration, control plane and nodes, pods, ReplicaSets and Deployments, declarative YAML and the reconcile loop.", "15 min", ["kubernetes", "pods", "deployments"]],
+    ["Services, Ingress and Networking in Kubernetes", "How pods find each other, ClusterIP, NodePort and LoadBalancer, DNS names, Ingress, and what a service mesh is for.", "14 min", ["kubernetes", "services", "ingress", "networking"]],
+    ["Configuration, Secrets and Storage in Kubernetes", "ConfigMaps, Secrets and their limits, persistent volumes and claims, StatefulSets at a glance.", "14 min", ["kubernetes", "configmap", "secrets", "storage"]],
+    ["Scaling, Rollouts and Reliability: Probes, Resources and Autoscaling", "Readiness and liveness probes, requests and limits, rolling updates and rollbacks, HPA, PodDisruptionBudgets.", "15 min", ["kubernetes", "scaling", "probes", "rollouts"]],
+    ["Debugging Containers and Clusters", "The commands to read logs, exec in, describe events, and fix the classic failures: CrashLoopBackOff, ImagePullBackOff, Pending, OOMKilled.", "14 min", ["kubernetes", "debugging", "docker"]],
+    ["Docker and Kubernetes Interview Questions With Model Answers", "Containers, images, networking, orchestration and troubleshooting questions with model answers.", "16 min", ["docker", "kubernetes", "interview"]],
+  ], WRITTEN["docker-kubernetes"]),
+};
+
+export const BEHAVIORAL_SERIES: IvSeries = {
+  slug: "behavioral-interview",
+  title: "Behavioral Interviews for Developers: Stories, Salary and Soft Skills",
+  short: "Behavioral Interviews",
+  tagline:
+    "How to answer the questions that are not about code: tell me about yourself, strengths and weaknesses, conflict, failure, leadership, working with managers, notice periods and salary talks. Story frameworks and complete model answers in plain English.",
+  started: "2026",
+  accent: "pink",
+  lessons: lessons([
+    ["How Behavioral Interviews Work and What They Test", "What interviewers score, the signals behind common questions, the STAR method and its limits, and how to prepare a story bank.", "12 min", ["interview", "behavioral", "star"]],
+    ["Tell Me About Yourself, Why This Company and Why Are You Leaving", "Three questions asked in every interview, a simple structure for each, and full model answers for different experience levels.", "13 min", ["interview", "behavioral", "introduction"]],
+    ["Stories About Failure, Conflict and Hard Feedback", "How to tell a failure story without hiding or blaming, handling conflict with a teammate or manager, receiving feedback, with model answers.", "14 min", ["interview", "behavioral", "conflict", "feedback"]],
+    ["Stories About Ownership, Leadership and Impact", "Showing ownership without a title, leading a project, mentoring, making decisions with missing information, and measuring your impact with numbers.", "14 min", ["interview", "behavioral", "leadership", "impact"]],
+    ["Strengths, Weaknesses, Gaps in Your Resume and Tricky Questions", "Honest answers about weaknesses, career gaps, short jobs, layoffs and switching stacks, and how to handle illegal or awkward questions.", "13 min", ["interview", "behavioral", "resume"]],
+    ["Questions You Should Ask Them", "Good questions for engineers, managers and recruiters, red flags to listen for, and how to evaluate a team in an hour.", "11 min", ["interview", "questions", "red-flags"]],
+    ["Salary, Offers and Negotiation", "How to answer salary questions, research ranges, compare offers, negotiate calmly, and what to ask besides base pay, with example scripts.", "14 min", ["career", "salary", "negotiation", "offers"]],
+    ["Remote Work, Communication and Working With Managers", "Asynchronous communication, writing good updates, one-on-ones, managing up, and handling disagreements in remote teams.", "13 min", ["career", "remote", "communication"]],
+    ["Mock Interview and Your Preparation Plan", "A full mock behavioral round with scored answers, a one-week preparation plan, and a checklist for the day.", "14 min", ["interview", "behavioral", "preparation"]],
+  ], WRITTEN["behavioral-interview"]),
+};
+
+export const IV_SERIES: IvSeries[] = [BROWSER_SERIES, BACKEND_SERIES, DEBUGGING_SERIES, DESIGN_SERIES, FRONTEND_SERIES, FULLSTACK_SERIES, TEAMLEAD_SERIES, LLD_SERIES, DESIGNCASES_SERIES, CSFOUNDATIONS_SERIES, GITGITHUB_SERIES, TESTING_SERIES, TYPESCRIPT_SERIES, SQLPOSTGRES_SERIES, JAVASCRIPT2_SERIES, AIENGINEERING_SERIES, CAREER_SERIES, SECURITY_SERIES, APIDESIGN_SERIES, REACT_SERIES, NODEJS_SERIES, NEXTJS_SERIES, DOCKERK8S_SERIES, BEHAVIORAL_SERIES];
 
 export function getIvSeries(slug: string): IvSeries | undefined {
   return IV_SERIES.find((s) => s.slug === slug);
