@@ -25,7 +25,7 @@ export type IvSeries = {
  * How many lessons of each series (counted from the top) have a Markdown file. The rest are
  * listed as "coming soon" and are not routed. Raise a number as each lesson is written.
  */
-const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 15, "design-problems": 8, "frontend-depth": 7, "fullstack-qa": 39, "team-lead": 12, "low-level-design": 10, "design-cases": 12, "cs-foundations": 8, "git-github": 6, "testing": 6, "typescript": 8, "sql-postgres": 8, "javascript-2": 8, "ai-engineering": 5 };
+const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 15, "design-problems": 8, "frontend-depth": 7, "fullstack-qa": 39, "team-lead": 12, "low-level-design": 10, "design-cases": 12, "cs-foundations": 8, "git-github": 6, "testing": 6, "typescript": 8, "sql-postgres": 8, "javascript-2": 8, "ai-engineering": 5, "career": 3 };
 
 type Row = [title: string, summary: string, readTime: string, tags: string[]];
 
@@ -407,7 +407,22 @@ export const AIENGINEERING_SERIES: IvSeries = {
   ], WRITTEN["ai-engineering"]),
 };
 
-export const IV_SERIES: IvSeries[] = [BROWSER_SERIES, BACKEND_SERIES, DEBUGGING_SERIES, DESIGN_SERIES, FRONTEND_SERIES, FULLSTACK_SERIES, TEAMLEAD_SERIES, LLD_SERIES, DESIGNCASES_SERIES, CSFOUNDATIONS_SERIES, GITGITHUB_SERIES, TESTING_SERIES, TYPESCRIPT_SERIES, SQLPOSTGRES_SERIES, JAVASCRIPT2_SERIES, AIENGINEERING_SERIES];
+export const CAREER_SERIES: IvSeries = {
+  slug: "career",
+  title: "Software Engineer Career and Interview Playbook",
+  short: "Career Playbook",
+  tagline:
+    "How to prepare for software engineering interviews: a resume that gets read, a study plan mapped to the DSA lessons on this site, and mock interviews with a scoring sheet and a mistake log. Built from the public Tech Interview Handbook.",
+  started: "2026",
+  accent: "sky",
+  lessons: lessons([
+    ["A Resume Guide for Software Engineers", "A one-page, scannable resume built from the Tech Interview Handbook guide: structure, strong bullets, ATS myths versus facts, and five before-and-after rewrites.", "15 min", ["resume", "career", "interviews"]],
+    ["A Coding-Interview Study Plan Mapped to This Site", "The handbook's 3-month plan (about 11 hours a week), three ways to order your study, and a 12-week table that points to the matching DSA lessons.", "14 min", ["study-plan", "dsa", "interviews"]],
+    ["Practising Well: Mock Interviews, Feedback Loops and Nerves", "The four things interviewers score, techniques for before, during and after coding and when stuck, a mock-interview routine, a scoring sheet and a mistake log.", "14 min", ["mock-interviews", "practice", "feedback"]],
+  ], WRITTEN["career"]),
+};
+
+export const IV_SERIES: IvSeries[] = [BROWSER_SERIES, BACKEND_SERIES, DEBUGGING_SERIES, DESIGN_SERIES, FRONTEND_SERIES, FULLSTACK_SERIES, TEAMLEAD_SERIES, LLD_SERIES, DESIGNCASES_SERIES, CSFOUNDATIONS_SERIES, GITGITHUB_SERIES, TESTING_SERIES, TYPESCRIPT_SERIES, SQLPOSTGRES_SERIES, JAVASCRIPT2_SERIES, AIENGINEERING_SERIES, CAREER_SERIES];
 
 export function getIvSeries(slug: string): IvSeries | undefined {
   return IV_SERIES.find((s) => s.slug === slug);

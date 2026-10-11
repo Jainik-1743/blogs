@@ -516,4 +516,16 @@ export const IV_TERMS: Record<string, GlossaryEntry[]> = {
     { term: "redaction", full: "Redaction", desc: "Masking private data such as emails and card numbers before storing or sending text.", lesson: 4, group: "LLM features" },
     { term: "span", aliases: ["trace", "tracing"], full: "Trace and span", desc: "A trace is the record of one request. A span is one timed, labelled step inside it.", lesson: 4, group: "LLM features" },
   ],
+  "career": [
+    { term: "ATS", aliases: ["applicant tracking system"], full: "ATS (applicant tracking system)", desc: "Software a company uses to collect applications, read resumes into fields and let recruiters search them.", lesson: 0, group: "Interview prep" },
+    { term: "resume bullet", aliases: ["bullets"], full: "Resume bullet", desc: "One line describing what you did, how big it was and what changed, ideally with a number.", lesson: 0, group: "Interview prep" },
+    { term: "breadth-first", aliases: ["depth-first"], full: "Breadth-first and depth-first study", desc: "Breadth-first covers every topic quickly then practises all; depth-first masters one topic at a time.", lesson: 1, group: "Interview prep" },
+    { term: "Grind 75", full: "Grind 75", desc: "A question list and planning tool from the Tech Interview Handbook author that builds a plan for the weeks and hours you choose.", lesson: 1, group: "Interview prep" },
+    { term: "pattern", aliases: ["patterns"], full: "Pattern", desc: "A reusable way to solve a family of problems, such as two pointers or sliding window.", lesson: 1, group: "Interview prep" },
+    { term: "corner case", aliases: ["edge case", "edge cases"], full: "Corner case (edge case)", desc: "An unusual input that breaks naive code: empty input, one element, duplicates, very large values.", lesson: 1, group: "Interview prep" },
+    { term: "rubric", full: "Rubric", desc: "The list of things an interviewer scores, with examples of strong and weak work.", lesson: 2, group: "Interview prep" },
+    { term: "mock interview", aliases: ["mock interviews"], full: "Mock interview", desc: "A practice interview with another person playing the interviewer.", lesson: 2, group: "Interview prep" },
+    { term: "mistake log", full: "Mistake log", desc: "A notebook of your errors with the root cause and what you will do differently.", lesson: 2, group: "Interview prep" },
+    { term: "think aloud", full: "Think aloud", desc: "Saying your reasoning while you work so the interviewer can follow and help.", lesson: 2, group: "Interview prep" },
+  ],
 };
