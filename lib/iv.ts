@@ -25,7 +25,7 @@ export type IvSeries = {
  * How many lessons of each series (counted from the top) have a Markdown file. The rest are
  * listed as "coming soon" and are not routed. Raise a number as each lesson is written.
  */
-const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 15, "design-problems": 8, "frontend-depth": 7, "fullstack-qa": 39, "team-lead": 12, "low-level-design": 10, "design-cases": 12, "cs-foundations": 8, "git-github": 6, "testing": 6, "typescript": 8, "sql-postgres": 8 };
+const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 15, "design-problems": 8, "frontend-depth": 7, "fullstack-qa": 39, "team-lead": 12, "low-level-design": 10, "design-cases": 12, "cs-foundations": 8, "git-github": 6, "testing": 6, "typescript": 8, "sql-postgres": 8, "javascript-2": 8 };
 
 type Row = [title: string, summary: string, readTime: string, tags: string[]];
 
@@ -370,7 +370,27 @@ export const SQLPOSTGRES_SERIES: IvSeries = {
   ], WRITTEN["sql-postgres"]),
 };
 
-export const IV_SERIES: IvSeries[] = [BROWSER_SERIES, BACKEND_SERIES, DEBUGGING_SERIES, DESIGN_SERIES, FRONTEND_SERIES, FULLSTACK_SERIES, TEAMLEAD_SERIES, LLD_SERIES, DESIGNCASES_SERIES, CSFOUNDATIONS_SERIES, GITGITHUB_SERIES, TESTING_SERIES, TYPESCRIPT_SERIES, SQLPOSTGRES_SERIES];
+export const JAVASCRIPT2_SERIES: IvSeries = {
+  slug: "javascript-2",
+  title: "JavaScript Part 2: Objects, Async and Modules",
+  short: "JavaScript Part 2",
+  tagline:
+    "The second half of JavaScript: objects and prototypes, this and classes, promises and async/await, modules, iterators and generators, the DOM and events, errors and Proxy, and memory. Each idea is traced with small examples that were run.",
+  started: "2026",
+  accent: "amber",
+  lessons: lessons([
+    ["Objects and the Prototype Chain", "Property descriptors, how lookup walks the prototype chain, new traced step by step, shadowing, freeze and seal.", "25 min", ["objects", "prototypes", "descriptors"]],
+    ["this, call/apply/bind and Classes", "The four rules for this, arrow functions, call, apply and bind, and classes shown as sugar over prototypes.", "25 min", ["this", "classes", "bind"]],
+    ["Promises and async/await From the Ground Up", "Promise states, microtask order, a promise built by hand, async/await, the combinators and AbortController.", "30 min", ["promises", "async-await", "abortcontroller"]],
+    ["Modules: ES Modules, CommonJS, Bundlers and Tree Shaking", "Live bindings versus copies, Node's module rules, circular imports, and a real bundle built with esbuild.", "30 min", ["modules", "esm", "bundlers"]],
+    ["Iterators, Generators and Symbols", "The iteration protocol, writing iterators and generators by hand, lazy sequences, async iterators and symbols.", "28 min", ["iterators", "generators", "symbols"]],
+    ["The DOM and Events", "The DOM tree, changing nodes, capturing and bubbling traced, event delegation, custom events and forms, run with jsdom.", "28 min", ["dom", "events", "delegation"]],
+    ["Errors, Proxy, Reflect, Copying and Immutability", "Throwing and catching, Proxy traps with Reflect, shallow versus deep copies, structuredClone and immutable updates.", "30 min", ["errors", "proxy", "immutability"]],
+    ["Memory, Garbage Collection and WeakMap/WeakRef", "Reachability, five usual leaks measured, WeakMap and WeakRef, typed arrays and how to find a leak with heap snapshots.", "22 min", ["memory", "garbage-collection", "weakmap"]],
+  ], WRITTEN["javascript-2"]),
+};
+
+export const IV_SERIES: IvSeries[] = [BROWSER_SERIES, BACKEND_SERIES, DEBUGGING_SERIES, DESIGN_SERIES, FRONTEND_SERIES, FULLSTACK_SERIES, TEAMLEAD_SERIES, LLD_SERIES, DESIGNCASES_SERIES, CSFOUNDATIONS_SERIES, GITGITHUB_SERIES, TESTING_SERIES, TYPESCRIPT_SERIES, SQLPOSTGRES_SERIES, JAVASCRIPT2_SERIES];
 
 export function getIvSeries(slug: string): IvSeries | undefined {
   return IV_SERIES.find((s) => s.slug === slug);
