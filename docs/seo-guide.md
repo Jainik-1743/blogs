@@ -7,7 +7,7 @@ This file explains what the code already does for search engines, the one-time s
 | Area | What | Where |
 |---|---|---|
 | Site URL | Resolved automatically: `NEXT_PUBLIC_SITE_URL`, else Vercel's production domain, else the deployment URL, else localhost. Previews point their canonicals at production | `lib/site.ts` |
-| Titles, descriptions | One helper builds them from the lesson registry. Lesson titles read `Title (Series) · blogs` so the topic comes first | `lib/seo.ts` |
+| Titles, descriptions | One helper builds them from the lesson registry and keeps every `<title>` at 60 characters or fewer (topic first, then the series name if it fits, else the part before the colon) and every meta description near 155 characters, cut at a sentence end. The full title still appears in the page heading, share cards and structured data. Re-audit after adding many lessons | `titleFor`, `descriptionFor` in `lib/seo.ts` |
 | Canonical URLs | Every page sets its own canonical (never a site-wide one) | `pageMetadata()` in `lib/seo.ts` |
 | Open Graph, Twitter cards | Every page has `og:*` and `twitter:*` tags and a generated 1200x630 share image | `lib/seo.ts`, `app/og/[[...slug]]/route.tsx` |
 | Sitemap | `/sitemap.xml`, 393 URLs, each with a real `lastmod` from git history | `app/sitemap.ts`, `lib/lastmod.json` |

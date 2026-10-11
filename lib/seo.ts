@@ -11,22 +11,61 @@ export function pageDates(path: string): { created?: string; modified?: string }
   return d ? { created: d[0], modified: d[1] } : {};
 }
 
-/** The text that goes into <title>. The layout appends " · blogs". */
-function seoTitle(p: PageInfo): string {
-  switch (p.kind) {
-    case "lesson":
-    case "reading":
-      return `${p.title} (${p.seriesShort})`;
-    case "glossary":
-      return `${p.seriesShort} glossary: every term explained`;
-    default:
-      return p.title;
-  }
-}
+const TITLE_MAX = 60;
+const DESC_MAX = 158;
 
 function clip(text: string, max = 300): string {
   const clean = text.replace(/\s+/g, " ").trim();
   return clean.length <= max ? clean : `${clean.slice(0, max - 1).replace(/\s+\S*$/, "")}…`;
+}
+
+/** The part of a title before the first colon or dash: usually the topic itself. */
+function headOf(title: string): string {
+  const head = title.split(/\s*[:\u2014\u2013]\s+/)[0].trim();
+  return head.length >= 12 ? head : title;
+}
+
+/**
+ * The text of <title>. Search results cut titles at about 60 characters, so this picks the
+ * most informative version that fits: topic plus series name, then the full topic, then just
+ * the part before the colon. The full title is still used for the page heading, share cards
+ * and structured data.
+ */
+export function titleFor(p: PageInfo): string {
+  const short = p.seriesShort;
+  switch (p.kind) {
+    case "lesson":
+    case "reading": {
+      const head = headOf(p.title);
+      const candidates = [
+        short ? `${p.title} | ${short}` : p.title,
+        p.title,
+        short ? `${head} | ${short}` : head,
+        head,
+      ];
+      return candidates.find((c) => c.length <= TITLE_MAX) ?? clip(p.title, TITLE_MAX);
+    }
+    case "glossary":
+      return `${short} Glossary: Every Term Explained`;
+    default: {
+      const withBrand = `${p.title} | ${SITE_NAME}`;
+      return withBrand.length <= TITLE_MAX ? withBrand : p.title.length <= TITLE_MAX ? p.title : clip(headOf(p.title), TITLE_MAX);
+    }
+  }
+}
+
+/**
+ * The meta description: about 155 characters (what search results show), cut at the end of a
+ * sentence when possible. Very short summaries get the series name added for context.
+ */
+export function descriptionFor(p: PageInfo): string {
+  let text = p.description.replace(/\s+/g, " ").trim();
+  if (text.length < 90 && p.seriesTitle && p.kind !== "series") text = `${text} Part of the "${p.seriesTitle}" series.`;
+  if (text.length <= DESC_MAX) return text;
+  const cut = text.slice(0, DESC_MAX);
+  const sentence = Math.max(cut.lastIndexOf(". "), cut.lastIndexOf("? "), cut.lastIndexOf("! "));
+  if (sentence >= 90) return cut.slice(0, sentence + 1);
+  return `${cut.replace(/\s+\S*$/, "").replace(/[,;:\u2014\u2013-]+$/, "")}…`;
 }
 
 export function ogImagePath(path: string): string {
@@ -40,19 +79,23 @@ export function ogImagePath(path: string): string {
 export function pageMetadata(path: string): Metadata {
   const p = findPage(path);
   if (!p) return {};
-  const title = path === "/" ? HOME_TITLE : seoTitle(p);
-  const description = path === "/" ? HOME_DESCRIPTION : clip(p.description);
+  const title = path === "/" ? HOME_TITLE : titleFor(p);
+  const description = path === "/" ? HOME_DESCRIPTION : descriptionFor(p);
+  // Share cards can show a little more than a search result: use the full title and a longer summary.
+  const shareTitle = path === "/" || p.kind === "glossary" ? title : p.kind === "lesson" || p.kind === "reading" ? p.title : title;
+  const shareDescription = path === "/" ? HOME_DESCRIPTION : clip(p.description, 200);
   const image = { url: ogImagePath(path), width: 1200, height: 630, alt: p.title };
   const dates = pageDates(path);
   const isArticle = p.kind === "lesson" || p.kind === "reading";
 
   return {
-    title: path === "/" ? { absolute: HOME_TITLE } : title,
+    // `absolute` skips the layout's " · blogs" suffix: the titles above are already sized to fit.
+    title: { absolute: title },
     description,
     alternates: { canonical: path },
     openGraph: {
-      title,
-      description,
+      title: shareTitle,
+      description: shareDescription,
       url: path,
       siteName: SITE_NAME,
       locale: SITE_LOCALE,
@@ -68,7 +111,7 @@ export function pageMetadata(path: string): Metadata {
           }
         : { type: "website" as const }),
     },
-    twitter: { card: "summary_large_image", title, description, images: [image.url] },
+    twitter: { card: "summary_large_image", title: shareTitle, description: shareDescription, images: [image.url] },
   };
 }
 

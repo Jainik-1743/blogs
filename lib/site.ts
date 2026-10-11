@@ -22,9 +22,9 @@ export const SITE_URL = resolveSiteUrl();
 export const SITE_NAME = "blogs";
 export const SITE_LOCALE = "en_US";
 
-export const HOME_TITLE = "blogs: free lessons on DSA, system design, DevOps, JavaScript and interview prep";
+export const HOME_TITLE = "blogs: Free Lessons on DSA, System Design, DevOps & More";
 export const HOME_DESCRIPTION =
-  "Free, plain-English lesson series for software engineers: data structures and algorithms, system design, DevOps and AWS, JavaScript and TypeScript, SQL, Git, testing, interview questions and team-lead skills. Every idea is traced step by step.";
+  "Free, plain-English lessons for software engineers: DSA, system design, DevOps, JavaScript, TypeScript, SQL, Git, testing and interview prep.";
 
 /**
  * Search-console verification tokens. They are public by design (they appear in the page source).
