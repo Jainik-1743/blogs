@@ -49,3 +49,28 @@ export const SERIES_GROUPS: { id: string; title: string; blurb: string; slugs: s
     slugs: ["career", "team-lead"],
   },
 ];
+
+/** For the "Keep learning" block under every lesson: the series that go best with this one. */
+export const RELATED_SERIES: Record<string, string[]> = {
+  dsa: ["cs-foundations", "career", "javascript"],
+  javascript: ["javascript-2", "typescript", "dsa"],
+  "javascript-2": ["javascript", "typescript", "testing"],
+  typescript: ["javascript-2", "frontend-depth", "fullstack-qa"],
+  "sql-postgres": ["backend", "system-design", "fullstack-qa"],
+  "git-github": ["team-lead", "devops", "testing"],
+  "cs-foundations": ["dsa", "system-design", "javascript-2"],
+  testing: ["debugging", "backend", "frontend-depth"],
+  devops: ["system-design", "backend", "git-github"],
+  "system-design": ["design-cases", "design-problems", "backend"],
+  "design-cases": ["system-design", "design-problems", "devops"],
+  backend: ["sql-postgres", "system-design", "browser"],
+  browser: ["frontend-depth", "backend", "javascript-2"],
+  "low-level-design": ["dsa", "design-problems", "typescript"],
+  "fullstack-qa": ["frontend-depth", "backend", "typescript"],
+  "frontend-depth": ["fullstack-qa", "browser", "typescript"],
+  debugging: ["testing", "backend", "browser"],
+  "design-problems": ["system-design", "design-cases", "low-level-design"],
+  "ai-engineering": ["fullstack-qa", "backend", "testing"],
+  career: ["dsa", "fullstack-qa", "team-lead"],
+  "team-lead": ["career", "git-github", "fullstack-qa"],
+};

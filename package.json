@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "seo:lastmod": "node scripts/gen-lastmod.mjs"
+    "seo:lastmod": "node scripts/gen-lastmod.mjs",
+    "seo:indexnow": "node scripts/indexnow.mjs"
   },
   "keywords": [],
   "author": "",

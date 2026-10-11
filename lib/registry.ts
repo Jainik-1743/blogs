@@ -9,7 +9,7 @@ import { JS_LESSONS, JS_READINGS, JS_SERIES, jsLessonHref, jsReadingHref } from 
 import { LESSONS, READINGS, SERIES as DEVOPS_SERIES, lessonHref, readingHref, type Lesson } from "./lessons";
 import { SD_GLOSSARY } from "./sd-glossary";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "./system-design";
-import { SERIES_GROUPS, SERIES_SHORT } from "./series";
+import { RELATED_SERIES, SERIES_GROUPS, SERIES_SHORT } from "./series";
 
 /**
  * One list of every page on the site, built from the same registries that drive the tables of
@@ -17,7 +17,7 @@ import { SERIES_GROUPS, SERIES_SHORT } from "./series";
  * all read from here, so a lesson only has to be registered once.
  */
 
-export type PageKind = "home" | "hub" | "series" | "lesson" | "reading" | "glossary";
+export type PageKind = "home" | "hub" | "page" | "series" | "lesson" | "reading" | "glossary";
 
 export type PageInfo = {
   path: string;
@@ -108,6 +108,14 @@ function buildPages(): PageInfo[] {
     path: HUB_GLOSSARIES.path, kind: "hub", title: HUB_GLOSSARIES.title,
     description: "Every glossary on the site in one place: DSA, system design, DevOps, JavaScript, TypeScript, SQL, Git, testing and more, each term explained in plain English.",
   });
+  pages.push({
+    path: "/about", kind: "page", title: "About this site and its author",
+    description: "Who publishes these lessons, how they are made and checked, and how to contact Jainik.",
+  });
+  pages.push({
+    path: "/privacy", kind: "page", title: "Privacy notice",
+    description: "What this site collects (analytics only), which services are involved, what is stored in your browser, and how to contact me.",
+  });
   for (const s of SERIES_LIST) {
     const base = { seriesSlug: s.slug, seriesTitle: s.title, seriesShort: s.short, accent: s.accent };
     pages.push({ ...base, path: `/${s.slug}`, kind: "series", title: s.title, description: s.tagline });
@@ -133,8 +141,32 @@ function buildPages(): PageInfo[] {
 }
 
 export const ALL_PAGES: PageInfo[] = buildPages();
+
+for (const [slug, rel] of Object.entries(RELATED_SERIES)) {
+  for (const r of [slug, ...rel]) if (!SERIES_LIST.some((x) => x.slug === r)) throw new Error(`RELATED_SERIES mentions unknown series "${r}"`);
+}
 const BY_PATH = new Map(ALL_PAGES.map((p) => [p.path, p]));
 
 export function findPage(path: string): PageInfo | undefined {
   return BY_PATH.get(path);
+}
+
+/** Series that go well with this one, for the "Keep learning" block. */
+export function relatedSeries(slug: string): SeriesInfo[] {
+  return (RELATED_SERIES[slug] ?? []).map((x) => seriesBySlug(x)).filter((x): x is SeriesInfo => Boolean(x));
+}
+
+const GENERIC_TAGS = new Set(["interview", "interviews", "roadmap", "beginner", "fundamentals"]);
+
+/** Lessons in OTHER series that share the most tags with this one (only markdown-series lessons carry tags). */
+export function relatedLessons(path: string, limit = 3): PageInfo[] {
+  const me = findPage(path);
+  const mine = (me?.tags ?? []).filter((t) => !GENERIC_TAGS.has(t));
+  if (!me || !mine.length) return [];
+  return ALL_PAGES.filter((p) => p.kind === "lesson" && p.path !== path && p.seriesSlug !== me.seriesSlug && p.tags?.length)
+    .map((p) => ({ p, score: p.tags!.filter((t) => mine.includes(t)).length }))
+    .filter((x) => x.score > 0)
+    .sort((a, b) => b.score - a.score || a.p.path.localeCompare(b.p.path))
+    .slice(0, limit)
+    .map((x) => x.p);
 }

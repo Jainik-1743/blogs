@@ -25,6 +25,8 @@ export default function SiteFooter() {
           <nav aria-label="Site" className="flex flex-wrap gap-x-5 gap-y-1.5">
             <FooterLink href="/">All series</FooterLink>
             <FooterLink href="/glossaries">Glossaries</FooterLink>
+            <FooterLink href="/about">About</FooterLink>
+            <FooterLink href="/privacy">Privacy</FooterLink>
             <FooterLink href="/feed.xml">RSS</FooterLink>
             <FooterLink href="/sitemap.xml">Sitemap</FooterLink>
           </nav>

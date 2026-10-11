@@ -35,8 +35,13 @@ export const GOOGLE_VERIFICATION = process.env.GOOGLE_SITE_VERIFICATION?.trim() 
 
 export const AUTHOR = {
   name: "Jainik",
-  url: "https://github.com/Jainik-1743",
+  jobTitle: "Senior Software Engineer",
+  /** Where the author's page lives on this site. No external profile links are published on purpose. */
+  path: "/about",
 };
+
+/** Public contact address, shown on the About and Privacy pages. */
+export const CONTACT_EMAIL = "jainikpatel1743@gmail.com";
 
 /**
  * Preview and branch deployments on Vercel must not be indexed (they would compete with the

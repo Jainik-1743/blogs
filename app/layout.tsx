@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   title: { default: HOME_TITLE, template: `%s · ${SITE_NAME}` },
   description: HOME_DESCRIPTION,
   applicationName: SITE_NAME,
-  authors: [{ name: AUTHOR.name, url: AUTHOR.url }],
+  authors: [{ name: AUTHOR.name, url: AUTHOR.path }],
   creator: AUTHOR.name,
   publisher: AUTHOR.name,
   category: "technology",

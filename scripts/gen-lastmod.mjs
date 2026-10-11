@@ -60,6 +60,9 @@ for (const slug of appDirs) {
   }
 }
 
+// Stand-alone top-level pages.
+for (const slug of ["about", "privacy", "glossaries"]) put(`/${slug}`, [`app/${slug}/page.tsx`]);
+
 // Series index and glossary pages: newest lesson in the series.
 const bySeries = {};
 for (const [path, [c, m]] of Object.entries(out)) {
@@ -75,7 +78,7 @@ for (const [slug, dates] of Object.entries(bySeries)) {
   if (modified > newest) newest = modified;
 }
 out["/"] = [out["/dsa"]?.[0] ?? newest, newest];
-out["/glossaries"] = [out["/"][0], newest];
+out["/glossaries"] ??= [out["/"][0], newest];
 
 const sorted = Object.fromEntries(Object.entries(out).sort(([a], [b]) => a.localeCompare(b)));
 writeFileSync("lib/lastmod.json", JSON.stringify(sorted, null, 0) + "\n");

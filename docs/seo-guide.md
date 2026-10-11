@@ -15,6 +15,10 @@ This file explains what the code already does for search engines, the one-time s
 | Structured data (JSON-LD) | `WebSite` and author on every page; `TechArticle` + breadcrumbs on every lesson; `CollectionPage` + lesson list on every series page; a collection on the home page | `lib/seo.ts`, `components/LessonPager.tsx` |
 | RSS | `/feed.xml` with the 60 newest lessons; advertised in the page head | `app/feed.xml/route.ts` |
 | Hub pages | `/glossaries` links every glossary; the footer and 404 page link to all series | `app/glossaries`, `components/SiteFooter.tsx`, `app/not-found.tsx` |
+| Trust pages | `/about` (author, how lessons are made and checked, contact) and `/privacy` (analytics and browser storage). No social profile links are published | `app/about`, `app/privacy`, `lib/site.ts` |
+| Byline, dates, internal links | Under every lesson: "Published by", a visible "Last updated" date from git, and a "Keep learning" block with related lessons (by shared tags) and related series | `components/LessonPager.tsx`, `lib/series.ts` (`RELATED_SERIES`) |
+| Icons | SVG plus 192 px and 512 px PNG favicons, and an Apple touch icon | `app/icon.svg`, `app/icon1.png`, `app/icon2.png`, `app/apple-icon.tsx` |
+| Bing | Verified by `public/BingSiteAuth.xml` and the `msvalidate.01` meta tag; IndexNow key file in `public/` | `lib/site.ts`, `scripts/indexnow.mjs` |
 | Web manifest | `/manifest.webmanifest` | `app/manifest.ts` |
 
 Not added on purpose: FAQ markup (Google limits FAQ rich results to a small set of sites), keyword lists in page text, and doorway pages. They do not help and can hurt.
@@ -51,13 +55,27 @@ git add lib/lastmod.json && git commit -m "Update sitemap dates"
 
 If you do a bulk change that does not change content (a codemod, formatting), add that commit's SHA to `scripts/lastmod-ignore.txt` before regenerating, so it does not mark every page as "modified today". New lessons also need nothing else: they appear in the sitemap, the feed and the structured data as soon as they are registered in `lib/iv.ts` (or the older registries).
 
+### IndexNow (optional, Bing and others)
+
+After a deploy that adds or changes lessons, tell Bing right away instead of waiting for it to crawl. Replace the URL with your real site address:
+
+```bash
+npm run seo:lastmod                                  # refresh dates, commit lib/lastmod.json, deploy first
+npm run seo:indexnow -- https://your-domain.com      # pages changed in the last 2 days
+npm run seo:indexnow -- https://your-domain.com --all --dry   # preview a full submission
+```
+
+Run it only after the new version is live: the search engine fetches the key file from your site to check ownership. Google does not use IndexNow; it relies on the sitemap and Search Console.
+
 ## 5. From a few visitors to 1,000+: a realistic plan
 
 This is general SEO and publishing practice. Nothing here is a guarantee, and a young site often needs weeks to months before search engines trust it.
 
+**Before anything else: edit `/about` if your details change.** It is the page readers and search engines use to judge who is behind the site. The contact address lives in `lib/site.ts` (`CONTACT_EMAIL`).
+
 **Weeks 1 to 2: get found.**
 - Do section 2. Until a page is indexed it cannot get any search traffic. In Search Console, Pages, check "Indexed" versus "Discovered, not indexed".
-- Link to the site from places you control: your GitHub profile and repository README, LinkedIn, X, and any other profile. These are real links and help discovery.
+- Link to the site from places you control: your GitHub repository README and any profile you choose to share it on. Real links help discovery. (This site itself publishes no social profile links, by choice.)
 
 **Weeks 2 to 6: improve what search engines already show.**
 - In Search Console, Performance, look at queries that give **impressions but few clicks**. Rewrite that lesson's title and description so the main phrase comes first (aim for about 60 characters in the title and 150 in the description). The registry summary in `lib/*.ts` is the description.

@@ -76,7 +76,7 @@ export function pageMetadata(path: string): Metadata {
 
 type Json = Record<string, unknown>;
 
-const personRef = { "@type": "Person", name: AUTHOR.name, url: AUTHOR.url };
+const personRef = { "@type": "Person", name: AUTHOR.name, url: absoluteUrl(AUTHOR.path) };
 
 /** "20 min" -> "PT20M" (ISO 8601 duration). */
 function isoDuration(readTime?: string): string | undefined {
@@ -110,7 +110,13 @@ export function siteJsonLd(): Json {
         inLanguage: "en",
         publisher: { "@id": absoluteUrl("/#author") },
       },
-      { "@id": absoluteUrl("/#author"), ...personRef, sameAs: [AUTHOR.url] },
+      {
+        "@id": absoluteUrl("/#author"),
+        ...personRef,
+        jobTitle: AUTHOR.jobTitle,
+        description: "Software engineer who builds web applications with React, Next.js and Tailwind CSS and writes plain-English lessons for other developers.",
+        knowsAbout: ["React", "Next.js", "Tailwind CSS", "JavaScript", "TypeScript", "Front-end architecture", "Web accessibility"],
+      },
     ],
   };
 }
@@ -209,6 +215,29 @@ export function homeJsonLd(): Json {
       numberOfItems: seriesPages.length,
       itemListElement: seriesPages.map((p, i) => ({ "@type": "ListItem", position: i + 1, name: p.title, url: absoluteUrl(p.path) })),
     },
+  };
+}
+
+/** Structured data for the About page. */
+export function aboutJsonLd(): Json {
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "AboutPage",
+        "@id": `${absoluteUrl("/about")}#page`,
+        url: absoluteUrl("/about"),
+        name: "About this site and its author",
+        inLanguage: "en",
+        isPartOf: { "@id": absoluteUrl("/#website") },
+        about: { "@id": absoluteUrl("/#author") },
+        mainEntity: { "@id": absoluteUrl("/#author") },
+      },
+      breadcrumb([
+        { name: "Home", path: "/" },
+        { name: "About", path: "/about" },
+      ]),
+    ],
   };
 }
 
