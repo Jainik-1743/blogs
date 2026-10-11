@@ -25,7 +25,7 @@ export type IvSeries = {
  * How many lessons of each series (counted from the top) have a Markdown file. The rest are
  * listed as "coming soon" and are not routed. Raise a number as each lesson is written.
  */
-const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 15, "design-problems": 8, "frontend-depth": 7, "fullstack-qa": 39, "team-lead": 12, "low-level-design": 10, "design-cases": 12, "cs-foundations": 8, "git-github": 6, "testing": 6, "typescript": 8, "sql-postgres": 8, "javascript-2": 8, "ai-engineering": 5, "career": 3 };
+const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 15, "design-problems": 8, "frontend-depth": 7, "fullstack-qa": 39, "team-lead": 18, "low-level-design": 10, "design-cases": 12, "cs-foundations": 8, "git-github": 6, "testing": 6, "typescript": 8, "sql-postgres": 8, "javascript-2": 8, "ai-engineering": 5, "career": 3 };
 
 type Row = [title: string, summary: string, readTime: string, tags: string[]];
 
@@ -225,6 +225,12 @@ export const TEAMLEAD_SERIES: IvSeries = {
     ["Mentoring, Onboarding and Hiring", "Context before answers, a first-90-days plan for a new hire, fair work-like interviews, and what the popular lists say about hiring.", "15 min", ["mentoring", "onboarding", "hiring"]],
     ["Stakeholders, Meetings and Change", "Explaining the why before the what, a five-line status update, fewer and better meetings, preparing people for change, and planning around outcomes.", "14 min", ["communication", "meetings", "planning"]],
     ["Sources and Reading List: Popular Repos and Documents", "The most-starred GitHub lists and well-known documents behind this series, which I read directly, which I only know from summaries, and which I could not open.", "10 min", ["sources", "reading", "learning"]],
+    ["Technical Strategy and Roadmaps", "Strategy versus wish list, roadmaps as bets with date ranges, saying no, build versus buy, migrations and a one-page strategy template.", "8 min", ["strategy", "roadmap", "build-vs-buy"]],
+    ["Career Growth, Promotion and the Staff-Engineer Path", "Ladders, scope versus output, the IC and manager tracks, sponsorship versus mentorship, and a promotion packet template.", "9 min", ["career-ladders", "promotion", "staff-engineer"]],
+    ["A Security Mindset for Team Leads", "A 30-minute threat model, supply-chain hygiene, secrets, access reviews, SECURITY.md and security in code review.", "13 min", ["security", "threat-modelling", "supply-chain"]],
+    ["Rules for AI-Assisted Coding on a Team", "The author owns every line, what to allow, reviewing generated code harder, agent permissions, helping juniors, measuring honestly and a one-page policy.", "14 min", ["ai-assistants", "policy", "code-review"]],
+    ["Scaling Teams, Ownership and On-Call", "Splitting teams with Conway in mind, a service catalogue, humane on-call, avoiding hero culture, toil and cross-team dependencies.", "14 min", ["scaling", "on-call", "ownership"]],
+    ["Culture, Psychological Safety and Retrospectives", "Daily habits that build culture, psychological safety, the brilliant jerk, remote habits, a retro template and Etsy's incident debrief method.", "15 min", ["culture", "retrospectives", "psychological-safety"]],
   ], WRITTEN["team-lead"]),
 };
 
