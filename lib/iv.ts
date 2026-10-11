@@ -25,7 +25,7 @@ export type IvSeries = {
  * How many lessons of each series (counted from the top) have a Markdown file. The rest are
  * listed as "coming soon" and are not routed. Raise a number as each lesson is written.
  */
-const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 15, "design-problems": 8, "frontend-depth": 7, "fullstack-qa": 39, "team-lead": 12, "low-level-design": 10, "design-cases": 12, "cs-foundations": 8, "git-github": 6, "testing": 6, "typescript": 8 };
+const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 15, "design-problems": 8, "frontend-depth": 7, "fullstack-qa": 39, "team-lead": 12, "low-level-design": 10, "design-cases": 12, "cs-foundations": 8, "git-github": 6, "testing": 6, "typescript": 8, "sql-postgres": 8 };
 
 type Row = [title: string, summary: string, readTime: string, tags: string[]];
 
@@ -350,7 +350,27 @@ export const TYPESCRIPT_SERIES: IvSeries = {
   ], WRITTEN["typescript"]),
 };
 
-export const IV_SERIES: IvSeries[] = [BROWSER_SERIES, BACKEND_SERIES, DEBUGGING_SERIES, DESIGN_SERIES, FRONTEND_SERIES, FULLSTACK_SERIES, TEAMLEAD_SERIES, LLD_SERIES, DESIGNCASES_SERIES, CSFOUNDATIONS_SERIES, GITGITHUB_SERIES, TESTING_SERIES, TYPESCRIPT_SERIES];
+export const SQLPOSTGRES_SERIES: IvSeries = {
+  slug: "sql-postgres",
+  title: "SQL and PostgreSQL From Zero",
+  short: "SQL & PostgreSQL",
+  tagline:
+    "SQL and PostgreSQL from your first SELECT to production habits: joins, aggregates, window functions, schema design, indexes and EXPLAIN, transactions and locks, JSONB and safe migrations. Every query was run on a real PostgreSQL server and the real output is shown.",
+  started: "2026",
+  accent: "teal",
+  lessons: lessons([
+    ["Tables, SELECT and WHERE", "What a relational database is, running PostgreSQL, a small shop schema, SELECT, WHERE, NULL logic, and INSERT, UPDATE and DELETE with RETURNING.", "18 min", ["sql", "postgresql", "select"]],
+    ["Joins: Combining Tables", "Primary and foreign keys, inner, left, right, full and cross joins with drawn result tables, self joins and the NULL trap in left joins.", "18 min", ["sql", "joins", "postgresql"]],
+    ["Aggregates, GROUP BY and HAVING", "COUNT, SUM and AVG, GROUP BY rules, HAVING versus WHERE, FILTER, date_trunc reports and the order a SELECT is evaluated.", "20 min", ["sql", "aggregates", "group-by"]],
+    ["Subqueries, CTEs and Window Functions", "Scalar, IN and EXISTS subqueries, WITH queries, a recursive category tree, ranking, LAG and LEAD, running totals and top-N per group.", "22 min", ["sql", "cte", "window-functions"]],
+    ["Designing a Schema: Keys, Normalisation and Constraints", "Identity versus UUID keys, normal forms with a flat-to-normalised redesign, ON DELETE, enums, money, timestamptz and soft deletes.", "22 min", ["sql", "schema-design", "constraints"]],
+    ["Indexes and EXPLAIN", "How a B-tree helps, composite, covering and partial indexes, and reading real EXPLAIN ANALYZE plans on a million rows.", "24 min", ["sql", "indexes", "explain"]],
+    ["Transactions, Isolation Levels and Locks", "Atomicity, read committed versus repeatable read versus serializable with two real sessions, row locks, SKIP LOCKED, deadlocks and retries.", "22 min", ["sql", "transactions", "locks"]],
+    ["PostgreSQL Features: JSONB, Full-Text Search, Arrays and Safe Migrations", "JSONB with GIN indexes, full-text search, arrays, upserts, and expand-and-contract migrations that do not lock a busy table.", "24 min", ["postgresql", "jsonb", "migrations"]],
+  ], WRITTEN["sql-postgres"]),
+};
+
+export const IV_SERIES: IvSeries[] = [BROWSER_SERIES, BACKEND_SERIES, DEBUGGING_SERIES, DESIGN_SERIES, FRONTEND_SERIES, FULLSTACK_SERIES, TEAMLEAD_SERIES, LLD_SERIES, DESIGNCASES_SERIES, CSFOUNDATIONS_SERIES, GITGITHUB_SERIES, TESTING_SERIES, TYPESCRIPT_SERIES, SQLPOSTGRES_SERIES];
 
 export function getIvSeries(slug: string): IvSeries | undefined {
   return IV_SERIES.find((s) => s.slug === slug);
