@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import JsonLd from "@/components/JsonLd";
-import { RESOLVED_GUIDES } from "@/lib/guides";
+import GuideCards from "@/components/GuideCards";
 import { ALL_PAGES, groupedSeries } from "@/lib/registry";
 import { homeJsonLd, pageMetadata } from "@/lib/seo";
 
@@ -26,15 +26,17 @@ export default function HomePage() {
       </p>
 
       <section aria-labelledby="start-guides" className="mt-10">
-        <h2 id="start-guides" className="mb-1 text-[1.5rem] font-semibold text-ink">Start with a guide</h2>
-        <p className="mt-0 mb-4 text-ink-dim">
-          Not sure where to begin? Each <Link href="/guides">study guide</Link> picks the lessons for one goal and puts them in order.
-        </p>
-        <ul className="m-0 grid list-none gap-x-6 gap-y-1.5 p-0 sm:grid-cols-2">
-          {RESOLVED_GUIDES.map((g) => (
-            <li key={g.slug}><Link href={`/guides/${g.slug}`}>{g.title}</Link></li>
-          ))}
-        </ul>
+        <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
+          <div>
+            <p className="mb-1 font-mono text-[0.72rem] uppercase tracking-[0.12em] text-sky">Recommended paths</p>
+            <h2 id="start-guides" className="m-0 text-[1.6rem] font-semibold text-ink">Start with a guide</h2>
+            <p className="mt-1 mb-0 max-w-[56ch] text-ink-dim">
+              Pick your goal and follow a ready-made reading order, so you never wonder what to read next.
+            </p>
+          </div>
+          <Link href="/guides" className="text-[0.9rem] font-semibold">All guides →</Link>
+        </div>
+        <GuideCards />
       </section>
 
       {groups.map((g) => (

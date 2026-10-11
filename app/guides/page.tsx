@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import JsonLd from "@/components/JsonLd";
+import GuideCards from "@/components/GuideCards";
 import { RESOLVED_GUIDES } from "@/lib/guides";
 import { pageMetadata } from "@/lib/seo";
 import { absoluteUrl } from "@/lib/site";
@@ -40,15 +40,7 @@ export default function GuidesPage() {
         Each guide gathers lessons from several series into one reading order for a single goal, such as a system design
         interview or learning SQL. Pick the goal, then follow the list.
       </p>
-      <div className="mt-8 grid gap-3 sm:grid-cols-2">
-        {RESOLVED_GUIDES.map((g) => (
-          <Link key={g.slug} href={`/guides/${g.slug}`} className="block rounded-xl border border-line bg-bg-elev px-5 py-4 text-ink transition hover:-translate-y-0.5 hover:border-sky hover:no-underline">
-            <div className="font-mono text-[0.75rem] text-sky">{g.lessonCount} lessons</div>
-            <h2 className="my-1 text-[1.1rem] font-semibold leading-snug text-sky-strong">{g.title}</h2>
-            <p className="m-0 line-clamp-3 text-[0.9rem] text-ink-dim">{g.description}</p>
-          </Link>
-        ))}
-      </div>
+      <div className="mt-8"><GuideCards /></div>
     </>
   );
 }
