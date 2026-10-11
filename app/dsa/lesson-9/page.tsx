@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Callout from "@/components/Callout";
 import ArrayBoxes from "@/components/dsa/ArrayBoxes";
 import CodeTrace from "@/components/dsa/CodeTrace";
@@ -11,10 +12,7 @@ import { tracer } from "@/lib/dsa-trace";
 
 const lesson = getDsaLesson("lesson-9");
 
-export const metadata: Metadata = {
-  title: `Lesson 9 — ${lesson.title}`,
-  description: lesson.summary,
-};
+export const metadata: Metadata = pageMetadata("/dsa/lesson-9");
 
 const outline = [
   { id: "concept", label: "A string is a row of characters" },

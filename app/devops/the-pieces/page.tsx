@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import JsonLd from "@/components/JsonLd";
+import { lessonJsonLd, pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import Callout from "@/components/Callout";
 import CdnFlow from "@/components/figures/CdnFlow";
@@ -13,10 +15,7 @@ import { getLesson, lessonHref, READINGS, SERIES } from "@/lib/lessons";
 
 const reading = READINGS.find((r) => r.slug === "the-pieces")!;
 
-export const metadata: Metadata = {
-  title: reading.title,
-  description: reading.summary,
-};
+export const metadata: Metadata = pageMetadata("/devops/the-pieces");
 
 const outline = [
   { id: "map", label: "The map — one request through everything" },
@@ -55,6 +54,7 @@ const pieces: [string, string, string, number][] = [
 export default function ThePiecesPage() {
   return (
     <article>
+      <JsonLd data={lessonJsonLd("/devops/the-pieces")} />
       <header className="mb-8 border-b border-line pb-6">
         <nav className="mb-4 font-mono text-[0.8rem] text-ink-dim" aria-label="Breadcrumb">
           <Link href="/" className="hover:text-sky">Home</Link>

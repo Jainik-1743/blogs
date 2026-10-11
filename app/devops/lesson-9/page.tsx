@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Callout from "@/components/Callout";
 import CommandList from "@/components/CommandList";
 import DeployPipeline from "@/components/figures/DeployPipeline";
@@ -10,10 +11,7 @@ import { getLesson } from "@/lib/lessons";
 
 const lesson = getLesson("lesson-9")!;
 
-export const metadata: Metadata = {
-  title: `Lesson 9 — ${lesson.title}`,
-  description: lesson.summary,
-};
+export const metadata: Metadata = pageMetadata("/devops/lesson-9");
 
 const outline = [
   { id: "concept", label: "Concept: ship the whole box, not just the code" },

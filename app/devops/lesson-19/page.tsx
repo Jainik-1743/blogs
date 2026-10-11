@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import Callout from "@/components/Callout";
 import CommandList from "@/components/CommandList";
@@ -14,10 +15,7 @@ import { getLesson, lessonHref, READINGS, readingHref } from "@/lib/lessons";
 const lesson = getLesson("lesson-19")!;
 const hostingReading = READINGS.find((r) => r.slug === "hosting-platforms");
 
-export const metadata: Metadata = {
-  title: `Lesson 19 — ${lesson.title}`,
-  description: lesson.summary,
-};
+export const metadata: Metadata = pageMetadata("/devops/lesson-19");
 
 const outline = [
   { id: "concept", label: "Concept: the bill is a design document" },

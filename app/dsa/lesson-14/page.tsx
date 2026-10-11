@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Callout from "@/components/Callout";
 import CodeTrace from "@/components/dsa/CodeTrace";
 import DryRun from "@/components/dsa/DryRun";
@@ -11,10 +12,7 @@ import { tracer } from "@/lib/dsa-trace";
 
 const lesson = getDsaLesson("lesson-14");
 
-export const metadata: Metadata = {
-  title: `Lesson 14 — ${lesson.title}`,
-  description: lesson.summary,
-};
+export const metadata: Metadata = pageMetadata("/dsa/lesson-14");
 
 const outline = [
   { id: "concept", label: "A function that calls itself" },

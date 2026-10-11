@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import Callout from "@/components/Callout";
 import DryRun from "@/components/dsa/DryRun";
@@ -11,10 +12,7 @@ import { getDsaLesson } from "@/lib/dsa";
 
 const lesson = getDsaLesson("lesson-60");
 
-export const metadata: Metadata = {
-  title: `Lesson 60 — ${lesson.title}`,
-  description: lesson.summary,
-};
+export const metadata: Metadata = pageMetadata("/dsa/lesson-60");
 
 const outline = [
   { id: "how", label: "How to use this lesson" },

@@ -1,4 +1,6 @@
 import Link from "next/link";
+import JsonLd from "@/components/JsonLd";
+import { lessonJsonLd } from "@/lib/seo";
 import { LESSONS, lessonHref, SERIES, type Lesson } from "@/lib/lessons";
 
 const box = "block rounded-xl border border-line px-5 py-4";
@@ -22,8 +24,13 @@ export default function LessonPager({
   const prev = i === -1 ? undefined : lessons[i - 1];
   const next = i === -1 ? undefined : lessons[i + 1];
 
+  const current = i === -1 ? undefined : lessons[i];
+
   return (
-    <nav className="mt-14 grid grid-cols-1 gap-4 border-t border-line pt-8 sm:grid-cols-2" aria-label="Lesson navigation">
+    <>
+      {/* Structured data for this lesson (TechArticle + breadcrumbs); see lib/seo.ts. */}
+      {current ? <JsonLd data={lessonJsonLd(href(current))} /> : null}
+      <nav className="mt-14 grid grid-cols-1 gap-4 border-t border-line pt-8 sm:grid-cols-2" aria-label="Lesson navigation">
       {prev ? (
         <Link href={href(prev)} className={`${box} text-ink hover:border-sky hover:bg-sky-soft hover:no-underline`}>
           <div className={`${dir} text-sky`}>← Previous</div>
@@ -48,5 +55,6 @@ export default function LessonPager({
         </div>
       ) : null}
     </nav>
+    </>
   );
 }

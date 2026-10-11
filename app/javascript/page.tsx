@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
+import JsonLd from "@/components/JsonLd";
+import { pageMetadata, seriesJsonLd } from "@/lib/seo";
 import Link from "next/link";
 import LessonToc from "@/components/LessonToc";
 import { JS_LESSONS, JS_READINGS, jsReadingHref, JS_SERIES, jsLessonHref } from "@/lib/javascript";
 
-export const metadata: Metadata = {
-  title: JS_SERIES.title,
-  description: JS_SERIES.tagline,
-};
+export const metadata: Metadata = pageMetadata("/javascript");
 
 /** The series "cover" — title page + table of contents, like the first page of a book. */
 export default function JavascriptIndexPage() {
@@ -14,6 +13,7 @@ export default function JavascriptIndexPage() {
 
   return (
     <>
+      <JsonLd data={seriesJsonLd("javascript")} />
       <section className="mb-8 border-b border-line pb-8 pt-6">
         <p className="mb-2 font-mono text-[0.78rem] uppercase tracking-[0.12em] text-sky">
           A blog series

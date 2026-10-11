@@ -1,13 +1,11 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import GlossaryIndex from "@/components/GlossaryIndex";
 import LessonPager from "@/components/LessonPager";
 import { SQLPOSTGRES_SERIES, ivLessonHref } from "@/lib/iv";
 import { ivGlossaryFor } from "@/lib/iv-glossary";
 
-export const metadata: Metadata = {
-  title: "SQL & PostgreSQL Glossary",
-  description: `Every term used in "${SQLPOSTGRES_SERIES.short}", with a one-line meaning and the lesson that explains it.`,
-};
+export const metadata: Metadata = pageMetadata("/sql-postgres/glossary");
 
 export default function SqlPostgresGlossaryPage() {
   return (

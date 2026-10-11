@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import Callout from "@/components/Callout";
 import CommandList from "@/components/CommandList";
@@ -10,10 +11,7 @@ import { getLesson, lessonHref } from "@/lib/lessons";
 const lesson = getLesson("lesson-13")!;
 const dnsLesson = getLesson("lesson-3")!;
 
-export const metadata: Metadata = {
-  title: `Lesson 13 — ${lesson.title}`,
-  description: lesson.summary,
-};
+export const metadata: Metadata = pageMetadata("/devops/lesson-13");
 
 const outline = [
   { id: "concept", label: "Concept: from a long AWS name to yourapp.com" },

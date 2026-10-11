@@ -1,21 +1,51 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import JsonLd from "@/components/JsonLd";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import GlossaryTooltips from "@/components/GlossaryTooltips";
 import { accentInitScript } from "@/lib/accents";
 import { ALL_SERIES } from "@/lib/series";
+import { robotsMeta, siteJsonLd } from "@/lib/seo";
+import { AUTHOR, HOME_DESCRIPTION, HOME_TITLE, SITE_LOCALE, SITE_NAME, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
 const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono", display: "swap" });
 
 export const metadata: Metadata = {
-  title: { default: "blogs", template: "%s · blogs" },
-  description: "Lesson-style series on DevOps, JavaScript, system design and DSA, written one post at a time.",
+  metadataBase: new URL(SITE_URL),
+  title: { default: HOME_TITLE, template: `%s · ${SITE_NAME}` },
+  description: HOME_DESCRIPTION,
+  applicationName: SITE_NAME,
+  authors: [{ name: AUTHOR.name, url: AUTHOR.url }],
+  creator: AUTHOR.name,
+  publisher: AUTHOR.name,
+  category: "technology",
+  keywords: [
+    "data structures and algorithms", "system design", "DevOps", "AWS", "JavaScript", "TypeScript", "SQL", "PostgreSQL",
+    "Git", "testing", "software engineering interview questions", "coding interview", "full-stack", "team lead",
+  ],
+  // Do not set a site-wide canonical here: it would be inherited by every page. Each page sets its own (lib/seo.ts).
+  alternates: { types: { "application/rss+xml": [{ url: "/feed.xml", title: `${SITE_NAME} RSS feed` }] } },
+  openGraph: { type: "website", siteName: SITE_NAME, locale: SITE_LOCALE, title: HOME_TITLE, description: HOME_DESCRIPTION, images: [{ url: "/og", width: 1200, height: 630 }] },
+  twitter: { card: "summary_large_image", title: HOME_TITLE, description: HOME_DESCRIPTION, images: ["/og"] },
+  robots: robotsMeta,
+  // Set these in Vercel (Project Settings, Environment Variables) after adding the site to the search consoles.
+  verification: {
+    ...(process.env.GOOGLE_SITE_VERIFICATION ? { google: process.env.GOOGLE_SITE_VERIFICATION } : {}),
+    ...(process.env.BING_SITE_VERIFICATION ? { other: { "msvalidate.01": process.env.BING_SITE_VERIFICATION } } : {}),
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#0b1120",
+  colorScheme: "dark",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -36,6 +66,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             style={{ display: "none", visibility: "hidden" }}
           />
         </noscript>
+        <JsonLd data={siteJsonLd()} />
         <SiteHeader />
         <main className="mx-auto w-full max-w-[860px] flex-1 px-4 py-12">{children}</main>
         <SiteFooter />

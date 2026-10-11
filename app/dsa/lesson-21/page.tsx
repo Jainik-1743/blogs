@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import ArrayBoxes from "@/components/dsa/ArrayBoxes";
 import Callout from "@/components/Callout";
 import CodeTrace from "@/components/dsa/CodeTrace";
@@ -12,10 +13,7 @@ import { tracer } from "@/lib/dsa-trace";
 
 const lesson = getDsaLesson("lesson-21");
 
-export const metadata: Metadata = {
-  title: `Lesson 21 — ${lesson.title}`,
-  description: lesson.summary,
-};
+export const metadata: Metadata = pageMetadata("/dsa/lesson-21");
 
 const outline = [
   { id: "concept", label: "Two indices instead of two loops" },

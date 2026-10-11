@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Callout from "@/components/Callout";
 import CommandList from "@/components/CommandList";
 import NginxFlow from "@/components/figures/NginxFlow";
@@ -10,10 +11,7 @@ import { getLesson } from "@/lib/lessons";
 
 const lesson = getLesson("lesson-10")!;
 
-export const metadata: Metadata = {
-  title: `Lesson 10 — ${lesson.title}`,
-  description: lesson.summary,
-};
+export const metadata: Metadata = pageMetadata("/devops/lesson-10");
 
 const outline = [
   { id: "concept", label: "Concept: the receptionist" },

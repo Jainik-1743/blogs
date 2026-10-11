@@ -1,0 +1,2 @@
+# Commits that touched many pages without changing their content.
+# One SHA (or SHA prefix) per line. They are skipped when scripts/gen-lastmod.mjs builds "last modified" dates.

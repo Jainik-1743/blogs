@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
+import JsonLd from "@/components/JsonLd";
+import { pageMetadata, seriesJsonLd } from "@/lib/seo";
 import Link from "next/link";
 import LessonToc from "@/components/LessonToc";
 import { LESSONS, READINGS, readingHref, SERIES } from "@/lib/lessons";
 
-export const metadata: Metadata = {
-  title: SERIES.title,
-  description: SERIES.tagline,
-};
+export const metadata: Metadata = pageMetadata("/devops");
 
 /** The series "cover" — title page + table of contents, like the first page of a book. */
 export default function DevopsIndexPage() {
@@ -14,6 +13,7 @@ export default function DevopsIndexPage() {
 
   return (
     <>
+      <JsonLd data={seriesJsonLd("devops")} />
       <section className="mb-8 border-b border-line pb-8 pt-6">
         <p className="mb-2 font-mono text-[0.78rem] uppercase tracking-[0.12em] text-sky">
           A blog series

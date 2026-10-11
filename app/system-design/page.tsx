@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
+import JsonLd from "@/components/JsonLd";
+import { pageMetadata, seriesJsonLd } from "@/lib/seo";
 import Link from "next/link";
 import LessonToc from "@/components/LessonToc";
 import { SD_GLOSSARY } from "@/lib/sd-glossary";
 import { SD_LESSONS, SD_PARTS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
 
-export const metadata: Metadata = {
-  title: SD_SERIES.title,
-  description: SD_SERIES.tagline,
-};
+export const metadata: Metadata = pageMetadata("/system-design");
 
 /** The series "cover": title page, the parts at a glance, then the full table of contents. */
 export default function SystemDesignIndexPage() {
@@ -16,6 +15,7 @@ export default function SystemDesignIndexPage() {
 
   return (
     <>
+      <JsonLd data={seriesJsonLd("system-design")} />
       <section className="mb-8 border-b border-line pb-8 pt-6">
         <p className="mb-2 font-mono text-[0.78rem] uppercase tracking-[0.12em] text-sky">A blog series</p>
         <h1 className="mb-3 text-[2.9rem] font-bold leading-[1.1] tracking-tight text-sky max-sm:text-[2rem]">

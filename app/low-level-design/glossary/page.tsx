@@ -1,13 +1,11 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import GlossaryIndex from "@/components/GlossaryIndex";
 import LessonPager from "@/components/LessonPager";
 import { LLD_SERIES, ivLessonHref } from "@/lib/iv";
 import { ivGlossaryFor } from "@/lib/iv-glossary";
 
-export const metadata: Metadata = {
-  title: "Design Patterns & LLD Glossary",
-  description: `Every term used in "${LLD_SERIES.short}", with a one-line meaning and the lesson that explains it.`,
-};
+export const metadata: Metadata = pageMetadata("/low-level-design/glossary");
 
 export default function LowLevelDesignGlossaryPage() {
   return (

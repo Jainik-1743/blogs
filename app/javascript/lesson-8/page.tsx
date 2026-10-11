@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import Callout from "@/components/Callout";
 import ConstBindingBox from "@/components/figures/ConstBindingBox";
@@ -16,10 +17,7 @@ import { JS_LESSONS, JS_SERIES, jsLessonHref } from "@/lib/javascript";
 
 const lesson = JS_LESSONS.find((l) => l.slug === "lesson-8")!;
 
-export const metadata: Metadata = {
-  title: `Lesson 8 — ${lesson.title}`,
-  description: lesson.summary,
-};
+export const metadata: Metadata = pageMetadata("/javascript/lesson-8");
 
 /** In-page index. Each entry links to a section heading below. */
 const outline = [

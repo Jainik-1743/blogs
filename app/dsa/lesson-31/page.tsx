@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Callout from "@/components/Callout";
 import CodeTrace from "@/components/dsa/CodeTrace";
 import DryRun from "@/components/dsa/DryRun";
@@ -11,10 +12,7 @@ import { tracer } from "@/lib/dsa-trace";
 
 const lesson = getDsaLesson("lesson-31");
 
-export const metadata: Metadata = {
-  title: `Lesson 31 — ${lesson.title}`,
-  description: lesson.summary,
-};
+export const metadata: Metadata = pageMetadata("/dsa/lesson-31");
 
 const outline = [
   { id: "concept", label: "A window is two markers and a little memory" },

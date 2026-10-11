@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import ArrayBoxes from "@/components/dsa/ArrayBoxes";
 import Callout from "@/components/Callout";
 import CodeTrace from "@/components/dsa/CodeTrace";
@@ -12,10 +13,7 @@ import { tracer } from "@/lib/dsa-trace";
 
 const lesson = getDsaLesson("lesson-19");
 
-export const metadata: Metadata = {
-  title: `Lesson 19 — ${lesson.title}`,
-  description: lesson.summary,
-};
+export const metadata: Metadata = pageMetadata("/dsa/lesson-19");
 
 const outline = [
   { id: "concept", label: "The problems every array round starts with" },

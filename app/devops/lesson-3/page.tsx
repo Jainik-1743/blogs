@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import Callout from "@/components/Callout";
 import CommandList from "@/components/CommandList";
@@ -11,10 +12,7 @@ import { getLesson, SERIES } from "@/lib/lessons";
 
 const lesson = getLesson("lesson-3")!;
 
-export const metadata: Metadata = {
-  title: `Lesson 3 — ${lesson.title}`,
-  description: lesson.summary,
-};
+export const metadata: Metadata = pageMetadata("/devops/lesson-3");
 
 /** In-page index. Each entry links to a section heading below. */
 const outline = [

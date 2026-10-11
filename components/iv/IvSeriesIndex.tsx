@@ -1,4 +1,6 @@
 import Link from "next/link";
+import JsonLd from "@/components/JsonLd";
+import { seriesJsonLd } from "@/lib/seo";
 import LessonToc from "@/components/LessonToc";
 import { ivLessonHref, type IvSeries } from "@/lib/iv";
 import { ivGlossaryFor } from "@/lib/iv-glossary";
@@ -9,6 +11,7 @@ export default function IvSeriesIndex({ series }: { series: IvSeries }) {
   const glossary = ivGlossaryFor(series.slug);
   return (
     <>
+      <JsonLd data={seriesJsonLd(series.slug)} />
       <section className="mb-8 border-b border-line pb-8 pt-6">
         <p className="mb-2 font-mono text-[0.78rem] uppercase tracking-[0.12em] text-sky">A blog series</p>
         <h1 className="mb-3 text-[2.9rem] font-bold leading-[1.1] tracking-tight text-sky max-sm:text-[2rem]">{series.title}</h1>

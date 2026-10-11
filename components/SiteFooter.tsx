@@ -1,43 +1,54 @@
 import Link from "next/link";
 import { LogoMark } from "./Logo";
-import { ALL_SERIES } from "@/lib/series";
+import { ALL_SERIES, SERIES_GROUPS, SERIES_SHORT } from "@/lib/series";
 
-/** Site footer: what the site is, every series with its glossary, and the copyright line. */
+const nameOf = (slug: string) => SERIES_SHORT[slug] ?? ALL_SERIES.find((s) => s.slug === slug)?.title ?? slug;
+
+/**
+ * Site footer, kept short on purpose: the brand and four useful links, then the series grouped
+ * into four small columns (short names only). Glossaries live on one page (/glossaries).
+ */
 export default function SiteFooter() {
   return (
-    <footer className="mt-8 border-t border-line bg-bg-elev/40 text-[0.9rem] text-ink-dim">
-      <div className="mx-auto grid max-w-[860px] gap-8 px-4 py-10 sm:grid-cols-[1.2fr_1fr_1fr]">
-        <div>
-          <Link href="/" className="inline-flex items-center gap-2.5 font-bold text-ink hover:no-underline">
-            <LogoMark size={26} gradientId="logo-tile-footer" />
-            <span>
-              <span className="font-mono font-semibold text-sky">/</span>blogs
-            </span>
-          </Link>
-          <p className="mt-3 mb-0 max-w-[32ch] leading-relaxed">
-            Lesson-style series on building and running software, written one post at a time.
-          </p>
+    <footer className="mt-8 border-t border-line bg-bg-elev/40 text-[0.88rem] text-ink-dim">
+      <div className="mx-auto max-w-[860px] px-4 py-8">
+        <div className="flex flex-wrap items-start justify-between gap-x-8 gap-y-4">
+          <div>
+            <Link href="/" className="inline-flex items-center gap-2.5 font-bold text-ink hover:no-underline">
+              <LogoMark size={24} gradientId="logo-tile-footer" />
+              <span>
+                <span className="font-mono font-semibold text-sky">/</span>blogs
+              </span>
+            </Link>
+            <p className="mt-2 mb-0 max-w-[38ch] leading-relaxed">Free, plain-English lessons for software engineers.</p>
+          </div>
+          <nav aria-label="Site" className="flex flex-wrap gap-x-5 gap-y-1.5">
+            <FooterLink href="/">All series</FooterLink>
+            <FooterLink href="/glossaries">Glossaries</FooterLink>
+            <FooterLink href="/feed.xml">RSS</FooterLink>
+            <FooterLink href="/sitemap.xml">Sitemap</FooterLink>
+          </nav>
         </div>
 
-        <FooterList
-          heading="Series"
-          items={ALL_SERIES.map((s) => ({ href: `/${s.slug}`, label: s.title, accent: s.accent }))}
-        />
-        <FooterList
-          heading="Glossaries"
-          items={ALL_SERIES.map((s) => ({
-            href: `/${s.slug}/glossary`,
-            label: `${s.title.split(/[,:]/)[0]} terms`,
-            accent: s.accent,
-          }))}
-        />
+        <div className="mt-7 grid grid-cols-2 gap-x-6 gap-y-6 sm:grid-cols-4">
+          {SERIES_GROUPS.map((g) => (
+            <nav key={g.id} aria-label={g.title}>
+              <p className="mt-0 mb-2 font-mono text-[0.7rem] uppercase tracking-[0.12em] text-ink">{g.title}</p>
+              <ul className="m-0 list-none space-y-1.5 p-0">
+                {g.slugs.map((slug) => (
+                  <li key={slug}>
+                    <FooterLink href={`/${slug}`}>{nameOf(slug)}</FooterLink>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          ))}
+        </div>
       </div>
 
       <div className="border-t border-line">
-        <div className="mx-auto flex max-w-[860px] flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-5 text-[0.82rem]">
-          <span>
-            © {new Date().getFullYear()} Jainik · Written for people who want to ship, not just read.
-          </span>
+        <div className="mx-auto flex max-w-[860px] flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-4 text-[0.8rem]">
+          <span>© {new Date().getFullYear()} Jainik</span>
           <a href="#top" className="text-ink-dim hover:text-sky hover:no-underline">
             Back to top ↑
           </a>
@@ -47,30 +58,10 @@ export default function SiteFooter() {
   );
 }
 
-function FooterList({
-  heading,
-  items,
-}: {
-  heading: string;
-  items: { href: string; label: string; accent: string }[];
-}) {
+function FooterLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
-    <nav aria-label={heading}>
-      <p className="mt-0 mb-3 font-mono text-[0.72rem] uppercase tracking-[0.12em] text-ink">{heading}</p>
-      <ul className="m-0 list-none space-y-2 p-0">
-        {items.map((item) => (
-          <li key={item.href}>
-            <Link
-              href={item.href}
-              data-accent={item.accent}
-              className="group inline-flex items-center gap-2 text-ink-dim hover:text-sky hover:no-underline"
-            >
-              <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-sky opacity-70 group-hover:opacity-100" />
-              {item.label}
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </nav>
+    <Link href={href} className="text-ink-dim hover:text-sky hover:no-underline">
+      {children}
+    </Link>
   );
 }

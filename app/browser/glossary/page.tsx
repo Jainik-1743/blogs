@@ -1,13 +1,11 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import GlossaryIndex from "@/components/GlossaryIndex";
 import LessonPager from "@/components/LessonPager";
 import { BROWSER_SERIES, ivLessonHref } from "@/lib/iv";
 import { ivGlossaryFor } from "@/lib/iv-glossary";
 
-export const metadata: Metadata = {
-  title: "Browser Glossary",
-  description: `Every term used in "${BROWSER_SERIES.short}", with a one-line meaning and the lesson that explains it.`,
-};
+export const metadata: Metadata = pageMetadata("/browser/glossary");
 
 export default function BrowserGlossaryPage() {
   return (

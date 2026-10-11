@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import ArrayBoxes from "@/components/dsa/ArrayBoxes";
 import Callout from "@/components/Callout";
 import CodeTrace from "@/components/dsa/CodeTrace";
@@ -12,10 +13,7 @@ import { tracer } from "@/lib/dsa-trace";
 
 const lesson = getDsaLesson("lesson-16");
 
-export const metadata: Metadata = {
-  title: `Lesson 16 — ${lesson.title}`,
-  description: lesson.summary,
-};
+export const metadata: Metadata = pageMetadata("/dsa/lesson-16");
 
 const outline = [
   { id: "concept", label: "What sorting means" },

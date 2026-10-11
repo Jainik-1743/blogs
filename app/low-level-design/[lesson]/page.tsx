@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { notFound } from "next/navigation";
 import IvLessonPage from "@/components/iv/IvLessonPage";
 import { LLD_SERIES } from "@/lib/iv";
@@ -10,9 +11,8 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ lesson: string }> }): Promise<Metadata> {
-  const { lesson: slug } = await params;
-  const l = LLD_SERIES.lessons.find((x) => x.slug === slug);
-  return l ? { title: `Lesson ${l.number} — ${l.title}`, description: l.summary } : {};
+  const { lesson } = await params;
+  return pageMetadata(`/low-level-design/${lesson}`);
 }
 
 export default async function LowLevelDesignLessonRoute({ params }: { params: Promise<{ lesson: string }> }) {

@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import JsonLd from "@/components/JsonLd";
+import { lessonJsonLd, pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import Callout from "@/components/Callout";
 import Script from "@/components/Script";
@@ -7,10 +9,7 @@ import { getLesson, lessonHref, READINGS, SERIES } from "@/lib/lessons";
 const reading = READINGS.find((r) => r.slug === "github-access-control")!;
 const lessonFive = getLesson("lesson-5")!;
 
-export const metadata: Metadata = {
-  title: reading.title,
-  description: reading.summary,
-};
+export const metadata: Metadata = pageMetadata("/devops/github-access-control");
 
 const outline = [
   { id: "question", label: "The question" },
@@ -41,6 +40,7 @@ const layers: [string, string][] = [
 export default function GithubAccessControlPage() {
   return (
     <article>
+      <JsonLd data={lessonJsonLd("/devops/github-access-control")} />
       <header className="mb-8 border-b border-line pb-6">
         <nav className="mb-4 font-mono text-[0.8rem] text-ink-dim" aria-label="Breadcrumb">
           <Link href="/" className="hover:text-sky">Home</Link>

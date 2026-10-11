@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import Callout from "@/components/Callout";
 import EmptyFileStepper from "@/components/figures/EmptyFileStepper";
@@ -11,10 +12,7 @@ import { JS_LESSONS, JS_SERIES, jsLessonHref } from "@/lib/javascript";
 
 const lesson = JS_LESSONS.find((l) => l.slug === "lesson-5")!;
 
-export const metadata: Metadata = {
-  title: `Lesson 5 — ${lesson.title}`,
-  description: lesson.summary,
-};
+export const metadata: Metadata = pageMetadata("/javascript/lesson-5");
 
 /** In-page index. Each entry links to a section heading below. */
 const outline = [

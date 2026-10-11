@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import Callout from "@/components/Callout";
 import CommandList from "@/components/CommandList";
@@ -12,10 +13,7 @@ const piecesReading = READINGS.find((r) => r.slug === "the-pieces")!;
 
 const lesson = getLesson("lesson-1")!;
 
-export const metadata: Metadata = {
-  title: `Lesson 1 — ${lesson.title}`,
-  description: lesson.summary,
-};
+export const metadata: Metadata = pageMetadata("/devops/lesson-1");
 
 /** In-page index. Each entry links to a section heading below. */
 const outline = [

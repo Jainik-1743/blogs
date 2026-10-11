@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import ArrayBoxes from "@/components/dsa/ArrayBoxes";
 import Callout from "@/components/Callout";
 import CodeTrace from "@/components/dsa/CodeTrace";
@@ -12,10 +13,7 @@ import { tracer } from "@/lib/dsa-trace";
 
 const lesson = getDsaLesson("lesson-15");
 
-export const metadata: Metadata = {
-  title: `Lesson 15 — ${lesson.title}`,
-  description: lesson.summary,
-};
+export const metadata: Metadata = pageMetadata("/dsa/lesson-15");
 
 const outline = [
   { id: "concept", label: "Count once, answer many times" },

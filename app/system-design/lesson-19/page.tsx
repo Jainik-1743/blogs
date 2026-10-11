@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import LessonPager from "@/components/LessonPager";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { Flow, QA } from "@/components/sd/diagrams";
@@ -10,10 +11,7 @@ import { SD_LESSONS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
 
 const lesson = SD_LESSONS.find((l) => l.slug === "lesson-19")!;
 
-export const metadata: Metadata = {
-  title: `Lesson 19 — ${lesson.title}`,
-  description: lesson.summary,
-};
+export const metadata: Metadata = pageMetadata("/system-design/lesson-19");
 
 /** In-page index. Each entry links to a section heading below. */
 const outline = [

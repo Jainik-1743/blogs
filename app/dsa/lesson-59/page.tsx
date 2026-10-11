@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import Callout from "@/components/Callout";
 import DryRun from "@/components/dsa/DryRun";
@@ -10,10 +11,7 @@ import { getDsaLesson } from "@/lib/dsa";
 
 const lesson = getDsaLesson("lesson-59");
 
-export const metadata: Metadata = {
-  title: `Lesson 59 — ${lesson.title}`,
-  description: lesson.summary,
-};
+export const metadata: Metadata = pageMetadata("/dsa/lesson-59");
 
 const outline = [
   { id: "why", label: "The interview is a conversation" },

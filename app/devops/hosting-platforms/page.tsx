@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import JsonLd from "@/components/JsonLd";
+import { lessonJsonLd, pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import Callout from "@/components/Callout";
 import FlowChain from "@/components/FlowChain";
@@ -9,10 +11,7 @@ import { LESSONS, lessonHref, READINGS, SERIES } from "@/lib/lessons";
 const reading = READINGS.find((r) => r.slug === "hosting-platforms")!;
 const lessonZero = LESSONS[0];
 
-export const metadata: Metadata = {
-  title: reading.title,
-  description: reading.summary,
-};
+export const metadata: Metadata = pageMetadata("/devops/hosting-platforms");
 
 const outline = [
   { id: "ladder", label: "The hosting ladder" },
@@ -48,6 +47,7 @@ const no = "text-rose-300 font-semibold";
 export default function HostingPlatformsPage() {
   return (
     <article>
+      <JsonLd data={lessonJsonLd("/devops/hosting-platforms")} />
       <header className="mb-8 border-b border-line pb-6">
         <nav className="mb-4 font-mono text-[0.8rem] text-ink-dim" aria-label="Breadcrumb">
           <Link href="/" className="hover:text-sky">Home</Link>

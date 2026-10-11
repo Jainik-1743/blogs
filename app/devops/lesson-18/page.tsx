@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Callout from "@/components/Callout";
 import CommandList from "@/components/CommandList";
 import InterviewQA from "@/components/InterviewQA";
@@ -9,10 +10,7 @@ import { getLesson } from "@/lib/lessons";
 
 const lesson = getLesson("lesson-18")!;
 
-export const metadata: Metadata = {
-  title: `Lesson 18 — ${lesson.title}`,
-  description: lesson.summary,
-};
+export const metadata: Metadata = pageMetadata("/devops/lesson-18");
 
 const outline = [
   { id: "concept", label: "Concept: layers, not a single lock" },

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Callout from "@/components/Callout";
 import CommandList from "@/components/CommandList";
 import StatelessDiagram from "@/components/figures/StatelessDiagram";
@@ -10,10 +11,7 @@ import { getLesson } from "@/lib/lessons";
 
 const lesson = getLesson("lesson-8")!;
 
-export const metadata: Metadata = {
-  title: `Lesson 8 — ${lesson.title}`,
-  description: lesson.summary,
-};
+export const metadata: Metadata = pageMetadata("/devops/lesson-8");
 
 const outline = [
   { id: "concept", label: "Concept: a database somebody else looks after" },

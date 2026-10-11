@@ -1,13 +1,11 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import GlossaryIndex from "@/components/GlossaryIndex";
 import LessonPager from "@/components/LessonPager";
 import { DESIGN_SERIES, ivLessonHref } from "@/lib/iv";
 import { ivGlossaryFor } from "@/lib/iv-glossary";
 
-export const metadata: Metadata = {
-  title: "Design Glossary",
-  description: `Every term used in "${DESIGN_SERIES.short}", with a one-line meaning and the lesson that explains it.`,
-};
+export const metadata: Metadata = pageMetadata("/design-problems/glossary");
 
 export default function DesignGlossaryPage() {
   return (

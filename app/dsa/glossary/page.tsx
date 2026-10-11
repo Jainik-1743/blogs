@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import GlossaryIndex from "@/components/GlossaryIndex";
 import { DSA_GLOSSARY } from "@/lib/dsa-glossary";
 
-export const metadata: Metadata = {
-  title: "DSA Glossary",
-  description: "Every term used in the DSA series — loops, accumulators, off-by-one, arrays, frequency maps — with a one-line meaning.",
-};
+export const metadata: Metadata = pageMetadata("/dsa/glossary");
 
 export default function DsaGlossaryPage() {
   return <GlossaryIndex glossary={DSA_GLOSSARY} />;

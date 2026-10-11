@@ -1,0 +1,140 @@
+import type { AccentName } from "./accents";
+import { DSA_GLOSSARY } from "./dsa-glossary";
+import { DSA_LESSONS, DSA_SERIES, dsaLessonHref } from "./dsa";
+import { DEVOPS_GLOSSARY } from "./glossary";
+import { IV_SERIES, ivLessonHref } from "./iv";
+import { ivGlossaryFor } from "./iv-glossary";
+import { JS_GLOSSARY } from "./js-glossary";
+import { JS_LESSONS, JS_READINGS, JS_SERIES, jsLessonHref, jsReadingHref } from "./javascript";
+import { LESSONS, READINGS, SERIES as DEVOPS_SERIES, lessonHref, readingHref, type Lesson } from "./lessons";
+import { SD_GLOSSARY } from "./sd-glossary";
+import { SD_LESSONS, SD_SERIES, sdLessonHref } from "./system-design";
+import { SERIES_GROUPS, SERIES_SHORT } from "./series";
+
+/**
+ * One list of every page on the site, built from the same registries that drive the tables of
+ * contents. The sitemap, the RSS feed, the Open Graph images, the page metadata and the JSON-LD
+ * all read from here, so a lesson only has to be registered once.
+ */
+
+export type PageKind = "home" | "hub" | "series" | "lesson" | "reading" | "glossary";
+
+export type PageInfo = {
+  path: string;
+  kind: PageKind;
+  title: string;
+  description: string;
+  seriesSlug?: string;
+  seriesTitle?: string;
+  seriesShort?: string;
+  accent?: AccentName;
+  number?: number;
+  readTime?: string;
+  tags?: string[];
+};
+
+export type SeriesInfo = {
+  slug: string;
+  title: string;
+  short: string;
+  tagline: string;
+  accent: AccentName;
+  lessons: Lesson[];
+  href: (lesson: Lesson) => string;
+  termCount: number;
+  tagsFor: (lesson: Lesson) => string[] | undefined;
+};
+
+type Reading = { slug: string; title: string; summary: string; readTime?: string };
+
+export const SERIES_LIST: SeriesInfo[] = [
+  {
+    slug: DEVOPS_SERIES.slug, title: DEVOPS_SERIES.title, short: SERIES_SHORT[DEVOPS_SERIES.slug], tagline: DEVOPS_SERIES.tagline,
+    accent: DEVOPS_SERIES.accent, lessons: LESSONS, href: lessonHref, termCount: DEVOPS_GLOSSARY.entries.length, tagsFor: () => undefined,
+  },
+  {
+    slug: JS_SERIES.slug, title: JS_SERIES.title, short: SERIES_SHORT[JS_SERIES.slug], tagline: JS_SERIES.tagline,
+    accent: JS_SERIES.accent, lessons: JS_LESSONS, href: jsLessonHref, termCount: JS_GLOSSARY.entries.length, tagsFor: () => undefined,
+  },
+  {
+    slug: SD_SERIES.slug, title: SD_SERIES.title, short: SERIES_SHORT[SD_SERIES.slug], tagline: SD_SERIES.tagline,
+    accent: SD_SERIES.accent, lessons: SD_LESSONS, href: sdLessonHref, termCount: SD_GLOSSARY.entries.length, tagsFor: () => undefined,
+  },
+  {
+    slug: DSA_SERIES.slug, title: DSA_SERIES.title, short: SERIES_SHORT[DSA_SERIES.slug], tagline: DSA_SERIES.tagline,
+    accent: DSA_SERIES.accent, lessons: DSA_LESSONS, href: dsaLessonHref, termCount: DSA_GLOSSARY.entries.length, tagsFor: () => undefined,
+  },
+  ...IV_SERIES.map((s): SeriesInfo => ({
+    slug: s.slug, title: s.title, short: s.short, tagline: s.tagline, accent: s.accent, lessons: s.lessons,
+    href: (l) => ivLessonHref(s, l), termCount: ivGlossaryFor(s.slug).entries.length,
+    tagsFor: (l) => (l as Lesson & { tags?: string[] }).tags,
+  })),
+];
+
+const READINGS_BY_SERIES: Record<string, { items: Reading[]; href: (r: Reading) => string }> = {
+  [DEVOPS_SERIES.slug]: { items: READINGS, href: (r) => readingHref(r) },
+  [JS_SERIES.slug]: { items: JS_READINGS, href: (r) => jsReadingHref(r) },
+};
+
+export const HUB_GLOSSARIES = { path: "/glossaries", title: "Glossaries: plain-English definitions for developers" };
+
+export function seriesBySlug(slug: string): SeriesInfo | undefined {
+  return SERIES_LIST.find((s) => s.slug === slug);
+}
+
+/** Group the series for the home page and the footer. Fails the build if a series has no group. */
+export function groupedSeries() {
+  const used = new Set<string>();
+  const groups = SERIES_GROUPS.map((g) => ({
+    ...g,
+    series: g.slugs.map((slug) => {
+      const s = seriesBySlug(slug);
+      if (!s) throw new Error(`SERIES_GROUPS lists unknown series "${slug}"`);
+      used.add(slug);
+      return s;
+    }),
+  }));
+  const missing = SERIES_LIST.filter((s) => !used.has(s.slug)).map((s) => s.slug);
+  if (missing.length) throw new Error(`Series without a group in lib/series.ts: ${missing.join(", ")}`);
+  return groups;
+}
+
+function buildPages(): PageInfo[] {
+  const pages: PageInfo[] = [];
+  pages.push({
+    path: "/", kind: "home", title: "blogs", description: "Free, plain-English lesson series for software engineers.",
+  });
+  pages.push({
+    path: HUB_GLOSSARIES.path, kind: "hub", title: HUB_GLOSSARIES.title,
+    description: "Every glossary on the site in one place: DSA, system design, DevOps, JavaScript, TypeScript, SQL, Git, testing and more, each term explained in plain English.",
+  });
+  for (const s of SERIES_LIST) {
+    const base = { seriesSlug: s.slug, seriesTitle: s.title, seriesShort: s.short, accent: s.accent };
+    pages.push({ ...base, path: `/${s.slug}`, kind: "series", title: s.title, description: s.tagline });
+    for (const l of s.lessons) {
+      if (!l.published) continue;
+      pages.push({
+        ...base, path: s.href(l), kind: "lesson", title: l.title, description: l.summary,
+        number: l.number, readTime: l.readTime, tags: s.tagsFor(l),
+      });
+    }
+    const readings = READINGS_BY_SERIES[s.slug];
+    for (const r of readings?.items ?? []) {
+      pages.push({ ...base, path: readings.href(r), kind: "reading", title: r.title, description: r.summary, readTime: r.readTime });
+    }
+    // System Design's glossary is itself a numbered lesson at /system-design/glossary: do not list it twice.
+    if (pages.some((p) => p.path === `/${s.slug}/glossary`)) continue;
+    pages.push({
+      ...base, path: `/${s.slug}/glossary`, kind: "glossary", title: `${s.short} glossary`,
+      description: `Plain-English definitions of the ${s.termCount} terms used in "${s.title}", each with the lesson that explains it.`,
+    });
+  }
+  return pages;
+}
+
+export const ALL_PAGES: PageInfo[] = buildPages();
+const BY_PATH = new Map(ALL_PAGES.map((p) => [p.path, p]));
+
+export function findPage(path: string): PageInfo | undefined {
+  return BY_PATH.get(path);
+}

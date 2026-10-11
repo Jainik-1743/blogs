@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Callout from "@/components/Callout";
 import CodeTrace from "@/components/dsa/CodeTrace";
 import DsaLessonPage from "@/components/dsa/DsaLesson";
@@ -10,10 +11,7 @@ import { tracer } from "@/lib/dsa-trace";
 
 const lesson = getDsaLesson("lesson-7");
 
-export const metadata: Metadata = {
-  title: `Lesson 7 — ${lesson.title}`,
-  description: lesson.summary,
-};
+export const metadata: Metadata = pageMetadata("/dsa/lesson-7");
 
 const outline = [
   { id: "concept", label: "A function is a machine" },

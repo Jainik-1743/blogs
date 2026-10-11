@@ -1,13 +1,11 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import GlossaryIndex from "@/components/GlossaryIndex";
 import LessonPager from "@/components/LessonPager";
 import { DEBUGGING_SERIES, ivLessonHref } from "@/lib/iv";
 import { ivGlossaryFor } from "@/lib/iv-glossary";
 
-export const metadata: Metadata = {
-  title: "Debugging Glossary",
-  description: `Every term used in "${DEBUGGING_SERIES.short}", with a one-line meaning and the lesson that explains it.`,
-};
+export const metadata: Metadata = pageMetadata("/debugging/glossary");
 
 export default function DebuggingGlossaryPage() {
   return (

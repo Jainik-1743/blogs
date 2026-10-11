@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import JsonLd from "@/components/JsonLd";
+import { lessonJsonLd, pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import Callout from "@/components/Callout";
 import Script from "@/components/Script";
@@ -6,10 +8,7 @@ import { JS_LESSONS, JS_READINGS, JS_SERIES, jsLessonHref } from "@/lib/javascri
 
 const reading = JS_READINGS.find((r) => r.slug === "recap")!;
 
-export const metadata: Metadata = {
-  title: reading.title,
-  description: reading.summary,
-};
+export const metadata: Metadata = pageMetadata("/javascript/recap");
 
 const outline = [
   { id: "glossary", label: "Key words in plain English" },
@@ -400,6 +399,7 @@ function Card({
 export default function JsRecapPage() {
   return (
     <article>
+      <JsonLd data={lessonJsonLd("/javascript/recap")} />
       <header className="mb-8 border-b border-line pb-6">
         <nav className="mb-4 font-mono text-[0.8rem] text-ink-dim" aria-label="Breadcrumb">
           <Link href="/" className="hover:text-sky">Home</Link>

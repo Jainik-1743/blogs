@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import Callout from "@/components/Callout";
 import DeployPipeline from "@/components/figures/DeployPipeline";
@@ -11,10 +12,7 @@ import { getLesson, READINGS, readingHref } from "@/lib/lessons";
 const lesson = getLesson("lesson-14")!;
 const githubReading = READINGS.find((r) => r.slug === "github-access-control")!;
 
-export const metadata: Metadata = {
-  title: `Lesson 14 — ${lesson.title}`,
-  description: lesson.summary,
-};
+export const metadata: Metadata = pageMetadata("/devops/lesson-14");
 
 const outline = [
   { id: "concept", label: "Concept: the assembly line for your code" },

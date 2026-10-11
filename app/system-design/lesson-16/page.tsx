@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import LessonPager from "@/components/LessonPager";
 import { Compare, Flow, QA, Timeline } from "@/components/sd/diagrams";
 import LessonHeader from "@/components/sd/LessonHeader";
@@ -9,10 +10,7 @@ import { SD_LESSONS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
 
 const lesson = SD_LESSONS.find((l) => l.slug === "lesson-16")!;
 
-export const metadata: Metadata = {
-  title: `Lesson 16 — ${lesson.title}`,
-  description: lesson.summary,
-};
+export const metadata: Metadata = pageMetadata("/system-design/lesson-16");
 
 /** In-page index. Each entry links to a section heading below. */
 const outline = [

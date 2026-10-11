@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
+import JsonLd from "@/components/JsonLd";
+import { pageMetadata, seriesJsonLd } from "@/lib/seo";
 import Link from "next/link";
 import DsaToc from "@/components/dsa/DsaToc";
 import { DSA_GLOSSARY } from "@/lib/dsa-glossary";
 import { DSA_LESSONS, DSA_PARTS, DSA_SERIES } from "@/lib/dsa";
 
-export const metadata: Metadata = {
-  title: DSA_SERIES.title,
-  description: DSA_SERIES.tagline,
-};
+export const metadata: Metadata = pageMetadata("/dsa");
 
 /** The resources the syllabus was checked against. [name, link, what it is best for] */
 const SOURCES: [string, string, string][] = [
@@ -28,6 +27,7 @@ export default function DsaIndexPage() {
 
   return (
     <>
+      <JsonLd data={seriesJsonLd("dsa")} />
       <section className="mb-8 border-b border-line pb-8 pt-6">
         <p className="mb-2 font-mono text-[0.78rem] uppercase tracking-[0.12em] text-sky">A blog series</p>
         <h1 className="mb-3 text-[2.9rem] font-bold leading-[1.1] tracking-tight text-sky max-sm:text-[2rem]">
