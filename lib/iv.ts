@@ -25,7 +25,7 @@ export type IvSeries = {
  * How many lessons of each series (counted from the top) have a Markdown file. The rest are
  * listed as "coming soon" and are not routed. Raise a number as each lesson is written.
  */
-const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 15, "design-problems": 8, "frontend-depth": 7, "fullstack-qa": 39, "team-lead": 12, "low-level-design": 10 };
+const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 15, "design-problems": 8, "frontend-depth": 7, "fullstack-qa": 39, "team-lead": 12, "low-level-design": 10, "design-cases": 12 };
 
 type Row = [title: string, summary: string, readTime: string, tags: string[]];
 
@@ -250,7 +250,31 @@ export const LLD_SERIES: IvSeries = {
   ], WRITTEN["low-level-design"]),
 };
 
-export const IV_SERIES: IvSeries[] = [BROWSER_SERIES, BACKEND_SERIES, DEBUGGING_SERIES, DESIGN_SERIES, FRONTEND_SERIES, FULLSTACK_SERIES, TEAMLEAD_SERIES, LLD_SERIES];
+export const DESIGNCASES_SERIES: IvSeries = {
+  slug: "design-cases",
+  title: "System Design Case Studies, Part 2",
+  short: "System Design Case Studies 2",
+  tagline:
+    "Twelve more system design case studies, each with requirements, back-of-envelope numbers, API, data model, architecture, deep dives, failure modes and a runnable simulation: web crawler, key-value store, Dropbox-style sync, collaborative editing, CDN, top-K, unique IDs, multi-region, matching engine, sales ranking, finance pipeline and scaling on AWS.",
+  started: "2026",
+  accent: "sky",
+  lessons: lessons([
+    ["Design a Web Crawler", "The URL frontier, politeness, Bloom-filter dedup and trap defence, with a crawler simulation you can run.", "25 min", ["crawler", "bloom-filter", "politeness"]],
+    ["Design a Key-Value Store (Like Redis or Dynamo)", "A write-ahead log and snapshots on one node, then a consistent-hash ring, N/R/W quorum and version vectors across many.", "22 min", ["key-value", "consistent-hashing", "quorum"]],
+    ["Design a File Sync Service Like Dropbox", "Content-defined chunking, dedup, journal-based sync and conflicted copies.", "22 min", ["file-sync", "chunking", "dedup"]],
+    ["Design Collaborative Editing Like Google Docs", "Operational transformation versus CRDTs, cursors and presence, and an operation log with snapshots.", "24 min", ["ot", "crdt", "collaboration"]],
+    ["Design a CDN", "Edge caches, cache keys and TTL, purging, request coalescing and hit-ratio arithmetic, with an edge-cache simulation.", "22 min", ["cdn", "caching", "edge"]],
+    ["Design Trending Topics and Top-K Requests", "Streaming counts, sliding windows, a count-min sketch with a heap, and merging top-K across partitions.", "22 min", ["top-k", "count-min-sketch", "streaming"]],
+    ["Design a Unique ID Generator", "Auto-increment limits, UUID v4 and v7, ULID, Snowflake bit maths, clock skew and ticket servers, with a tested generator.", "14 min", ["unique-id", "snowflake", "uuid"]],
+    ["Design a System Across Multiple Data Centres", "Active-passive versus active-active, DNS steering, sync versus async replication, split brain and failback, with an RPO simulation.", "15 min", ["multi-region", "replication", "failover"]],
+    ["Design a Stock Exchange Matching Engine", "A price-time priority order book, a single-threaded sequencer, event-log replay, market data and risk checks, with a tested engine.", "20 min", ["matching-engine", "order-book", "event-sourcing"]],
+    ["Design Sales Ranking by Category", "Hourly buckets and a sliding-window aggregator feeding per-category sorted sets, with freshness, hot categories and backfill.", "18 min", ["ranking", "sorted-set", "windowed-aggregation"]],
+    ["Design a Personal-Finance Data Pipeline (Mint-Style)", "Idempotent ingest, dedup, rules-first categorisation, budget alerts, reconciliation and token security.", "22 min", ["data-pipeline", "idempotency", "security"]],
+    ["From One User to Millions: Scaling a Web App on AWS", "Ten scaling stages with trigger, change and cost, the metric that tells you, AWS services in plain words, and a queueing arithmetic demo.", "20 min", ["scaling", "aws", "capacity-planning"]],
+  ], WRITTEN["design-cases"]),
+};
+
+export const IV_SERIES: IvSeries[] = [BROWSER_SERIES, BACKEND_SERIES, DEBUGGING_SERIES, DESIGN_SERIES, FRONTEND_SERIES, FULLSTACK_SERIES, TEAMLEAD_SERIES, LLD_SERIES, DESIGNCASES_SERIES];
 
 export function getIvSeries(slug: string): IvSeries | undefined {
   return IV_SERIES.find((s) => s.slug === slug);
