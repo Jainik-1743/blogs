@@ -25,7 +25,7 @@ export type IvSeries = {
  * How many lessons of each series (counted from the top) have a Markdown file. The rest are
  * listed as "coming soon" and are not routed. Raise a number as each lesson is written.
  */
-const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 15, "design-problems": 8, "frontend-depth": 7, "fullstack-qa": 39, "team-lead": 12 };
+const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 15, "design-problems": 8, "frontend-depth": 7, "fullstack-qa": 39, "team-lead": 12, "low-level-design": 10 };
 
 type Row = [title: string, summary: string, readTime: string, tags: string[]];
 
@@ -228,7 +228,29 @@ export const TEAMLEAD_SERIES: IvSeries = {
   ], WRITTEN["team-lead"]),
 };
 
-export const IV_SERIES: IvSeries[] = [BROWSER_SERIES, BACKEND_SERIES, DEBUGGING_SERIES, DESIGN_SERIES, FRONTEND_SERIES, FULLSTACK_SERIES, TEAMLEAD_SERIES];
+export const LLD_SERIES: IvSeries = {
+  slug: "low-level-design",
+  title: "Design Patterns and Low-Level Design (OOD) for Interviews",
+  short: "Design Patterns & LLD",
+  tagline:
+    "Object-oriented design interviews and the design patterns behind them: SOLID, creational, structural and behavioural patterns, the patterns you already use, and worked class designs for a parking lot, LRU cache, vending machine, elevator, blackjack, chat server, rate limiter and notifications. All examples are TypeScript that was run.",
+  started: "2026",
+  accent: "pink",
+  lessons: lessons([
+    ["How to Run a Low-Level Design Interview, and SOLID in Plain Words", "The five-step routine, composition over inheritance, SOLID with before and after examples, and ASCII UML.", "20 min", ["lld", "solid", "interviews"]],
+    ["Creational Patterns: Factory, Builder, Singleton and Friends", "Factories, builder, the module singleton and its traps, prototype, and dependency injection as the practical replacement.", "20 min", ["creational-patterns", "singleton", "dependency-injection"]],
+    ["Structural Patterns: Adapter, Decorator, Facade, Proxy and Composite", "The intent of each pattern, how to tell them apart, and the JavaScript Proxy object.", "18 min", ["structural-patterns", "decorator", "proxy"]],
+    ["Behavioural Patterns: Strategy, Observer, Command, State and Chain of Responsibility", "The five main behavioural patterns plus iterator and template method, with runnable TypeScript.", "20 min", ["behavioural-patterns", "state-machine", "observer"]],
+    ["Patterns You Already Use: Middleware, Hooks, Dependency Injection, and Anti-Patterns", "Express and Koa middleware, EventEmitter, Redux, React, and the anti-patterns that spoil designs.", "20 min", ["middleware", "anti-patterns", "react"]],
+    ["Design a Parking Lot", "Best-fit and nearest-spot strategies, hourly pricing with a daily cap, and a double-booking race fixed with compare-and-set.", "28 min", ["parking-lot", "strategy", "concurrency"]],
+    ["Design an LRU Cache and a Hash Map", "Chaining and resize, a map plus doubly linked list, TTL, and stampede control.", "30 min", ["lru", "hash-map", "ttl"]],
+    ["Design a Vending Machine and an Elevator (State Machines)", "The State pattern versus a transition table, and elevator scheduling compared by floors travelled.", "30 min", ["state-machine", "state-pattern", "scheduling"]],
+    ["Design a Deck of Cards, Blackjack and a Chat Server (Class Models)", "Ace scoring, stacked-deck tests, and a chat server built with the observer pattern.", "30 min", ["blackjack", "chat-server", "class-design"]],
+    ["Design a Rate Limiter and a Notification Service (Class Models)", "Token bucket and window limiters, channel strategy, backoff with jitter, and idempotency.", "32 min", ["rate-limiter", "notifications", "idempotency"]],
+  ], WRITTEN["low-level-design"]),
+};
+
+export const IV_SERIES: IvSeries[] = [BROWSER_SERIES, BACKEND_SERIES, DEBUGGING_SERIES, DESIGN_SERIES, FRONTEND_SERIES, FULLSTACK_SERIES, TEAMLEAD_SERIES, LLD_SERIES];
 
 export function getIvSeries(slug: string): IvSeries | undefined {
   return IV_SERIES.find((s) => s.slug === slug);
