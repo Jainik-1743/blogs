@@ -25,7 +25,7 @@ export type IvSeries = {
  * How many lessons of each series (counted from the top) have a Markdown file. The rest are
  * listed as "coming soon" and are not routed. Raise a number as each lesson is written.
  */
-const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 15, "design-problems": 8, "frontend-depth": 7, "fullstack-qa": 39, "team-lead": 12, "low-level-design": 10, "design-cases": 12, "cs-foundations": 8, "git-github": 6, "testing": 6, "typescript": 8, "sql-postgres": 8, "javascript-2": 8 };
+const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 15, "design-problems": 8, "frontend-depth": 7, "fullstack-qa": 39, "team-lead": 12, "low-level-design": 10, "design-cases": 12, "cs-foundations": 8, "git-github": 6, "testing": 6, "typescript": 8, "sql-postgres": 8, "javascript-2": 8, "ai-engineering": 5 };
 
 type Row = [title: string, summary: string, readTime: string, tags: string[]];
 
@@ -390,7 +390,24 @@ export const JAVASCRIPT2_SERIES: IvSeries = {
   ], WRITTEN["javascript-2"]),
 };
 
-export const IV_SERIES: IvSeries[] = [BROWSER_SERIES, BACKEND_SERIES, DEBUGGING_SERIES, DESIGN_SERIES, FRONTEND_SERIES, FULLSTACK_SERIES, TEAMLEAD_SERIES, LLD_SERIES, DESIGNCASES_SERIES, CSFOUNDATIONS_SERIES, GITGITHUB_SERIES, TESTING_SERIES, TYPESCRIPT_SERIES, SQLPOSTGRES_SERIES, JAVASCRIPT2_SERIES];
+export const AIENGINEERING_SERIES: IvSeries = {
+  slug: "ai-engineering",
+  title: "AI Engineering for Full-Stack Developers",
+  short: "AI Engineering",
+  tagline:
+    "Building LLM features you can trust: the OWASP Top 10 for LLM apps, prompt injection and safe tools, evaluation harnesses, cost and latency, and observability with guardrails. Every demo uses a deterministic fake model, so nothing needs an API key.",
+  started: "2026",
+  accent: "rose",
+  lessons: lessons([
+    ["Securing LLM Applications: The OWASP Top 10 for LLM Apps in Code", "The ten 2025 OWASP risks for LLM applications, each with a plain definition, a vulnerable sketch, a fix and a one-line interview answer.", "14 min", ["security", "owasp", "llm"]],
+    ["Prompt Injection and Safe Tool Use for Agents", "Direct and indirect injection, a mock agent leaking private notes, and a policy layer that blocks the leak.", "13 min", ["security", "agents", "prompt-injection"]],
+    ["Building an Evaluation Harness for an LLM Feature", "A golden set, code checks and a mock judge, confidence intervals, and a CI gate that catches a regression.", "14 min", ["evals", "testing", "llm"]],
+    ["Cost, Latency and Caching for LLM Features", "Token arithmetic, time to first token, prompt and response caching, model routing, batching, timeouts and budgets, with a simulation.", "20 min", ["cost", "latency", "caching"]],
+    ["Observability and Guardrails for LLM Features in Production", "What to log and what never to log, spans, redaction, schema validation, a circuit breaker, a kill switch, prompt versions and an incident playbook.", "18 min", ["observability", "guardrails", "production"]],
+  ], WRITTEN["ai-engineering"]),
+};
+
+export const IV_SERIES: IvSeries[] = [BROWSER_SERIES, BACKEND_SERIES, DEBUGGING_SERIES, DESIGN_SERIES, FRONTEND_SERIES, FULLSTACK_SERIES, TEAMLEAD_SERIES, LLD_SERIES, DESIGNCASES_SERIES, CSFOUNDATIONS_SERIES, GITGITHUB_SERIES, TESTING_SERIES, TYPESCRIPT_SERIES, SQLPOSTGRES_SERIES, JAVASCRIPT2_SERIES, AIENGINEERING_SERIES];
 
 export function getIvSeries(slug: string): IvSeries | undefined {
   return IV_SERIES.find((s) => s.slug === slug);
