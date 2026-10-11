@@ -25,7 +25,7 @@ export type IvSeries = {
  * How many lessons of each series (counted from the top) have a Markdown file. The rest are
  * listed as "coming soon" and are not routed. Raise a number as each lesson is written.
  */
-const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 15, "design-problems": 8, "frontend-depth": 7, "fullstack-qa": 39, "team-lead": 12, "low-level-design": 10, "design-cases": 12 };
+const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 15, "design-problems": 8, "frontend-depth": 7, "fullstack-qa": 39, "team-lead": 12, "low-level-design": 10, "design-cases": 12, "cs-foundations": 8 };
 
 type Row = [title: string, summary: string, readTime: string, tags: string[]];
 
@@ -274,7 +274,27 @@ export const DESIGNCASES_SERIES: IvSeries = {
   ], WRITTEN["design-cases"]),
 };
 
-export const IV_SERIES: IvSeries[] = [BROWSER_SERIES, BACKEND_SERIES, DEBUGGING_SERIES, DESIGN_SERIES, FRONTEND_SERIES, FULLSTACK_SERIES, TEAMLEAD_SERIES, LLD_SERIES, DESIGNCASES_SERIES];
+export const CSFOUNDATIONS_SERIES: IvSeries = {
+  slug: "cs-foundations",
+  title: "Computer Science Foundations Interviewers Assume",
+  short: "CS Foundations",
+  tagline:
+    "The computer science underneath your code: how programs run, memory and CPU caches, floating point, Unicode, binary and bit tricks, probability, hard problems and string searching, explained in plain English with runnable examples.",
+  started: "2026",
+  accent: "amber",
+  lessons: lessons([
+    ["How a Computer Runs Your Program", "From source code to machine code: compiling, interpreting and JIT, the stack and the heap, function calls, stack overflow and garbage collection.", "20 min", ["computer-science", "memory", "runtime"]],
+    ["Memory, CPU Caches and Why Array Order Matters", "The memory hierarchy, cache lines, locality, and a timing experiment that walks a matrix row by row and column by column.", "15 min", ["memory", "caches", "performance"]],
+    ["Floating Point: Why 0.1 + 0.2 Is Not 0.3", "IEEE 754 doubles with bit-level demos, rounding, safe integers, comparing floats and handling money.", "16 min", ["floating-point", "ieee-754", "numbers"]],
+    ["Unicode, UTF-8 and Strings That Lie", "Code points, UTF-16 code units, bytes and grapheme clusters, why emoji lengths surprise you, normalisation and safe truncation.", "20 min", ["unicode", "utf-8", "strings"]],
+    ["Binary, Endianness and Bit Tricks", "Reading binary and hex, two's complement, JavaScript's 32-bit bitwise operators, masks, endianness and DataView.", "17 min", ["binary", "endianness", "bit-manipulation"]],
+    ["Combinatorics and Probability for Interviews", "Counting rules, permutations and combinations, the birthday paradox, expected value, Bayes in plain words, Fisher-Yates and reservoir sampling.", "17 min", ["probability", "combinatorics", "sampling"]],
+    ["P, NP and Hard Problems: What to Say in an Interview", "Complexity classes in plain words, NP-complete examples, and what to do when a problem is hard: exact for small inputs, approximation and heuristics.", "15 min", ["np-complete", "complexity", "algorithms"]],
+    ["String Searching: Naive, KMP, Rabin-Karp and Z", "The naive worst case, KMP with a traced failure function, Rabin-Karp collisions, the Z-array and a tiny Aho-Corasick, with local timings.", "14 min", ["algorithms", "strings", "interviews"]],
+  ], WRITTEN["cs-foundations"]),
+};
+
+export const IV_SERIES: IvSeries[] = [BROWSER_SERIES, BACKEND_SERIES, DEBUGGING_SERIES, DESIGN_SERIES, FRONTEND_SERIES, FULLSTACK_SERIES, TEAMLEAD_SERIES, LLD_SERIES, DESIGNCASES_SERIES, CSFOUNDATIONS_SERIES];
 
 export function getIvSeries(slug: string): IvSeries | undefined {
   return IV_SERIES.find((s) => s.slug === slug);
