@@ -207,6 +207,23 @@ export const GUIDES: GuideDef[] = [
     ],
   },
   {
+    slug: "web-security-guide",
+    title: "Web Security Guide for Developers: OWASP Top 10 Basics",
+    description: "Learn web app security in plain English: injection, XSS, CSRF, passwords, access control, secrets, supply chain and APIs, with small examples that were run.",
+    intro: [
+      "Most security bugs come from a few repeating mistakes. This guide follows the OWASP Top 10 ideas in a sensible order: how attackers think, then the bugs that cause most breaches, then the habits that keep a project safe.",
+      "Every example is a tiny local app that was attacked and then fixed, so you can try it yourself.",
+    ],
+    audience: "Web developers who want to write safer code, and candidates who get security questions in full-stack interviews.",
+    sections: [
+      { heading: "Think like an attacker", paths: ["/security/lesson-0"] },
+      { heading: "The classic bugs", note: "Injection and browser attacks cause a large share of real breaches.", paths: ["/security/lesson-1", "/security/lesson-2", "/browser/lesson-3"] },
+      { heading: "Login, access and secrets", paths: ["/security/lesson-3", "/security/lesson-4", "/security/lesson-5", "/browser/lesson-2"] },
+      { heading: "Dependencies, APIs and servers", paths: ["/security/lesson-6", "/security/lesson-7", "/browser/lesson-4"] },
+      { heading: "Put it into practice", paths: ["/security/lesson-8", "/fullstack-qa/lesson-31"] },
+    ],
+  },
+  {
     slug: "ai-engineering-guide",
     title: "AI Engineering Guide: Build and Secure LLM Features",
     description: "From LLMs, agents and RAG to production: the OWASP Top 10 for LLM apps, prompt injection, evaluation, cost and latency, observability and guardrails.",

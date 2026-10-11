@@ -14,6 +14,7 @@ const LOOK: Record<string, { accent: string; badge: string; label: string }> = {
   "team-lead-guide": { accent: "orange", badge: "TL", label: "Leadership" },
   "software-testing-guide": { accent: "lime", badge: "QA", label: "Quality" },
   "design-patterns-guide": { accent: "pink", badge: "OOP", label: "Design" },
+  "web-security-guide": { accent: "violet", badge: "SEC", label: "Security" },
   "ai-engineering-guide": { accent: "rose", badge: "AI", label: "AI" },
 };
 
