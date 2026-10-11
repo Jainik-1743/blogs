@@ -25,7 +25,7 @@ export type IvSeries = {
  * How many lessons of each series (counted from the top) have a Markdown file. The rest are
  * listed as "coming soon" and are not routed. Raise a number as each lesson is written.
  */
-const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 15, "design-problems": 8, "frontend-depth": 7, "fullstack-qa": 39, "team-lead": 12, "low-level-design": 10, "design-cases": 12, "cs-foundations": 8, "git-github": 6, "testing": 6 };
+const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 15, "design-problems": 8, "frontend-depth": 7, "fullstack-qa": 39, "team-lead": 12, "low-level-design": 10, "design-cases": 12, "cs-foundations": 8, "git-github": 6, "testing": 6, "typescript": 8 };
 
 type Row = [title: string, summary: string, readTime: string, tags: string[]];
 
@@ -330,7 +330,27 @@ export const TESTING_SERIES: IvSeries = {
   ], WRITTEN["testing"]),
 };
 
-export const IV_SERIES: IvSeries[] = [BROWSER_SERIES, BACKEND_SERIES, DEBUGGING_SERIES, DESIGN_SERIES, FRONTEND_SERIES, FULLSTACK_SERIES, TEAMLEAD_SERIES, LLD_SERIES, DESIGNCASES_SERIES, CSFOUNDATIONS_SERIES, GITGITHUB_SERIES, TESTING_SERIES];
+export const TYPESCRIPT_SERIES: IvSeries = {
+  slug: "typescript",
+  title: "TypeScript From Zero to Confident",
+  short: "TypeScript From Zero",
+  tagline:
+    "TypeScript from the first project to real-world configuration: basic types and narrowing, objects and classes, functions and generics, utility and conditional types, modules and tsconfig, React and runtime validation with Zod, and migrating to strict mode. Every compiler error shown was reproduced.",
+  started: "2026",
+  accent: "emerald",
+  lessons: lessons([
+    ["Why TypeScript, and Your First Project", "What TypeScript is and is not, why types are erased at runtime, setting up a project, a tsconfig explained line by line, and reading your first compiler errors.", "20 min", ["typescript", "setup", "tsconfig"]],
+    ["Basic Types, Inference and Narrowing", "Primitives, unions, literal types, any versus unknown versus never, inference, narrowing and discriminated unions.", "22 min", ["typescript", "types", "narrowing"]],
+    ["Objects, Interfaces, Type Aliases and Classes", "Object types, interface versus type, structural typing, excess-property checks, classes, enums versus unions, as const and satisfies.", "22 min", ["typescript", "types", "classes"]],
+    ["Functions and Generics", "Function types, overloads, this parameters, generics and constraints, a typed fetch wrapper and a typed event emitter.", "24 min", ["typescript", "generics", "functions"]],
+    ["Utility, Mapped and Conditional Types", "Built-in helper types, mapped and conditional types, infer, template literal types, and when not to be clever.", "28 min", ["typescript", "generics", "type-level"]],
+    ["Modules, Declaration Files and tsconfig in Real Projects", "ES modules versus CommonJS, moduleResolution, paths, .d.ts files, @types, project references, and tsconfig for Node, Vite and Next.js.", "25 min", ["typescript", "tsconfig", "modules"]],
+    ["TypeScript with React, Node and Runtime Validation", "Typed React and Express, plus Zod validation and branded types, because types vanish at runtime.", "30 min", ["typescript", "react", "zod"]],
+    ["Common Errors, Strictness Migration and Reading Error Messages", "Reading long errors bottom-up, the common error codes, and a measured step-by-step migration to strict mode.", "25 min", ["typescript", "errors", "migration"]],
+  ], WRITTEN["typescript"]),
+};
+
+export const IV_SERIES: IvSeries[] = [BROWSER_SERIES, BACKEND_SERIES, DEBUGGING_SERIES, DESIGN_SERIES, FRONTEND_SERIES, FULLSTACK_SERIES, TEAMLEAD_SERIES, LLD_SERIES, DESIGNCASES_SERIES, CSFOUNDATIONS_SERIES, GITGITHUB_SERIES, TESTING_SERIES, TYPESCRIPT_SERIES];
 
 export function getIvSeries(slug: string): IvSeries | undefined {
   return IV_SERIES.find((s) => s.slug === slug);
