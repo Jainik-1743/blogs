@@ -25,7 +25,7 @@ export type IvSeries = {
  * How many lessons of each series (counted from the top) have a Markdown file. The rest are
  * listed as "coming soon" and are not routed. Raise a number as each lesson is written.
  */
-const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 15, "design-problems": 8, "frontend-depth": 7, "fullstack-qa": 39, "team-lead": 12, "low-level-design": 10, "design-cases": 12, "cs-foundations": 8 };
+const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 15, "design-problems": 8, "frontend-depth": 7, "fullstack-qa": 39, "team-lead": 12, "low-level-design": 10, "design-cases": 12, "cs-foundations": 8, "git-github": 6 };
 
 type Row = [title: string, summary: string, readTime: string, tags: string[]];
 
@@ -294,7 +294,25 @@ export const CSFOUNDATIONS_SERIES: IvSeries = {
   ], WRITTEN["cs-foundations"]),
 };
 
-export const IV_SERIES: IvSeries[] = [BROWSER_SERIES, BACKEND_SERIES, DEBUGGING_SERIES, DESIGN_SERIES, FRONTEND_SERIES, FULLSTACK_SERIES, TEAMLEAD_SERIES, LLD_SERIES, DESIGNCASES_SERIES, CSFOUNDATIONS_SERIES];
+export const GITGITHUB_SERIES: IvSeries = {
+  slug: "git-github",
+  title: "Git and GitHub From Zero",
+  short: "Git & GitHub",
+  tagline:
+    "Git from the first commit to team workflows: the mental model, the daily loop, branches and conflicts, remotes and pull requests, undoing mistakes and rebase. Every command was run in a throwaway repository and the real output is shown.",
+  started: "2026",
+  accent: "indigo",
+  lessons: lessons([
+    ["The Mental Model: Snapshots, Commits and Branches", "The working tree, the staging area and the repository, how a commit is a snapshot with a parent, and how branches and HEAD are just pointers.", "7 min", ["git", "internals", "beginner"]],
+    ["The Daily Loop: Status, Add, Commit, Diff and Log", "The commands you use every day, .gitignore, good commit messages and staging parts of a file with git add -p.", "9 min", ["git", "commits", "workflow"]],
+    ["Branches, Merging and Conflicts", "Fast-forward versus merge commits, and a real merge conflict resolved step by step.", "8 min", ["git", "branching", "merge"]],
+    ["Remotes, Pull Requests and Code Review", "Remotes, fetch versus pull, upstream tracking, forks, and the pull request flow with review habits.", "9 min", ["git", "github", "pull-requests"]],
+    ["Undoing Things Safely: Restore, Reset, Revert, Reflog and Friends", "The undo tools run for real, recovering a lost commit with reflog, bisect, and a table of which command to use.", "10 min", ["git", "undo", "recovery"]],
+    ["Rebase, Clean History and Team Workflows", "Rebase versus merge, tidying history, force-with-lease, branch protection, CODEOWNERS and a first GitHub Actions workflow.", "11 min", ["git", "rebase", "ci"]],
+  ], WRITTEN["git-github"]),
+};
+
+export const IV_SERIES: IvSeries[] = [BROWSER_SERIES, BACKEND_SERIES, DEBUGGING_SERIES, DESIGN_SERIES, FRONTEND_SERIES, FULLSTACK_SERIES, TEAMLEAD_SERIES, LLD_SERIES, DESIGNCASES_SERIES, CSFOUNDATIONS_SERIES, GITGITHUB_SERIES];
 
 export function getIvSeries(slug: string): IvSeries | undefined {
   return IV_SERIES.find((s) => s.slug === slug);
