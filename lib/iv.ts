@@ -25,7 +25,7 @@ export type IvSeries = {
  * How many lessons of each series (counted from the top) have a Markdown file. The rest are
  * listed as "coming soon" and are not routed. Raise a number as each lesson is written.
  */
-const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 15, "design-problems": 8, "frontend-depth": 7, "fullstack-qa": 39, "team-lead": 18, "low-level-design": 10, "design-cases": 12, "cs-foundations": 8, "git-github": 6, "testing": 6, "typescript": 8, "sql-postgres": 8, "javascript-2": 8, "ai-engineering": 5, "career": 3, security: 9 };
+const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 15, "design-problems": 8, "frontend-depth": 7, "fullstack-qa": 39, "team-lead": 18, "low-level-design": 10, "design-cases": 12, "cs-foundations": 8, "git-github": 6, "testing": 6, "typescript": 8, "sql-postgres": 8, "javascript-2": 8, "ai-engineering": 5, "career": 3, security: 9, "api-design": 0, "react": 0, "nodejs": 0 };
 
 type Row = [title: string, summary: string, readTime: string, tags: string[]];
 
@@ -449,7 +449,73 @@ export const SECURITY_SERIES: IvSeries = {
   ], WRITTEN["security"]),
 };
 
-export const IV_SERIES: IvSeries[] = [BROWSER_SERIES, BACKEND_SERIES, DEBUGGING_SERIES, DESIGN_SERIES, FRONTEND_SERIES, FULLSTACK_SERIES, TEAMLEAD_SERIES, LLD_SERIES, DESIGNCASES_SERIES, CSFOUNDATIONS_SERIES, GITGITHUB_SERIES, TESTING_SERIES, TYPESCRIPT_SERIES, SQLPOSTGRES_SERIES, JAVASCRIPT2_SERIES, AIENGINEERING_SERIES, CAREER_SERIES, SECURITY_SERIES];
+export const APIDESIGN_SERIES: IvSeries = {
+  slug: "api-design",
+  title: "API Design: REST, GraphQL and gRPC From Zero",
+  short: "API Design",
+  tagline:
+    "How to design an API other developers enjoy using: resources and URLs, methods and status codes, errors, pagination, versioning, idempotency, authentication, rate limits, OpenAPI, and when to choose GraphQL or gRPC. Small examples, every one run.",
+  started: "2026",
+  accent: "indigo",
+  lessons: lessons([
+    ["What Makes a Good API: Resources, URLs and the Contract", "What an API contract is, REST in plain words, naming resources and URLs, and the rules that make an API predictable.", "12 min", ["api", "rest", "design", "beginner"]],
+    ["HTTP Methods, Status Codes and Idempotency in Practice", "GET, POST, PUT, PATCH and DELETE used correctly, the status codes that matter, and why idempotency decides whether a retry is safe.", "14 min", ["api", "http", "idempotency", "status-codes"]],
+    ["Request and Response Design: JSON Shapes, Errors and Validation", "Consistent JSON, naming, dates and money, one error format (RFC 9457 problem details), validation with clear messages, and what never to return.", "14 min", ["api", "json", "errors", "validation"]],
+    ["Pagination, Filtering and Sorting", "Offset versus cursor pagination with real timings, stable ordering, filters, sorting, and how to return links and counts.", "14 min", ["api", "pagination", "performance"]],
+    ["Versioning, Compatibility and Evolving an API", "Breaking versus safe changes, URL, header and date versions, deprecation, and how to change an API without breaking clients.", "13 min", ["api", "versioning", "compatibility"]],
+    ["Idempotency Keys, Retries, Webhooks and Rate Limits", "Safe retries with idempotency keys, webhooks with signatures and retries, rate limit headers, and long-running jobs.", "15 min", ["api", "webhooks", "rate-limiting", "retries"]],
+    ["API Authentication and Authorization: API Keys, OAuth 2.0 and Scopes", "API keys, bearer tokens, OAuth 2.0 flows in plain words, scopes, and common mistakes. Ties back to the Security series.", "15 min", ["api", "oauth", "auth", "security"]],
+    ["Documenting APIs: OpenAPI, Contracts and Testing", "Write an OpenAPI file, generate docs, validate requests and responses against it, contract tests and mock servers.", "13 min", ["api", "openapi", "testing", "documentation"]],
+    ["GraphQL and gRPC: When Not to Use REST", "What problems GraphQL and gRPC solve, the real costs (N+1, caching, tooling), a small working example of each, and a decision table.", "15 min", ["api", "graphql", "grpc"]],
+    ["API Design Interview Questions and Review Checklist", "A checklist to review any API, and the questions interviewers ask with model answers.", "15 min", ["api", "interview", "checklist"]],
+  ], WRITTEN["api-design"]),
+};
+
+export const REACT_SERIES: IvSeries = {
+  slug: "react",
+  title: "React in Depth: From Components to Performance",
+  short: "React in Depth",
+  tagline:
+    "React from the first component to confident senior answers: how rendering really works, state, effects, hooks rules, forms, data fetching, context, performance, patterns, testing and a React interview Q&A. Every example was run.",
+  started: "2026",
+  accent: "sky",
+  lessons: lessons([
+    ["Thinking in React: Components, Props and JSX", "What React is, how JSX becomes function calls, components as functions, props, and the one-way data flow.", "12 min", ["react", "jsx", "components", "beginner"]],
+    ["State and Rendering: What Really Happens When State Changes", "State, re-renders, batching, how React compares trees, keys, and the render-then-commit steps, with a traced example.", "15 min", ["react", "state", "rendering", "reconciliation"]],
+    ["Effects and the Lifecycle: useEffect Without the Confusion", "What an effect is, dependencies, cleanup, why effects run twice in development, and when you do not need an effect.", "15 min", ["react", "useEffect", "effects", "hooks"]],
+    ["Hooks in Depth: useRef, useMemo, useCallback, useReducer and Custom Hooks", "Each hook with one small reason to use it, the rules of hooks and why they exist, and how to write a custom hook.", "16 min", ["react", "hooks", "useReducer", "custom-hooks"]],
+    ["Forms, Events and Controlled Inputs", "Controlled and uncontrolled inputs, form actions and useActionState in React 19, validation, and accessibility basics.", "14 min", ["react", "forms", "events", "accessibility"]],
+    ["Data Fetching, Caching and Server State", "fetch in effects and its bugs, race conditions, loading and error states, TanStack Query ideas, and Suspense with use().", "15 min", ["react", "data-fetching", "suspense", "tanstack-query"]],
+    ["Context, State Management and Choosing Where State Lives", "Lifting state, context and its re-render cost, reducers, Zustand and Redux Toolkit at a glance, and a simple decision table.", "14 min", ["react", "context", "state-management", "zustand"]],
+    ["Performance: Memoization, Lists, Code Splitting and the React Compiler", "Find slow renders with the Profiler, memo, virtualised lists, lazy loading, transitions, and what the React Compiler changes.", "16 min", ["react", "performance", "memo", "compiler"]],
+    ["Patterns, Server Components and Testing React", "Composition patterns, error boundaries, portals, Server and Client Components in plain words, and testing with Testing Library.", "16 min", ["react", "patterns", "server-components", "testing"]],
+    ["React Interview Questions With Model Answers", "The questions asked at every level: rendering, keys, hooks, state, performance, and the traps, with first-person answers.", "18 min", ["react", "interview"]],
+  ], WRITTEN["react"]),
+};
+
+export const NODEJS_SERIES: IvSeries = {
+  slug: "nodejs",
+  title: "Node.js From Zero: Event Loop, Streams and Servers",
+  short: "Node.js From Zero",
+  tagline:
+    "Node.js the way a working developer needs it: the event loop, modules, files and streams, building an HTTP server without a framework, Express and Fastify, errors and logging, async patterns, worker threads and production habits. Every example was run.",
+  started: "2026",
+  accent: "emerald",
+  lessons: lessons([
+    ["What Node.js Is and How It Runs Your Code", "V8, libuv and the runtime, the single thread and what it means, modules (ESM and CommonJS), npm, and running your first script.", "12 min", ["nodejs", "runtime", "modules", "beginner"]],
+    ["The Event Loop: Timers, Promises and the Poll Phase", "The loop phases, microtasks versus macrotasks, process.nextTick, setImmediate, and how a blocked loop freezes everything. Traced and run.", "16 min", ["nodejs", "event-loop", "async"]],
+    ["Files, Paths and Buffers", "fs and fs/promises, paths, buffers and encodings, reading and writing safely, and watching files.", "13 min", ["nodejs", "fs", "buffers"]],
+    ["Streams and Backpressure", "Readable, writable and transform streams, pipeline, backpressure shown with real memory numbers, and when streams beat reading whole files.", "16 min", ["nodejs", "streams", "backpressure"]],
+    ["An HTTP Server From Scratch", "The node:http module, routing by hand, reading bodies, headers and status codes, then why a framework helps.", "14 min", ["nodejs", "http", "server"]],
+    ["Express and Fastify: Middleware, Routing and Validation", "The middleware idea, Express 5 and Fastify side by side, error handling middleware, validation with schemas.", "15 min", ["nodejs", "express", "fastify", "middleware"]],
+    ["Errors, Logging and Graceful Shutdown", "Operational versus programmer errors, uncaught exceptions, structured logs, health checks, and shutting down without dropping requests.", "15 min", ["nodejs", "errors", "logging", "shutdown"]],
+    ["Concurrency: Promises, Worker Threads, Clusters and Child Processes", "Promise.all and limits, CPU work in worker_threads, cluster and why containers often replace it, and a timed comparison.", "16 min", ["nodejs", "concurrency", "worker-threads"]],
+    ["Testing, Performance and Production Habits", "node:test, profiling with --cpu-prof, memory leaks, configuration, Docker basics, and a production checklist.", "15 min", ["nodejs", "testing", "performance", "production"]],
+    ["Node.js Interview Questions With Model Answers", "Event loop, streams, errors, scaling and security questions with model answers.", "16 min", ["nodejs", "interview"]],
+  ], WRITTEN["nodejs"]),
+};
+
+export const IV_SERIES: IvSeries[] = [BROWSER_SERIES, BACKEND_SERIES, DEBUGGING_SERIES, DESIGN_SERIES, FRONTEND_SERIES, FULLSTACK_SERIES, TEAMLEAD_SERIES, LLD_SERIES, DESIGNCASES_SERIES, CSFOUNDATIONS_SERIES, GITGITHUB_SERIES, TESTING_SERIES, TYPESCRIPT_SERIES, SQLPOSTGRES_SERIES, JAVASCRIPT2_SERIES, AIENGINEERING_SERIES, CAREER_SERIES, SECURITY_SERIES, APIDESIGN_SERIES, REACT_SERIES, NODEJS_SERIES];
 
 export function getIvSeries(slug: string): IvSeries | undefined {
   return IV_SERIES.find((s) => s.slug === slug);

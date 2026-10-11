@@ -28,13 +28,13 @@ export const SERIES_GROUPS: { id: string; title: string; blurb: string; slugs: s
     id: "foundations",
     title: "Programming foundations",
     blurb: "Learn the building blocks from zero, with every example traced or run.",
-    slugs: ["dsa", "javascript", "javascript-2", "typescript", "sql-postgres", "git-github", "cs-foundations", "testing", "security"],
+    slugs: ["dsa", "javascript", "javascript-2", "typescript", "sql-postgres", "git-github", "cs-foundations", "testing", "security", "react"],
   },
   {
     id: "systems",
     title: "Backend, systems and DevOps",
     blurb: "How real systems are built, scaled, deployed and kept running.",
-    slugs: ["devops", "system-design", "design-cases", "backend", "browser", "low-level-design"],
+    slugs: ["devops", "system-design", "design-cases", "backend", "browser", "low-level-design", "api-design", "nodejs"],
   },
   {
     id: "interview",
@@ -74,4 +74,7 @@ export const RELATED_SERIES: Record<string, string[]> = {
   career: ["dsa", "fullstack-qa", "team-lead"],
   "team-lead": ["career", "git-github", "fullstack-qa"],
   security: ["browser", "backend", "testing"],
+  "api-design": ["backend", "security", "system-design"],
+  "react": ["typescript", "frontend-depth", "fullstack-qa"],
+  "nodejs": ["backend", "javascript-2", "security"],
 };
