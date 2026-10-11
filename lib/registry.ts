@@ -9,6 +9,7 @@ import { JS_LESSONS, JS_READINGS, JS_SERIES, jsLessonHref, jsReadingHref } from 
 import { LESSONS, READINGS, SERIES as DEVOPS_SERIES, lessonHref, readingHref, type Lesson } from "./lessons";
 import { SD_GLOSSARY } from "./sd-glossary";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "./system-design";
+import { GUIDES } from "./guides-data";
 import { RELATED_SERIES, SERIES_GROUPS, SERIES_SHORT } from "./series";
 
 /**
@@ -17,7 +18,7 @@ import { RELATED_SERIES, SERIES_GROUPS, SERIES_SHORT } from "./series";
  * all read from here, so a lesson only has to be registered once.
  */
 
-export type PageKind = "home" | "hub" | "page" | "series" | "lesson" | "reading" | "glossary";
+export type PageKind = "home" | "hub" | "page" | "series" | "lesson" | "reading" | "glossary" | "guide";
 
 export type PageInfo = {
   path: string;
@@ -108,6 +109,11 @@ function buildPages(): PageInfo[] {
     path: HUB_GLOSSARIES.path, kind: "hub", title: HUB_GLOSSARIES.title,
     description: "Every glossary on the site in one place: DSA, system design, DevOps, JavaScript, TypeScript, SQL, Git, testing and more, each term explained in plain English.",
   });
+  pages.push({
+    path: "/guides", kind: "hub", title: "Study guides: reading orders for interviews and core skills",
+    description: "Curated study guides that put the lessons in a sensible order: system design, coding interviews, JavaScript, SQL, Git, DevOps, TypeScript, testing, AI and more.",
+  });
+  for (const g of GUIDES) pages.push({ path: `/guides/${g.slug}`, kind: "guide", title: g.title, description: g.description });
   pages.push({
     path: "/about", kind: "page", title: "About this site and its author",
     description: "Who publishes these lessons, how they are made and checked, and how to contact Jainik.",

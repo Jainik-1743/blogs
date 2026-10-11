@@ -28,6 +28,8 @@ export async function GET(_req: Request, { params }: { params: Promise<{ slug?: 
         ? "Lesson series"
         : page.kind === "glossary"
           ? "Glossary"
+          : page.kind === "guide"
+            ? "Study guide"
           : (page.seriesShort ?? "Guide");
   const title = isHome ? "DSA, system design, DevOps, JavaScript and interview prep" : page.title;
   const foot = isHome ? HOME_TITLE.split(":")[0] : page.readTime ? `${page.readTime} read` : (page.seriesTitle ?? "");

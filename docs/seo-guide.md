@@ -108,3 +108,7 @@ curl -s http://localhost:3000/dsa/lesson-5 | grep -o '<link rel="canonical"[^>]*
 ```
 
 On a Vercel preview deployment, `robots.txt` should say `Disallow: /` and pages should carry `noindex`. That is expected.
+
+## Study guides (`/guides`)
+
+Topic hub pages that put lessons from several series in one reading order (for example "System Design Interview Guide"). They are defined in `lib/guides-data.ts`; `lib/guides.ts` resolves every path against the registry and **fails the build if a path is not a real page**. Guides appear in the sitemap, home page, footer, and a "Part of the study guide" link on each lesson they include. After adding or editing a guide, run `npm run seo:lastmod` and commit `lib/lastmod.json`.

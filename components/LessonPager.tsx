@@ -1,5 +1,6 @@
 import Link from "next/link";
 import JsonLd from "@/components/JsonLd";
+import { guidesForPath } from "@/lib/guides";
 import { relatedLessons, relatedSeries } from "@/lib/registry";
 import { lessonJsonLd, pageDates } from "@/lib/seo";
 import { LESSONS, lessonHref, SERIES, type Lesson } from "@/lib/lessons";
@@ -32,6 +33,7 @@ export default function LessonPager({
   const path = current ? href(current) : undefined;
   const modified = path ? pageDates(path).modified : undefined;
   const lessonsLike = path ? relatedLessons(path) : [];
+  const guides = path ? guidesForPath(path).slice(0, 3) : [];
   const seriesLike = current ? relatedSeries(series.slug) : [];
 
   return (
@@ -51,7 +53,7 @@ export default function LessonPager({
         </p>
       ) : null}
 
-      {lessonsLike.length || seriesLike.length ? (
+      {lessonsLike.length || seriesLike.length || guides.length ? (
         <section aria-labelledby="keep-learning" className="mt-8 rounded-xl border border-line bg-bg-elev/40 px-5 py-4">
           <h2 id="keep-learning" className="mt-0 mb-3 text-[1.1rem] font-semibold text-ink">
             Keep learning
@@ -63,6 +65,18 @@ export default function LessonPager({
                 {lessonsLike.map((l) => (
                   <li key={l.path}>
                     <Link href={l.path}>{l.title}</Link> <span className="text-ink-dim">· {l.seriesShort}</span>
+                  </li>
+                ))}
+              </ul>
+            </>
+          ) : null}
+          {guides.length ? (
+            <>
+              <p className="m-0 mb-1 font-mono text-[0.72rem] uppercase tracking-[0.1em] text-ink-dim">Part of the study guide</p>
+              <ul className="m-0 mb-3 list-none space-y-1 p-0 text-[0.92rem]">
+                {guides.map((g) => (
+                  <li key={g.slug}>
+                    <Link href={`/guides/${g.slug}`}>{g.title}</Link>
                   </li>
                 ))}
               </ul>

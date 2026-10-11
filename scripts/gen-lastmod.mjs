@@ -63,10 +63,16 @@ for (const slug of appDirs) {
 // Stand-alone top-level pages.
 for (const slug of ["about", "privacy", "glossaries"]) put(`/${slug}`, [`app/${slug}/page.tsx`]);
 
+// Guides: the guide definitions file, or the template for the index.
+const guideSlugs = [...readFileSync("lib/guides-data.ts", "utf8").matchAll(/^\s{4}slug: "([^"]+)"/gm)].map((m) => m[1]);
+put("/guides", ["lib/guides-data.ts", "app/guides/page.tsx"]);
+for (const slug of guideSlugs) put(`/guides/${slug}`, ["lib/guides-data.ts", "app/guides/[slug]/page.tsx"]);
+
 // Series index and glossary pages: newest lesson in the series.
 const bySeries = {};
 for (const [path, [c, m]] of Object.entries(out)) {
   const slug = path.split("/")[1];
+  if (slug === "guides") continue;
   (bySeries[slug] ??= []).push([c, m]);
 }
 let newest = "";

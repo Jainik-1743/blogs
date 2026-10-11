@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import JsonLd from "@/components/JsonLd";
+import { RESOLVED_GUIDES } from "@/lib/guides";
 import { ALL_PAGES, groupedSeries } from "@/lib/registry";
 import { homeJsonLd, pageMetadata } from "@/lib/seo";
 
@@ -23,6 +24,18 @@ export default function HomePage() {
         start at the first lesson and go forward. Every idea is traced step by step, and most lessons end with interview
         questions and model answers.
       </p>
+
+      <section aria-labelledby="start-guides" className="mt-10">
+        <h2 id="start-guides" className="mb-1 text-[1.5rem] font-semibold text-ink">Start with a guide</h2>
+        <p className="mt-0 mb-4 text-ink-dim">
+          Not sure where to begin? Each <Link href="/guides">study guide</Link> picks the lessons for one goal and puts them in order.
+        </p>
+        <ul className="m-0 grid list-none gap-x-6 gap-y-1.5 p-0 sm:grid-cols-2">
+          {RESOLVED_GUIDES.map((g) => (
+            <li key={g.slug}><Link href={`/guides/${g.slug}`}>{g.title}</Link></li>
+          ))}
+        </ul>
+      </section>
 
       {groups.map((g) => (
         <section key={g.id} aria-labelledby={`group-${g.id}`} className="mt-10">

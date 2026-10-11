@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import lastmod from "./lastmod.json";
 import { findPage, seriesBySlug, ALL_PAGES, type PageInfo } from "./registry";
+import { guideBySlug } from "./guides";
 import { AUTHOR, HOME_DESCRIPTION, HOME_TITLE, INDEXABLE, SITE_NAME, SITE_LOCALE, absoluteUrl } from "./site";
 
 const DATES = lastmod as unknown as Record<string, [string, string]>;
@@ -236,6 +237,42 @@ export function seriesJsonLd(slug: string): Json | undefined {
       breadcrumb([
         { name: "Home", path: "/" },
         { name: s.short, path: `/${slug}` },
+      ]),
+    ],
+  };
+}
+
+/** Structured data for a study guide: a collection of lessons with breadcrumbs Home > Guides > guide. */
+export function guideJsonLd(slug: string): Json | undefined {
+  const g = guideBySlug(slug);
+  if (!g) return undefined;
+  const path = `/guides/${slug}`;
+  const pages = g.sections.flatMap((s) => s.pages);
+  const dates = pageDates(path);
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "CollectionPage",
+        "@id": `${absoluteUrl(path)}#guide`,
+        name: g.title,
+        description: clip(g.description),
+        url: absoluteUrl(path),
+        inLanguage: "en",
+        isAccessibleForFree: true,
+        author: personRef,
+        ...(dates.created ? { datePublished: dates.created } : {}),
+        ...(dates.modified ? { dateModified: dates.modified } : {}),
+        mainEntity: {
+          "@type": "ItemList",
+          numberOfItems: pages.length,
+          itemListElement: pages.map((p, i) => ({ "@type": "ListItem", position: i + 1, name: p.title, url: absoluteUrl(p.path) })),
+        },
+      },
+      breadcrumb([
+        { name: "Home", path: "/" },
+        { name: "Guides", path: "/guides" },
+        { name: g.title, path },
       ]),
     ],
   };
