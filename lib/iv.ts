@@ -25,7 +25,7 @@ export type IvSeries = {
  * How many lessons of each series (counted from the top) have a Markdown file. The rest are
  * listed as "coming soon" and are not routed. Raise a number as each lesson is written.
  */
-const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 15, "design-problems": 8, "frontend-depth": 7, "fullstack-qa": 39, "team-lead": 18, "low-level-design": 10, "design-cases": 12, "cs-foundations": 8, "git-github": 6, "testing": 6, "typescript": 8, "sql-postgres": 8, "javascript-2": 8, "ai-engineering": 5, "career": 3, security: 9, "api-design": 10, "react": 10, "nodejs": 10, "nextjs": 10, "docker-kubernetes": 10, "behavioral-interview": 9 };
+const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 15, "design-problems": 8, "frontend-depth": 7, "fullstack-qa": 39, "team-lead": 18, "low-level-design": 10, "design-cases": 12, "cs-foundations": 8, "git-github": 6, "testing": 6, "typescript": 8, "sql-postgres": 8, "javascript-2": 8, "ai-engineering": 5, "career": 3, security: 9, "api-design": 10, "react": 10, "nodejs": 10, "nextjs": 10, "docker-kubernetes": 10, "behavioral-interview": 9, "linux-shell": 0, "networking": 0, "observability": 0 };
 
 type Row = [title: string, summary: string, readTime: string, tags: string[]];
 
@@ -580,7 +580,70 @@ export const BEHAVIORAL_SERIES: IvSeries = {
   ], WRITTEN["behavioral-interview"]),
 };
 
-export const IV_SERIES: IvSeries[] = [BROWSER_SERIES, BACKEND_SERIES, DEBUGGING_SERIES, DESIGN_SERIES, FRONTEND_SERIES, FULLSTACK_SERIES, TEAMLEAD_SERIES, LLD_SERIES, DESIGNCASES_SERIES, CSFOUNDATIONS_SERIES, GITGITHUB_SERIES, TESTING_SERIES, TYPESCRIPT_SERIES, SQLPOSTGRES_SERIES, JAVASCRIPT2_SERIES, AIENGINEERING_SERIES, CAREER_SERIES, SECURITY_SERIES, APIDESIGN_SERIES, REACT_SERIES, NODEJS_SERIES, NEXTJS_SERIES, DOCKERK8S_SERIES, BEHAVIORAL_SERIES];
+export const LINUX_SERIES: IvSeries = {
+  slug: "linux-shell",
+  title: "Linux and the Command Line for Developers",
+  short: "Linux & Shell",
+  tagline:
+    "The Linux and shell skills developers use every day: the file system, permissions, processes, pipes and text tools, shell scripting, SSH, package managers, cron and systemd, logs and troubleshooting a slow or broken server. Every command was run.",
+  started: "2026",
+  accent: "lime",
+  lessons: lessons([
+    ["The Terminal, the Shell and the Linux File System", "What the shell is, moving around, the directory layout, absolute and relative paths, reading files, and the commands you will use hourly.", "12 min", ["linux", "shell", "beginner", "filesystem"]],
+    ["Users, Permissions and Ownership", "Users and groups, reading rwx and octal modes, chmod and chown, sudo, umask, setuid in plain words, and common permission mistakes.", "13 min", ["linux", "permissions", "security"]],
+    ["Processes, Signals and Job Control", "What a process is, ps and top, foreground and background jobs, signals such as SIGTERM and SIGKILL, exit codes, and zombies and orphans.", "14 min", ["linux", "processes", "signals"]],
+    ["Pipes, Redirection and Text Tools: grep, sed, awk, find and xargs", "stdin, stdout and stderr, pipes, redirection, the text tools used to search and reshape data, and real one-line recipes.", "15 min", ["linux", "pipes", "grep", "awk", "sed"]],
+    ["Shell Scripting: Variables, Conditions, Loops and Functions", "Writing safe bash scripts: quoting, set -euo pipefail, arguments, conditions, loops, functions, trap, and ShellCheck.", "15 min", ["linux", "bash", "scripting"]],
+    ["SSH, Networking Commands and Transferring Files", "SSH keys and config, scp and rsync, port forwarding, curl, ss, dig, ping and traceroute, and what each tells you.", "14 min", ["linux", "ssh", "networking", "curl"]],
+    ["Packages, Services, Cron and systemd", "apt and other package managers, running a service with systemd, reading unit files, journalctl, cron and systemd timers.", "14 min", ["linux", "systemd", "cron", "packages"]],
+    ["Disks, Memory, Logs and Troubleshooting a Slow Server", "df, du, free, load average, iostat-style tools, reading logs, and a step-by-step method for a slow or full server.", "15 min", ["linux", "troubleshooting", "performance", "logs"]],
+    ["Linux and Shell Interview Questions With Model Answers", "Permissions, processes, pipes, scripting and troubleshooting questions with model answers.", "14 min", ["linux", "interview"]],
+  ], WRITTEN["linux-shell"]),
+};
+
+export const NETWORKING_SERIES: IvSeries = {
+  slug: "networking",
+  title: "Computer Networking for Developers: IP, TCP, DNS, HTTP and TLS",
+  short: "Networking for Developers",
+  tagline:
+    "The networking every developer should know: layers, IP and subnets, TCP and UDP, DNS, HTTP/1.1, HTTP/2 and HTTP/3, TLS and certificates, load balancers, CDNs and how to debug network problems with real tools. Every example was captured or run.",
+  started: "2026",
+  accent: "sky",
+  lessons: lessons([
+    ["How the Internet Works: Layers, Packets and Addresses", "The layer models, what a packet is, MAC, IP and ports, and following one request from your laptop to a server.", "13 min", ["networking", "osi", "tcp-ip", "beginner"]],
+    ["IP Addresses, Subnets, NAT and Routing", "IPv4 and IPv6, CIDR notation worked by hand, private ranges, NAT, routing tables and how a packet finds its way.", "14 min", ["networking", "ip", "cidr", "nat"]],
+    ["TCP and UDP: Connections, Reliability and Congestion", "The three-way handshake, sequence numbers, retransmission, flow and congestion control, UDP, and when each is used. Captured with real packet tools.", "16 min", ["networking", "tcp", "udp"]],
+    ["DNS: How Names Become Addresses", "Resolvers, root and authoritative servers, record types, TTL and caching, and debugging DNS with dig.", "14 min", ["networking", "dns"]],
+    ["HTTP/1.1, HTTP/2 and HTTP/3", "Requests and responses on the wire, keep-alive, head-of-line blocking, multiplexing, QUIC, and what changes for you as a developer.", "15 min", ["networking", "http", "http2", "http3", "quic"]],
+    ["TLS and Certificates: How HTTPS Really Works", "The handshake in plain words, certificates and chains, Let's Encrypt, mTLS, and the errors you will meet.", "15 min", ["networking", "tls", "https", "certificates"]],
+    ["Load Balancers, Proxies, CDNs and Firewalls", "Layer 4 and layer 7 balancing, reverse and forward proxies, CDNs, caching at the edge, and firewalls and security groups.", "14 min", ["networking", "load-balancer", "cdn", "proxy"]],
+    ["WebSockets, Server-Sent Events and Real-Time Networking", "Polling versus long polling, WebSockets, SSE, scaling real-time connections, and a working example of each.", "14 min", ["networking", "websockets", "sse", "real-time"]],
+    ["Debugging Network Problems and Networking Interview Questions", "curl, dig, ss, tcpdump and Wireshark basics, a troubleshooting checklist, and interview questions with model answers.", "16 min", ["networking", "debugging", "interview"]],
+  ], WRITTEN["networking"]),
+};
+
+export const OBSERVABILITY_SERIES: IvSeries = {
+  slug: "observability",
+  title: "Observability and SRE: Logs, Metrics, Traces and Reliability",
+  short: "Observability & SRE",
+  tagline:
+    "How to know what your system is doing and keep it reliable: structured logs, metrics and Prometheus, tracing with OpenTelemetry, SLIs, SLOs and error budgets, alerting, dashboards, incident response and blameless post-mortems. Examples were run locally.",
+  started: "2026",
+  accent: "rose",
+  lessons: lessons([
+    ["What Observability Is and the Three Pillars", "Monitoring versus observability, logs, metrics and traces, the questions each answers, and the golden signals.", "12 min", ["observability", "monitoring", "beginner"]],
+    ["Logging That Helps: Structured Logs, Levels and Correlation IDs", "Structured JSON logs, levels, what to log and not log, correlation IDs across services, and sampling.", "14 min", ["observability", "logging", "pino"]],
+    ["Metrics and Prometheus: Counters, Gauges, Histograms and Percentiles", "The metric types, labels and cardinality, why averages lie, percentiles, and a real Prometheus scrape of a Node service.", "15 min", ["observability", "metrics", "prometheus"]],
+    ["Distributed Tracing With OpenTelemetry", "Spans and traces, context propagation, instrumenting a Node service, and reading a trace to find a slow call.", "15 min", ["observability", "tracing", "opentelemetry"]],
+    ["SLIs, SLOs and Error Budgets", "Choosing indicators, setting objectives, how nines translate to minutes, burn rates and what error budgets are for.", "14 min", ["sre", "slo", "error-budget"]],
+    ["Alerting and Dashboards That People Trust", "Alerting on symptoms, avoiding alert fatigue, runbooks, dashboard design, and burn-rate alerts with a worked example.", "13 min", ["observability", "alerting", "dashboards"]],
+    ["Incidents, On-Call and Blameless Post-Mortems", "Incident roles and the first hour, communication, on-call habits, writing a blameless post-mortem with a full example.", "14 min", ["sre", "incidents", "on-call", "postmortem"]],
+    ["Reliability Patterns: Timeouts, Retries, Circuit Breakers and Graceful Degradation", "Failure modes, timeouts and retries with backoff, circuit breakers, bulkheads, load shedding, tested with fault injection.", "15 min", ["sre", "reliability", "resilience"]],
+    ["Observability and SRE Interview Questions With Model Answers", "Questions on monitoring, SLOs, incidents and reliability with model answers.", "14 min", ["observability", "sre", "interview"]],
+  ], WRITTEN["observability"]),
+};
+
+export const IV_SERIES: IvSeries[] = [BROWSER_SERIES, BACKEND_SERIES, DEBUGGING_SERIES, DESIGN_SERIES, FRONTEND_SERIES, FULLSTACK_SERIES, TEAMLEAD_SERIES, LLD_SERIES, DESIGNCASES_SERIES, CSFOUNDATIONS_SERIES, GITGITHUB_SERIES, TESTING_SERIES, TYPESCRIPT_SERIES, SQLPOSTGRES_SERIES, JAVASCRIPT2_SERIES, AIENGINEERING_SERIES, CAREER_SERIES, SECURITY_SERIES, APIDESIGN_SERIES, REACT_SERIES, NODEJS_SERIES, NEXTJS_SERIES, DOCKERK8S_SERIES, BEHAVIORAL_SERIES, LINUX_SERIES, NETWORKING_SERIES, OBSERVABILITY_SERIES];
 
 export function getIvSeries(slug: string): IvSeries | undefined {
   return IV_SERIES.find((s) => s.slug === slug);
