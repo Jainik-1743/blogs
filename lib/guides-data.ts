@@ -309,6 +309,23 @@ export const GUIDES: GuideDef[] = [
     ],
   },
   {
+    slug: "docker-kubernetes-guide",
+    title: "Docker and Kubernetes Guide: Containers to Clusters",
+    description: "Learn containers and Kubernetes in order: images, Dockerfiles, volumes, Compose, pods, services, config, scaling, debugging and interview questions, with runnable examples.",
+    intro: [
+      "Containers solve the 'works on my machine' problem, and Kubernetes runs many of them for you. This guide starts with what a container really is, then builds up to a small cluster and the debugging skills you need when things fail.",
+      "Docker examples were run for real. Where the sandbox could not run a full cluster, the lessons say exactly what was and was not run.",
+    ],
+    audience: "Developers who deploy their own apps, and candidates for DevOps, platform and back-end roles.",
+    sections: [
+      { heading: "Containers and images", paths: ["/docker-kubernetes/lesson-0", "/docker-kubernetes/lesson-1"] },
+      { heading: "Data, networks and Compose", paths: ["/docker-kubernetes/lesson-2", "/docker-kubernetes/lesson-3", "/devops/lesson-9"] },
+      { heading: "Kubernetes core", paths: ["/docker-kubernetes/lesson-4", "/docker-kubernetes/lesson-5", "/docker-kubernetes/lesson-6"] },
+      { heading: "Scaling and debugging", paths: ["/docker-kubernetes/lesson-7", "/docker-kubernetes/lesson-8"] },
+      { heading: "Interview practice", paths: ["/docker-kubernetes/lesson-9"] },
+    ],
+  },
+  {
     slug: "ai-engineering-guide",
     title: "AI Engineering Guide: Build and Secure LLM Features",
     description: "From LLMs, agents and RAG to production: the OWASP Top 10 for LLM apps, prompt injection, evaluation, cost and latency, observability and guardrails.",
