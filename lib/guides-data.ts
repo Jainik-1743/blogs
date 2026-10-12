@@ -292,6 +292,23 @@ export const GUIDES: GuideDef[] = [
     ],
   },
   {
+    slug: "nextjs-guide",
+    title: "Next.js Guide: App Router, Server Components and Deploying",
+    description: "Learn the Next.js App Router in order: routing, Server and Client Components, data and caching, Server Actions, auth, rendering, SEO, deployment and interview questions.",
+    intro: [
+      "The App Router changed how Next.js apps work, and the caching rules trip up many developers. This guide follows the Next.js series from your first route to production, with every example run on the same Next.js version this site uses.",
+      "Read the Server and Client Components lesson carefully before the others: most later ideas build on it.",
+    ],
+    audience: "React developers moving to Next.js, full-stack developers shipping Next.js apps, and candidates preparing for Next.js interviews.",
+    sections: [
+      { heading: "Routing and components", paths: ["/react/lesson-0", "/nextjs/lesson-0", "/nextjs/lesson-1"] },
+      { heading: "Data, caching and mutations", paths: ["/nextjs/lesson-2", "/nextjs/lesson-3", "/nextjs/lesson-4"] },
+      { heading: "Auth and rendering", paths: ["/nextjs/lesson-5", "/nextjs/lesson-6", "/security/lesson-3", "/security/lesson-4"] },
+      { heading: "SEO, config and deployment", paths: ["/nextjs/lesson-7", "/nextjs/lesson-8"] },
+      { heading: "Interview practice", paths: ["/nextjs/lesson-9", "/fullstack-qa/lesson-5"] },
+    ],
+  },
+  {
     slug: "ai-engineering-guide",
     title: "AI Engineering Guide: Build and Secure LLM Features",
     description: "From LLMs, agents and RAG to production: the OWASP Top 10 for LLM apps, prompt injection, evaluation, cost and latency, observability and guardrails.",

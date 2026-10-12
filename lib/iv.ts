@@ -25,7 +25,7 @@ export type IvSeries = {
  * How many lessons of each series (counted from the top) have a Markdown file. The rest are
  * listed as "coming soon" and are not routed. Raise a number as each lesson is written.
  */
-const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 15, "design-problems": 8, "frontend-depth": 7, "fullstack-qa": 39, "team-lead": 18, "low-level-design": 10, "design-cases": 12, "cs-foundations": 8, "git-github": 6, "testing": 6, "typescript": 8, "sql-postgres": 8, "javascript-2": 8, "ai-engineering": 5, "career": 3, security: 9, "api-design": 10, "react": 10, "nodejs": 10, "nextjs": 0, "docker-kubernetes": 0, "behavioral-interview": 9 };
+const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 15, "design-problems": 8, "frontend-depth": 7, "fullstack-qa": 39, "team-lead": 18, "low-level-design": 10, "design-cases": 12, "cs-foundations": 8, "git-github": 6, "testing": 6, "typescript": 8, "sql-postgres": 8, "javascript-2": 8, "ai-engineering": 5, "career": 3, security: 9, "api-design": 10, "react": 10, "nodejs": 10, "nextjs": 10, "docker-kubernetes": 0, "behavioral-interview": 9 };
 
 type Row = [title: string, summary: string, readTime: string, tags: string[]];
 
