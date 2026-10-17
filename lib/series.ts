@@ -28,13 +28,13 @@ export const SERIES_GROUPS: { id: string; title: string; blurb: string; slugs: s
     id: "foundations",
     title: "Programming foundations",
     blurb: "Learn the building blocks from zero, with every example traced or run.",
-    slugs: ["dsa", "javascript", "javascript-2", "typescript", "sql-postgres", "git-github", "cs-foundations", "testing", "security", "react", "nextjs", "linux-shell", "networking"],
+    slugs: ["dsa", "javascript", "javascript-2", "typescript", "sql-postgres", "git-github", "cs-foundations", "testing", "security", "react", "nextjs"],
   },
   {
     id: "systems",
     title: "Backend, systems and DevOps",
     blurb: "How real systems are built, scaled, deployed and kept running.",
-    slugs: ["devops", "system-design", "design-cases", "backend", "browser", "low-level-design", "api-design", "nodejs", "docker-kubernetes", "observability"],
+    slugs: ["devops", "system-design", "design-cases", "backend", "browser", "low-level-design", "api-design", "nodejs", "docker-kubernetes"],
   },
   {
     id: "interview",
@@ -80,7 +80,4 @@ export const RELATED_SERIES: Record<string, string[]> = {
   "nextjs": ["react", "typescript", "security"],
   "docker-kubernetes": ["devops", "system-design", "nodejs"],
   "behavioral-interview": ["career", "team-lead", "fullstack-qa"],
-  "linux-shell": ["devops", "git-github", "nodejs"],
-  "networking": ["system-design", "devops", "browser"],
-  "observability": ["devops", "backend", "debugging"],
 };
