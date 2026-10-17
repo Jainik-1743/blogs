@@ -10,7 +10,7 @@ const nameOf = (slug: string) => SERIES_SHORT[slug] ?? ALL_SERIES.find((s) => s.
  */
 export default function SiteFooter() {
   return (
-    <footer className="mt-8 border-t border-line bg-bg-elev/40 text-[0.88rem] text-ink-dim">
+    <footer data-site-footer className="mt-8 border-t border-line bg-bg-elev/40 text-[0.88rem] text-ink-dim">
       <div className="mx-auto max-w-[860px] px-4 py-8">
         <div className="flex flex-wrap items-start justify-between gap-x-8 gap-y-4">
           <div>

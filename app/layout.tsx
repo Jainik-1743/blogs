@@ -7,6 +7,8 @@ import JsonLd from "@/components/JsonLd";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import GlossaryTooltips from "@/components/GlossaryTooltips";
+import FocusMode from "@/components/FocusMode";
+import PageTransition from "@/components/PageTransition";
 import ReadingProgress from "@/components/ReadingProgress";
 import ResumePrompt from "@/components/ResumePrompt";
 import { accentInitScript } from "@/lib/accents";
@@ -54,7 +56,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     // suppressHydrationWarning: the head script may add data-reader-accent before React loads.
-    <html lang="en" className={`${inter.variable} ${mono.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${inter.variable} ${mono.variable}`} data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: displayInitScript }} />
         <script
@@ -72,9 +74,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </noscript>
         <JsonLd data={siteJsonLd()} />
         <SiteHeader />
-        <main className="mx-auto w-full max-w-[860px] flex-1 px-4 py-12">{children}</main>
+        <main className="mx-auto w-full max-w-[860px] flex-1 px-4 py-12">
+          <PageTransition>{children}</PageTransition>
+        </main>
         <SiteFooter />
         <ReadingProgress />
+        <FocusMode />
         <ResumePrompt />
         <GlossaryTooltips />
         <Script id="gtm" strategy="afterInteractive">

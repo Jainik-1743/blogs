@@ -607,3 +607,19 @@ html[data-theme="light"] .rm-node { color: #ffffff; }
 .rm-lesson .rm-card-label { font-size: 0.82rem; font-weight: 500; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .rm-lesson .rm-card-count { font-size: 0.62rem; }
 .rm-lesson + .rm-lesson { margin-top: -0.15rem; }
+
+/* ── Focus mode: only the lesson text and the exit button remain. ── */
+html[data-focus] [data-site-header],
+html[data-focus] [data-site-footer],
+html[data-focus] nav[aria-label="Breadcrumb"],
+html[data-focus] #keep-learning { display: none; }
+html[data-focus] main { max-width: 740px; padding-top: 3.5rem; }
+html[data-focus] .lesson { font-size: 1.08em; line-height: 1.85; }
+
+/* ── Listen mode: the block being read aloud. ── */
+.lesson .tts-active {
+  background: var(--color-sky-soft);
+  border-radius: 0.4rem;
+  box-shadow: -0.5rem 0 0 var(--color-sky-soft), 0.5rem 0 0 var(--color-sky-soft);
+  transition: background-color 0.2s;
+}

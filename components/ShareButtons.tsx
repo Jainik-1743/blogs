@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import LessonTools from "./LessonTools";
 
 /** Round icon button used for both the share and copy controls. */
 const ICON_BTN =
@@ -90,6 +91,7 @@ export default function ShareButtons() {
           <Stroke d={copied ? CHECK_ICON : COPY_ICON} />
         </button>
       </div>
+      <LessonTools />
       {copied ? (
         <span role="status" className="font-mono text-[0.75rem] text-emerald-300">
           Link copied

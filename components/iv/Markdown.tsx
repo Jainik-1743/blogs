@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { Lexer, type Token, type Tokens } from "marked";
 import Callout from "@/components/Callout";
@@ -50,6 +51,14 @@ function inline(tokens: Token[] | undefined, key = "i"): ReactNode[] {
       case "link": {
         const l = t as Tokens.Link;
         const external = /^https?:/.test(l.href);
+        // Links to other pages on this site use <Link>, so they switch pages without a full reload.
+        if (l.href.startsWith("/") && !l.href.startsWith("//")) {
+          return (
+            <Link key={k} href={l.href}>
+              {inline(l.tokens, k)}
+            </Link>
+          );
+        }
         return (
           <a key={k} href={l.href} {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
             {inline(l.tokens, k)}
