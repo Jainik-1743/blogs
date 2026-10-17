@@ -7,6 +7,7 @@ import JsonLd from "@/components/JsonLd";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import GlossaryTooltips from "@/components/GlossaryTooltips";
+import ReadingProgress from "@/components/ReadingProgress";
 import ResumePrompt from "@/components/ResumePrompt";
 import { accentInitScript } from "@/lib/accents";
 import { ALL_SERIES } from "@/lib/series";
@@ -71,6 +72,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <SiteHeader />
         <main className="mx-auto w-full max-w-[860px] flex-1 px-4 py-12">{children}</main>
         <SiteFooter />
+        <ReadingProgress />
         <ResumePrompt />
         <GlossaryTooltips />
         <Script id="gtm" strategy="afterInteractive">
