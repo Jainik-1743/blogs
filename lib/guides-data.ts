@@ -357,4 +357,38 @@ export const GUIDES: GuideDef[] = [
       { heading: "Quality, cost and production", paths: ["/ai-engineering/lesson-2", "/ai-engineering/lesson-3", "/ai-engineering/lesson-4"] },
     ],
   },
+  {
+    slug: "computer-networking-guide",
+    title: "Computer Networking Guide for Developers",
+    description: "Learn how the internet works for developers: IP and subnets, TCP and UDP, DNS, HTTP/2 and HTTP/3, TLS, load balancers, WebSockets and how to debug network problems, with real captures.",
+    intro: [
+      "Every web app depends on the network, and most hard bugs hide there. This guide goes from packets and addresses to TLS, load balancers and real-time connections, one layer at a time.",
+      "Each lesson uses real tools such as curl, dig, ss and tcpdump, and the output you see is the output we got.",
+    ],
+    audience: "Developers who want to understand what happens between the browser and the server, and candidates for back-end and DevOps roles who get networking questions.",
+    sections: [
+      { heading: "The basics", paths: ["/networking/lesson-0", "/networking/lesson-1"] },
+      { heading: "Transport and names", paths: ["/networking/lesson-2", "/networking/lesson-3"] },
+      { heading: "The web protocols", paths: ["/networking/lesson-4", "/networking/lesson-5"] },
+      { heading: "Traffic in production", paths: ["/networking/lesson-6", "/networking/lesson-7"] },
+      { heading: "Debugging and interviews", paths: ["/networking/lesson-8"] },
+    ],
+  },
+  {
+    slug: "observability-sre-guide",
+    title: "Observability and SRE Guide for Developers",
+    description: "Learn logs, metrics, traces, SLOs and error budgets, alerting, incident response and reliability patterns like timeouts, retries and circuit breakers, with demos you can run.",
+    intro: [
+      "When something breaks at night, you need to see what your system is doing. This guide covers the three pillars, then SLOs, alerting, incidents and the patterns that keep a service up.",
+      "The examples were run on a local machine, and the output you see is real.",
+    ],
+    audience: "Back-end and DevOps developers who run services in production, and candidates who get monitoring and reliability questions.",
+    sections: [
+      { heading: "See your system", paths: ["/observability/lesson-0", "/observability/lesson-1"] },
+      { heading: "Metrics and traces", paths: ["/observability/lesson-2", "/observability/lesson-3"] },
+      { heading: "Reliability targets", paths: ["/observability/lesson-4", "/observability/lesson-5"] },
+      { heading: "When things fail", paths: ["/observability/lesson-6", "/observability/lesson-7"] },
+      { heading: "Interview practice", paths: ["/observability/lesson-8"] },
+    ],
+  },
 ];
