@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { LogoMark } from "./Logo";
+import ShareButtons from "./ShareButtons";
+import { SITE_URL, SITE_NAME } from "@/lib/site";
 import { ALL_SERIES, SERIES_GROUPS, SERIES_SHORT } from "@/lib/series";
 
 const nameOf = (slug: string) => SERIES_SHORT[slug] ?? ALL_SERIES.find((s) => s.slug === slug)?.title ?? slug;
@@ -31,6 +33,10 @@ export default function SiteFooter() {
             <FooterLink href="/feed.xml">RSS</FooterLink>
             <FooterLink href="/sitemap.xml">Sitemap</FooterLink>
           </nav>
+        </div>
+
+        <div className="mt-7 border-t border-line pt-5">
+          <ShareButtons url={SITE_URL} title={`${SITE_NAME}: free plain-English lessons for software engineers`} label="Share this site" />
         </div>
 
         <div className="mt-7 grid grid-cols-2 gap-x-6 gap-y-6 sm:grid-cols-4">

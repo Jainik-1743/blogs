@@ -1,8 +1,10 @@
 import Link from "next/link";
 import JsonLd from "@/components/JsonLd";
+import ShareButtons from "@/components/ShareButtons";
 import { guidesForPath } from "@/lib/guides";
 import { relatedLessons, relatedSeries } from "@/lib/registry";
 import { lessonJsonLd, pageDates } from "@/lib/seo";
+import { absoluteUrl } from "@/lib/site";
 import { LESSONS, lessonHref, SERIES, type Lesson } from "@/lib/lessons";
 
 const box = "block rounded-xl border border-line px-5 py-4";
@@ -51,6 +53,12 @@ export default function LessonPager({
           ) : null}{" "}
           · <Link href="/about#how-lessons-are-made">How these lessons are made</Link>
         </p>
+      ) : null}
+
+      {current && path ? (
+        <div className="mt-6 rounded-xl border border-line px-5 py-4">
+          <ShareButtons url={absoluteUrl(path)} title={current.title} label="Share this lesson" />
+        </div>
       ) : null}
 
       {lessonsLike.length || seriesLike.length || guides.length ? (
