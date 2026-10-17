@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import CopyButton from "@/components/CopyButton";
+import CodeFrame from "./CodeFrame";
 
 /**
  * A code sample with a language tab, a copy button and light syntax colouring.
@@ -296,33 +296,43 @@ function highlight(line: string, lang: string): ReactNode[] {
   return out;
 }
 
-export default function CodeBlock({ lang, code }: { lang?: string; code: string }) {
+/** "js {2,4-6}" -> the language ("js") and the lines to highlight (2, 4, 5, 6). */
+function parseInfo(info?: string): { lang?: string; marked: Set<number> } {
+  const marked = new Set<number>();
+  if (!info) return { marked };
+  const m = info.match(/\{([\d,\s-]+)\}/);
+  if (m) {
+    for (const part of m[1].split(",")) {
+      const [a, b] = part.trim().split("-").map((n) => parseInt(n, 10));
+      if (Number.isNaN(a)) continue;
+      for (let n = a; n <= (Number.isNaN(b) ? a : b); n++) marked.add(n);
+    }
+  }
+  const lang = info.replace(/\{[^}]*\}/, "").trim().split(/\s+/)[0] || undefined;
+  return { lang, marked };
+}
+
+/**
+ * Add a line list after the language to highlight the lines being explained, for example
+ * ```js {2,4-6}. Long listings start collapsed, and every block has a wrap-lines switch.
+ */
+export default function CodeBlock({ lang: info, code }: { lang?: string; code: string }) {
+  const { lang, marked } = parseInfo(info);
   const key = lang ? (ALIAS[lang.toLowerCase()] ?? lang.toLowerCase()) : "text";
   const label = LABEL[key] ?? (lang ? lang.toUpperCase() : "Text");
   const lines = code.split("\n");
 
   return (
-    <div className="my-5 overflow-hidden rounded-xl border border-line bg-bg-code">
-      <div className="flex items-center justify-between gap-3 border-b border-line bg-bg-elev px-4 py-2">
-        <span className="flex items-center gap-2 font-mono text-[0.72rem] uppercase tracking-[0.1em] text-ink-dim">
-          <span className="flex gap-1" aria-hidden="true">
-            <i className="h-2.5 w-2.5 rounded-full bg-red-400/60" />
-            <i className="h-2.5 w-2.5 rounded-full bg-amber-400/60" />
-            <i className="h-2.5 w-2.5 rounded-full bg-emerald-400/60" />
-          </span>
-          {label}
+    <CodeFrame label={label} code={code} lineCount={lines.length}>
+      {lines.map((l, i) => (
+        <span
+          key={i}
+          className={`block min-h-[1.2em] ${marked.has(i + 1) ? "-mx-4 border-l-[3px] border-sky bg-sky-soft px-[calc(1rem-3px)]" : ""}`}
+          {...(marked.has(i + 1) ? { "data-hl": "" } : {})}
+        >
+          {KEYWORDS[key] ? highlight(l, key) : l}
         </span>
-        <CopyButton text={code} />
-      </div>
-      <pre className="my-0 rounded-none border-0 bg-transparent px-4 py-3">
-        <code>
-          {lines.map((l, i) => (
-            <span key={i} className="block min-h-[1.2em]">
-              {KEYWORDS[key] ? highlight(l, key) : l}
-            </span>
-          ))}
-        </code>
-      </pre>
-    </div>
+      ))}
+    </CodeFrame>
   );
 }

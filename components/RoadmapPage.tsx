@@ -2,6 +2,7 @@ import Link from "next/link";
 import JsonLd from "@/components/JsonLd";
 import RoadmapDownload from "@/components/RoadmapDownload";
 import RoadmapMap from "@/components/RoadmapMap";
+import RoadmapViewport from "@/components/RoadmapViewport";
 import ShareButtons from "@/components/ShareButtons";
 import { detailedBlocks, overviewBlocks, ROADMAP_LESSON_COUNT, ROADMAP_SERIES_COUNT } from "@/lib/roadmap";
 import { absoluteUrl, SITE_URL } from "@/lib/site";
@@ -60,7 +61,9 @@ export default function RoadmapPage({ detailed }: { detailed: boolean }) {
       <div className="mt-4">
         <RoadmapDownload blocks={blocks} siteUrl={SITE_URL} detailed={detailed} fileName={detailed ? "developer-roadmap-detailed" : "developer-roadmap"} />
       </div>
-      <RoadmapMap blocks={blocks} lesson={detailed} />
+      <RoadmapViewport>
+        <RoadmapMap blocks={blocks} lesson={detailed} />
+      </RoadmapViewport>
       <p className="mx-auto mt-8 text-center text-[0.95rem] text-ink-dim">
         You do not have to read everything. Pick the step you are on, open a box, and go forward one lesson at a time.
       </p>

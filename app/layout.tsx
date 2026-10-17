@@ -8,6 +8,7 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import GlossaryTooltips from "@/components/GlossaryTooltips";
 import FocusMode from "@/components/FocusMode";
+import LinkPreview from "@/components/LinkPreview";
 import PageTransition from "@/components/PageTransition";
 import ReadingProgress from "@/components/ReadingProgress";
 import ResumePrompt from "@/components/ResumePrompt";
@@ -80,6 +81,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <SiteFooter />
         <ReadingProgress />
         <FocusMode />
+        <LinkPreview />
         <ResumePrompt />
         <GlossaryTooltips />
         <Script id="gtm" strategy="afterInteractive">

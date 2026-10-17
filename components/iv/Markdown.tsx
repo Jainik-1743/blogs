@@ -4,6 +4,7 @@ import { Lexer, type Token, type Tokens } from "marked";
 import Callout from "@/components/Callout";
 import InterviewQA from "@/components/InterviewQA";
 import CodeBlock from "@/components/sd/CodeBlock";
+import Explainer from "@/components/explainers/Explainer";
 
 /**
  * Renders a lesson written in Markdown with the site's own components:
@@ -127,6 +128,11 @@ function blocks(tokens: Token[], key = "b", used: Map<string, number> = new Map(
         break;
       case "code": {
         const c = t as Tokens.Code;
+        // A fenced block that starts with "explainer" and holds a name embeds a step-by-step animation.
+        if (/^explainer\b/.test(c.lang ?? "")) {
+          out.push(<Explainer key={k} name={c.text.trim()} />);
+          break;
+        }
         out.push(<CodeBlock key={k} lang={c.lang || undefined} code={c.text} />);
         break;
       }

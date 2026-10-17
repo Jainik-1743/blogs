@@ -34,7 +34,7 @@ function collectBlocks(): Block[] {
   if (!root) return [];
   const blocks: Block[] = [];
   for (const el of root.querySelectorAll<HTMLElement>("h2, h3, h4, p, li")) {
-    if (el.closest("pre, table, svg, [aria-hidden='true']")) continue;
+    if (el.closest("pre, table, svg, [aria-hidden='true'], [data-no-tts]")) continue;
     if (el.getClientRects().length === 0) continue; // hidden (for example a collapsed answer)
     let text: string;
     if (el.tagName === "LI") {
