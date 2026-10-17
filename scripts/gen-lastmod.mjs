@@ -68,11 +68,14 @@ const guideSlugs = [...readFileSync("lib/guides-data.ts", "utf8").matchAll(/^\s{
 put("/guides", ["lib/guides-data.ts", "app/guides/page.tsx"]);
 for (const slug of guideSlugs) put(`/guides/${slug}`, ["lib/guides-data.ts", "app/guides/[slug]/page.tsx"]);
 
+// The roadmap map: its data file, page and components.
+put("/roadmap", ["lib/roadmap.ts", "app/roadmap/page.tsx", "components/RoadmapMap.tsx"]);
+
 // Series index and glossary pages: newest lesson in the series.
 const bySeries = {};
 for (const [path, [c, m]] of Object.entries(out)) {
   const slug = path.split("/")[1];
-  if (slug === "guides") continue;
+  if (slug === "guides" || slug === "roadmap") continue;
   (bySeries[slug] ??= []).push([c, m]);
 }
 let newest = "";

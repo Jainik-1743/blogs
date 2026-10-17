@@ -28,6 +28,7 @@ const RECENT_KEY = "blogs:recent-search";
 const RECENT_MAX = 5;
 
 const QUICK_LINKS: SearchItem[] = [
+  { kind: "Page", series: "roadmap", seriesTitle: "blogs", title: "Developer roadmap", text: "One map of every series", href: "/roadmap" },
   { kind: "Page", series: "guides", seriesTitle: "blogs", title: "All study guides", text: "A reading order for each goal", href: "/guides" },
   { kind: "Page", series: "glossaries", seriesTitle: "blogs", title: "All glossaries", text: "Every term, by series", href: "/glossaries" },
   { kind: "Page", series: "home", seriesTitle: "blogs", title: "Browse every series", text: "The home page", href: "/" },

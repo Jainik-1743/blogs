@@ -461,3 +461,130 @@ html[data-font="xl"] { font-size: 125%; }
     @apply mb-0;
   }
 }
+
+/* ── Roadmap: a connected tree. A line runs down the middle; each step has cards on both sides. ── */
+.rm {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1.75rem;
+  margin: 2.5rem 0 1rem;
+}
+.rm::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  transform: translateX(-50%);
+  background: color-mix(in oklab, var(--color-line) 40%, var(--color-sky) 60%);
+  border-radius: 2px;
+}
+.rm-pill {
+  position: relative;
+  z-index: 1;
+  align-self: center;
+  margin: 0;
+  padding: 0.3rem 1rem;
+  border-radius: 999px;
+  border: 2px solid var(--color-sky);
+  background: var(--color-bg);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-sky);
+}
+.rm-stage {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 14.5rem) minmax(0, 1fr);
+  align-items: center;
+}
+.rm-node {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 0.9rem;
+  border: 2px solid var(--color-sky);
+  background: var(--color-sky);
+  color: #0b1120;
+  text-align: center;
+  line-height: 1.25;
+  box-shadow: 0 6px 18px -8px var(--color-sky);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+html[data-theme="light"] .rm-node { color: #ffffff; }
+.rm-node:hover { transform: translateY(-2px); text-decoration: none; box-shadow: 0 10px 24px -8px var(--color-sky); }
+.rm-step { font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.75; }
+.rm-node-title { font-size: 1.05rem; font-weight: 700; }
+.rm-node-sub { font-size: 0.76rem; opacity: 0.8; }
+
+.rm-side { position: relative; display: flex; flex-direction: column; gap: 0.6rem; }
+.rm-side-left { padding-right: 3.4rem; }
+.rm-side-right { padding-left: 3.4rem; }
+.rm-side:empty::before, .rm-side:empty::after { display: none; }
+.rm-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 0.55rem 0.9rem;
+  border-radius: 0.65rem;
+  border: 2px solid color-mix(in oklab, var(--color-line) 55%, var(--color-sky) 45%);
+  background: var(--color-bg-elev);
+  color: var(--color-ink);
+  line-height: 1.25;
+  transition: border-color 0.15s, background-color 0.15s, transform 0.15s;
+}
+.rm-card:hover { border-color: var(--color-sky); background: var(--color-sky-soft); text-decoration: none; transform: translateY(-1px); }
+.rm-card-label { font-size: 0.93rem; font-weight: 600; }
+.rm-card-count { font-family: var(--font-mono); font-size: 0.66rem; color: var(--color-ink-dim); }
+/* Dotted connectors: a stub from each card, a bracket joining the stubs, and a link to the step. */
+.rm-card::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 1.8rem;
+  border-top: 2px dotted var(--color-sky);
+}
+.rm-card-left::after { right: -1.8rem; }
+.rm-card-right::after { left: -1.8rem; }
+.rm-side::before {
+  content: "";
+  position: absolute;
+  top: 1.35rem;
+  bottom: 1.35rem;
+  border-left: 2px dotted var(--color-sky);
+}
+.rm-side-left::before { right: 1.6rem; }
+.rm-side-right::before { left: 1.6rem; }
+.rm-side::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 1.6rem;
+  border-top: 2px dotted var(--color-sky);
+}
+.rm-side-left::after { right: 0; }
+.rm-side-right::after { left: 0; }
+
+@media (max-width: 720px) {
+  .rm { gap: 1.4rem; }
+  .rm::before { left: 14px; transform: none; }
+  .rm-pill { align-self: flex-start; margin-left: 0; }
+  .rm-stage { grid-template-columns: 1fr; gap: 0.6rem; padding-left: 2.1rem; align-items: stretch; }
+  .rm-node { order: 1; align-items: flex-start; text-align: left; }
+  .rm-node::before { content: ""; position: absolute; left: -1.5rem; top: 50%; width: 1.5rem; border-top: 3px solid var(--color-sky); }
+  .rm-side-left { order: 2; }
+  .rm-side-right { order: 3; }
+  .rm-side { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; padding: 0; }
+  .rm-side-left, .rm-side-right { padding: 0; }
+  .rm-side::before, .rm-side::after, .rm-card::after { display: none; }
+}
+@media (max-width: 420px) { .rm-side { grid-template-columns: 1fr; } }

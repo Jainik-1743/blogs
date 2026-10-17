@@ -24,6 +24,7 @@ export default function SiteFooter() {
           </div>
           <nav aria-label="Site" className="flex flex-wrap gap-x-5 gap-y-1.5">
             <FooterLink href="/">All series</FooterLink>
+            <FooterLink href="/roadmap">Roadmap</FooterLink>
             <FooterLink href="/guides">Guides</FooterLink>
             <FooterLink href="/glossaries">Glossaries</FooterLink>
             <FooterLink href="/about">About</FooterLink>

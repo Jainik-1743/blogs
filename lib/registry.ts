@@ -113,6 +113,10 @@ function buildPages(): PageInfo[] {
     path: "/guides", kind: "hub", title: "Study guides: reading orders for interviews and core skills",
     description: "Curated study guides that put the lessons in a sensible order: system design, coding interviews, JavaScript, SQL, Git, DevOps, TypeScript, testing, AI and more.",
   });
+  pages.push({
+    path: "/roadmap", kind: "hub", title: "Developer roadmap: from the basics to interviews",
+    description: "One connected map of every lesson series, from Git, Linux and networking through JavaScript, React, Node.js, system design and DevOps to AI and interviews. Every box opens its lessons.",
+  });
   for (const g of GUIDES) pages.push({ path: `/guides/${g.slug}`, kind: "guide", title: g.title, description: g.description });
   pages.push({
     path: "/about", kind: "page", title: "About this site and its author",

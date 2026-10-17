@@ -27,6 +27,18 @@ export default function HomePage() {
         questions and model answers.
       </p>
 
+      <Link
+        href="/roadmap"
+        className="mt-8 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-sky/40 bg-sky-soft px-5 py-4 text-ink transition hover:-translate-y-0.5 hover:border-sky hover:no-underline"
+      >
+        <span>
+          <span className="block font-mono text-[0.72rem] uppercase tracking-[0.12em] text-sky">New</span>
+          <span className="block text-[1.15rem] font-semibold">Developer roadmap: one map for every series</span>
+          <span className="block text-[0.92rem] text-ink-dim">Follow the line from the basics to interviews. Every box opens its lessons, and you can download it.</span>
+        </span>
+        <span className="font-semibold text-sky">Open the roadmap →</span>
+      </Link>
+
       <section aria-labelledby="start-guides" className="mt-10">
         <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
           <div>
