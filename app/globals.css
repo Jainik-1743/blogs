@@ -623,3 +623,7 @@ html[data-focus] .lesson { font-size: 1.08em; line-height: 1.85; }
   box-shadow: -0.5rem 0 0 var(--color-sky-soft), 0.5rem 0 0 var(--color-sky-soft);
   transition: background-color 0.2s;
 }
+
+/* Text that sits on a solid accent background: dark on the bright dark-theme accents, white on the deeper light-theme ones. */
+.on-sky { color: #0b1120; }
+html[data-theme="light"] .on-sky { color: #ffffff; }

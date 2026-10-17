@@ -229,7 +229,7 @@ export default function LessonTools() {
             type="button"
             onClick={state === "playing" ? pause : resume}
             aria-label={state === "playing" ? "Pause" : "Resume"}
-            className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-sky text-[#0b1120] transition-transform hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky"
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-sky on-sky transition-transform hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky"
           >
             {state === "playing" ? (
               <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1" /><rect x="14" y="5" width="4" height="14" rx="1" /></svg>
