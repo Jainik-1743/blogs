@@ -25,7 +25,7 @@ export type IvSeries = {
  * How many lessons of each series (counted from the top) have a Markdown file. The rest are
  * listed as "coming soon" and are not routed. Raise a number as each lesson is written.
  */
-const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 15, "design-problems": 8, "frontend-depth": 7, "fullstack-qa": 39, "team-lead": 18, "low-level-design": 10, "design-cases": 12, "cs-foundations": 8, "git-github": 6, "testing": 6, "typescript": 8, "sql-postgres": 8, "javascript-2": 8, "ai-engineering": 5, "career": 3, security: 9, "api-design": 10, "react": 10, "nodejs": 10, "nextjs": 10, "docker-kubernetes": 10, "behavioral-interview": 9 };
+const WRITTEN: Record<string, number> = { browser: 10, backend: 12, debugging: 15, "design-problems": 8, "frontend-depth": 7, "fullstack-qa": 39, "team-lead": 18, "low-level-design": 10, "design-cases": 12, "cs-foundations": 8, "git-github": 6, "testing": 6, "typescript": 8, "sql-postgres": 8, "javascript-2": 8, "ai-engineering": 5, "career": 3, security: 9, "api-design": 10, "react": 10, "nodejs": 10, "nextjs": 10, "docker-kubernetes": 10, "behavioral-interview": 9, "linux-shell": 0 };
 
 type Row = [title: string, summary: string, readTime: string, tags: string[]];
 
@@ -580,7 +580,28 @@ export const BEHAVIORAL_SERIES: IvSeries = {
   ], WRITTEN["behavioral-interview"]),
 };
 
-export const IV_SERIES: IvSeries[] = [BROWSER_SERIES, BACKEND_SERIES, DEBUGGING_SERIES, DESIGN_SERIES, FRONTEND_SERIES, FULLSTACK_SERIES, TEAMLEAD_SERIES, LLD_SERIES, DESIGNCASES_SERIES, CSFOUNDATIONS_SERIES, GITGITHUB_SERIES, TESTING_SERIES, TYPESCRIPT_SERIES, SQLPOSTGRES_SERIES, JAVASCRIPT2_SERIES, AIENGINEERING_SERIES, CAREER_SERIES, SECURITY_SERIES, APIDESIGN_SERIES, REACT_SERIES, NODEJS_SERIES, NEXTJS_SERIES, DOCKERK8S_SERIES, BEHAVIORAL_SERIES];
+export const LINUX_SERIES: IvSeries = {
+  slug: "linux-shell",
+  title: "Linux and the Command Line for Developers",
+  short: "Linux & Shell",
+  tagline:
+    "The Linux and shell skills developers use every day: the file system, permissions, processes, pipes and text tools, shell scripting, SSH, package managers, cron and systemd, logs and troubleshooting a slow or broken server. Every command was run.",
+  started: "2026",
+  accent: "lime",
+  lessons: lessons([
+    ["The Terminal, the Shell and the Linux File System", "What the shell is, moving around, the directory layout, absolute and relative paths, reading files, and the commands you will use hourly.", "12 min", ["linux", "shell", "beginner", "filesystem"]],
+    ["Users, Permissions and Ownership", "Users and groups, reading rwx and octal modes, chmod and chown, sudo, umask, setuid in plain words, and common permission mistakes.", "13 min", ["linux", "permissions", "security"]],
+    ["Processes, Signals and Job Control", "What a process is, ps and top, foreground and background jobs, signals such as SIGTERM and SIGKILL, exit codes, and zombies and orphans.", "14 min", ["linux", "processes", "signals"]],
+    ["Pipes, Redirection and Text Tools: grep, sed, awk, find and xargs", "stdin, stdout and stderr, pipes, redirection, the text tools used to search and reshape data, and real one-line recipes.", "15 min", ["linux", "pipes", "grep", "awk", "sed"]],
+    ["Shell Scripting: Variables, Conditions, Loops and Functions", "Writing safe bash scripts: quoting, set -euo pipefail, arguments, conditions, loops, functions, trap, and ShellCheck.", "15 min", ["linux", "bash", "scripting"]],
+    ["SSH, Networking Commands and Transferring Files", "SSH keys and config, scp and rsync, port forwarding, curl, ss, dig, ping and traceroute, and what each tells you.", "14 min", ["linux", "ssh", "networking", "curl"]],
+    ["Packages, Services, Cron and systemd", "apt and other package managers, running a service with systemd, reading unit files, journalctl, cron and systemd timers.", "14 min", ["linux", "systemd", "cron", "packages"]],
+    ["Disks, Memory, Logs and Troubleshooting a Slow Server", "df, du, free, load average, iostat-style tools, reading logs, and a step-by-step method for a slow or full server.", "15 min", ["linux", "troubleshooting", "performance", "logs"]],
+    ["Linux and Shell Interview Questions With Model Answers", "Permissions, processes, pipes, scripting and troubleshooting questions with model answers.", "14 min", ["linux", "interview"]],
+  ], WRITTEN["linux-shell"]),
+};
+
+export const IV_SERIES: IvSeries[] = [BROWSER_SERIES, BACKEND_SERIES, DEBUGGING_SERIES, DESIGN_SERIES, FRONTEND_SERIES, FULLSTACK_SERIES, TEAMLEAD_SERIES, LLD_SERIES, DESIGNCASES_SERIES, CSFOUNDATIONS_SERIES, GITGITHUB_SERIES, TESTING_SERIES, TYPESCRIPT_SERIES, SQLPOSTGRES_SERIES, JAVASCRIPT2_SERIES, AIENGINEERING_SERIES, CAREER_SERIES, SECURITY_SERIES, APIDESIGN_SERIES, REACT_SERIES, NODEJS_SERIES, NEXTJS_SERIES, DOCKERK8S_SERIES, BEHAVIORAL_SERIES, LINUX_SERIES];
 
 export function getIvSeries(slug: string): IvSeries | undefined {
   return IV_SERIES.find((s) => s.slug === slug);

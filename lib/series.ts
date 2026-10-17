@@ -28,7 +28,7 @@ export const SERIES_GROUPS: { id: string; title: string; blurb: string; slugs: s
     id: "foundations",
     title: "Programming foundations",
     blurb: "Learn the building blocks from zero, with every example traced or run.",
-    slugs: ["dsa", "javascript", "javascript-2", "typescript", "sql-postgres", "git-github", "cs-foundations", "testing", "security", "react", "nextjs"],
+    slugs: ["dsa", "javascript", "javascript-2", "typescript", "sql-postgres", "git-github", "cs-foundations", "testing", "security", "react", "nextjs", "linux-shell"],
   },
   {
     id: "systems",
@@ -80,4 +80,5 @@ export const RELATED_SERIES: Record<string, string[]> = {
   "nextjs": ["react", "typescript", "security"],
   "docker-kubernetes": ["devops", "system-design", "nodejs"],
   "behavioral-interview": ["career", "team-lead", "fullstack-qa"],
+  "linux-shell": ["devops", "git-github", "nodejs"],
 };
