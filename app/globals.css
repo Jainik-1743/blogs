@@ -518,10 +518,8 @@ html[data-font="xl"] { font-size: 125%; }
   text-align: center;
   line-height: 1.25;
   box-shadow: 0 6px 18px -8px var(--color-sky);
-  transition: transform 0.15s, box-shadow 0.15s;
 }
 html[data-theme="light"] .rm-node { color: #ffffff; }
-.rm-node:hover { transform: translateY(-2px); text-decoration: none; box-shadow: 0 10px 24px -8px var(--color-sky); }
 .rm-step { font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.75; }
 .rm-node-title { font-size: 1.05rem; font-weight: 700; }
 .rm-node-sub { font-size: 0.76rem; opacity: 0.8; }
@@ -588,3 +586,24 @@ html[data-theme="light"] .rm-node { color: #ffffff; }
   .rm-side::before, .rm-side::after, .rm-card::after { display: none; }
 }
 @media (max-width: 420px) { .rm-side { grid-template-columns: 1fr; } }
+
+/* Detailed view: a step heading, and compact lesson cards. */
+.rm-phase {
+  position: relative;
+  z-index: 1;
+  align-self: center;
+  margin: 0.8rem 0 0;
+  padding: 0.45rem 1.4rem;
+  border-radius: 999px;
+  background: var(--color-bg);
+  border: 2px solid var(--color-sky);
+  color: var(--color-ink);
+  font-size: 1.15rem;
+  font-weight: 700;
+  text-align: center;
+}
+.rm-phase span { margin-right: 0.35rem; font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-sky); }
+.rm-lesson { padding: 0.4rem 0.8rem; }
+.rm-lesson .rm-card-label { font-size: 0.82rem; font-weight: 500; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.rm-lesson .rm-card-count { font-size: 0.62rem; }
+.rm-lesson + .rm-lesson { margin-top: -0.15rem; }

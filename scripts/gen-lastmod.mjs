@@ -69,7 +69,8 @@ put("/guides", ["lib/guides-data.ts", "app/guides/page.tsx"]);
 for (const slug of guideSlugs) put(`/guides/${slug}`, ["lib/guides-data.ts", "app/guides/[slug]/page.tsx"]);
 
 // The roadmap map: its data file, page and components.
-put("/roadmap", ["lib/roadmap.ts", "app/roadmap/page.tsx", "components/RoadmapMap.tsx"]);
+put("/roadmap", ["lib/roadmap.ts", "app/roadmap/page.tsx", "components/RoadmapMap.tsx", "components/RoadmapPage.tsx"]);
+put("/roadmap/detailed", ["lib/roadmap.ts", "app/roadmap/detailed/page.tsx", "components/RoadmapMap.tsx", "components/RoadmapPage.tsx"]);
 
 // Series index and glossary pages: newest lesson in the series.
 const bySeries = {};

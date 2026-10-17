@@ -117,6 +117,10 @@ function buildPages(): PageInfo[] {
     path: "/roadmap", kind: "hub", title: "Developer roadmap: from the basics to interviews",
     description: "One connected map of every lesson series, from Git, Linux and networking through JavaScript, React, Node.js, system design and DevOps to AI and interviews. Every box opens its lessons.",
   });
+  pages.push({
+    path: "/roadmap/detailed", kind: "hub", title: "Detailed developer roadmap: every lesson in order",
+    description: "The full roadmap with every lesson on it: eight steps from computer basics to interviews, each series broken into its lessons in reading order, and every box opens its lesson.",
+  });
   for (const g of GUIDES) pages.push({ path: `/guides/${g.slug}`, kind: "guide", title: g.title, description: g.description });
   pages.push({
     path: "/about", kind: "page", title: "About this site and its author",
