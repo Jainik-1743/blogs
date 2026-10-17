@@ -20,7 +20,7 @@ export default function SiteFooter() {
                 <span className="font-mono font-semibold text-sky">/</span>blogs
               </span>
             </Link>
-            <p className="mt-2 mb-0 max-w-[38ch] leading-relaxed">Free, plain-English lessons for software engineers.</p>
+            <p className="mt-2 mb-0 max-w-[38ch] leading-relaxed">Free, easy-to-follow lessons for software engineers.</p>
           </div>
           <nav aria-label="Site" className="flex flex-wrap gap-x-5 gap-y-1.5">
             <FooterLink href="/">All series</FooterLink>

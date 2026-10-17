@@ -126,7 +126,7 @@ export default function SdLessonTwoThreePage() {
             <code>cust_id</code> and <code>product_id</code> are foreign keys (columns that point to a row in another
             table).
           </p>
-          <h3 id="the-normal-forms-in-plain-english">The normal forms, in plain English</h3>
+          <h3 id="the-normal-forms-explained">The normal forms, explained</h3>
           <p>
             A normal form is a set of rules for a table design. Each higher form adds a rule. A primary key is the
             column (or columns) that identifies each row.

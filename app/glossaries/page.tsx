@@ -13,7 +13,7 @@ export default function GlossariesPage() {
     <>
       <p className="mb-2 font-mono text-[0.78rem] uppercase tracking-[0.12em] text-sky">Glossaries</p>
       <h1 className="mb-3 text-[2.2rem] font-bold leading-tight tracking-tight text-sky max-sm:text-[1.8rem]">
-        Plain-English definitions for developers
+        Clear definitions for developers
       </h1>
       <p className="max-w-[62ch] text-[1.05rem] text-ink-dim">
         {total} terms across {groups.reduce((n, g) => n + g.series.length, 0)} glossaries. Each term has a one-line meaning and a

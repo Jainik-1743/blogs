@@ -77,7 +77,7 @@ const READINGS_BY_SERIES: Record<string, { items: Reading[]; href: (r: Reading) 
   [JS_SERIES.slug]: { items: JS_READINGS, href: (r) => jsReadingHref(r) },
 };
 
-export const HUB_GLOSSARIES = { path: "/glossaries", title: "Glossaries: plain-English definitions for developers" };
+export const HUB_GLOSSARIES = { path: "/glossaries", title: "Glossaries: clear definitions for developers" };
 
 export function seriesBySlug(slug: string): SeriesInfo | undefined {
   return SERIES_LIST.find((s) => s.slug === slug);
@@ -103,11 +103,11 @@ export function groupedSeries() {
 function buildPages(): PageInfo[] {
   const pages: PageInfo[] = [];
   pages.push({
-    path: "/", kind: "home", title: "blogs", description: "Free, plain-English lesson series for software engineers.",
+    path: "/", kind: "home", title: "blogs", description: "Free, easy-to-follow lesson series for software engineers.",
   });
   pages.push({
     path: HUB_GLOSSARIES.path, kind: "hub", title: HUB_GLOSSARIES.title,
-    description: "Every glossary on the site in one place: DSA, system design, DevOps, JavaScript, TypeScript, SQL, Git, testing and more, each term explained in plain English.",
+    description: "Every glossary on the site in one place: DSA, system design, DevOps, JavaScript, TypeScript, SQL, Git, testing and more, each term explained clearly.",
   });
   pages.push({
     path: "/guides", kind: "hub", title: "Study guides: reading orders for interviews and core skills",
@@ -140,7 +140,7 @@ function buildPages(): PageInfo[] {
     if (pages.some((p) => p.path === `/${s.slug}/glossary`)) continue;
     pages.push({
       ...base, path: `/${s.slug}/glossary`, kind: "glossary", title: `${s.short} glossary`,
-      description: `Plain-English definitions of the ${s.termCount} terms used in "${s.title}", each with the lesson that explains it.`,
+      description: `Clear definitions of the ${s.termCount} terms used in "${s.title}", each with the lesson that explains it.`,
     });
   }
   return pages;

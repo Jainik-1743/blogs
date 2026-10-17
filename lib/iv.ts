@@ -158,7 +158,7 @@ export const FULLSTACK_SERIES: IvSeries = {
   title: "Full-Stack Interview Questions for 4+ Years",
   short: "Full-Stack Questions",
   tagline:
-    "Real questions for a full-stack engineer with four or more years of experience: HTML and CSS, Tailwind, TypeScript, React, Next.js, Node.js, Express, MongoDB, Prisma, Hasura, LLMs, agents, RAG, the AI SDK, Meilisearch, Mixpanel and the libraries teams use every day. Every answer is written in plain English.",
+    "Real questions for a full-stack engineer with four or more years of experience: HTML and CSS, Tailwind, TypeScript, React, Next.js, Node.js, Express, MongoDB, Prisma, Hasura, LLMs, agents, RAG, the AI SDK, Meilisearch, Mixpanel and the libraries teams use every day. Every answer is explained step by step.",
   started: "2026",
   accent: "violet",
   lessons: lessons([
@@ -285,7 +285,7 @@ export const CSFOUNDATIONS_SERIES: IvSeries = {
   title: "Computer Science Foundations Interviewers Assume",
   short: "CS Foundations",
   tagline:
-    "The computer science underneath your code: how programs run, memory and CPU caches, floating point, Unicode, binary and bit tricks, probability, hard problems and string searching, explained in plain English with runnable examples.",
+    "The computer science underneath your code: how programs run, memory and CPU caches, floating point, Unicode, binary and bit tricks, probability, hard problems and string searching, explained step by step with runnable examples.",
   started: "2026",
   accent: "amber",
   lessons: lessons([
@@ -542,7 +542,7 @@ export const DOCKERK8S_SERIES: IvSeries = {
   title: "Docker and Kubernetes From Zero",
   short: "Docker & Kubernetes",
   tagline:
-    "Containers and orchestration in plain English: images and layers, writing a good Dockerfile, volumes and networks, Docker Compose, then Kubernetes pods, deployments, services, config, scaling, rollouts and debugging. Commands run for real wherever the sandbox allows.",
+    "Containers and orchestration, step by step: images and layers, writing a good Dockerfile, volumes and networks, Docker Compose, then Kubernetes pods, deployments, services, config, scaling, rollouts and debugging. Commands run for real wherever the sandbox allows.",
   started: "2026",
   accent: "orange",
   lessons: lessons([
@@ -564,7 +564,7 @@ export const BEHAVIORAL_SERIES: IvSeries = {
   title: "Behavioral Interviews for Developers: Stories, Salary and Soft Skills",
   short: "Behavioral Interviews",
   tagline:
-    "How to answer the questions that are not about code: tell me about yourself, strengths and weaknesses, conflict, failure, leadership, working with managers, notice periods and salary talks. Story frameworks and complete model answers in plain English.",
+    "How to answer the questions that are not about code: tell me about yourself, strengths and weaknesses, conflict, failure, leadership, working with managers, notice periods and salary talks. Story frameworks and complete model answers.",
   started: "2026",
   accent: "pink",
   lessons: lessons([

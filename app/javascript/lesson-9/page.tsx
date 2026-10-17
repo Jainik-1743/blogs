@@ -17,7 +17,7 @@ export const metadata: Metadata = pageMetadata("/javascript/lesson-9");
 /** In-page index. Each entry links to a section heading below. */
 const outline = [
   { id: "concept", label: "Concept" },
-  { id: "terms", label: "Key words in plain English" },
+  { id: "terms", label: "Key words explained" },
   { id: "why", label: "Why this matters" },
   { id: "door", label: "The meeting room door — an analogy" },
   { id: "block", label: "What counts as a block" },
@@ -225,7 +225,7 @@ export default function JsLessonNinePage() {
           you don&apos;t know it&apos;s there.
         </p>
 
-        <h2 id="terms">Key Words In Plain English</h2>
+        <h2 id="terms">Key Words Explained</h2>
         <ul>
           <li>
             <strong>Scope</strong> is the part of the code where a name can be used. Outside its

@@ -22,7 +22,7 @@ export default function HomePage() {
       </h1>
         <ShareButtons />
       <p className="max-w-[62ch] text-[1.1rem] text-ink-dim">
-        {seriesCount} lesson series and {lessonCount} lessons, written in plain English. Each series reads like a small book:
+        {seriesCount} lesson series and {lessonCount} lessons, written to be easy to follow. Each series reads like a small book:
         start at the first lesson and go forward. Every idea is traced step by step, and most lessons end with interview
         questions and model answers.
       </p>

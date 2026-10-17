@@ -314,7 +314,7 @@ export const SD_LESSONS: SdLesson[] = [
     slug: "lesson-23",
     title: "Normalization vs Denormalization",
     summary:
-      "Store each fact once and writes stay correct; copy facts on purpose and reads get fast. Normal forms in plain English, the anomalies they prevent, the denormalisation toolkit, and how to keep copies in sync.",
+      "Store each fact once and writes stay correct; copy facts on purpose and reads get fast. Normal forms explained simply, the anomalies they prevent, the denormalisation toolkit, and how to keep copies in sync.",
     readTime: "7 min",
     published: true,
     part: partOf(23).number,
@@ -842,7 +842,7 @@ export const SD_LESSONS: SdLesson[] = [
     slug: "glossary",
     title: "System Design Glossary: Every Short Form Explained",
     summary:
-      "Every short form in the series — TLS, CDN, ACID, CAP, SLO, JWT, K8s and 300 more — in plain English, with what it does and an everyday example.",
+      "Every short form in the series — TLS, CDN, ACID, CAP, SLO, JWT, K8s and 300 more, each with what it does and an everyday example.",
     readTime: "30 min",
     published: true,
     part: partOf(67).number,

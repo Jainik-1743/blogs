@@ -21,7 +21,7 @@ export default function AboutPage() {
       <p className={`${p} text-[1.1rem]`}>
         I am Jainik, a Senior Software Engineer with 5 years of experience building web applications. I focus on scalable
         front-end architecture, clean code, performance and interfaces that are easy to use. React, Next.js and Tailwind CSS
-        are the tools I use most. This site is where I share plain-English lessons for developers who want to build and run
+        are the tools I use most. This site is where I share clear, easy-to-follow lessons for developers who want to build and run
         software well.
       </p>
 
@@ -44,7 +44,7 @@ export default function AboutPage() {
       <p className={p}>
         Long, lesson-style series on data structures and algorithms, system design, DevOps, JavaScript, TypeScript, SQL, Git,
         testing, interview questions and team-lead skills. Every series reads like a small book: start at the first lesson and
-        go forward. You can see all of them on the <Link href="/">home page</Link>, and every term has a plain-English entry in
+        go forward. You can see all of them on the <Link href="/">home page</Link>, and every term has a short, clear entry in
         the <Link href="/glossaries">glossaries</Link>.
       </p>
 
@@ -53,7 +53,7 @@ export default function AboutPage() {
       </h2>
       <ul className="m-0 max-w-[66ch] list-disc space-y-1.5 pl-6">
         <li className={li}>
-          <strong className="text-ink">Plain English.</strong> Short sentences, every term explained the first time it appears.
+          <strong className="text-ink">Easy to follow.</strong> Short sentences, every term explained the first time it appears.
         </li>
         <li className={li}>
           <strong className="text-ink">Examples that were run.</strong> Many lessons include a short note that says what was

@@ -24,7 +24,7 @@ export const SITE_LOCALE = "en_US";
 
 export const HOME_TITLE = "blogs: Free Lessons on DSA, System Design, DevOps & More";
 export const HOME_DESCRIPTION =
-  "Free, plain-English lessons for software engineers: DSA, system design, DevOps, JavaScript, TypeScript, SQL, Git, testing and interview prep.";
+  "Free, easy-to-follow lessons for software engineers: DSA, system design, DevOps, JavaScript, TypeScript, SQL, Git, testing and interview prep.";
 
 /**
  * Search-console verification tokens. They are public by design (they appear in the page source).

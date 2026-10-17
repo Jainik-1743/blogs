@@ -15,7 +15,7 @@ export const metadata: Metadata = pageMetadata("/javascript/lesson-11");
 
 /** In-page index. Each entry links to a section heading below. */
 const outline = [
-  { id: "terms", label: "Key words in plain English" },
+  { id: "terms", label: "Key words explained" },
   { id: "problem", label: "The problem, stated precisely" },
   { id: "analogy", label: "The wake-up call sheet — an analogy" },
   { id: "naive", label: "The naive attempt — and why it fails" },
@@ -135,7 +135,7 @@ export default function JsLessonElevenPage() {
       </section>
 
       <div className="lesson">
-        <h2 id="terms">Key Words In Plain English</h2>
+        <h2 id="terms">Key Words Explained</h2>
         <ul>
           <li>
             <strong>Closure</strong> is a function that remembers the variables from the place where

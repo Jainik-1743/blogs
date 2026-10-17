@@ -137,7 +137,7 @@ export default function SdLessonSixPage() {
               <thead>
                 <tr>
                   <th>Quality</th>
-                  <th>Plain-English question</th>
+                  <th>Everyday question</th>
                 </tr>
               </thead>
               <tbody>

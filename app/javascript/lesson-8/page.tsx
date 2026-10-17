@@ -23,7 +23,7 @@ export const metadata: Metadata = pageMetadata("/javascript/lesson-8");
 /** In-page index. Each entry links to a section heading below. */
 const outline = [
   { id: "concept", label: "Concept" },
-  { id: "terms", label: "Key words in plain English" },
+  { id: "terms", label: "Key words explained" },
   { id: "why", label: "Why this matters" },
   { id: "blueprint", label: "The blueprint vs. the locked room — an analogy" },
   { id: "matrix", label: "The three keywords side by side" },
@@ -250,7 +250,7 @@ export default function JsLessonEightPage() {
           </p>
         </Callout>
 
-        <h2 id="terms">Key Words In Plain English</h2>
+        <h2 id="terms">Key Words Explained</h2>
         <p>Short definitions first, so every later section is easier to read.</p>
         <ul>
           <li>

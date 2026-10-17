@@ -11,7 +11,7 @@ const reading = JS_READINGS.find((r) => r.slug === "recap")!;
 export const metadata: Metadata = pageMetadata("/javascript/recap");
 
 const outline = [
-  { id: "glossary", label: "Key words in plain English" },
+  { id: "glossary", label: "Key words explained" },
   { id: "l1", label: "1. Execution Context" },
   { id: "l2", label: "2. Call Stack" },
   { id: "l3", label: "3. var, let, const" },
@@ -442,7 +442,7 @@ export default function JsRecapPage() {
       </section>
 
       <section id="glossary" className="mb-8 scroll-mt-24 rounded-xl border border-line bg-bg-elev px-6 py-5">
-        <h2 className="mb-3 text-[1.25rem] font-bold text-ink">Key Words In Plain English</h2>
+        <h2 className="mb-3 text-[1.25rem] font-bold text-ink">Key Words Explained</h2>
         <ul className="mb-0">
           <li><strong>Execution context</strong> is the engine&apos;s working area for one piece of running code. The first one is the Global Execution Context (GEC). Every function call makes a new one.</li>
           <li><strong>Hoisting</strong> is the engine reserving memory for declarations before any line runs. It does not move your code.</li>

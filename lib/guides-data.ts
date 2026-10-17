@@ -209,7 +209,7 @@ export const GUIDES: GuideDef[] = [
   {
     slug: "web-security-guide",
     title: "Web Security Guide for Developers: OWASP Top 10 Basics",
-    description: "Learn web app security in plain English: injection, XSS, CSRF, passwords, access control, secrets, supply chain and APIs, with small examples that were run.",
+    description: "Learn web app security step by step: injection, XSS, CSRF, passwords, access control, secrets, supply chain and APIs, with small examples that were run.",
     intro: [
       "Most security bugs come from a few repeating mistakes. This guide follows the OWASP Top 10 ideas in a sensible order: how attackers think, then the bugs that cause most breaches, then the habits that keep a project safe.",
       "Every example is a tiny local app that was attacked and then fixed, so you can try it yourself.",
