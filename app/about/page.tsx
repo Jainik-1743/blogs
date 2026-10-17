@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import JsonLd from "@/components/JsonLd";
 import { aboutJsonLd, pageMetadata } from "@/lib/seo";
@@ -14,16 +15,28 @@ export default function AboutPage() {
   return (
     <article>
       <JsonLd data={aboutJsonLd()} />
-      <p className="mb-2 font-mono text-[0.78rem] uppercase tracking-[0.12em] text-sky">About</p>
-      <h1 className="mb-3 text-[2.2rem] font-bold leading-tight tracking-tight text-sky max-sm:text-[1.8rem]">
-        About this site and its author
-      </h1>
-      <p className={`${p} text-[1.1rem]`}>
-        I am Jainik, a Senior Software Engineer with 5 years of experience building web applications. I focus on scalable
-        front-end architecture, clean code, performance and interfaces that are easy to use. React, Next.js and Tailwind CSS
-        are the tools I use most. This site is where I share clear, easy-to-follow lessons for developers who want to build and run
-        software well.
-      </p>
+      <header className="flex flex-col-reverse items-start gap-6 sm:flex-row sm:items-center sm:justify-between sm:gap-10">
+        <div className="min-w-0 flex-1">
+          <p className="mb-2 font-mono text-[0.78rem] uppercase tracking-[0.12em] text-sky">About</p>
+          <h1 className="mb-3 text-[2.2rem] font-bold leading-tight tracking-tight text-sky max-sm:text-[1.8rem]">
+            About this site and its author
+          </h1>
+          <p className={`${p} m-0 text-[1.1rem]`}>
+            I am Jainik, a Senior Software Engineer with 5 years of experience building web applications. I focus on scalable
+            front-end architecture, clean code, performance and interfaces that are easy to use. React, Next.js and Tailwind
+            CSS are the tools I use most. This site is where I share clear, easy-to-follow lessons for developers who want to
+            build and run software well.
+          </p>
+        </div>
+        <Image
+          src="/jainik.png"
+          alt="Portrait of Jainik, the author of this site"
+          width={210}
+          height={210}
+          priority
+          className="h-36 w-36 shrink-0 rounded-full border-2 border-sky/60 object-cover shadow-lg shadow-black/30 sm:h-44 sm:w-44"
+        />
+      </header>
 
       <h2 className={h2}>Who I am</h2>
       <p className={p}>Over those five years, my work has included:</p>

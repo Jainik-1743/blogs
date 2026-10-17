@@ -158,6 +158,7 @@ export function siteJsonLd(): Json {
         "@id": absoluteUrl("/#author"),
         ...personRef,
         jobTitle: AUTHOR.jobTitle,
+        image: absoluteUrl("/jainik.png"),
         description: "Senior Software Engineer with five years of experience building web applications, who writes clear, easy-to-follow lessons for other developers.",
         knowsAbout: ["React", "Next.js", "Tailwind CSS", "JavaScript", "TypeScript", "Front-end architecture", "Web accessibility"],
       },
