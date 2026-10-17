@@ -1,4 +1,5 @@
 import Logo from "./Logo";
+import DisplayControls from "./DisplayControls";
 import SeriesBar from "./SeriesBar";
 import SiteSearch from "./SiteSearch";
 import { ALL_SERIES } from "@/lib/series";
@@ -15,6 +16,7 @@ export default function SiteHeader() {
         <div className="flex min-w-0 items-center gap-2 sm:gap-3">
           <SeriesBar series={ALL_SERIES} />
           <SiteSearch />
+          <DisplayControls />
         </div>
       </div>
     </header>

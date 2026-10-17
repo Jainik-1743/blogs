@@ -118,9 +118,160 @@ html {
 
 body {
   @apply bg-bg text-ink font-sans antialiased;
-  font-size: 17px;
+  font-size: 1.0625rem;
   line-height: 1.7;
 }
+
+
+/*
+ * Light theme. The site is dark by default; <html data-theme="light"> (set from the header toggle)
+ * swaps the tokens. Accents get darker shades so text stays readable on white, and the pale
+ * Tailwind palette colours used for callouts get deeper shades for the same reason.
+ */
+html[data-theme="light"] {
+  color-scheme: light;
+  --color-bg: #f8fafc;
+  --color-bg-elev: #ffffff;
+  --color-bg-code: #f1f5f9;
+  --color-line: #dbe3ee;
+  --color-ink: #0f172a;
+  --color-ink-dim: #475569;
+  --color-sky: #0284c7;
+  --color-sky-strong: #0369a1;
+  --color-sky-soft: rgb(2 132 199 / 0.1);
+  --color-slate-50: #0f172a;
+  --color-emerald-100: #064e3b;
+  --color-emerald-200: #065f46;
+  --color-emerald-300: #047857;
+  --color-red-100: #7f1d1d;
+  --color-red-200: #991b1b;
+  --color-red-300: #b91c1c;
+  --color-rose-300: #be123c;
+  --color-amber-100: #78350f;
+  --color-amber-200: #92400e;
+  --color-amber-300: #b45309;
+  --color-violet-200: #5b21b6;
+  --color-violet-300: #6d28d9;
+}
+html[data-theme="light"] body:has([data-page-accent="sky"]),
+html[data-theme="light"] [data-accent="sky"] {
+  --color-sky: #0284c7;
+  --color-sky-strong: #0369a1;
+  --color-sky-soft: rgb(2 132 199 / 0.1);
+}
+html[data-theme="light"] body:has([data-page-accent="indigo"]),
+html[data-theme="light"] [data-accent="indigo"] {
+  --color-sky: #4f46e5;
+  --color-sky-strong: #4338ca;
+  --color-sky-soft: rgb(79 70 229 / 0.1);
+}
+html[data-theme="light"] body:has([data-page-accent="violet"]),
+html[data-theme="light"] [data-accent="violet"] {
+  --color-sky: #7c3aed;
+  --color-sky-strong: #6d28d9;
+  --color-sky-soft: rgb(124 58 237 / 0.1);
+}
+html[data-theme="light"] body:has([data-page-accent="pink"]),
+html[data-theme="light"] [data-accent="pink"] {
+  --color-sky: #db2777;
+  --color-sky-strong: #be185d;
+  --color-sky-soft: rgb(219 39 119 / 0.1);
+}
+html[data-theme="light"] body:has([data-page-accent="rose"]),
+html[data-theme="light"] [data-accent="rose"] {
+  --color-sky: #e11d48;
+  --color-sky-strong: #be123c;
+  --color-sky-soft: rgb(225 29 72 / 0.1);
+}
+html[data-theme="light"] body:has([data-page-accent="orange"]),
+html[data-theme="light"] [data-accent="orange"] {
+  --color-sky: #ea580c;
+  --color-sky-strong: #c2410c;
+  --color-sky-soft: rgb(234 88 12 / 0.1);
+}
+html[data-theme="light"] body:has([data-page-accent="amber"]),
+html[data-theme="light"] [data-accent="amber"] {
+  --color-sky: #b45309;
+  --color-sky-strong: #92400e;
+  --color-sky-soft: rgb(180 83 9 / 0.1);
+}
+html[data-theme="light"] body:has([data-page-accent="lime"]),
+html[data-theme="light"] [data-accent="lime"] {
+  --color-sky: #4d7c0f;
+  --color-sky-strong: #3f6212;
+  --color-sky-soft: rgb(77 124 15 / 0.1);
+}
+html[data-theme="light"] body:has([data-page-accent="emerald"]),
+html[data-theme="light"] [data-accent="emerald"] {
+  --color-sky: #059669;
+  --color-sky-strong: #047857;
+  --color-sky-soft: rgb(5 150 105 / 0.1);
+}
+html[data-theme="light"] body:has([data-page-accent="teal"]),
+html[data-theme="light"] [data-accent="teal"] {
+  --color-sky: #0d9488;
+  --color-sky-strong: #0f766e;
+  --color-sky-soft: rgb(13 148 136 / 0.1);
+}
+html[data-theme="light"][data-reader-accent="sky"] body {
+  --color-sky: #0284c7;
+  --color-sky-strong: #0369a1;
+  --color-sky-soft: rgb(2 132 199 / 0.1);
+}
+html[data-theme="light"][data-reader-accent="indigo"] body {
+  --color-sky: #4f46e5;
+  --color-sky-strong: #4338ca;
+  --color-sky-soft: rgb(79 70 229 / 0.1);
+}
+html[data-theme="light"][data-reader-accent="violet"] body {
+  --color-sky: #7c3aed;
+  --color-sky-strong: #6d28d9;
+  --color-sky-soft: rgb(124 58 237 / 0.1);
+}
+html[data-theme="light"][data-reader-accent="pink"] body {
+  --color-sky: #db2777;
+  --color-sky-strong: #be185d;
+  --color-sky-soft: rgb(219 39 119 / 0.1);
+}
+html[data-theme="light"][data-reader-accent="rose"] body {
+  --color-sky: #e11d48;
+  --color-sky-strong: #be123c;
+  --color-sky-soft: rgb(225 29 72 / 0.1);
+}
+html[data-theme="light"][data-reader-accent="orange"] body {
+  --color-sky: #ea580c;
+  --color-sky-strong: #c2410c;
+  --color-sky-soft: rgb(234 88 12 / 0.1);
+}
+html[data-theme="light"][data-reader-accent="amber"] body {
+  --color-sky: #b45309;
+  --color-sky-strong: #92400e;
+  --color-sky-soft: rgb(180 83 9 / 0.1);
+}
+html[data-theme="light"][data-reader-accent="lime"] body {
+  --color-sky: #4d7c0f;
+  --color-sky-strong: #3f6212;
+  --color-sky-soft: rgb(77 124 15 / 0.1);
+}
+html[data-theme="light"][data-reader-accent="emerald"] body {
+  --color-sky: #059669;
+  --color-sky-strong: #047857;
+  --color-sky-soft: rgb(5 150 105 / 0.1);
+}
+html[data-theme="light"][data-reader-accent="teal"] body {
+  --color-sky: #0d9488;
+  --color-sky-strong: #0f766e;
+  --color-sky-soft: rgb(13 148 136 / 0.1);
+}
+html[data-theme="light"] .term-tip,
+html[data-theme="light"] [class*="shadow-black"] {
+  --tw-shadow-color: rgb(15 23 42 / 0.15);
+}
+
+/* Reader text size. rem units scale with the root size; "m" (no attribute) is the default. */
+html[data-font="s"] { font-size: 90%; }
+html[data-font="l"] { font-size: 112.5%; }
+html[data-font="xl"] { font-size: 125%; }
 
 /* Long-form lesson content. Written once here so lesson pages stay readable JSX. */
 @layer components {

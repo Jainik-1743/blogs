@@ -10,6 +10,7 @@ import GlossaryTooltips from "@/components/GlossaryTooltips";
 import ReadingProgress from "@/components/ReadingProgress";
 import ResumePrompt from "@/components/ResumePrompt";
 import { accentInitScript } from "@/lib/accents";
+import { displayInitScript } from "@/lib/display";
 import { ALL_SERIES } from "@/lib/series";
 import { robotsMeta, siteJsonLd } from "@/lib/seo";
 import { AUTHOR, BING_VERIFICATION, GOOGLE_VERIFICATION, HOME_DESCRIPTION, HOME_TITLE, SITE_LOCALE, SITE_NAME, SITE_URL } from "@/lib/site";
@@ -55,6 +56,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     // suppressHydrationWarning: the head script may add data-reader-accent before React loads.
     <html lang="en" className={`${inter.variable} ${mono.variable}`} suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: displayInitScript }} />
         <script
           dangerouslySetInnerHTML={{ __html: accentInitScript(ALL_SERIES.map((s) => s.slug)) }}
         />
