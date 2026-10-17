@@ -21,6 +21,7 @@ const LOOK: Record<string, { accent: string; badge: string; label: string }> = {
   "behavioral-interview-guide": { accent: "pink", badge: "HR", label: "Career" },
   "nextjs-guide": { accent: "violet", badge: "NX", label: "Full stack" },
   "docker-kubernetes-guide": { accent: "orange", badge: "K8s", label: "Cloud" },
+  "linux-command-line-guide": { accent: "lime", badge: "$_", label: "Tools" },
   "ai-engineering-guide": { accent: "rose", badge: "AI", label: "AI" },
 };
 

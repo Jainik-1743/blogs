@@ -326,6 +326,23 @@ export const GUIDES: GuideDef[] = [
     ],
   },
   {
+    slug: "linux-command-line-guide",
+    title: "Linux and Command Line Guide for Developers",
+    description: "Learn the Linux shell step by step: files, permissions, processes, pipes and text tools, scripting, SSH, services and troubleshooting a slow server, with real output.",
+    intro: [
+      "Most servers run Linux, and most debugging ends in a terminal. This guide takes you from your first command to fixing a slow or full server, one skill at a time.",
+      "Every command in the lessons was run for real, and the output you see is the output we got.",
+    ],
+    audience: "Developers who feel unsure in the terminal, and candidates for back-end and DevOps roles who get Linux questions.",
+    sections: [
+      { heading: "Getting around", paths: ["/linux-shell/lesson-0", "/linux-shell/lesson-1"] },
+      { heading: "Processes and text tools", paths: ["/linux-shell/lesson-2", "/linux-shell/lesson-3"] },
+      { heading: "Scripting and remote machines", paths: ["/linux-shell/lesson-4", "/linux-shell/lesson-5", "/git-github/lesson-1"] },
+      { heading: "Running and fixing servers", paths: ["/linux-shell/lesson-6", "/linux-shell/lesson-7", "/devops/lesson-9"] },
+      { heading: "Interview practice", paths: ["/linux-shell/lesson-8"] },
+    ],
+  },
+  {
     slug: "ai-engineering-guide",
     title: "AI Engineering Guide: Build and Secure LLM Features",
     description: "From LLMs, agents and RAG to production: the OWASP Top 10 for LLM apps, prompt injection, evaluation, cost and latency, observability and guardrails.",
