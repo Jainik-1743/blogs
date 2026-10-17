@@ -4,6 +4,7 @@ import JsonLd from "@/components/JsonLd";
 import GuideCards from "@/components/GuideCards";
 import { ALL_PAGES, groupedSeries } from "@/lib/registry";
 import { homeJsonLd, pageMetadata } from "@/lib/seo";
+import ShareButtons from "@/components/ShareButtons";
 
 export const metadata: Metadata = pageMetadata("/");
 
@@ -19,6 +20,7 @@ export default function HomePage() {
       <h1 className="mb-3 text-[2.4rem] font-bold leading-tight tracking-tight text-sky max-sm:text-[1.9rem]">
         Learn DSA, system design, DevOps, JavaScript and more, one clear lesson at a time.
       </h1>
+        <ShareButtons />
       <p className="max-w-[62ch] text-[1.1rem] text-ink-dim">
         {seriesCount} lesson series and {lessonCount} lessons, written in plain English. Each series reads like a small book:
         start at the first lesson and go forward. Every idea is traced step by step, and most lessons end with interview

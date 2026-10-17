@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { partOf, SD_SERIES, type SdLesson } from "@/lib/system-design";
+import ShareButtons from "@/components/ShareButtons";
 
 /** Breadcrumb, title block and "On this page" index shared by every System Design lesson. */
 export default function LessonHeader({
@@ -36,6 +37,7 @@ export default function LessonHeader({
         <h1 className="mb-2 text-[2.4rem] font-bold leading-tight tracking-tight text-sky max-sm:text-[2rem]">
           {lesson.title}
         </h1>
+        <ShareButtons />
         <p className="max-w-[60ch] text-[1.15rem] text-ink-dim">{lesson.summary}</p>
         <div className="mt-4 flex flex-wrap items-center gap-2 font-mono text-[0.72rem]">
           <span className="rounded-full border border-sky/40 bg-sky-soft px-2.5 py-0.5 text-sky">Lesson {num}</span>

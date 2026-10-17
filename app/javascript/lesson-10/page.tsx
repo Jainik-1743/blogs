@@ -9,6 +9,7 @@ import LoopClosureStepper from "@/components/figures/LoopClosureStepper";
 import LessonPager from "@/components/LessonPager";
 import Script from "@/components/Script";
 import { JS_LESSONS, JS_SERIES, jsLessonHref } from "@/lib/javascript";
+import ShareButtons from "@/components/ShareButtons";
 
 const lesson = JS_LESSONS.find((l) => l.slug === "lesson-10")!;
 
@@ -132,6 +133,7 @@ export default function JsLessonTenPage() {
         <h1 className="mb-2 text-[2.4rem] font-bold leading-tight tracking-tight text-sky max-sm:text-[2rem]">
           {lesson.title}
         </h1>
+        <ShareButtons />
         <p className="max-w-[60ch] text-[1.15rem] text-ink-dim">{lesson.summary}</p>
       </header>
 

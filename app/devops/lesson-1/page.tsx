@@ -8,6 +8,7 @@ import PermissionBits from "@/components/figures/PermissionBits";
 import LessonPager from "@/components/LessonPager";
 import Script from "@/components/Script";
 import { getLesson, READINGS, readingHref, SERIES } from "@/lib/lessons";
+import ShareButtons from "@/components/ShareButtons";
 
 const piecesReading = READINGS.find((r) => r.slug === "the-pieces")!;
 
@@ -50,6 +51,7 @@ export default function LessonOnePage() {
         <h1 className="mb-2 text-[2.4rem] font-bold leading-tight tracking-tight text-sky max-sm:text-[2rem]">
           {lesson.title}
         </h1>
+        <ShareButtons />
         <p className="max-w-[60ch] text-[1.15rem] text-ink-dim">{lesson.summary}</p>
       </header>
 

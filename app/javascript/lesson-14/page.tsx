@@ -7,6 +7,7 @@ import EventLoopStepper from "@/components/figures/EventLoopStepper";
 import LessonPager from "@/components/LessonPager";
 import Script from "@/components/Script";
 import { JS_LESSONS, JS_SERIES, jsLessonHref } from "@/lib/javascript";
+import ShareButtons from "@/components/ShareButtons";
 
 const lesson = JS_LESSONS.find((l) => l.slug === "lesson-14")!;
 
@@ -148,6 +149,7 @@ export default function JsLessonFourteenPage() {
         <h1 className="mb-2 text-[2.4rem] font-bold leading-tight tracking-tight text-sky max-sm:text-[2rem]">
           {lesson.title}
         </h1>
+        <ShareButtons />
         <p className="max-w-[60ch] text-[1.15rem] text-ink-dim">{lesson.summary}</p>
       </header>
 

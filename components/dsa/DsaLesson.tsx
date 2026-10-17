@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import LessonPager from "@/components/LessonPager";
 import { DSA_LESSONS, DSA_PARTS, DSA_SERIES, dsaLessonHref, type DsaLesson } from "@/lib/dsa";
+import ShareButtons from "@/components/ShareButtons";
 
 export type OutlineItem = { id: string; label: string };
 
@@ -47,6 +48,7 @@ export default function DsaLessonPage({
         <h1 className="mb-2 text-[2.4rem] font-bold leading-tight tracking-tight text-sky max-sm:text-[2rem]">
           {lesson.title}
         </h1>
+        <ShareButtons />
         <p className="max-w-[60ch] text-[1.15rem] text-ink-dim">{lesson.summary}</p>
       </header>
 

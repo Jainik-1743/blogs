@@ -9,6 +9,7 @@ import WildcardRecord from "@/components/figures/WildcardRecord";
 import LessonPager from "@/components/LessonPager";
 import Script from "@/components/Script";
 import { getLesson, SERIES } from "@/lib/lessons";
+import ShareButtons from "@/components/ShareButtons";
 
 const lesson = getLesson("lesson-3")!;
 
@@ -56,6 +57,7 @@ export default function LessonThreePage() {
         <h1 className="mb-2 text-[2.4rem] font-bold leading-tight tracking-tight text-sky max-sm:text-[2rem]">
           {lesson.title}
         </h1>
+        <ShareButtons />
         <p className="max-w-[60ch] text-[1.15rem] text-ink-dim">{lesson.summary}</p>
       </header>
 
