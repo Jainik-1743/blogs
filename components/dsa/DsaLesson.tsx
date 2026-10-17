@@ -49,7 +49,7 @@ export default function DsaLessonPage({
           {lesson.title}
         </h1>
         <ShareButtons />
-        <p className="max-w-[60ch] text-[1.15rem] text-ink-dim">{lesson.summary}</p>
+        <p className="text-[1.15rem] text-ink-dim">{lesson.summary}</p>
       </header>
 
       <section className="mb-10 rounded-xl border border-line bg-bg-elev px-6 py-5" aria-labelledby="learn">

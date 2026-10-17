@@ -36,7 +36,7 @@ export default function GuidesPage() {
       <h1 className="mb-3 text-[2.2rem] font-bold leading-tight tracking-tight text-sky max-sm:text-[1.8rem]">
         Study guides: what to read, in what order
       </h1>
-      <p className="max-w-[62ch] text-[1.1rem] text-ink-dim">
+      <p className="text-[1.1rem] text-ink-dim">
         Each guide gathers lessons from several series into one reading order for a single goal, such as a system design
         interview or learning SQL. Pick the goal, then follow the list.
       </p>

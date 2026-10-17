@@ -22,7 +22,7 @@ export default function SiteFooter() {
     <footer data-site-footer className="mt-12 text-[0.88rem] text-ink-dim">
       <div aria-hidden="true" className="h-[3px] w-full opacity-80" style={{ background: RAINBOW }} />
       <div className="border-b border-line bg-bg-elev/40">
-        <div className="mx-auto max-w-[860px] px-4 pt-10 pb-8">
+        <div className="mx-auto max-w-[var(--container)] px-4 pt-10 pb-8">
           <section aria-labelledby="footer-start" className="relative overflow-hidden rounded-2xl border border-line bg-bg px-6 py-6">
             <div aria-hidden="true" className="pointer-events-none absolute -top-16 -right-16 h-48 w-48 rounded-full opacity-25 blur-3xl" style={{ background: RAINBOW }} />
             <div className="relative flex flex-wrap items-center justify-between gap-x-8 gap-y-4">
@@ -97,7 +97,7 @@ export default function SiteFooter() {
       </div>
 
       <div className="bg-bg">
-        <div className="mx-auto flex max-w-[860px] flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-4 text-[0.8rem]">
+        <div className="mx-auto flex max-w-[var(--container)] flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-4 text-[0.8rem]">
           <span>
             © {new Date().getFullYear()} <Link href="/about" className="text-ink hover:text-sky hover:no-underline">Jainik</Link>
             <span aria-hidden="true"> · </span>Senior Software Engineer

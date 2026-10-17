@@ -15,7 +15,7 @@ export default function GlossariesPage() {
       <h1 className="mb-3 text-[2.2rem] font-bold leading-tight tracking-tight text-sky max-sm:text-[1.8rem]">
         Clear definitions for developers
       </h1>
-      <p className="max-w-[62ch] text-[1.05rem] text-ink-dim">
+      <p className="text-[1.05rem] text-ink-dim">
         {total} terms across {groups.reduce((n, g) => n + g.series.length, 0)} glossaries. Each term has a one-line meaning and a
         link to the lesson that explains it. You can also hover any dotted term inside a lesson.
       </p>

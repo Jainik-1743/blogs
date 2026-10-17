@@ -33,9 +33,9 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
       </nav>
       <h1 className="mb-3 text-[2.2rem] font-bold leading-tight tracking-tight text-sky max-sm:text-[1.8rem]">{g.title}</h1>
       {g.intro.map((t, i) => (
-        <p key={i} className="max-w-[66ch] text-ink-dim">{t}</p>
+        <p key={i} className="text-ink-dim">{t}</p>
       ))}
-      <p className="max-w-[66ch] text-ink-dim"><strong className="text-ink">Who it is for:</strong> {g.audience}</p>
+      <p className="text-ink-dim"><strong className="text-ink">Who it is for:</strong> {g.audience}</p>
       <p className="text-[0.85rem] text-ink-dim">
         {g.lessonCount} lessons · Published by <Link href="/about">Jainik</Link>
         {modified ? <> · Last updated <time dateTime={modified}>{formatDate(modified)}</time></> : null}
@@ -44,7 +44,7 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
       {g.sections.map((s, si) => (
         <section key={s.heading} aria-labelledby={`s${si}`} className="mt-9">
           <h2 id={`s${si}`} className="mb-1 text-[1.4rem] font-semibold text-ink">{si + 1}. {s.heading}</h2>
-          {s.note ? <p className="mt-0 mb-3 max-w-[66ch] text-ink-dim">{s.note}</p> : null}
+          {s.note ? <p className="mt-0 mb-3 text-ink-dim">{s.note}</p> : null}
           <ol className="m-0 list-none space-y-2 p-0">
             {s.pages.map((p) => (
               <li key={p.path} data-accent={p.accent} className="rounded-lg border border-line bg-bg-elev px-4 py-3">

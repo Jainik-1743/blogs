@@ -25,7 +25,7 @@ export default function IvLessonPage({ series, slug }: { series: IvSeries; slug:
         <p className="mb-2 font-mono text-[0.78rem] uppercase tracking-[0.12em] text-sky">{series.short}</p>
         <h1 className="mb-2 text-[2.4rem] font-bold leading-tight tracking-tight text-sky max-sm:text-[2rem]">{lesson.title}</h1>
         <ShareButtons />
-        <p className="max-w-[60ch] text-[1.15rem] text-ink-dim">{lesson.summary}</p>
+        <p className="text-[1.15rem] text-ink-dim">{lesson.summary}</p>
         <div className="mt-4 flex flex-wrap items-center gap-2 font-mono text-[0.72rem]">
           <span className="rounded-full border border-sky/40 bg-sky-soft px-2.5 py-0.5 text-sky">Lesson {num}</span>
           {lesson.readTime ? <span className="rounded-full border border-line px-2.5 py-0.5 text-ink-dim">{lesson.readTime} read</span> : null}

@@ -7,7 +7,7 @@ import { CONTACT_EMAIL } from "@/lib/site";
 export const metadata: Metadata = pageMetadata("/about");
 
 const h2 = "mt-10 mb-3 text-[1.5rem] font-semibold text-ink";
-const p = "max-w-[66ch] text-ink-dim";
+const p = "text-ink-dim";
 const li = "text-ink-dim";
 
 export default function AboutPage() {
@@ -27,7 +27,7 @@ export default function AboutPage() {
 
       <h2 className={h2}>Who I am</h2>
       <p className={p}>Over those five years, my work has included:</p>
-      <ul className="m-0 max-w-[66ch] list-disc space-y-1.5 pl-6">
+      <ul className="m-0 list-disc space-y-1.5 pl-6">
         <li className={li}>Building reusable component libraries that cut repeated code and development time.</li>
         <li className={li}>Designing role-based access control for admin and user areas.</li>
         <li className={li}>Making layouts work well on phones, tablets and desktops, and fixing cross-browser differences.</li>
@@ -51,7 +51,7 @@ export default function AboutPage() {
       <h2 id="how-lessons-are-made" className={`${h2} scroll-mt-24`}>
         How the lessons are made and checked
       </h2>
-      <ul className="m-0 max-w-[66ch] list-disc space-y-1.5 pl-6">
+      <ul className="m-0 list-disc space-y-1.5 pl-6">
         <li className={li}>
           <strong className="text-ink">Easy to follow.</strong> Short sentences, every term explained the first time it appears.
         </li>

@@ -21,7 +21,7 @@ export default function HomePage() {
         Learn DSA, system design, DevOps, JavaScript and more, one clear lesson at a time.
       </h1>
         <ShareButtons />
-      <p className="max-w-[62ch] text-[1.1rem] text-ink-dim">
+      <p className="text-[1.1rem] text-ink-dim">
         {seriesCount} lesson series and {lessonCount} lessons, written to be easy to follow. Each series reads like a small book:
         start at the first lesson and go forward. Every idea is traced step by step, and most lessons end with interview
         questions and model answers.
@@ -44,7 +44,7 @@ export default function HomePage() {
           <div>
             <p className="mb-1 font-mono text-[0.72rem] uppercase tracking-[0.12em] text-sky">Recommended paths</p>
             <h2 id="start-guides" className="m-0 text-[1.6rem] font-semibold text-ink">Start with a guide</h2>
-            <p className="mt-1 mb-0 max-w-[56ch] text-ink-dim">
+            <p className="mt-1 mb-0 text-ink-dim">
               Pick your goal and follow a ready-made reading order, so you never wonder what to read next.
             </p>
           </div>

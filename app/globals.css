@@ -111,6 +111,12 @@ html[data-reader-accent="teal"] body,
   .logo:hover .logo-caret { animation: none; }
 }
 
+/* Page width: the header, content and footer share one container. It grows on larger screens. */
+:root { --container: 860px; }
+@media (min-width: 1024px) { :root { --container: 980px; } }
+@media (min-width: 1280px) { :root { --container: 1100px; } }
+@media (min-width: 1536px) { :root { --container: 1200px; } }
+
 html {
   color-scheme: dark;
   scroll-behavior: smooth;

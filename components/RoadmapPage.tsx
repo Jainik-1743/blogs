@@ -52,7 +52,7 @@ export default function RoadmapPage({ detailed }: { detailed: boolean }) {
           Detailed, every lesson
         </Link>
       </div>
-      <p className="max-w-[62ch] text-[1.1rem] text-ink-dim">
+      <p className="text-[1.1rem] text-ink-dim">
         {detailed
           ? `Follow the line from top to bottom. Each step lists its series, and each series lists all of its lessons in order. ${ROADMAP_LESSON_COUNT} lessons are on this map, and every box opens its lesson.`
           : `Follow the line from top to bottom. Each step holds the series that belong to it. ${ROADMAP_SERIES_COUNT} series and ${ROADMAP_LESSON_COUNT} lessons are on the map, and every box opens its lessons.`}
@@ -61,7 +61,7 @@ export default function RoadmapPage({ detailed }: { detailed: boolean }) {
         <RoadmapDownload blocks={blocks} siteUrl={SITE_URL} detailed={detailed} fileName={detailed ? "developer-roadmap-detailed" : "developer-roadmap"} />
       </div>
       <RoadmapMap blocks={blocks} lesson={detailed} />
-      <p className="mx-auto mt-8 max-w-[60ch] text-center text-[0.95rem] text-ink-dim">
+      <p className="mx-auto mt-8 text-center text-[0.95rem] text-ink-dim">
         You do not have to read everything. Pick the step you are on, open a box, and go forward one lesson at a time.
       </p>
     </>

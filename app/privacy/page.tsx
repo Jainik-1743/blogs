@@ -6,7 +6,7 @@ import { CONTACT_EMAIL } from "@/lib/site";
 export const metadata: Metadata = pageMetadata("/privacy");
 
 const h2 = "mt-9 mb-2 text-[1.3rem] font-semibold text-ink";
-const p = "max-w-[66ch] text-ink-dim";
+const p = "text-ink-dim";
 
 export default function PrivacyPage() {
   return (
@@ -20,7 +20,7 @@ export default function PrivacyPage() {
       </p>
 
       <h2 className={h2}>What is collected, and by whom</h2>
-      <ul className="m-0 max-w-[66ch] list-disc space-y-2 pl-6 text-ink-dim">
+      <ul className="m-0 list-disc space-y-2 pl-6 text-ink-dim">
         <li>
           <strong className="text-ink">Google Tag Manager and Google Analytics.</strong> These record which pages are visited,
           roughly where visitors are (country or city level), the type of device and browser, and how visitors arrive. They
@@ -51,7 +51,7 @@ export default function PrivacyPage() {
       </p>
 
       <h2 className={h2}>Your choices</h2>
-      <ul className="m-0 max-w-[66ch] list-disc space-y-1.5 pl-6 text-ink-dim">
+      <ul className="m-0 list-disc space-y-1.5 pl-6 text-ink-dim">
         <li>Use your browser&rsquo;s settings to block or delete cookies and site data.</li>
         <li>Use a content blocker or a browser&rsquo;s tracking protection to stop analytics scripts from loading. The lessons work without them.</li>
         <li>Google provides an opt-out browser add-on for Google Analytics on its own site.</li>

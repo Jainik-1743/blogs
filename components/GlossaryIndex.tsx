@@ -25,7 +25,7 @@ export default function GlossaryIndex({ glossary }: { glossary: Glossary }) {
         <h1 className="mb-2 text-[2.4rem] font-bold leading-tight tracking-tight text-sky max-sm:text-[2rem]">
           Glossary
         </h1>
-        <p className="max-w-[60ch] text-[1.15rem] text-ink-dim">
+        <p className="text-[1.15rem] text-ink-dim">
           Every short form used across the series. Inside a lesson, hover or tap any dotted term
           to see the same entry in place.
         </p>

@@ -74,7 +74,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </noscript>
         <JsonLd data={siteJsonLd()} />
         <SiteHeader />
-        <main className="mx-auto w-full max-w-[860px] flex-1 px-4 py-12">
+        <main className="mx-auto w-full max-w-[var(--container)] flex-1 px-4 py-12">
           <PageTransition>{children}</PageTransition>
         </main>
         <SiteFooter />

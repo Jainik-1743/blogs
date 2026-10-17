@@ -38,7 +38,7 @@ export default function LessonHeader({
           {lesson.title}
         </h1>
         <ShareButtons />
-        <p className="max-w-[60ch] text-[1.15rem] text-ink-dim">{lesson.summary}</p>
+        <p className="text-[1.15rem] text-ink-dim">{lesson.summary}</p>
         <div className="mt-4 flex flex-wrap items-center gap-2 font-mono text-[0.72rem]">
           <span className="rounded-full border border-sky/40 bg-sky-soft px-2.5 py-0.5 text-sky">Lesson {num}</span>
           {lesson.readTime ? (
