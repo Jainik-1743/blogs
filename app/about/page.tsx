@@ -13,14 +13,14 @@ const p = "text-ink-dim";
 const li = "text-ink-dim";
 
 const lessonTotal = SERIES_LIST.reduce((n, x) => n + x.lessons.filter((l) => l.published).length, 0);
-const SKILLS = ["React", "Next.js", "Tailwind CSS", "TypeScript", "JavaScript", "Accessibility", "Performance", "Front-end architecture"];
+const LOVES = ["Researching", "Building things", "Learning in public", "Explaining clearly", "Solving problems", "Staying curious"];
 const WORK = [
-  ["🧩", "Reusable component libraries that cut repeated code and development time."],
-  ["🔐", "Role-based access control for admin and user areas."],
-  ["📱", "Layouts that work on phones, tablets and desktops, with cross-browser fixes."],
-  ["♿", "Accessibility practices so more people can use what is built."],
-  ["🏗️", "Architecture decisions for scalable front-end systems."],
-  ["🚀", "Owning delivery end to end while working remotely."],
+  ["🔎", "Researching a topic until it makes sense, then writing it down so it makes sense to others too."],
+  ["🛠️", "Building things from an idea to something real people can use."],
+  ["🧭", "Looking at the whole picture, not only one part, before making a decision."],
+  ["🤝", "Working with people remotely and taking a task all the way to done."],
+  ["📚", "Turning what I learn into short, step-by-step lessons."],
+  ["✅", "Checking my work and saying plainly what was tested and what was not."],
 ];
 const CHECKS = [
   ["Easy to follow", "Short sentences, every term explained the first time it appears."],
@@ -53,9 +53,9 @@ export default function AboutPage() {
               Hi, I am Jainik
             </h1>
             <p className={`${p} m-0 text-[1.08rem]`}>
-              A Senior Software Engineer with 5 years of experience building web applications. I focus on scalable front-end
-              architecture, clean code, performance and interfaces that are easy to use. This site is where I share clear,
-              easy-to-follow lessons for developers who want to build and run software well.
+              A Senior Software Engineer with 5 years of experience. I like researching how things work, building
+              something useful, and explaining it in a way anyone can follow. This site is where I share what I learn, as clear,
+              easy-to-follow lessons for people who want to build and run software well.
             </p>
             <div className="mt-4 flex flex-wrap justify-center gap-2 sm:justify-start">
               <a
@@ -75,7 +75,7 @@ export default function AboutPage() {
         </div>
         <dl className="relative mt-8 grid grid-cols-3 gap-3 text-center">
           {[
-            ["5+", "years building web apps"],
+            ["5+", "years of experience"],
             [String(SERIES_LIST.length), "lesson series"],
             [lessonTotal.toLocaleString("en-US"), "lessons"],
           ].map(([n, l]) => (
@@ -87,9 +87,9 @@ export default function AboutPage() {
         </dl>
       </header>
 
-      <h2 className={h2}>What I work with</h2>
+      <h2 className={h2}>What I enjoy</h2>
       <div className="flex flex-wrap gap-2">
-        {SKILLS.map((k) => (
+        {LOVES.map((k) => (
           <span key={k} className="rounded-full border border-sky/40 bg-sky/10 px-3 py-1 text-[0.85rem] text-sky">
             {k}
           </span>
@@ -97,7 +97,7 @@ export default function AboutPage() {
       </div>
 
       <h2 className={h2}>Who I am</h2>
-      <p className={p}>Over those five years, my work has included:</p>
+      <p className={p}>Over those five years, the things I keep coming back to are:</p>
       <ul className="m-0 grid list-none gap-3 p-0 sm:grid-cols-2">
         {WORK.map(([i, t]) => (
           <li key={t} className={`${card} flex items-start gap-3 !py-4`}>

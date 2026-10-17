@@ -159,8 +159,7 @@ export function siteJsonLd(): Json {
         ...personRef,
         jobTitle: AUTHOR.jobTitle,
         image: absoluteUrl("/jainik.png"),
-        description: "Senior Software Engineer with five years of experience building web applications, who writes clear, easy-to-follow lessons for other developers.",
-        knowsAbout: ["React", "Next.js", "Tailwind CSS", "JavaScript", "TypeScript", "Front-end architecture", "Web accessibility"],
+        description: "Senior Software Engineer with five years of experience, who researches, builds and writes clear, easy-to-follow lessons for other developers.",
       },
     ],
   };
