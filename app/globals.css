@@ -113,6 +113,24 @@ html[data-reader-accent="teal"] body,
 
 /* Page width: the header, content and footer share one container. It grows on larger screens. */
 :root { --container: 860px; --rail: 14rem; }
+/* Colours for the step-by-step explainers (components/explainers). */
+:root {
+  --xp-client: var(--color-sky);
+  --xp-server: #6ee7b7;
+  --xp-data: #fcd34d;
+  --xp-store: #c4b5fd;
+  --xp-queue: #fda4af;
+  --xp-warn: #fca5a5;
+  --xp-plain: #94a3b8;
+}
+html[data-theme="light"] {
+  --xp-server: #047857;
+  --xp-data: #b45309;
+  --xp-store: #6d28d9;
+  --xp-queue: #be123c;
+  --xp-warn: #b91c1c;
+  --xp-plain: #475569;
+}
 @media (min-width: 1024px) { :root { --container: 980px; } }
 @media (min-width: 1280px) { :root { --container: 1100px; } }
 @media (min-width: 1536px) { :root { --container: 1200px; } }
@@ -624,6 +642,8 @@ html[data-focus] #keep-learning { display: none; }
   .lesson { max-width: calc(var(--container) - var(--rail) - 2rem); }
 }
 html[data-focus] .lesson { max-width: none; }
+/* Long inline code (a URL, a flag list) must wrap instead of pushing the page sideways on phones. */
+.lesson :not(pre) > code { overflow-wrap: anywhere; }
 html[data-focus] [data-lesson-rail] { display: none; }
 html[data-focus] main { max-width: 740px; padding-top: 3.5rem; }
 html[data-focus] .lesson { font-size: 1.08em; line-height: 1.85; }
