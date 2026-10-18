@@ -10,6 +10,7 @@ import { LESSONS, READINGS, SERIES as DEVOPS_SERIES, lessonHref, readingHref, ty
 import { SD_GLOSSARY } from "./sd-glossary";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "./system-design";
 import { GUIDES } from "./guides-data";
+import { TERM_PAGES, termPath } from "./glossary-terms";
 import { MIN_LESSONS, TOPICS, type TopicDef } from "./topics";
 import { RELATED_SERIES, SERIES_GROUPS, SERIES_SHORT } from "./series";
 
@@ -19,7 +20,7 @@ import { RELATED_SERIES, SERIES_GROUPS, SERIES_SHORT } from "./series";
  * all read from here, so a lesson only has to be registered once.
  */
 
-export type PageKind = "home" | "hub" | "page" | "series" | "lesson" | "reading" | "glossary" | "guide";
+export type PageKind = "home" | "hub" | "term" | "page" | "series" | "lesson" | "reading" | "glossary" | "guide";
 
 export type PageInfo = {
   path: string;
@@ -156,6 +157,11 @@ function buildPages(): PageInfo[] {
       description: `Clear definitions of the ${s.termCount} terms used in "${s.title}", each with the lesson that explains it.`,
     });
   }
+  pages.push({
+    path: "/glossary", kind: "hub", title: "Developer glossary, A to Z",
+    description: `${TERM_PAGES.length} developer terms explained in a few clear sentences, each with the lesson that teaches it: DSA, system design, DevOps, JavaScript, networking, security and more.`,
+  });
+  for (const t of TERM_PAGES) pages.push({ path: termPath(t.slug), kind: "term", title: t.heading, description: t.description });
   for (const t of TOPICS) {
     if (topicLessonsFrom(pages, t).length < MIN_LESSONS) continue;
     pages.push({ path: `/topics/${t.slug}`, kind: "hub", title: `${t.title}: every lesson on the topic`, description: t.blurb });

@@ -19,6 +19,9 @@ export default function GlossariesPage() {
         {total} terms across {groups.reduce((n, g) => n + g.series.length, 0)} glossaries. Each term has a one-line meaning and a
         link to the lesson that explains it. You can also hover any dotted term inside a lesson.
       </p>
+      <p className="text-[1.05rem] text-ink-dim">
+        Prefer one list? <Link href="/glossary">Browse every term A to Z</Link>, each with its own page.
+      </p>
       {groups.map((g) => (
         <section key={g.id} className="mt-8">
           <h2 className="mb-3 text-[1.35rem] font-semibold text-ink">{g.title}</h2>

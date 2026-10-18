@@ -26,7 +26,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ slug?: 
   const accent = ACCENTS[page.accent ?? "sky"] ?? ACCENTS.sky;
   const isHome = page.kind === "home";
   const isTopic = path.startsWith("/topics");
-  const kicker = isTopic ? "Topic" : isHome
+  const kicker = page.kind === "term" ? "Glossary term" : isTopic ? "Topic" : isHome
     ? "Free lessons for software engineers"
     : page.kind === "lesson"
       ? `${page.seriesShort} · Lesson ${page.number}`

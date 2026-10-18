@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { hasTermPage, termPath, termSlug } from "@/lib/glossary-terms";
 import { glossaryLessonHref, type Glossary } from "@/lib/glossary";
 
 /**
@@ -52,7 +53,11 @@ export default function GlossaryIndex({ glossary }: { glossary: Glossary }) {
               {rows.map((e) => (
                 <div key={e.term} className="grid grid-cols-[9rem_1fr] gap-x-4 px-4 py-3 max-sm:grid-cols-1 max-sm:gap-y-1">
                   <dt>
-                    <span className="font-mono font-semibold text-sky-strong [overflow-wrap:anywhere]">{e.term}</span>
+                    {hasTermPage(e.term) ? (
+                      <Link href={termPath(termSlug(e.term))} className="font-mono font-semibold text-sky-strong [overflow-wrap:anywhere]">{e.term}</Link>
+                    ) : (
+                      <span className="font-mono font-semibold text-sky-strong [overflow-wrap:anywhere]">{e.term}</span>
+                    )}
                     <span className="block text-[0.8rem] text-ink-dim">{e.full}</span>
                   </dt>
                   <dd className="m-0 text-[0.95rem] [overflow-wrap:anywhere]">
