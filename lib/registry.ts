@@ -10,6 +10,7 @@ import { LESSONS, READINGS, SERIES as DEVOPS_SERIES, lessonHref, readingHref, ty
 import { SD_GLOSSARY } from "./sd-glossary";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "./system-design";
 import { GUIDES } from "./guides-data";
+import { MIN_LESSONS, TOPICS, type TopicDef } from "./topics";
 import { RELATED_SERIES, SERIES_GROUPS, SERIES_SHORT } from "./series";
 
 /**
@@ -121,6 +122,10 @@ function buildPages(): PageInfo[] {
     path: "/roadmap/detailed", kind: "hub", title: "Detailed developer roadmap: every lesson in order",
     description: "The full roadmap with every lesson on it: eight steps from computer basics to interviews, each series broken into its lessons in reading order, and every box opens its lesson.",
   });
+  pages.push({
+    path: "/topics", kind: "hub", title: "Browse by topic: lessons on one subject from every series",
+    description: "Pick a subject such as caching, security, databases or APIs and see every lesson about it, from every series, in one list.",
+  });
   for (const g of GUIDES) pages.push({ path: `/guides/${g.slug}`, kind: "guide", title: g.title, description: g.description });
   pages.push({
     path: "/about", kind: "page", title: "About this site and its author",
@@ -151,7 +156,23 @@ function buildPages(): PageInfo[] {
       description: `Clear definitions of the ${s.termCount} terms used in "${s.title}", each with the lesson that explains it.`,
     });
   }
+  for (const t of TOPICS) {
+    if (topicLessonsFrom(pages, t).length < MIN_LESSONS) continue;
+    pages.push({ path: `/topics/${t.slug}`, kind: "hub", title: `${t.title}: every lesson on the topic`, description: t.blurb });
+  }
   return pages;
+}
+
+/** The lessons that belong to a topic, in series order. */
+function topicLessonsFrom(pages: PageInfo[], t: TopicDef): PageInfo[] {
+  return pages.filter((p) => {
+    if (p.kind !== "lesson" || !p.seriesSlug) return false;
+    if (t.series?.includes(p.seriesSlug)) return true;
+    if (!t.match || t.skipSeries?.includes(p.seriesSlug)) return false;
+    const title = p.title.replace(/^Lesson \d+:\s*/i, "").toLowerCase();
+    if (t.skipTitle?.test(title)) return false;
+    return t.match.test(`${title} ${(p.tags ?? []).join(" ")}`.toLowerCase());
+  });
 }
 
 export const ALL_PAGES: PageInfo[] = buildPages();
@@ -183,4 +204,12 @@ export function relatedLessons(path: string, limit = 3): PageInfo[] {
     .sort((a, b) => b.score - a.score || a.p.path.localeCompare(b.p.path))
     .slice(0, limit)
     .map((x) => x.p);
+}
+
+/** Topics that have enough lessons to get a page, each with its lessons. */
+export const TOPIC_PAGES = TOPICS.map((def) => ({ def, lessons: topicLessonsFrom(ALL_PAGES, def) })).filter((t) => t.lessons.length >= MIN_LESSONS);
+
+/** Topics a lesson belongs to, for the chips under a lesson. */
+export function topicsForPath(path: string): TopicDef[] {
+  return TOPIC_PAGES.filter((t) => t.lessons.some((l) => l.path === path)).map((t) => t.def);
 }

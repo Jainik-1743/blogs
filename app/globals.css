@@ -112,7 +112,7 @@ html[data-reader-accent="teal"] body,
 }
 
 /* Page width: the header, content and footer share one container. It grows on larger screens. */
-:root { --container: 860px; }
+:root { --container: 860px; --rail: 14rem; }
 @media (min-width: 1024px) { :root { --container: 980px; } }
 @media (min-width: 1280px) { :root { --container: 1100px; } }
 @media (min-width: 1536px) { :root { --container: 1200px; } }
@@ -619,6 +619,12 @@ html[data-focus] [data-site-header],
 html[data-focus] [data-site-footer],
 html[data-focus] nav[aria-label="Breadcrumb"],
 html[data-focus] #keep-learning { display: none; }
+/* Lesson text keeps a comfortable line length on big screens; the "On this page" rail uses the space beside it. */
+@media (min-width: 1024px) {
+  .lesson { max-width: calc(var(--container) - var(--rail) - 2rem); }
+}
+html[data-focus] .lesson { max-width: none; }
+html[data-focus] [data-lesson-rail] { display: none; }
 html[data-focus] main { max-width: 740px; padding-top: 3.5rem; }
 html[data-focus] .lesson { font-size: 1.08em; line-height: 1.85; }
 

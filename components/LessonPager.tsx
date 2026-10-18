@@ -1,7 +1,7 @@
 import Link from "next/link";
 import JsonLd from "@/components/JsonLd";
 import { guidesForPath } from "@/lib/guides";
-import { relatedLessons, relatedSeries } from "@/lib/registry";
+import { relatedLessons, relatedSeries, topicsForPath } from "@/lib/registry";
 import { lessonJsonLd, pageDates } from "@/lib/seo";
 import { LESSONS, lessonHref, SERIES, type Lesson } from "@/lib/lessons";
 
@@ -35,6 +35,7 @@ export default function LessonPager({
   const lessonsLike = path ? relatedLessons(path) : [];
   const guides = path ? guidesForPath(path).slice(0, 3) : [];
   const seriesLike = current ? relatedSeries(series.slug) : [];
+  const topics = path ? topicsForPath(path).slice(0, 5) : [];
 
   return (
     <>
@@ -51,6 +52,51 @@ export default function LessonPager({
           ) : null}{" "}
           · <Link href="/about#how-lessons-are-made">How these lessons are made</Link>
         </p>
+      ) : null}
+
+      {topics.length ? (
+        <p className="mb-0 mt-4 flex flex-wrap items-center gap-2 text-[0.85rem] text-ink-dim">
+          <span className="font-mono text-[0.72rem] uppercase tracking-[0.1em]">Topics</span>
+          {topics.map((t) => (
+            <Link key={t.slug} href={`/topics/${t.slug}`} className="rounded-full border border-line px-3 py-0.5 text-ink-dim hover:border-sky hover:text-sky hover:no-underline">
+              {t.title}
+            </Link>
+          ))}
+        </p>
+      ) : null}
+
+      {current && next?.published ? (
+        <Link
+          href={href(next)}
+          className="group mt-8 block rounded-2xl border border-sky/50 bg-sky-soft px-6 py-5 text-ink transition hover:-translate-y-0.5 hover:border-sky hover:no-underline"
+        >
+          <span className="flex items-center justify-between gap-3 font-mono text-[0.75rem] uppercase tracking-[0.1em] text-sky">
+            <span>Up next · Lesson {next.number} of {lessons.filter((l) => l.published).length}</span>
+            {next.readTime ? <span className="text-ink-dim">{next.readTime} read</span> : null}
+          </span>
+          <span className="mt-2 block text-[1.25rem] font-bold leading-snug text-ink">{next.title}</span>
+          {next.summary ? <span className="mt-1 block text-[0.95rem] text-ink-dim">{next.summary}</span> : null}
+          <span className="mt-3 inline-flex items-center gap-1 text-[0.9rem] font-semibold text-sky transition-transform group-hover:translate-x-1">
+            Continue reading →
+          </span>
+        </Link>
+      ) : current && i !== -1 && !next ? (
+        <div className="mt-8 rounded-2xl border border-sky/50 bg-sky-soft px-6 py-5">
+          <p className="m-0 font-mono text-[0.75rem] uppercase tracking-[0.1em] text-sky">You finished {series.title}</p>
+          <p className="mb-3 mt-2 text-[1.1rem] font-semibold text-ink">
+            {seriesLike.length ? "Good work. Here is a natural next series." : "Good work. Pick your next step."}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {seriesLike.slice(0, 2).map((s) => (
+              <Link key={s.slug} href={`/${s.slug}`} className="rounded-full bg-sky px-4 py-2 text-[0.88rem] font-semibold on-sky hover:no-underline">
+                {s.title} →
+              </Link>
+            ))}
+            <Link href="/roadmap" className="rounded-full border border-line px-4 py-2 text-[0.88rem] font-semibold text-ink hover:border-sky hover:text-sky hover:no-underline">
+              Open the roadmap
+            </Link>
+          </div>
+        </div>
       ) : null}
 
       {lessonsLike.length || seriesLike.length || guides.length ? (
@@ -110,9 +156,9 @@ export default function LessonPager({
       )}
 
       {next?.published ? (
-        <Link href={href(next)} className={`${box} text-right text-ink hover:border-sky hover:bg-sky-soft hover:no-underline sm:text-right`}>
-          <div className={`${dir} text-sky`}>Next →</div>
-          <div className="font-semibold">Lesson {next.number}: {next.title}</div>
+        <Link href={`/${series.slug}`} className={`${box} text-right text-ink hover:border-sky hover:bg-sky-soft hover:no-underline sm:text-right`}>
+          <div className={`${dir} text-sky`}>Series index →</div>
+          <div className="font-semibold">{series.title}</div>
         </Link>
       ) : next ? (
         <div className={`${box} text-ink-dim sm:text-right`}>

@@ -88,6 +88,7 @@ export default function SiteFooter() {
               <FooterLink href="/">All series</FooterLink>
               <FooterLink href="/roadmap">Roadmap</FooterLink>
               <FooterLink href="/guides">Guides</FooterLink>
+              <FooterLink href="/topics">Topics</FooterLink>
               <FooterLink href="/glossaries">Glossaries</FooterLink>
               <FooterLink href="/about">About</FooterLink>
               <FooterLink href="/feed.xml">RSS</FooterLink>

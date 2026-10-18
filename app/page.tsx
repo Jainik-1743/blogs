@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import JsonLd from "@/components/JsonLd";
 import GuideCards from "@/components/GuideCards";
-import { ALL_PAGES, groupedSeries } from "@/lib/registry";
+import { ALL_PAGES, TOPIC_PAGES, groupedSeries } from "@/lib/registry";
 import { homeJsonLd, pageMetadata } from "@/lib/seo";
 import ShareButtons from "@/components/ShareButtons";
 
@@ -26,6 +26,20 @@ export default function HomePage() {
         start at the first lesson and go forward. Every idea is traced step by step, and most lessons end with interview
         questions and model answers.
       </p>
+
+      <section aria-labelledby="by-topic" className="mt-6">
+        <div className="mb-2 flex items-baseline justify-between gap-3">
+          <h2 id="by-topic" className="m-0 text-[1.1rem] font-semibold text-ink">Browse by topic</h2>
+          <Link href="/topics" className="font-mono text-[0.75rem] text-sky">All topics →</Link>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {TOPIC_PAGES.map((t) => (
+            <Link key={t.def.slug} href={`/topics/${t.def.slug}`} className="rounded-full border border-line px-3 py-1 text-[0.85rem] text-ink-dim hover:border-sky hover:text-sky hover:no-underline">
+              {t.def.title}
+            </Link>
+          ))}
+        </div>
+      </section>
 
       <Link
         href="/roadmap"

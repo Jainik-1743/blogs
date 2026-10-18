@@ -12,6 +12,11 @@ const ACCENTS: Record<string, string> = {
   orange: "#fb923c", amber: "#fbbf24", lime: "#a3e635", emerald: "#34d399", teal: "#2dd4bf",
 };
 
+const clip = (t: string, n: number) => {
+  const c = t.replace(/\s+/g, " ").trim();
+  return c.length <= n ? c : `${c.slice(0, n - 1).replace(/\s+\S*$/, "")}…`;
+};
+
 export async function GET(_req: Request, { params }: { params: Promise<{ slug?: string[] }> }) {
   const { slug = [] } = await params;
   const path = slug.length ? `/${slug.join("/")}` : "/";
@@ -20,7 +25,8 @@ export async function GET(_req: Request, { params }: { params: Promise<{ slug?: 
 
   const accent = ACCENTS[page.accent ?? "sky"] ?? ACCENTS.sky;
   const isHome = page.kind === "home";
-  const kicker = isHome
+  const isTopic = path.startsWith("/topics");
+  const kicker = isTopic ? "Topic" : isHome
     ? "Free lessons for software engineers"
     : page.kind === "lesson"
       ? `${page.seriesShort} · Lesson ${page.number}`
@@ -33,6 +39,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ slug?: 
           : (page.seriesShort ?? "Guide");
   const title = isHome ? "DSA, system design, DevOps, JavaScript and interview prep" : page.title;
   const foot = isHome ? HOME_TITLE.split(":")[0] : page.readTime ? `${page.readTime} read` : (page.seriesTitle ?? "");
+  const sub = !isHome && page.description && title.length <= 64 ? clip(page.description, 150) : "";
   const size = title.length > 90 ? 52 : title.length > 60 ? 62 : title.length > 36 ? 74 : 88;
 
   return new ImageResponse(
@@ -45,7 +52,10 @@ export async function GET(_req: Request, { params }: { params: Promise<{ slug?: 
         }}
       >
         <div style={{ display: "flex", fontSize: 30, letterSpacing: 4, textTransform: "uppercase", color: accent }}>{kicker}</div>
-        <div style={{ display: "flex", fontSize: size, fontWeight: 800, lineHeight: 1.12, letterSpacing: -1 }}>{title}</div>
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          <div style={{ display: "flex", fontSize: size, fontWeight: 800, lineHeight: 1.12, letterSpacing: -1 }}>{title}</div>
+          {sub ? <div style={{ display: "flex", marginTop: 24, fontSize: 30, lineHeight: 1.35, color: "#9aa6cf" }}>{sub}</div> : null}
+        </div>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 30, color: "#9aa6cf" }}>
           <div style={{ display: "flex" }}>
             <span style={{ color: accent }}>/</span>

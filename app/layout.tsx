@@ -10,6 +10,7 @@ import GlossaryTooltips from "@/components/GlossaryTooltips";
 import FocusMode from "@/components/FocusMode";
 import LinkPreview from "@/components/LinkPreview";
 import PageTransition from "@/components/PageTransition";
+import LessonRail from "@/components/LessonRail";
 import ReadingProgress from "@/components/ReadingProgress";
 import ResumePrompt from "@/components/ResumePrompt";
 import { accentInitScript } from "@/lib/accents";
@@ -80,6 +81,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </main>
         <SiteFooter />
         <ReadingProgress />
+        <LessonRail />
         <FocusMode />
         <LinkPreview />
         <ResumePrompt />
