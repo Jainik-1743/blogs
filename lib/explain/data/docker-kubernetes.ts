@@ -481,10 +481,10 @@ export const DATA: ExplainerData = {
     kind: "flow",
     title: "A claim finds storage: PVC, StorageClass and PV",
     nodes: [
-      { id: "pod", label: "Pod uploader", sub: "mounts claim uploads", col: 0, row: 1, tone: "server" },
+      { id: "pod", label: "Pod", sub: "mounts claim uploads", col: 0, row: 1, tone: "server" },
       { id: "pvc", label: "PVC uploads", sub: "asks for 5Gi, RWO", col: 1.6, row: 1, tone: "queue" },
       { id: "sc", label: "StorageClass", sub: "default class", col: 3.2, row: 0, tone: "client" },
-      { id: "pv", label: "PersistentVolume", sub: "none yet", col: 3.2, row: 1, tone: "store" },
+      { id: "pv", label: "Volume (PV)", sub: "none yet", col: 3.2, row: 1, tone: "store" },
       { id: "disk", label: "Real disk", sub: "cloud disk or NFS", col: 4.8, row: 1, tone: "data" },
     ],
     edges: [
