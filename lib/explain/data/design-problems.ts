@@ -190,7 +190,7 @@ export const DATA: ExplainerData = {
       { id: "e4", from: "re", to: "red", label: "d" },
     ],
     steps: [
-      { title: "Words and scores", appear: ["root"], focus: ["root"], set: { root: "react 90, redux 80, read 70, real 60, red 20, reactive 40" }, note: "Popularity scores come from query logs. The question the backend must answer is: give me the top completions for this prefix, in milliseconds." },
+      { title: "Words and scores", appear: ["root"], focus: ["root"], set: { root: "6 words, scored" }, note: "Popularity scores come from query logs. The question the backend must answer is: give me the top completions for this prefix, in milliseconds." },
       { title: "Each letter is a step down the tree", appear: ["r", "e1"], focus: ["r", "e1"], note: "A trie stores strings one character at a time, so every path from the root spells a prefix. The node for r stands for every word that starts with r." },
       { title: "Each node remembers its best completions", appear: ["re", "e2"], focus: ["re", "e2"], note: "While inserting, every prefix node keeps its top-k list, worked out ahead of time (here k is 3). The node re keeps react (90), redux (80) and read (70). Reactive (40) and real (60) lose out here." },
       { title: "suggest(rea) walks 3 nodes", appear: ["rea", "e3"], focus: ["rea", "e3"], note: "Walk r, e and a, then return the list stored there: react, read, real. No search through the words happens at request time. The cost is the length of the prefix, whatever the size of the data." },

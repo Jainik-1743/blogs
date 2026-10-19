@@ -516,7 +516,7 @@ export const DATA: ExplainerData = {
       {
         title: "WaitForFirstConsumer waits for the Pod",
         note: "A cloud disk lives in one zone. If it were created before the Pod is scheduled, it might land in zone A while the Pod runs in zone B and never starts. This mode waits until the Pod has a node.",
-        set: { sc: "WaitForFirstConsumer" },
+        set: { sc: "binds late" },
         focus: ["sc"],
       },
       {
