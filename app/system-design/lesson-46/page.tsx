@@ -4,6 +4,7 @@ import LessonPager from "@/components/LessonPager";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { AsciiDiagram, Flow, QA, Stats } from "@/components/sd/diagrams";
 import LessonHeader from "@/components/sd/LessonHeader";
+import Explainer from "@/components/explainers/Explainer";
 import Section from "@/components/sd/Section";
 import SequenceDiagram from "@/components/sd/SequenceDiagram";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
@@ -289,6 +290,7 @@ export default function SdLessonFourSixPage() {
             <strong>Tools:</strong> Jaeger, Zipkin, Grafana Tempo, and commercial tools like Datadog, Honeycomb, New
             Relic and Dynatrace.
           </p>
+          <Explainer name="system-design-46-trace-waterfall" />
           <h3 id="opentelemetry-one-standard-for-all-three">OpenTelemetry: one standard for all three</h3>
           <p>
             <strong>OpenTelemetry (OTel)</strong> is an open standard and a set of tools for producing and collecting <strong>traces, metrics and logs</strong>. "Vendor-neutral" means it is not tied to one company's product. It is a project of the Cloud Native Computing Foundation (CNCF), a non-profit that hosts open-source cloud projects.

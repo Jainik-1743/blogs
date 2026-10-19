@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import Callout from "@/components/Callout";
+import Explainer from "@/components/explainers/Explainer";
 import ScopeChainDiagram from "@/components/figures/ScopeChainDiagram";
 import { ScopeCase1, ScopeCase2, ScopeCase3, ScopeCase4 } from "@/components/figures/ScopeCases";
 import LessonPager from "@/components/LessonPager";
@@ -261,6 +262,8 @@ export default function JsLessonSevenPage() {
         </p>
         <ScopeChainDiagram />
         <ScopeCase2 />
+
+        <Explainer name="javascript-7-chain-walk" />
 
         <h2 id="case3">Case 3: Shadowing — The Nearest Name Wins</h2>
         <Script title="case3.js" code={case3} />

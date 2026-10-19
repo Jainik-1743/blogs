@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
+import Explainer from "@/components/explainers/Explainer";
 import LessonPager from "@/components/LessonPager";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { Flow, QA, Stats } from "@/components/sd/diagrams";
@@ -476,6 +477,8 @@ export default function SdLessonOneZeroPage() {
             size and server count.
           </p>
           <Estimator caption="Your own envelope. Move the sliders and watch every number — and the design it implies — change together." />
+          <Explainer name="system-design-10-photo-app-estimate" />
+
           <h3 id="tips-for-good-estimates">Tips for good estimates</h3>
           <ul>
             <li>

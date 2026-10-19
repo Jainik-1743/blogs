@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import Callout from "@/components/Callout";
+import Explainer from "@/components/explainers/Explainer";
 import { BindTimerLoop, HelperTimerLoop, IifeTimerLoop, LetTimerLoop, NaiveTimerLoop } from "@/components/figures/TimerLoopCases";
 import TimerTimeline from "@/components/figures/TimerTimeline";
 import LessonPager from "@/components/LessonPager";
@@ -278,6 +279,8 @@ export default function JsLessonElevenPage() {
             single fact is enough to explain the entire bug.
           </p>
         </Callout>
+
+        <Explainer name="javascript-11-shared-i-timers" />
 
         <h2 id="fix1">Fix 1 — Swap var For let</h2>
         <Script title="fix1-let.js" code={fix1} />

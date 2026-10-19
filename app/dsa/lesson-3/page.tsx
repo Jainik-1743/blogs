@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
+import Explainer from "@/components/explainers/Explainer";
 import Callout from "@/components/Callout";
 import CodeTrace from "@/components/dsa/CodeTrace";
 import DryRun from "@/components/dsa/DryRun";
@@ -304,6 +305,7 @@ export default function DsaLessonThreePage() {
 
       <h2 id="trace">Traced: a grading program</h2>
       <p>Step through this program. It turns marks into a grade.</p>
+      <Explainer name="dsa-3-else-if-ladder" />
       <CodeTrace
         code={gradeCode}
         steps={gradeTrace()}

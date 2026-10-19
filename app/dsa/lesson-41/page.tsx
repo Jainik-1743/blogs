@@ -9,6 +9,7 @@ import Recall from "@/components/dsa/Recall";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { getDsaLesson } from "@/lib/dsa";
 import { tracer } from "@/lib/dsa-trace";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = getDsaLesson("lesson-41");
 
@@ -408,6 +409,9 @@ export default function DsaLessonFortyOnePage() {
         <em>h</em> is the height of the tree. For a well-balanced tree (both sides about equal) h is about log n. For a tree
         that is one long chain, h can be as big as n.
       </p>
+
+      <Explainer name="dsa-41-three-ways-to-walk" />
+
 
       <h2 id="trace">Traced: one walk, three orders</h2>
       <p>

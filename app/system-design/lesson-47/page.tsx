@@ -6,6 +6,7 @@ import { Flow, Layers, QA, Stats } from "@/components/sd/diagrams";
 import LessonHeader from "@/components/sd/LessonHeader";
 import Section from "@/components/sd/Section";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = SD_LESSONS.find((l) => l.slug === "lesson-47")!;
 
@@ -288,6 +289,7 @@ export default function SdLessonFourSevenPage() {
               { value: <>~43 min</>, label: <>full outage equivalent</>, sub: <>0.1% of 30 days</> },
             ]}
           />
+          <Explainer name="system-design-47-error-budget" />
           <p>
             <strong>How teams use the budget:</strong>
           </p>

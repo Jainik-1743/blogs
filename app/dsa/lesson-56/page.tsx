@@ -9,6 +9,7 @@ import Recall from "@/components/dsa/Recall";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { getDsaLesson } from "@/lib/dsa";
 import { tracer } from "@/lib/dsa-trace";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = getDsaLesson("lesson-56");
 
@@ -270,6 +271,9 @@ export default function DsaLessonFiftySixPage() {
         neighbour as <code>Infinity</code> (a number bigger than any other), because it can never be the smallest.
       </p>
       <CodeBlock lang="js" code={minPathCode} />
+
+      <Explainer name="dsa-56-min-path-sum-grid" />
+
 
       <h2 id="trace">Traced: minimum path sum</h2>
       <CodeTrace

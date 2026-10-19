@@ -9,6 +9,7 @@ import Recall from "@/components/dsa/Recall";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { getDsaLesson } from "@/lib/dsa";
 import { tracer } from "@/lib/dsa-trace";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = getDsaLesson("lesson-29");
 
@@ -177,6 +178,8 @@ export default function DsaLessonTwentyNinePage() {
         <li><strong>Check:</strong> total hours = the sum of <code>Math.ceil(pile / k)</code> (<code>Math.ceil</code> rounds up). The speed works if the total is ≤ h.</li>
         <li><strong>Direction:</strong> a faster speed never takes longer, so the answers are false…false, true…true. Find the first true.</li>
       </ul>
+
+      <Explainer name="dsa-29-binary-search-on-answer" />
 
       <h2 id="trace">Traced: finding Koko&apos;s speed</h2>
       <CodeTrace

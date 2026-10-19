@@ -7,6 +7,7 @@ import LessonHeader from "@/components/sd/LessonHeader";
 import Section from "@/components/sd/Section";
 import Rollout from "@/components/sd/widgets/Rollout";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = SD_LESSONS.find((l) => l.slug === "lesson-58")!;
 
@@ -260,6 +261,7 @@ export default function SdLessonFiveEightPage() {
               ❌ Old and new versions run together, so they must be <strong>compatible</strong>.
             </li>
           </ul>
+          <Explainer name="system-design-58-canary-release" />
           <p>
             <strong>Canary tips:</strong>
           </p>

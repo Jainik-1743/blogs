@@ -9,6 +9,7 @@ import Recall from "@/components/dsa/Recall";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { getDsaLesson } from "@/lib/dsa";
 import { tracer } from "@/lib/dsa-trace";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = getDsaLesson("lesson-33");
 
@@ -212,6 +213,8 @@ export default function DsaLessonThirtyThreePage() {
         valid subset, not just the leaves.
       </p>
       <CodeBlock lang="js" code={loopCode} />
+
+      <Explainer name="dsa-33-subsets-choose-undo" />
 
       <h2 id="trace">Traced: subsets of [1, 2, 3]</h2>
       <CodeTrace

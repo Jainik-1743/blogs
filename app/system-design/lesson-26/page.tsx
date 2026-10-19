@@ -4,6 +4,7 @@ import LessonPager from "@/components/LessonPager";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { Flow, QA, Stats } from "@/components/sd/diagrams";
 import LessonHeader from "@/components/sd/LessonHeader";
+import Explainer from "@/components/explainers/Explainer";
 import Section from "@/components/sd/Section";
 import HashRing from "@/components/sd/widgets/HashRing";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
@@ -189,6 +190,7 @@ export default function SdLessonTwoSixPage() {
             moves about <strong>99%</strong>. For a cache, this means a flood of misses (the data is not found in the
             cache). For a database, it means moving nearly all the data.
           </p>
+          <Explainer name="system-design-26-modulo-moves-keys" />
           <h3 id="the-hash-ring">The hash ring</h3>
           <ol>
             <li>
@@ -291,6 +293,7 @@ export default function SdLessonTwoSixPage() {
             On average, adding or removing one server moves only about <strong>1/N of the keys</strong>. With 5 servers,
             that is about 20%. With modulo hashing it is about 80%.
           </p>
+          <Explainer name="system-design-26-hash-ring" />
           <h3 id="the-problem-with-a-simple-ring-uneven-load">The problem with a simple ring: uneven load</h3>
           <p>
             A server's arc is the part of the ring that it owns. If you have only a few servers at random points, the arcs

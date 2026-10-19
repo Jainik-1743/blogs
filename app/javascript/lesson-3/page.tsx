@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import Callout from "@/components/Callout";
+import Explainer from "@/components/explainers/Explainer";
 import BlockScopeBox from "@/components/figures/BlockScopeBox";
 import BlockScopeStepper from "@/components/figures/BlockScopeStepper";
 import TdzStepper from "@/components/figures/TdzStepper";
@@ -328,6 +329,8 @@ export default function JsLessonThreePage() {
             <code>Object.freeze(guest)</code> (it freezes the top level only).
           </p>
         </Callout>
+
+        <Explainer name="javascript-3-const-binding" />
 
         <h2 id="scope">Block Scope vs. Function Scope</h2>
         <Script title="block.js" code={blockCode} />

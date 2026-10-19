@@ -9,6 +9,7 @@ import Recall from "@/components/dsa/Recall";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { getDsaLesson } from "@/lib/dsa";
 import { tracer } from "@/lib/dsa-trace";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = getDsaLesson("lesson-35");
 
@@ -288,6 +289,8 @@ export default function DsaLessonThirtyFivePage() {
           ["at index i", "O(i)", "walk to the node before position i"],
         ]}
       />
+
+      <Explainer name="dsa-35-follow-the-links" />
 
       <h2 id="delete">Delete a node</h2>
       <p>

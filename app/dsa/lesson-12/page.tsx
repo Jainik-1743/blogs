@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
+import Explainer from "@/components/explainers/Explainer";
 import Callout from "@/components/Callout";
 import CodeTrace from "@/components/dsa/CodeTrace";
 import DryRun from "@/components/dsa/DryRun";
@@ -254,6 +255,7 @@ export default function DsaLessonTwelvePage() {
       </p>
 
       <h2 id="trace">Traced: halving 16 down to 1</h2>
+      <Explainer name="dsa-12-halving-log-n" />
       <CodeTrace
         code={halvingCode}
         steps={halvingTrace()}

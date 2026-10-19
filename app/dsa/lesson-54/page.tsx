@@ -9,6 +9,7 @@ import Recall from "@/components/dsa/Recall";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { getDsaLesson } from "@/lib/dsa";
 import { tracer } from "@/lib/dsa-trace";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = getDsaLesson("lesson-54");
 
@@ -307,6 +308,9 @@ export default function DsaLessonFiftyFourPage() {
         only once (that is 29 calls that go on to call more). Each of those makes two calls, 58 in total. Add the first call: 1 + 58 = 59.
         In general it is about 2n calls, so the time is O(n). The notebook uses O(n) space, and the recursion depth is O(n) too.
       </p>
+
+      <Explainer name="dsa-54-memo-climbing-stairs" />
+
 
       <h2 id="trace">Traced: climbing stairs with a cache</h2>
       <p>

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
+import Explainer from "@/components/explainers/Explainer";
 import Callout from "@/components/Callout";
 import CodeTrace from "@/components/dsa/CodeTrace";
 import DryRun from "@/components/dsa/DryRun";
@@ -182,6 +183,7 @@ export default function DsaLessonTenPage() {
       </p>
 
       <h2 id="trace">Traced: counting the letters of “banana”</h2>
+      <Explainer name="dsa-10-frequency-map" />
       <CodeTrace
         code={freqCode}
         steps={freqTrace()}

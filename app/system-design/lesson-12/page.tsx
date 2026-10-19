@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
 import Callout from "@/components/Callout";
+import Explainer from "@/components/explainers/Explainer";
 import LessonPager from "@/components/LessonPager";
 import { AsciiDiagram, Compare, QA, Timeline } from "@/components/sd/diagrams";
 import LessonHeader from "@/components/sd/LessonHeader";
@@ -297,6 +298,8 @@ export default function SdLessonOneTwoPage() {
             <strong>liveness</strong> probes ("should I restart this?") and{" "}
             <strong>readiness</strong> probes ("should I send it traffic?").
           </p>
+          <Explainer name="system-design-12-health-checks" />
+
           <h3 id="connection-draining">Connection draining</h3>
           <Timeline
             caption="Removing a server for a deploy without cutting anyone off."

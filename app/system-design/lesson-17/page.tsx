@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
+import Explainer from "@/components/explainers/Explainer";
 import LessonPager from "@/components/LessonPager";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { AsciiDiagram, Compare, Flow, QA } from "@/components/sd/diagrams";
@@ -245,6 +246,8 @@ export default function SdLessonOneSevenPage() {
             <strong>video playback</strong>, clients can use <strong>range requests</strong> (HTTP requests that ask for
             only a byte range of a file) to download just the part they need.
           </p>
+          <Explainer name="system-design-17-presigned-upload" />
+
           <h3 id="serving-files-to-users">Serving files to users</h3>
           <p>
             For public content (product images, avatars), put a <strong>CDN</strong> in front of the bucket (post 14). A

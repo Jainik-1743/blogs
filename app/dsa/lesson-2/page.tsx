@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
+import Explainer from "@/components/explainers/Explainer";
 import Callout from "@/components/Callout";
 import CodeTrace from "@/components/dsa/CodeTrace";
 import DryRun from "@/components/dsa/DryRun";
@@ -340,6 +341,7 @@ export default function DsaLessonTwoPage() {
         attempt <code>a = b; b = a;</code> fails. After the first line both boxes hold 9, and the 5
         is gone. You need a spare box. Step through it:
       </p>
+      <Explainer name="dsa-2-swap-temp" />
       <CodeTrace
         code={swapCode}
         steps={swapTrace()}

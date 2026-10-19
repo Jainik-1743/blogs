@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import Callout from "@/components/Callout";
+import Explainer from "@/components/explainers/Explainer";
 import FalsyChips from "@/components/figures/FalsyChips";
 import LooseTypingStepper from "@/components/figures/LooseTypingStepper";
 import RoomBoard from "@/components/figures/RoomBoard";
@@ -230,6 +231,8 @@ export default function JsLessonSixPage() {
             mistake in the language that was never fixed.
           </p>
         </Callout>
+
+        <Explainer name="javascript-6-where-undefined-comes-from" />
 
         <h2 id="nullundefined">null vs. undefined — Two Different Kinds Of &ldquo;Nothing&rdquo;</h2>
         <div className="table-wrap">

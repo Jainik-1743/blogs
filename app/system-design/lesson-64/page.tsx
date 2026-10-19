@@ -6,6 +6,7 @@ import { Compare, Flow, QA, Stats } from "@/components/sd/diagrams";
 import LessonHeader from "@/components/sd/LessonHeader";
 import Section from "@/components/sd/Section";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = SD_LESSONS.find((l) => l.slug === "lesson-64")!;
 
@@ -349,6 +350,7 @@ export default function SdLessonSixFourPage() {
               },
             ]}
           />
+          <Explainer name="system-design-64-hybrid-fanout" />
           <ul>
             <li>
               Most authors are normal, so <strong>most feed content is precomputed</strong> (fast reads).

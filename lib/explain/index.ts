@@ -66,14 +66,27 @@ const FILES: [string, Record<string, ExplainerDef>][] = [
   ["typescript", d30],
 ];
 
-/** Every explainer by name. A bad definition or a duplicate name fails the build, so nothing broken can ship. */
+const dev = process.env.NODE_ENV === "development";
+
+/**
+ * Every explainer by name. A bad definition or a duplicate name fails the production build, so nothing broken can ship.
+ * While developing (`next dev`), a bad entry is skipped with a warning instead, so one half-written explainer
+ * does not take every lesson page down.
+ */
 export const EXPLAINERS: Record<string, ExplainerDef> = {};
 const problems: string[] = [];
 for (const [series, data] of FILES) {
-  problems.push(...validateData(series, data));
   for (const [name, def] of Object.entries(data)) {
-    if (EXPLAINERS[name]) problems.push(`${name}: defined twice`);
+    const own = validateData(series, { [name]: def });
+    if (EXPLAINERS[name]) own.push(`${name}: defined twice`);
+    if (own.length) {
+      problems.push(...own);
+      if (dev) continue;
+    }
     EXPLAINERS[name] = def;
   }
 }
-if (problems.length) throw new Error(`Explainer problems:\n${problems.join("\n")}`);
+if (problems.length) {
+  if (dev) console.warn(`[explainers] skipped ${problems.length} problem(s):\n${problems.join("\n")}`);
+  else throw new Error(`Explainer problems:\n${problems.join("\n")}`);
+}

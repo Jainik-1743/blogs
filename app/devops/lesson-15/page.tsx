@@ -4,6 +4,7 @@ import Callout from "@/components/Callout";
 import CommandList from "@/components/CommandList";
 import InterviewQA from "@/components/InterviewQA";
 import LessonIntro from "@/components/LessonIntro";
+import Explainer from "@/components/explainers/Explainer";
 import LessonPager from "@/components/LessonPager";
 import Script from "@/components/Script";
 import { getLesson } from "@/lib/lessons";
@@ -237,6 +238,7 @@ export default function LessonFifteenPage() {
           </p>
         </Callout>
 
+        <Explainer name="devops-15-terraform-plan-apply" />
         <h2 id="state-bucket">First, a safe home for state</h2>
         <p>
           A <strong>state file</strong> is a file in which Terraform remembers what it built. By default this file

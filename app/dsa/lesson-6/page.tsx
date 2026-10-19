@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
+import Explainer from "@/components/explainers/Explainer";
 import Callout from "@/components/Callout";
 import CodeTrace from "@/components/dsa/CodeTrace";
 import DryRun from "@/components/dsa/DryRun";
@@ -100,6 +101,7 @@ export default function DsaLessonSixPage() {
       </p>
 
       <h2 id="trace">Traced: every (row, column) pair</h2>
+      <Explainer name="dsa-6-nested-grid" />
       <CodeTrace
         code={gridCode}
         steps={gridTrace()}

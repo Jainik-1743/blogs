@@ -6,6 +6,7 @@ import CommandList from "@/components/CommandList";
 import DnsLookupStepper from "@/components/figures/DnsLookupStepper";
 import DnsResolution from "@/components/figures/DnsResolution";
 import WildcardRecord from "@/components/figures/WildcardRecord";
+import Explainer from "@/components/explainers/Explainer";
 import LessonPager from "@/components/LessonPager";
 import Script from "@/components/Script";
 import { getLesson, SERIES } from "@/lib/lessons";
@@ -213,6 +214,7 @@ Value: 52.66.12.9`}</code>
           tenant&apos;s data to load. For HTTPS you will also need a certificate that covers{" "}
           <code>*.yourapp.com</code>.
         </p>
+        <Explainer name="devops-3-wildcard-tenants" />
         <Callout kind="ok" label="No DNS change per customer">
           <p className="mb-0">
             You do not change DNS each time a new customer joins. Many real multi-tenant products

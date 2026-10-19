@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
+import Explainer from "@/components/explainers/Explainer";
 import LessonPager from "@/components/LessonPager";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { Flow, QA } from "@/components/sd/diagrams";
@@ -115,6 +116,8 @@ export default function SdLessonOneNinePage() {
             You do not scan every document. You only do a few quick lookups, even across <strong>millions</strong> of
             documents.
           </p>
+          <Explainer name="system-design-19-inverted-index" />
+
           <h3 id="text-analysis-making-search-forgiving">Text analysis: making search forgiving</h3>
           <Flow
             caption="The analyser pipeline, applied identically to documents and to queries."

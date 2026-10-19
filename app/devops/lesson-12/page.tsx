@@ -6,6 +6,7 @@ import ScalingFlow from "@/components/figures/ScalingFlow";
 import StatelessDiagram from "@/components/figures/StatelessDiagram";
 import InterviewQA from "@/components/InterviewQA";
 import LessonIntro from "@/components/LessonIntro";
+import Explainer from "@/components/explainers/Explainer";
 import LessonPager from "@/components/LessonPager";
 import Script from "@/components/Script";
 import { getLesson } from "@/lib/lessons";
@@ -328,6 +329,7 @@ export default function LessonTwelvePage() {
           </p>
         </Callout>
 
+        <Explainer name="devops-12-alb-asg" />
         <h2 id="build">Build it, step by step</h2>
         <p>
           You need the network from Lesson 6, an image in ECR (the AWS store for Docker images, Lesson 9)

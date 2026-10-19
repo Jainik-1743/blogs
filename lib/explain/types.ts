@@ -47,6 +47,8 @@ export type FlowEdge = {
 export type FlowStep = StepText & {
   /** Ids (nodes or edges) that become visible at this step and stay visible. Anything listed in some step's `appear` is hidden before that step. */
   appear?: string[];
+  /** Ids (nodes or edges) that disappear from this step on. List an id in a later step's `appear` to bring it back. */
+  hide?: string[];
   /** Ids to highlight in this step. Arrows in focus show a moving dash. */
   focus?: string[];
   /** Change the small second line of a node, from this step on: { nodeId: "new text" }. */

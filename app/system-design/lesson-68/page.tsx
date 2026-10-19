@@ -6,6 +6,7 @@ import LessonHeader from "@/components/sd/LessonHeader";
 import Section from "@/components/sd/Section";
 import SequenceDiagram from "@/components/sd/SequenceDiagram";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = SD_LESSONS.find((l) => l.slug === "lesson-68")!;
 
@@ -573,6 +574,7 @@ export default function SdLessonSixEightPage() {
               },
             ]}
           />
+          <Explainer name="system-design-68-place-order" />
           <p>
             <strong>Key ideas:</strong> transactions for correctness, idempotency for safe retries, the outbox for
             reliable events, and async fan-out for everything else. Multi-step flows can be an{" "}

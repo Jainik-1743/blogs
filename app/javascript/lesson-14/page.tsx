@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import Callout from "@/components/Callout";
+import Explainer from "@/components/explainers/Explainer";
 import EventLoopPlayers from "@/components/figures/EventLoopPlayers";
 import EventLoopStepper from "@/components/figures/EventLoopStepper";
 import LessonPager from "@/components/LessonPager";
@@ -437,6 +438,8 @@ export default function JsLessonFourteenPage() {
           frames.
         </p>
         <Script title="rendering.js" code={frames} />
+
+        <Explainer name="javascript-14-one-loop-turn" />
 
         <h2 id="starvation">Starvation — When Microtasks Never Stop</h2>
         <Script title="starvation.js" code={starvation} />

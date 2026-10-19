@@ -3,6 +3,7 @@ import { pageMetadata } from "@/lib/seo";
 import LessonPager from "@/components/LessonPager";
 import { AsciiDiagram, Compare, Flow, QA, Stats } from "@/components/sd/diagrams";
 import LessonHeader from "@/components/sd/LessonHeader";
+import Explainer from "@/components/explainers/Explainer";
 import Section from "@/components/sd/Section";
 import ReplicationLag from "@/components/sd/widgets/ReplicationLag";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
@@ -255,6 +256,7 @@ export default function SdLessonTwoFourPage() {
             <strong>Monitor replication lag</strong> and set an alert for it. If a replica falls too far behind, remove it
             from the group of replicas that serve reads.
           </p>
+          <Explainer name="system-design-24-replication-lag" />
           <h3 id="failover-when-the-leader-dies">Failover: when the leader dies</h3>
           <Flow
             caption="Failover, step by step. Each step has its own way to go wrong."
@@ -397,6 +399,7 @@ export default function SdLessonTwoFourPage() {
               This improves availability. But it weakens the W + R &gt; N guarantee.
             </li>
           </ul>
+          <Explainer name="system-design-24-quorum-w-r-n" />
           <h3 id="how-changes-are-shipped">How changes are shipped</h3>
           <ul>
             <li>

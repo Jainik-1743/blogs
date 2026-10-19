@@ -6,6 +6,7 @@ import { Compare, Flow, QA } from "@/components/sd/diagrams";
 import LessonHeader from "@/components/sd/LessonHeader";
 import Section from "@/components/sd/Section";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = SD_LESSONS.find((l) => l.slug === "lesson-55")!;
 
@@ -354,6 +355,7 @@ export default function SdLessonFiveFivePage() {
               <code>package.json</code>.)
           </p>
           <CodeBlock lang="dockerfile" code={code2} />
+          <Explainer name="system-design-55-docker-layer-cache" />
           <p>
             <strong>Why this is better:</strong>
           </p>

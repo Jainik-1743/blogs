@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import Callout from "@/components/Callout";
+import Explainer from "@/components/explainers/Explainer";
 import EmptyFileStepper from "@/components/figures/EmptyFileStepper";
 import GlobalNames from "@/components/figures/GlobalNames";
 import SharedWindowStepper from "@/components/figures/SharedWindowStepper";
@@ -311,6 +312,8 @@ export default function JsLessonFivePage() {
           <code>window</code>, but strict mode makes it <code>undefined</code> instead. This stops
           functions from accidentally writing onto the global object.
         </p>
+
+        <Explainer name="javascript-5-strict-this" />
 
         <h2 id="live">See It Live — Console &amp; DevTools</h2>
         <ol className="steps">

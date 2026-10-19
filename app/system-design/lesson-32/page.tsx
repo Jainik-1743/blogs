@@ -4,6 +4,7 @@ import LessonPager from "@/components/LessonPager";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { Compare, Flow, QA, Stats } from "@/components/sd/diagrams";
 import LessonHeader from "@/components/sd/LessonHeader";
+import Explainer from "@/components/explainers/Explainer";
 import Section from "@/components/sd/Section";
 import SequenceDiagram from "@/components/sd/SequenceDiagram";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
@@ -242,6 +243,7 @@ export default function SdLessonThreeTwoPage() {
           <p>
             Twelve queries became <strong>1</strong>. Almost every serious GraphQL server uses this pattern.
           </p>
+          <Explainer name="system-design-32-graphql-dataloader" />
           <h3 id="the-caching-challenge">The caching challenge</h3>
           <p>
             REST GETs are easy to cache. Each URL is a resource, and CDNs (networks that keep copies of content near users)

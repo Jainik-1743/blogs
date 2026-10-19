@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
 import Callout from "@/components/Callout";
+import Explainer from "@/components/explainers/Explainer";
 import LessonPager from "@/components/LessonPager";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { Flow, QA, Stats } from "@/components/sd/diagrams";
@@ -266,6 +267,8 @@ export default function SdLessonNinePage() {
             in one city area) and <strong>regions</strong> (separate geographic areas), and roll out changes slowly,
             a few servers at a time. More on this in Part 7.
           </p>
+          <Explainer name="system-design-9-composite-availability" />
+
           <h3 id="planned-vs-unplanned-downtime">Planned vs unplanned downtime</h3>
           <ul>
             <li>

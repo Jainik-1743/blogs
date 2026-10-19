@@ -3,6 +3,7 @@ import { pageMetadata } from "@/lib/seo";
 import LessonPager from "@/components/LessonPager";
 import { Compare, Flow, QA } from "@/components/sd/diagrams";
 import LessonHeader from "@/components/sd/LessonHeader";
+import Explainer from "@/components/explainers/Explainer";
 import Section from "@/components/sd/Section";
 import CapPartition from "@/components/sd/widgets/CapPartition";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
@@ -133,6 +134,7 @@ export default function SdLessonTwoSevenPage() {
             (A database with a single node is not a CAP example at all. There is no network between copies that can be
             split. If that one node dies, the database is simply down.)
           </p>
+          <Explainer name="system-design-27-cap-partition" />
           <h3 id="cp-vs-ap-behaviour">CP vs AP behaviour</h3>
           <p>
             <strong>CP (choose consistency during partitions).</strong> Nodes that cannot confirm that they have the latest

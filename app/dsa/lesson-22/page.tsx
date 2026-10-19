@@ -10,6 +10,7 @@ import Recall from "@/components/dsa/Recall";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { getDsaLesson } from "@/lib/dsa";
 import { tracer } from "@/lib/dsa-trace";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = getDsaLesson("lesson-22");
 
@@ -167,6 +168,8 @@ export default function DsaLessonTwentyTwoPage() {
           positions back.
         </p>
       </Callout>
+
+      <Explainer name="dsa-22-sliding-window-sum" />
 
       <h2 id="trace">Traced: largest sum of 3 neighbours</h2>
       <CodeTrace

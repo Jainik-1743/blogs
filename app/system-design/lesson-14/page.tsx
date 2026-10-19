@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
+import Explainer from "@/components/explainers/Explainer";
 import LessonPager from "@/components/LessonPager";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { Compare, Flow, QA, Stats } from "@/components/sd/diagrams";
@@ -121,6 +122,8 @@ export default function SdLessonOneFourPage() {
             The key metric is the <strong>cache hit ratio</strong>: the share of requests answered from the cache. If
             it's 95%, only 5% of requests ever reach your servers.
           </p>
+          <Explainer name="system-design-14-cdn-hit-and-miss" />
+
           <h3 id="pull-cdn-vs-push-cdn">Pull CDN vs push CDN</h3>
           <Compare
             caption="Two ways content reaches the edge."

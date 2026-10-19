@@ -4,6 +4,7 @@ import Callout from "@/components/Callout";
 import CommandList from "@/components/CommandList";
 import InterviewQA from "@/components/InterviewQA";
 import LessonIntro from "@/components/LessonIntro";
+import Explainer from "@/components/explainers/Explainer";
 import LessonPager from "@/components/LessonPager";
 import Script from "@/components/Script";
 import { getLesson } from "@/lib/lessons";
@@ -169,6 +170,7 @@ export default function LessonEighteenPage() {
           detection and recovery.
         </p>
 
+        <Explainer name="devops-18-defence-in-depth" />
         <h2 id="identity">Layer 1 — identity: keys, MFA, roles</h2>
         <p>
           Identity means who or what is allowed to log in. It is the front door, and attackers use it

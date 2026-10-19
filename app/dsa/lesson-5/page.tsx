@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
+import Explainer from "@/components/explainers/Explainer";
 import Callout from "@/components/Callout";
 import CodeTrace from "@/components/dsa/CodeTrace";
 import DryRun from "@/components/dsa/DryRun";
@@ -147,6 +148,7 @@ export default function DsaLessonFivePage() {
       </p>
 
       <h2 id="trace">Traced: the sum of the digits of 472</h2>
+      <Explainer name="dsa-5-digit-loop" />
       <CodeTrace
         code={digitCode}
         steps={digitTrace()}

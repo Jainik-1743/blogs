@@ -9,6 +9,7 @@ import Recall from "@/components/dsa/Recall";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { getDsaLesson } from "@/lib/dsa";
 import { tracer } from "@/lib/dsa-trace";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = getDsaLesson("lesson-23");
 
@@ -160,6 +161,8 @@ export default function DsaLessonTwentyThreePage() {
         For &ldquo;shortest&rdquo; problems, the logic is the other way round. Grow the window until it <em>is</em>
         good. Then shrink it for as long as it stays good, and record its length each time.
       </p>
+
+      <Explainer name="dsa-23-grow-shrink-window" />
 
       <h2 id="trace">Traced: shortest subarray with sum ≥ 7</h2>
       <CodeTrace

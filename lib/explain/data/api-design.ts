@@ -1,4 +1,255 @@
 import type { ExplainerData } from "../types.ts";
 
 /** Explainers for the "api-design" series. Names must start with "api-design-" followed by the lesson number. */
-export const DATA: ExplainerData = {};
+export const DATA: ExplainerData = {
+  "api-design-0-get-must-be-safe": {
+    kind: "seq",
+    title: "Why a GET must never delete anything",
+    actors: [
+      { name: "Link crawler", sub: "or a browser pre-loader" },
+      { name: "Bad API", sub: "GET /deleteUser" },
+      { name: "Good API", sub: "DELETE /users/1" },
+      { name: "Admin app", sub: "a person clicked" },
+    ],
+    steps: [
+      { from: 0, to: 1, label: "GET /deleteUser?id=1", title: "A crawler follows a link it found", note: "Crawlers, link scanners and browser pre-loaders open every link they see. They assume a GET only reads, so they feel free to call it. The bad API put a verb in the URL and hid a delete behind a GET." },
+      { from: 1, to: 1, self: true, label: "users.delete(1)", title: "The server deletes user 1", note: "Nobody clicked 'delete'. A robot visited a page and real data is gone. This is why GET must be safe, which means it only reads." },
+      { from: 1, to: 0, label: "200 OK {ok: true}", title: "It answers 200 as if all is well", note: "Every reply from the bad API is 200 OK, so monitoring sees 100 percent success. The first thing every tool reads, the status code, tells it nothing." },
+      { from: 1, to: 0, label: "200 OK {ok: false, msg: no user}", title: "Later, a missing user is still a 200", note: "A read for user 1 now says 200 with a private ok:false field inside. A retry library or a dashboard cannot tell this from success without learning your own secret convention." },
+      { from: 0, to: 2, label: "GET /users/1", title: "The good API: the same crawler only reads", note: "In the good design the URL is a noun, /users/1, and the method is the verb. A GET on it can only read, so the crawler can visit it a thousand times with no harm." },
+      { from: 2, to: 0, label: "200 OK {id: 1, name: Ada}", title: "The user is still there", note: "Nothing changed. Caches and prefetchers can safely store this answer because the method promised it only reads." },
+      { from: 3, to: 2, label: "DELETE /users/1", title: "Only a deliberate DELETE removes data", note: "A person in the admin app must choose to send DELETE. Crawlers do not send it. The method says exactly what will happen." },
+      { from: 2, to: 3, label: "204 No Content", title: "The status code says what happened", note: "204 means it worked and there is nothing to send back. A second DELETE would leave the same state, so it is safe to retry. Lesson 1 covers this idea, called idempotency." },
+    ],
+  },
+
+  "api-design-1-lost-response": {
+    kind: "seq",
+    title: "A lost reply: why POST duplicates and PUT does not",
+    actors: [
+      { name: "Client", sub: "phone in a lift" },
+      { name: "Orders API" },
+      { name: "Orders table" },
+    ],
+    steps: [
+      { from: 0, to: 1, label: "POST /orders {book, qty 1}", title: "The client orders a book", note: "POST /orders means 'create a new order in this collection'. The server picks the id. Nothing in the request says which order this is." },
+      { from: 1, to: 2, label: "INSERT order 2", title: "The server creates order 2", note: "The work is done and stored. From here on, the order exists, whatever happens to the reply." },
+      { from: 1, to: 0, label: "201 Created (connection drops)", title: "The answer never arrives", note: "The signal drops in the lift. The server did everything right, but the client gets only an empty reply. In a network you can never be sure a request with no answer was processed." },
+      { from: 0, to: 0, self: true, label: "no answer: did it work?", title: "The client cannot tell success from failure", note: "'It failed' and 'it worked but I did not hear' look exactly the same from the client's side. A sensible client retries, and now the API's design matters." },
+      { from: 0, to: 1, label: "POST /orders {book, qty 1} (retry)", title: "The client retries the POST", note: "The retry is identical to the first request. The server has no way to know it is a repeat, so it treats it as a brand new order." },
+      { from: 1, to: 2, label: "INSERT order 3", title: "Now the customer has two books", note: "Ids 2 and 3 both hold a book. POST is not idempotent, so every call creates something new. The bug is in the design of the API, not in curl or the client." },
+      { from: 0, to: 1, label: "PUT /orders/10 {lamp, qty 1}", title: "PUT: the client names the order", note: "With PUT the client chooses the id (in real code often a UUID). The request means 'make order 10 look exactly like this', so a repeat asks for the same end state." },
+      { from: 1, to: 0, label: "201 Created (reply lost again)", title: "The same lost reply happens", note: "The first PUT created order 10 and the answer was lost again. The client is back in the same doubt as before." },
+      { from: 0, to: 1, label: "PUT /orders/10 {lamp, qty 1} (retry)", title: "Retry the PUT", note: "The client sends the identical request. PUT is idempotent: doing it many times leaves the server in the same state as doing it once." },
+      { from: 1, to: 0, label: "200 OK, same ETag, still one order", title: "No duplicate, the retry is safe", note: "The first call created the order (201) and the second replaced it with identical data (200). The response differs but the state is the same, and that is what idempotent means." },
+    ],
+  },
+
+  "api-design-2-edge-pipeline": {
+    kind: "flow",
+    title: "A safe request: validate in, build out",
+    nodes: [
+      { id: "client", label: "Client", sub: "sends JSON", col: 0, row: 0, tone: "client" },
+      { id: "validate", label: "Validator", sub: "allow-list of fields", col: 1, row: 0, tone: "server" },
+      { id: "handler", label: "Handler", sub: "your business code", col: 2, row: 0, tone: "server" },
+      { id: "db", label: "Database row", sub: "empty", col: 3, row: 0, tone: "store" },
+      { id: "problem", label: "Problem details", sub: "no error yet", col: 1, row: 2, tone: "warn" },
+      { id: "mapper", label: "Mapper", sub: "hand-written output shape", col: 2, row: 2, tone: "data" },
+    ],
+    edges: [
+      { id: "e1", from: "client", to: "validate", label: "POST /users" },
+      { id: "e2", from: "validate", to: "problem", label: "422" },
+      { id: "e3", from: "problem", to: "client", label: "problem+json" },
+      { id: "e4", from: "validate", to: "handler", label: "typed input" },
+      { id: "e5", from: "handler", to: "db", label: "INSERT" },
+      { id: "e6", from: "db", to: "mapper", label: "whole row" },
+      { id: "e7", from: "mapper", to: "client", label: "201, safe fields", curve: -1 },
+    ],
+    steps: [
+      { title: "The client sends a sneaky body", appear: ["client"], focus: ["client"], set: { client: "name, email, role: admin" }, note: "Mallory does not use your sign-up form. She sends JSON directly and adds one extra field, role, hoping the server copies everything into the database." },
+      { title: "The validator checks against an allow-list", appear: ["validate", "e1"], focus: ["validate", "e1"], set: { validate: "allowed: name, email" }, note: "Validation happens at the edge, before any business code runs. The schema lists the only fields this endpoint accepts and the shape of each one." },
+      { title: "Unknown field: rejected with one error shape", appear: ["problem", "e2", "e3"], focus: ["problem", "e2", "e3"], set: { problem: "/role: unknown field" }, note: "The answer is 422 in the standard problem details format, with a pointer to the bad field. The bad server in the lesson inserted role=admin and made Mallory an admin. Here nothing is inserted." },
+      { title: "A good body becomes a typed input", hide: ["e2", "e3"], appear: ["handler", "e4"], focus: ["e4", "handler"], set: { client: "name, email", validate: "all checks passed", problem: "not used" }, note: "Without the extra field, the body passes. The handler receives only the fields the schema allowed, never the raw request body, so it cannot copy a surprise field by accident." },
+      { title: "The handler saves the row", appear: ["db", "e5"], focus: ["db", "e5"], set: { db: "has password_hash, role" }, note: "The database row holds private things: a password hash, the role, internal flags. It is built for your storage, not for the public." },
+      { title: "A hand-written mapper builds the response", appear: ["mapper", "e6"], focus: ["mapper", "e6"], set: { mapper: "id, name, email, created_at" }, note: "The public shape is a contract written separately from the row. The mapper copies only fields you chose to publish, so a new column added next year is private by default." },
+      { title: "The client gets only the safe fields", appear: ["e7"], focus: ["e7", "client"], set: { client: "201 with id, name, email" }, note: "No password_hash, no role, and the date is in UTC with a Z. Returning a database row directly is the classic leak this design avoids." },
+    ],
+  },
+
+  "api-design-3-offset-vs-keyset": {
+    kind: "array",
+    title: "Offset skips by position, keyset continues from a value",
+    cells: [10, 9, 8, 7, 6, 5, 4, 3],
+    indexLabels: ["row 1", "row 2", "row 3", "row 4", "row 5", "row 6", "row 7", "row 8"],
+    steps: [
+      { title: "Page 1: LIMIT 4 OFFSET 0", mark: [0, 1, 2, 3], pointers: [{ at: 0, label: "offset 0" }], note: "Ten posts sorted newest first, shown by id (only the first eight are drawn). The client asks for 4 per page. Offset pagination counts positions: skip 0 rows, take 4." },
+      { title: "The client has seen posts 10, 9, 8, 7", done: [0, 1, 2, 3], pointers: [{ at: 3, label: "seen" }], note: "It now asks for page 2, which means OFFSET 4: skip four rows. Remember that offset counts positions, not values." },
+      { title: "A new post arrives at the top", cells: [11, 10, 9, 8, 7, 6, 5, 4], mark: [0], pointers: [{ at: 0, label: "new" }], note: "Post 11 is added. Because the list is newest first, every old row moves down one place. Post 7 is no longer at position 4, it is at position 5." },
+      { title: "OFFSET 4 shows post 7 a second time", cells: [11, 10, 9, 8, 7, 6, 5, 4], dim: [1, 2, 3], mark: [4, 5, 6, 7], pointers: [{ at: 4, label: "again" }], note: "Page 2 is now 7, 6, 5, 4, and 7 was already on page 1. The client sees a duplicate and nothing warns it. The rows slid, but the offset stayed the same." },
+      { title: "A delete makes offset skip a row", cells: [10, 8, 7, 6, 5, 4, 3, 2], dim: [0, 1, 2], mark: [4, 5, 6, 7], pointers: [{ at: 3, label: "skipped" }, { at: 4, label: "offset 4" }], note: "Different story: post 9 is deleted instead. Rows slide up, and OFFSET 4 now starts at post 5. Post 6 is never shown. For an export or a billing run this is a data loss bug." },
+      { title: "Keyset asks for rows after the last id", cells: [10, 8, 7, 6, 5, 4, 3, 2], dim: [0, 1, 2], mark: [3, 4, 5, 6], pointers: [{ at: 3, label: "id < 7" }], note: "With a cursor the query asks for rows WHERE id is below 7, ORDER BY id DESC LIMIT 4. It returns 6, 5, 4, 3 with nothing skipped. It also stays fast on deep pages, because the index jumps straight to id 7." },
+    ],
+  },
+
+  "api-design-4-expand-contract": {
+    kind: "flow",
+    title: "Rename a field without breaking old clients",
+    nodes: [
+      { id: "resp", label: "API response", sub: "name: Ada Lovelace", col: 0, row: 1, span: 1.4, tone: "server" },
+      { id: "oldc", label: "Old client", sub: "reads name", col: 2.2, row: 0, span: 1.8, tone: "client" },
+      { id: "newc", label: "New client", sub: "not written yet", col: 2.2, row: 2, span: 1.8, tone: "data" },
+    ],
+    edges: [
+      { id: "e1", from: "resp", to: "oldc", label: "name" },
+      { id: "e2", from: "resp", to: "newc", label: "first_name, last_name" },
+    ],
+    steps: [
+      { title: "Version 1 works for everyone", appear: ["resp", "oldc", "e1"], focus: ["resp", "oldc", "e1"], set: { oldc: "Hello, ADA LOVELACE" }, note: "An old client was written against version 1 and never updated. You do not control your clients' release schedule, so it will keep calling this API for a long time." },
+      { title: "A rename is really remove plus add", set: { resp: "first_name, last_name", oldc: "crash: name is undefined" }, focus: ["resp", "oldc"], note: "Splitting name into two fields looks small, but the old client reads name and now gets nothing. In the lesson's test, this crashed the old client. Renaming is a breaking change." },
+      { title: "Expand: keep the old field, add the new ones", set: { resp: "name + first_name + last_name", oldc: "works: still reads name" }, focus: ["resp", "oldc"], note: "First step of expand and contract: add the new fields next to the old one. Both kinds of client work. It costs a few extra bytes, and you get time." },
+      { title: "A new client reads the new fields", appear: ["newc", "e2"], focus: ["newc", "e2"], set: { newc: "reads first_name, last_name" }, note: "New code can use the better shape right away. Nobody had to wait for a version 2, and nobody had to change URLs." },
+      { title: "Migrate: mark the old field deprecated", set: { resp: "name (deprecated) + new fields", oldc: "still reads name" }, focus: ["resp"], note: "Deprecated means 'still works, please stop using it'. Mark it in the OpenAPI file, send a Deprecation header, tell people, and log which clients still read it." },
+      { title: "The old client moves over", set: { oldc: "now reads first_name, last_name" }, focus: ["oldc", "e2"], appear: ["e2"], note: "Usage falls as clients update. Use the numbers, not hope: the field is only safe to remove when nobody reads it or the agreed date has passed." },
+      { title: "Contract: remove the old field", hide: ["e1"], set: { resp: "first_name, last_name only" }, focus: ["resp"], note: "Now removing name breaks nobody. Three safe steps replaced one breaking change. If a break is truly unavoidable, a new version with a Sunset date is the fallback." },
+    ],
+  },
+
+  "api-design-5-idempotency-key": {
+    kind: "seq",
+    title: "An idempotency key stops a double charge",
+    actors: [
+      { name: "Client" },
+      { name: "Payments API" },
+      { name: "Key store", sub: "unique constraint" },
+      { name: "Bank", sub: "slow, 100 ms" },
+    ],
+    steps: [
+      { from: 0, to: 1, label: "POST /payments {500} key k-1", title: "The client sends the key with the payment", note: "Before the first try, the client made up a random string, k-1. All retries of this one payment will carry the same key. The key names the intended action, not one HTTP attempt." },
+      { from: 1, to: 2, label: "claim k-1 (state: running)", title: "The server claims the key first", note: "The claim happens before the slow work, in one atomic step such as a database insert with a unique constraint. A check followed by a save later leaves a gap, and in the lesson's test three parallel requests made three charges." },
+      { from: 1, to: 3, label: "charge 500", title: "Then it talks to the bank", note: "The bank takes 100 ms. The client's timeout is only 50 ms, so the client will give up while this call is still running." },
+      { from: 0, to: 0, self: true, label: "timeout after 50 ms", title: "The client stops waiting", note: "An abort on the client does not cancel the work on the server. The server carries on and saves ch_1. A timeout only means 'I stopped waiting'." },
+      { from: 0, to: 1, label: "POST /payments {500} key k-1 (retry)", title: "The client retries with the same key", note: "This is the whole point: the client can try again safely because it says 'this is the same attempt as before'." },
+      { from: 1, to: 0, label: "409 still running, Retry-After 1", title: "Still running: tell the client to wait", note: "The key is known but the first request has not finished. The server answers 409 and does not start a second charge. Retry-After says when to try again." },
+      { from: 1, to: 2, label: "done: save 201 and ch_1 under k-1", title: "The first request finishes and is saved", note: "The bank said yes. The server stores the status code and the response body under the key, along with a fingerprint (a hash) of the request." },
+      { from: 0, to: 1, label: "POST /payments {500} key k-1 (retry)", title: "The client retries again", note: "Same key, same body, now after the work finished." },
+      { from: 1, to: 0, label: "201 ch_1 (replayed, no new charge)", title: "The saved answer is replayed", note: "The client gets the very same charge back and sees a normal 201, so it needs no special code. The bank is not called again. Exactly one charge exists." },
+      { from: 1, to: 0, label: "422 same key, different body", title: "A reused key with new content is rejected", note: "Imagine the client sent key k-1 again with amount 999. The fingerprint does not match, so the server answers 422. Silently replaying the old answer would hide a client bug." },
+    ],
+  },
+
+  "api-design-6-authz-checks": {
+    kind: "flow",
+    title: "Every request passes four checks",
+    nodes: [
+      { id: "req", label: "Request", sub: "user A, token tokA", col: 0, row: 0, tone: "client" },
+      { id: "authn", label: "Check token", sub: "none or bad = 401", col: 1, row: 0, tone: "server" },
+      { id: "scope", label: "Check scope", sub: "missing = 403", col: 2, row: 0, tone: "server" },
+      { id: "owner", label: "Check owner", sub: "not yours = 404", col: 3, row: 0, tone: "warn" },
+      { id: "answer", label: "Answer", sub: "waiting", col: 3, row: 2, tone: "data" },
+    ],
+    edges: [
+      { id: "e1", from: "req", to: "authn" },
+      { id: "e2", from: "authn", to: "scope" },
+      { id: "e3", from: "scope", to: "owner" },
+      { id: "e4", from: "owner", to: "answer" },
+    ],
+    steps: [
+      { title: "User A asks for order 102", appear: ["req"], focus: ["req"], set: { req: "GET /orders/102" }, note: "User A is logged in. Order 102 belongs to user B. The client only changed the number in the URL, which is the most common API bug, called BOLA or IDOR." },
+      { title: "Authentication: who are you?", appear: ["authn", "e1"], focus: ["authn", "e1"], set: { authn: "valid token: user A" }, note: "A missing, expired or forged token gets 401 with a WWW-Authenticate header. Here the token is good, so the server knows the caller. 401 means 'log in again'." },
+      { title: "Scope: may this app read orders?", appear: ["scope", "e2"], focus: ["scope", "e2"], set: { scope: "has orders:read" }, note: "A scope says what the app may do. A token with only orders:read would get 403 on a POST. 403 means 'I know you, and the answer is no'." },
+      { title: "Ownership: is this order yours?", appear: ["owner", "e3"], focus: ["owner", "e3"], set: { owner: "owner is B, caller is A" }, note: "The scope allows the action, but only an ownership check limits the user to their own objects. Scope and ownership are different questions and you need both." },
+      { title: "Someone else's order looks like a missing one", appear: ["answer", "e4"], focus: ["answer", "e4"], set: { answer: "404 not found" }, note: "The server answers 404, the same as for an id that does not exist. With 403 an attacker would learn that order 102 exists, and could map out your ids." },
+      { title: "Her own order passes", focus: ["owner", "answer"], set: { req: "GET /orders/101", owner: "owner is A: allowed", answer: "200 with the order" }, note: "Now the same checks pass. Random ids such as UUIDs would not replace the ownership check, because ids leak in logs, emails and screenshots." },
+      { title: "The response shows only allowed fields", focus: ["answer"], set: { answer: "200: no internalCost" }, note: "The last check is on the way out. A fixed list of public fields keeps out internalCost, which is the shop's margin, and any password hash. Allow-lists and default deny fix this class of bug." },
+    ],
+  },
+
+  "api-design-7-openapi-file": {
+    kind: "flow",
+    title: "One OpenAPI file drives docs, mocks and tests",
+    nodes: [
+      { id: "spec", label: "openapi.yaml", sub: "the contract", col: 0, row: 1, tone: "store" },
+      { id: "lint", label: "Validate + lint", sub: "run in CI", col: 0, row: 0, tone: "warn" },
+      { id: "docs", label: "Docs page", sub: "built from the file", col: 1.5, row: 0, tone: "data" },
+      { id: "mock", label: "Mock server", sub: "answers from examples", col: 0, row: 2, tone: "queue" },
+      { id: "contract", label: "Contract test", sub: "reads the schemas", col: 1.5, row: 1, tone: "client" },
+      { id: "server", label: "Real server", sub: "your code", col: 3, row: 1, tone: "server" },
+    ],
+    edges: [
+      { id: "e1", from: "spec", to: "lint" },
+      { id: "e2", from: "spec", to: "docs", label: "build-docs" },
+      { id: "e3", from: "spec", to: "mock", label: "examples" },
+      { id: "e4", from: "spec", to: "contract", label: "schemas" },
+      { id: "e5", from: "contract", to: "server", label: "calls it", both: true },
+    ],
+    steps: [
+      { title: "Write the contract once", appear: ["spec"], focus: ["spec"], note: "The file lists paths, methods, parameters, request bodies, responses, errors and security. Each shape is described once in components and reused with a $ref pointer." },
+      { title: "Validate and lint it", appear: ["lint", "e1"], focus: ["lint", "e1"], set: { lint: "typo NewOrdr: caught" }, note: "A validator checks the format, for example a misspelled $ref. A linter checks quality, for example a path parameter that was never declared. In the lesson, a file the parser called valid had seven lint findings." },
+      { title: "Docs come for free", appear: ["docs", "e2"], focus: ["docs", "e2"], note: "One command turns the file into a documentation page, so the docs cannot disagree with the contract. They are only as good as your summaries and examples." },
+      { title: "A mock server lets others start early", appear: ["mock", "e3"], focus: ["mock", "e3"], set: { mock: "next_cursor: string (no example)" }, note: "The front-end team can build against fake answers made from the schemas. The mock is only as useful as the examples in the file, as the placeholder next_cursor value shows." },
+      { title: "A contract test calls the real server", appear: ["contract", "e4", "server", "e5"], focus: ["contract", "server", "e5"], set: { contract: "PASS: shape matches" }, note: "The test sends real requests and checks each response against its schema. It protects clients, while unit tests protect your inner logic." },
+      { title: "Drift: the code changes but the file does not", focus: ["server", "contract"], set: { server: "returns total, not total_cents", contract: "FAIL: 4 breaks, status 201" }, note: "The status was still 201, so a test that only checks the status would pass. The contract test found a renamed field, a bad enum value, a lower-case currency and a bad date." },
+      { title: "CI keeps the file and the server honest", focus: ["lint", "contract"], set: { server: "fixed to match the file", contract: "PASS" }, note: "Run validate, lint, contract tests and a diff against the last release on every pull request. The file describes shapes only. Rules like 'the sku must exist' still live in code and tests." },
+    ],
+  },
+
+  "api-design-8-graphql-n-plus-one": {
+    kind: "flow",
+    title: "GraphQL N+1: 11 database calls become 2",
+    nodes: [
+      { id: "q", label: "GraphQL query", sub: "10 posts with authors", col: 0, row: 1, tone: "client" },
+      { id: "posts", label: "posts resolver", sub: "one list query", col: 1.5, row: 0, tone: "server" },
+      { id: "author", label: "author resolver", sub: "runs once per post", col: 1.5, row: 2, tone: "server" },
+      { id: "loader", label: "DataLoader", sub: "new one per request", col: 1.5, row: 1, tone: "queue" },
+      { id: "db", label: "Database", sub: "calls: 0", col: 3, row: 1, tone: "store" },
+    ],
+    edges: [
+      { id: "e1", from: "q", to: "posts", label: "{ posts }" },
+      { id: "e2", from: "posts", to: "db", label: "SELECT posts" },
+      { id: "e3", from: "q", to: "author", label: "{ author }" },
+      { id: "e4", from: "author", to: "db", label: "1 query per post" },
+      { id: "e5", from: "author", to: "loader", label: "load(authorId)" },
+      { id: "e6", from: "loader", to: "db", label: "one IN query" },
+    ],
+    steps: [
+      { title: "The screen asks for posts and authors", appear: ["q"], focus: ["q"], note: "The query is { posts { title author { name } } }. The client states the shape it wants and gets that shape back in one request. Each field has its own resolver, a function that finds the value." },
+      { title: "One query fetches the 10 posts", appear: ["posts", "e1", "db", "e2"], focus: ["posts", "e2"], set: { db: "calls: 1" }, note: "So far so good: one SELECT for the list. The trap is in what happens next." },
+      { title: "The author resolver runs once for every post", appear: ["author", "e3"], focus: ["author", "e3"], set: { author: "runs 10 times" }, note: "Every post has its own call to the author resolver. If each call does its own database lookup, we get one query per row." },
+      { title: "That is the N+1 problem: 11 calls", appear: ["e4"], focus: ["e4", "db"], set: { db: "calls: 11" }, note: "One query for the list plus ten for the authors. Only five distinct authors exist, so the naive version even asked for some of them twice. At 1,000 posts it would be 1,001 queries." },
+      { title: "Fix: DataLoader collects the ids", hide: ["e4"], appear: ["loader", "e5"], focus: ["loader", "e5"], set: { loader: "collects ids 1,2,3,4,5" }, note: "Instead of querying now, the resolver says 'I will need author 3'. DataLoader gathers all such requests made in the same tick of the event loop and removes the duplicates." },
+      { title: "One batched query asks for all authors", appear: ["e6"], focus: ["e6", "db"], set: { db: "calls: 2", loader: "one batch, no duplicates" }, note: "The loader runs SELECT ... WHERE id IN (1, 2, 3, 4, 5) once. Eleven calls became two and the result is identical. Create the loader per request, never global, or its cache could leak data between users." },
+    ],
+  },
+
+  "api-design-9-review-order": {
+    kind: "flow",
+    title: "Answer a design question in seven steps",
+    nodes: [
+      { id: "s1", label: "1 Clarify", sub: "who calls? no double booking", col: 0, row: 0, tone: "client" },
+      { id: "s2", label: "2 Resources", sub: "rooms, bookings, payments", col: 1, row: 0, tone: "server" },
+      { id: "s3", label: "3 Operations", sub: "POST /bookings, GET /rooms", col: 2, row: 0, tone: "server" },
+      { id: "s4", label: "4 Shapes, errors", sub: "201 + Location, 409 room taken", col: 3, row: 0, tone: "data" },
+      { id: "s5", label: "5 Hard parts", sub: "Idempotency-Key, DB constraint", col: 3, row: 2, tone: "warn" },
+      { id: "s6", label: "6 Security", sub: "OAuth, scope plus owner check", col: 2, row: 2, tone: "store" },
+      { id: "s7", label: "7 Evolution", sub: "OpenAPI first, Sunset header", col: 1, row: 2, tone: "queue" },
+    ],
+    edges: [
+      { id: "e1", from: "s1", to: "s2" },
+      { id: "e2", from: "s2", to: "s3" },
+      { id: "e3", from: "s3", to: "s4" },
+      { id: "e4", from: "s4", to: "s5" },
+      { id: "e5", from: "s5", to: "s6" },
+      { id: "e6", from: "s6", to: "s7" },
+    ],
+    steps: [
+      { title: "Clarify first, in two minutes", appear: ["s1"], focus: ["s1"], note: "Ask who calls the API, how big it is and what must never go wrong. For a booking system that is a double booking or a double charge. It shows you think before you build." },
+      { title: "Find the resources: the nouns", appear: ["s2", "e1"], focus: ["s2", "e1"], note: "Rooms, bookings, customers and payments. Draw how they relate: a booking belongs to one customer and one room and has one payment." },
+      { title: "List the operations", appear: ["s3", "e2"], focus: ["s3", "e2"], note: "Plural nouns, standard methods: GET /rooms with filters and a cursor, POST /bookings, GET and PATCH /bookings/id, and POST /bookings/id/cancellation for the real action." },
+      { title: "Shapes and errors", appear: ["s4", "e3"], focus: ["s4", "e3"], note: "Show one booking in JSON with UTC dates and money in cents. Name the status codes: 201 with Location, 409 when the room is taken, 422 when the end is before the start, 404 for someone else's booking." },
+      { title: "The hard parts win the interview", appear: ["s5", "e4"], focus: ["s5", "e4"], note: "Retries: an idempotency key on POST /bookings. Overlaps: a database constraint on room and time, because a key stops duplicate requests but not two different customers. Payment arrives by a signed webhook." },
+      { title: "Security: scope and ownership", appear: ["s6", "e5"], focus: ["s6", "e5"], note: "Users log in with OAuth. The API checks the scope and then the owner of every booking id, validates input with a schema and returns only allowed fields." },
+      { title: "Evolution and the contract", appear: ["s7", "e6"], focus: ["s7", "e6"], note: "Write the OpenAPI file first, run contract tests in CI, add fields without a version bump and use a Sunset header when something must go." },
+      { title: "End with a trade-off and what you would watch", focus: ["s1", "s2", "s3", "s4", "s5", "s6", "s7"], set: { s7: "say a trade-off, name a metric" }, note: "For example: 'I chose cursor pagination, so we lose jump-to-page-37. I would watch the p95 latency of the availability search.' Strong answers name the failure case, the status code and the trade-off." },
+    ],
+  },
+};

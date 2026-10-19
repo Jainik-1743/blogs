@@ -9,6 +9,7 @@ import Recall from "@/components/dsa/Recall";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { getDsaLesson } from "@/lib/dsa";
 import { tracer } from "@/lib/dsa-trace";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = getDsaLesson("lesson-57");
 
@@ -298,6 +299,9 @@ export default function DsaLessonFiftySevenPage() {
         Time and memory are both O(m × n). Row <code>i</code> only reads row <code>i-1</code>. So you can keep just two rows and use
         only O(n) memory. The cost is that you can no longer rebuild the string itself.
       </p>
+
+      <Explainer name="dsa-57-edit-distance-table" />
+
 
       <h2 id="trace">Traced: filling the LCS table</h2>
       <CodeTrace

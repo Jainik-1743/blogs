@@ -41,7 +41,8 @@ fills, how a join runs, how the event loop schedules work) beats a pretty diagra
 * `flow`: at most 9 boxes. Columns run 0 to 5, rows 0 to 4. Box labels are short (two lines at most); put state in
   `sub` and change it with a step's `set`. Arrows must not cross boxes: use fractional columns/rows to nudge boxes and
   `curve` (-2 to 2) for return arrows or parallel arrows. Arrow labels: at most about 22 characters. Reveal things in
-  the order the reader should think about them using `appear`, and `focus` what is happening now.
+  the order the reader should think about them using `appear`, `hide` things that stop being true (an old arrow
+  after a pointer is re-pointed; bring it back with a later `appear`), and `focus` what is happening now.
 * `array`: 4 to 12 cells per row. Pointer labels are at most 8 characters (`low`, `mid`, `i`, `j`, `top`). Use `mark` for
   the cells being compared, `done` for the finished ones, `dim` for ruled-out ones.
 * `trace`: at most 22 lines of code, each under 74 characters. Show the full variables table in each step's `vars`.

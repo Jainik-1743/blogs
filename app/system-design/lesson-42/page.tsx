@@ -4,6 +4,7 @@ import LessonPager from "@/components/LessonPager";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { Compare, Flow, QA, Stats } from "@/components/sd/diagrams";
 import LessonHeader from "@/components/sd/LessonHeader";
+import Explainer from "@/components/explainers/Explainer";
 import Section from "@/components/sd/Section";
 import CircuitBreaker from "@/components/sd/widgets/CircuitBreaker";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
@@ -122,6 +123,7 @@ export default function SdLessonFourTwoPage() {
               If they <strong>fail</strong>, it goes back to <strong>open</strong> for another cool-down.
             </li>
           </ul>
+          <Explainer name="system-design-42-circuit-breaker" />
           <h3 id="what-counts-as-a-failure">What counts as a failure?</h3>
           <ul>
             <li>Errors: exceptions, 5xx responses, connection failures.</li>
@@ -248,6 +250,7 @@ export default function SdLessonFourTwoPage() {
               memory of a node (a node is one machine in the cluster).
             </li>
           </ul>
+          <Explainer name="system-design-42-bulkhead-pools" />
           <h3 id="how-the-patterns-work-together">How the patterns work together</h3>
           <Flow
             caption="The patterns stacked around one dependency, outermost first."

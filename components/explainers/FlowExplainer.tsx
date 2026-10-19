@@ -49,7 +49,13 @@ export default function FlowExplainer({ def }: { def: FlowDef }) {
   def.steps.forEach((s, i) => {
     for (const id of s.appear ?? []) if (!appearAt.has(id)) appearAt.set(id, i + 1);
   });
-  const visible = (id: string) => (appearAt.get(id) ?? 0) <= step;
+  const visibleSet = new Set<string>();
+  for (const x of [...def.nodes, ...def.edges]) if (!appearAt.has(x.id)) visibleSet.add(x.id);
+  for (let i = 0; i < step; i++) {
+    for (const id of def.steps[i].appear ?? []) visibleSet.add(id);
+    for (const id of def.steps[i].hide ?? []) visibleSet.delete(id);
+  }
+  const visible = (id: string) => visibleSet.has(id);
   const cur = step > 0 ? def.steps[step - 1] : null;
   const focus = new Set(cur?.focus ?? []);
   const justAppeared = new Set(cur?.appear ?? []);

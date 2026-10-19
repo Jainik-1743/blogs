@@ -5,6 +5,7 @@ import CommandList from "@/components/CommandList";
 import Pm2Loop from "@/components/figures/Pm2Loop";
 import InterviewQA from "@/components/InterviewQA";
 import LessonIntro from "@/components/LessonIntro";
+import Explainer from "@/components/explainers/Explainer";
 import LessonPager from "@/components/LessonPager";
 import { getLesson } from "@/lib/lessons";
 
@@ -360,6 +361,7 @@ export default function LessonSevenPage() {
           <code>pm2 logs</code>, <code>pm2 restart</code> and <code>pm2 status</code>.
         </p>
 
+        <Explainer name="devops-7-manual-deploy" />
         <h2 id="role">Prove the IAM role works</h2>
         <p>
           Lesson 5 promised that the server could call AWS <strong>without any access keys</strong>.

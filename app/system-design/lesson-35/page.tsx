@@ -4,6 +4,7 @@ import LessonPager from "@/components/LessonPager";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { AsciiDiagram, Compare, Flow, QA } from "@/components/sd/diagrams";
 import LessonHeader from "@/components/sd/LessonHeader";
+import Explainer from "@/components/explainers/Explainer";
 import Section from "@/components/sd/Section";
 import KafkaGroups from "@/components/sd/widgets/KafkaGroups";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
@@ -229,6 +230,7 @@ export default function SdLessonThreeFivePage() {
               <strong>Headers exchange:</strong> route by message headers.
             </li>
           </ul>
+          <Explainer name="system-design-35-queue-vs-pubsub" />
           <h3 id="push-vs-pull">Push vs pull</h3>
           <ul>
             <li>

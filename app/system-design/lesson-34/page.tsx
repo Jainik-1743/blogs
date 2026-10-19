@@ -4,6 +4,7 @@ import LessonPager from "@/components/LessonPager";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { AsciiDiagram, Compare, Flow, QA, Timeline } from "@/components/sd/diagrams";
 import LessonHeader from "@/components/sd/LessonHeader";
+import Explainer from "@/components/explainers/Explainer";
 import Section from "@/components/sd/Section";
 import SequenceDiagram from "@/components/sd/SequenceDiagram";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
@@ -201,6 +202,7 @@ export default function SdLessonThreeFourPage() {
               an external system (a card network), pass the idempotency key <strong>downstream</strong> too.
             </li>
           </ul>
+          <Explainer name="system-design-34-idempotency-key" />
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Other idempotency techniques</h4>
           <ul>
             <li>
@@ -278,6 +280,7 @@ export default function SdLessonThreeFourPage() {
               },
             ]}
           />
+          <Explainer name="system-design-34-offset-vs-cursor" />
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Cursor (keyset) pagination</h4>
           <p>
             Cursor pagination (also called keyset pagination) uses a cursor. A cursor is a marker that points to the

@@ -8,6 +8,7 @@ import Section from "@/components/sd/Section";
 import SequenceDiagram from "@/components/sd/SequenceDiagram";
 import RateLimiter from "@/components/sd/widgets/RateLimiter";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = SD_LESSONS.find((l) => l.slug === "lesson-61")!;
 
@@ -339,6 +340,7 @@ export default function SdLessonSixOnePage() {
             Here is the classic race condition (two things happen at the same time and clash). Two gateway nodes read "99 of 100", and both allow the request. That makes{" "}
             <strong>101</strong>. Fix it with <strong>atomic operations</strong>:
           </p>
+          <Explainer name="system-design-61-limiter-race" />
           <ul>
             <li>
               <strong>Fixed window:</strong> <code>INCR</code> + <code>EXPIRE</code>. <code>INCR</code> is a Redis command that adds 1 to a counter in one atomic step. <code>EXPIRE</code> tells Redis to delete the key after some time.

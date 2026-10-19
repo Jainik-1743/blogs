@@ -9,6 +9,7 @@ import Recall from "@/components/dsa/Recall";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { getDsaLesson } from "@/lib/dsa";
 import { tracer } from "@/lib/dsa-trace";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = getDsaLesson("lesson-58");
 
@@ -351,6 +352,9 @@ export default function DsaLessonFiftyEightPage() {
         letters, you can use an array with 26 slots instead (<code>children[ch.charCodeAt(0) - 97]</code>). This is common and a little
         faster. The logic is the same.
       </Callout>
+
+      <Explainer name="dsa-58-trie-cat-car" />
+
 
       <h2 id="trace">Traced: insert and search</h2>
       <CodeTrace

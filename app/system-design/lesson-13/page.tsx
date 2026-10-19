@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
+import Explainer from "@/components/explainers/Explainer";
 import LessonPager from "@/components/LessonPager";
 import { Compare, Flow, QA } from "@/components/sd/diagrams";
 import LessonHeader from "@/components/sd/LessonHeader";
@@ -243,6 +244,8 @@ export default function SdLessonOneThreePage() {
             Without a gateway, <strong>every</strong> service would have to validate tokens, apply rate limits and log
             requests itself: duplicated code, done inconsistently.
           </p>
+          <Explainer name="system-design-13-gateway-front-door" />
+
           <h3 id="backend-for-frontend-bff">Backend for Frontend (BFF)</h3>
           <p>Different clients need different data:</p>
           <ul>

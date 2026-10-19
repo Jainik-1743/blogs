@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
+import Explainer from "@/components/explainers/Explainer";
 import LessonPager from "@/components/LessonPager";
 import { AsciiDiagram, Compare, QA, Stats } from "@/components/sd/diagrams";
 import LessonHeader from "@/components/sd/LessonHeader";
@@ -166,6 +167,8 @@ export default function SdLessonTwoPage() {
               <strong>Retransmission.</strong> If the sender does not get an ACK in time, it sends the data again.
             </li>
           </ul>
+          <Explainer name="system-design-2-tcp-reliability" />
+
           <h3 id="tcp-flow-control-and-congestion-control">TCP: flow control and congestion control</h3>
           <p>These two ideas sound alike but protect different things. Congestion means too much traffic on the network at once, like a traffic jam.</p>
           <ul>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import Callout from "@/components/Callout";
+import Explainer from "@/components/explainers/Explainer";
 import ClosureFormStepper from "@/components/figures/ClosureFormStepper";
 import ClosureLink from "@/components/figures/ClosureLink";
 import IndependentClosuresStepper from "@/components/figures/IndependentClosuresStepper";
@@ -338,6 +339,8 @@ export default function JsLessonTenPage() {
           closures gave you encapsulation for free.
         </p>
         <IndependentClosuresStepper />
+        <Explainer name="javascript-10-shared-room-state" />
+
         <h3>2. Function factories</h3>
         <p>
           A function that builds and returns other, more specific functions — each one remembering

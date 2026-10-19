@@ -6,6 +6,7 @@ import { Compare, Flow, Layers, QA } from "@/components/sd/diagrams";
 import LessonHeader from "@/components/sd/LessonHeader";
 import Section from "@/components/sd/Section";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = SD_LESSONS.find((l) => l.slug === "lesson-56")!;
 
@@ -275,6 +276,7 @@ export default function SdLessonFiveSixPage() {
               },
             ]}
           />
+          <Explainer name="system-design-56-reconciliation-loop" />
           <p>
             Every controller does this, over and over. Say a node dies and 2 pods disappear. The Deployment's controller
             sees <strong>"desired 5, current 3"</strong> and creates 2 new pods on other nodes.{" "}

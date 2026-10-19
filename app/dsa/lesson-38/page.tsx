@@ -9,6 +9,7 @@ import Recall from "@/components/dsa/Recall";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { getDsaLesson } from "@/lib/dsa";
 import { tracer } from "@/lib/dsa-trace";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = getDsaLesson("lesson-38");
 
@@ -207,6 +208,8 @@ export default function DsaLessonThirtyEightPage() {
         <li><code>))</code> — a closing bracket arrives when the stack is empty. Then <code>pop()</code> returns <code>undefined</code>, which never equals an opening bracket.</li>
         <li><code>((</code> — the string ends while opening brackets are still on the stack, so the last check fails.</li>
       </ul>
+
+      <Explainer name="dsa-38-bracket-stack" />
 
       <h2 id="trace">Traced: ( [ &#123; &#125; ] ] </h2>
       <CodeTrace

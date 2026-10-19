@@ -4,6 +4,7 @@ import LessonPager from "@/components/LessonPager";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { AsciiDiagram, Flow, QA, Stats, Timeline } from "@/components/sd/diagrams";
 import LessonHeader from "@/components/sd/LessonHeader";
+import Explainer from "@/components/explainers/Explainer";
 import Section from "@/components/sd/Section";
 import RateLimiter from "@/components/sd/widgets/RateLimiter";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
@@ -292,6 +293,7 @@ export default function SdLessonFourThreePage() {
             This is why <strong>token bucket is the most common choice for APIs</strong>. It is used in AWS API
             throttling, many API gateways, and Stripe's request limiter.
           </p>
+          <Explainer name="system-design-43-token-bucket" />
           <h3 id="algorithm-5-leaky-bucket">Algorithm 5: Leaky bucket</h3>
           <p>
             Picture a <strong>bucket with a small hole in the bottom</strong>:

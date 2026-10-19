@@ -5,6 +5,7 @@ import CommandList from "@/components/CommandList";
 import StatelessDiagram from "@/components/figures/StatelessDiagram";
 import InterviewQA from "@/components/InterviewQA";
 import LessonIntro from "@/components/LessonIntro";
+import Explainer from "@/components/explainers/Explainer";
 import LessonPager from "@/components/LessonPager";
 import Script from "@/components/Script";
 import { getLesson } from "@/lib/lessons";
@@ -502,6 +503,7 @@ REVOKE ALL ON DATABASE myapp FROM PUBLIC; -- nobody else may even connect to it`
             <code>SELECT count(*) FROM pg_stat_activity;</code>.
           </p>
         </Callout>
+        <Explainer name="devops-8-connection-limit" />
         <h3>The fixes, in order of effort</h3>
         <ul>
           <li>

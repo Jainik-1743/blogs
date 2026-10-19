@@ -9,6 +9,7 @@ import Recall from "@/components/dsa/Recall";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { getDsaLesson } from "@/lib/dsa";
 import { tracer } from "@/lib/dsa-trace";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = getDsaLesson("lesson-39");
 
@@ -250,6 +251,8 @@ export default function DsaLessonThirtyNinePage() {
         Every index enters and leaves the deque at most once, so the total work is <strong>O(n)</strong>. (With a plain array,
         <code> dq.shift()</code> itself can cost up to O(k). Question 4 shows a version with a head index where every step is truly O(1).)
       </p>
+
+      <Explainer name="dsa-39-deque-window-maximum" />
 
       <h2 id="trace">Traced: window maximum of 1 3 -1 -3 5 3 6 7</h2>
       <CodeTrace

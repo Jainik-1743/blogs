@@ -3,6 +3,7 @@ import { pageMetadata } from "@/lib/seo";
 import LessonPager from "@/components/LessonPager";
 import { Compare, Flow, QA, Stats } from "@/components/sd/diagrams";
 import LessonHeader from "@/components/sd/LessonHeader";
+import Explainer from "@/components/explainers/Explainer";
 import Section from "@/components/sd/Section";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
 
@@ -158,6 +159,7 @@ export default function SdLessonFourZeroPage() {
               the thing it should warn you about.
             </li>
           </ul>
+          <Explainer name="system-design-40-find-the-spof" />
           <h3 id="step-2-understand-blast-radius">Step 2: Understand blast radius</h3>
           <p>
             Not every failure is equal. <strong>Blast radius</strong> is how much of the system (and how many users) one

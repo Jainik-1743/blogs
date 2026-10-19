@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
 import ArrayBoxes from "@/components/dsa/ArrayBoxes";
+import Explainer from "@/components/explainers/Explainer";
 import Callout from "@/components/Callout";
 import CodeTrace from "@/components/dsa/CodeTrace";
 import DryRun from "@/components/dsa/DryRun";
@@ -143,6 +144,7 @@ export default function DsaLessonTwentyPage() {
       />
 
       <h2 id="trace">Traced: build, then answer a range query</h2>
+      <Explainer name="dsa-20-prefix-sum" />
       <CodeTrace
         code={traceCode}
         steps={prefixTrace()}

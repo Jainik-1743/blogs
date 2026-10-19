@@ -4,6 +4,7 @@ import LessonPager from "@/components/LessonPager";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { Compare, Layers, QA } from "@/components/sd/diagrams";
 import LessonHeader from "@/components/sd/LessonHeader";
+import Explainer from "@/components/explainers/Explainer";
 import Section from "@/components/sd/Section";
 import SequenceDiagram from "@/components/sd/SequenceDiagram";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
@@ -364,6 +365,7 @@ export default function SdLessonThreeZeroPage() {
               <strong>Content negotiation:</strong> the client says which format it wants with <code>Accept</code>, and the server says which one it sends with <code>Content-Type</code>.
             </li>
           </ul>
+          <Explainer name="system-design-30-etag-if-match" />
           <h3 id="8-security-basics">8. Security basics</h3>
           <ul>
             <li>

@@ -9,6 +9,7 @@ import Recall from "@/components/dsa/Recall";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { getDsaLesson } from "@/lib/dsa";
 import { tracer } from "@/lib/dsa-trace";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = getDsaLesson("lesson-30");
 
@@ -254,6 +255,8 @@ export default function DsaLessonThirtyPage() {
         <code>expand(i, i)</code> starts with a palindrome of length 1. For the even case, <code>expand(i, i + 1)</code>{" "}
         may fail at once and return 0.
       </p>
+
+      <Explainer name="dsa-30-expand-around-centre" />
 
       <h2 id="trace">Traced: expanding around every centre</h2>
       <CodeTrace

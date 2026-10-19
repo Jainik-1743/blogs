@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
+import Explainer from "@/components/explainers/Explainer";
 import LessonPager from "@/components/LessonPager";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { Compare, Flow, QA, Stats } from "@/components/sd/diagrams";
@@ -358,6 +359,8 @@ export default function SdLessonFourPage() {
             need protection in the database, or a distributed lock (a lock that all servers share). This is a big theme
             in later lessons.
           </p>
+          <Explainer name="system-design-4-race-condition-fix" />
+
           <h3 id="deadlocks">Deadlocks</h3>
           <p>
             A <strong>deadlock</strong> happens when two threads each hold something the other needs, and both wait

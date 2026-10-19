@@ -3,6 +3,7 @@ import { pageMetadata } from "@/lib/seo";
 import LessonPager from "@/components/LessonPager";
 import { Compare, Layers, QA, Stats } from "@/components/sd/diagrams";
 import LessonHeader from "@/components/sd/LessonHeader";
+import Explainer from "@/components/explainers/Explainer";
 import Section from "@/components/sd/Section";
 import SequenceDiagram from "@/components/sd/SequenceDiagram";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
@@ -282,6 +283,7 @@ export default function SdLessonTwoEightPage() {
             <strong>Application-level merge.</strong> Keep both versions and let the app, or the user, decide. For
             example: "This document was edited on two devices. Which version do you want to keep?"
           </p>
+          <Explainer name="system-design-28-g-counter-merge" />
           <h3 id="time-and-ordering-why-clocks-are-tricky">Time and ordering: why clocks are tricky</h3>
           <p>
             Distributed systems often need to know <strong>what happened first</strong>. But:

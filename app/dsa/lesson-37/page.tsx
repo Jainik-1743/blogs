@@ -9,6 +9,7 @@ import Recall from "@/components/dsa/Recall";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { getDsaLesson } from "@/lib/dsa";
 import { tracer } from "@/lib/dsa-trace";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = getDsaLesson("lesson-37");
 
@@ -222,6 +223,8 @@ export default function DsaLessonThirtySevenPage() {
         You end at the loop start (<em>k</em> laps, minus the <em>b</em> steps already covered). The pointer from the head also walks <em>a</em>
         steps and lands at the loop start. So they arrive together.
       </p>
+
+      <Explainer name="dsa-37-remove-nth-from-end" />
 
       <h2 id="nth">Remove the n-th node from the end</h2>
       <p>

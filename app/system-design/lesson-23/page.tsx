@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
+import Explainer from "@/components/explainers/Explainer";
 import LessonPager from "@/components/LessonPager";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { AsciiDiagram, Compare, Flow, QA } from "@/components/sd/diagrams";
@@ -163,6 +164,8 @@ export default function SdLessonTwoThreePage() {
             <em>is this the same fact, or a snapshot of it at one point in time?</em> Addresses on invoices and names on
             tickets work the same way.
           </p>
+          <Explainer name="system-design-23-update-anomaly" />
+
           <h3 id="denormalisation-duplicate-on-purpose">Denormalisation: duplicate on purpose</h3>
           <p>
             Normalised data needs <strong>joins</strong> to put the pieces back together. On one database this is usually

@@ -4,6 +4,7 @@ import Link from "next/link";
 import Callout from "@/components/Callout";
 import IamBlocks from "@/components/figures/IamBlocks";
 import KeysVsRole from "@/components/figures/KeysVsRole";
+import Explainer from "@/components/explainers/Explainer";
 import LessonPager from "@/components/LessonPager";
 import Script from "@/components/Script";
 import { getLesson, READINGS, readingHref, SERIES } from "@/lib/lessons";
@@ -307,6 +308,7 @@ await s3.send(new PutObjectCommand({
           </p>
         </Callout>
 
+        <Explainer name="devops-5-role-credentials" />
         <h2 id="policies">Policies — how permissions are written</h2>
         <p>
           A policy is a JSON document. JSON is a plain-text format made of names and values in

@@ -5,6 +5,7 @@ import Callout from "@/components/Callout";
 import CommandList from "@/components/CommandList";
 import RequestFlow from "@/components/figures/RequestFlow";
 import ServerDoors from "@/components/figures/ServerDoors";
+import Explainer from "@/components/explainers/Explainer";
 import LessonPager from "@/components/LessonPager";
 import Script from "@/components/Script";
 import { getLesson, SERIES } from "@/lib/lessons";
@@ -457,6 +458,7 @@ export default function LessonTwoPage() {
             </ul>
           </li>
         </ol>
+        <Explainer name="devops-2-timeout-vs-refused" />
         <Callout kind="ok" label="The three-check sequence">
           <p className="mb-0">
             Most &ldquo;my app does not load&rdquo; problems on AWS come from one of these three

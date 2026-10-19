@@ -3,6 +3,7 @@ import { pageMetadata } from "@/lib/seo";
 import LessonPager from "@/components/LessonPager";
 import { Compare, Flow, QA, Stats, Timeline } from "@/components/sd/diagrams";
 import LessonHeader from "@/components/sd/LessonHeader";
+import Explainer from "@/components/explainers/Explainer";
 import Section from "@/components/sd/Section";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
 
@@ -297,6 +298,7 @@ export default function SdLessonFourFivePage() {
             offer it with a few clicks. You can only go back as far as the retention window (how long data is kept).
             The window is set by you, often between 1 and 35 days, and the limits differ between services.
           </p>
+          <Explainer name="system-design-45-point-in-time-recovery" />
           <h3 id="the-3-2-1-rule-and-beyond">The 3-2-1 rule (and beyond)</h3>
           <p>A classic rule for safe backups is called 3-2-1:</p>
           <ul>

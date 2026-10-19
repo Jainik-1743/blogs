@@ -9,6 +9,7 @@ import Recall from "@/components/dsa/Recall";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { getDsaLesson } from "@/lib/dsa";
 import { tracer } from "@/lib/dsa-trace";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = getDsaLesson("lesson-42");
 
@@ -360,6 +361,9 @@ export default function DsaLessonFortyTwoPage() {
         round.
       </p>
       <CodeBlock lang="js" code={levelsCode} />
+
+      <Explainer name="dsa-42-level-order-queue" />
+
 
       <h2 id="trace">Traced: level order</h2>
       <p>

@@ -4,6 +4,7 @@ import LessonPager from "@/components/LessonPager";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { Compare, QA, Stats, Timeline } from "@/components/sd/diagrams";
 import LessonHeader from "@/components/sd/LessonHeader";
+import Explainer from "@/components/explainers/Explainer";
 import Section from "@/components/sd/Section";
 import KafkaGroups from "@/components/sd/widgets/KafkaGroups";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
@@ -184,6 +185,7 @@ export default function SdLessonThreeSixPage() {
               <strong>A hot key</strong> (one very busy key, such as one huge customer) → one overloaded partition.
             </li>
           </ul>
+          <Explainer name="system-design-36-kafka-partitions" />
           <h3 id="brokers-and-replication">Brokers and replication</h3>
           <Stats
             caption="The producer's acks setting decides how much a “success” is worth."

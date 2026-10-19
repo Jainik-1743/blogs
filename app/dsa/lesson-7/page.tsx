@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
+import Explainer from "@/components/explainers/Explainer";
 import Callout from "@/components/Callout";
 import CodeTrace from "@/components/dsa/CodeTrace";
 import DsaLessonPage from "@/components/dsa/DsaLesson";
@@ -224,6 +225,7 @@ export default function DsaLessonSevenPage() {
       </div>
 
       <h2 id="trace">Traced: jumping into a function and back</h2>
+      <Explainer name="dsa-7-call-and-return" />
       <CodeTrace
         code={callCode}
         steps={callTrace()}

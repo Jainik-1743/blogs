@@ -5,6 +5,7 @@ import CommandList from "@/components/CommandList";
 import DeployPipeline from "@/components/figures/DeployPipeline";
 import InterviewQA from "@/components/InterviewQA";
 import LessonIntro from "@/components/LessonIntro";
+import Explainer from "@/components/explainers/Explainer";
 import LessonPager from "@/components/LessonPager";
 import Script from "@/components/Script";
 import { getLesson } from "@/lib/lessons";
@@ -259,6 +260,7 @@ COPY . .                               # only this layer rebuilds on a code chan
           A rebuild that uses the cache takes seconds. One without the cache takes minutes.
         </p>
 
+        <Explainer name="devops-9-layer-cache" />
         <h2 id="dockerfile">A production Dockerfile for Next.js</h2>
         <p>
           First turn on Next.js&apos;s <strong>standalone output</strong>. It finds exactly which

@@ -8,6 +8,7 @@ import FullStackMap from "@/components/figures/FullStackMap";
 import VpcLayout from "@/components/figures/VpcLayout";
 import InterviewQA from "@/components/InterviewQA";
 import LessonIntro from "@/components/LessonIntro";
+import Explainer from "@/components/explainers/Explainer";
 import LessonPager from "@/components/LessonPager";
 import Script from "@/components/Script";
 import { getLesson, lessonHref, READINGS, readingHref } from "@/lib/lessons";
@@ -465,6 +466,7 @@ Add per-tenant variable costs:
           direct costs.)
         </p>
 
+        <Explainer name="devops-19-cost-per-tenant" />
         <h2 id="sweep">The orphan sweep: finding what you forgot</h2>
         <p>
           An <strong>orphan</strong> is a resource that nothing uses any more but that still bills you.

@@ -9,6 +9,7 @@ import Recall from "@/components/dsa/Recall";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { getDsaLesson } from "@/lib/dsa";
 import { tracer } from "@/lib/dsa-trace";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = getDsaLesson("lesson-27");
 
@@ -166,6 +167,8 @@ export default function DsaLessonTwentySevenPage() {
         The task: given a list of words, put the anagrams together. Work out each word&apos;s key and add the word to the
         list for that key. This takes one pass, and you never compare two words with each other.
       </p>
+
+      <Explainer name="dsa-27-group-anagrams" />
 
       <h2 id="trace">Traced: grouping six words</h2>
       <CodeTrace

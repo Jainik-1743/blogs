@@ -7,6 +7,7 @@ import LessonHeader from "@/components/sd/LessonHeader";
 import Section from "@/components/sd/Section";
 import SequenceDiagram from "@/components/sd/SequenceDiagram";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = SD_LESSONS.find((l) => l.slug === "lesson-54")!;
 
@@ -182,6 +183,7 @@ export default function SdLessonFiveFourPage() {
               { from: 3, to: 0, label: <>200 OK</>, reply: true },
             ]}
           />
+          <Explainer name="system-design-54-service-registry" />
           <ul>
             <li>
               ✅ <strong>No extra hop</strong> (no extra server in the path), and the client can use smart balancing, like choosing the instance with the fewest requests or the one in the same zone.

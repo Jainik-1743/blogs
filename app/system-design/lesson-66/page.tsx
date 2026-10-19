@@ -5,6 +5,7 @@ import { Layers, QA } from "@/components/sd/diagrams";
 import LessonHeader from "@/components/sd/LessonHeader";
 import Section from "@/components/sd/Section";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = SD_LESSONS.find((l) => l.slug === "lesson-66")!;
 
@@ -521,6 +522,7 @@ export default function SdLessonSixSixPage() {
               },
             ]}
           />
+          <Explainer name="system-design-66-big-picture" />
           <p>
             Every case study in Part 11 was a <strong>variation</strong> of this picture, with a different emphasis:
           </p>

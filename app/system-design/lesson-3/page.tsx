@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
 import Callout from "@/components/Callout";
+import Explainer from "@/components/explainers/Explainer";
 import LessonPager from "@/components/LessonPager";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { Compare, Flow, QA, Stats } from "@/components/sd/diagrams";
@@ -578,6 +579,8 @@ export default function SdLessonThreePage() {
             page. (This does not count the DNS lookup.) At 100 ms per round trip, that is 300 ms of pure waiting. This is why{" "}
             <strong>connection reuse, CDNs and HTTP/3 matter.</strong>
           </p>
+          <Explainer name="system-design-3-https-first-request" />
+
           <h3 id="where-to-terminate-tls">Where to "terminate" TLS</h3>
           <p>
             To terminate TLS means to decrypt the traffic at some point. In a real system, you choose where the

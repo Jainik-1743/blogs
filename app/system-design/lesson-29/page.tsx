@@ -3,6 +3,7 @@ import { pageMetadata } from "@/lib/seo";
 import LessonPager from "@/components/LessonPager";
 import { Flow, Layers, QA } from "@/components/sd/diagrams";
 import LessonHeader from "@/components/sd/LessonHeader";
+import Explainer from "@/components/explainers/Explainer";
 import Section from "@/components/sd/Section";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
 
@@ -395,6 +396,7 @@ export default function SdLessonTwoNinePage() {
             CDC (change data capture) means reading the database's change log and sending each change to other
             systems.
           </p>
+          <Explainer name="system-design-29-ride-hailing-databases" />
           <h3 id="step-6-keep-the-number-of-databases-small">Step 6: Keep the number of databases small</h3>
           <p>Every extra database adds:</p>
           <ul>

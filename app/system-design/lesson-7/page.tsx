@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
+import Explainer from "@/components/explainers/Explainer";
 import LessonPager from "@/components/LessonPager";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { AsciiDiagram, Compare, Layers, QA } from "@/components/sd/diagrams";
@@ -277,6 +278,8 @@ export default function SdLessonSevenPage() {
             "Twelve-Factor App" guidelines (a popular list of rules for building web apps):{" "}
             <em>run your app as stateless processes</em>.
           </p>
+          <Explainer name="system-design-7-stateless-sessions" />
+
           <h3 id="sticky-sessions-a-shortcut-with-costs">Sticky sessions: a shortcut with costs</h3>
           <p>
             Another option is <strong>sticky sessions</strong>: the load balancer always sends the same user to the same

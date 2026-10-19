@@ -7,6 +7,7 @@ import LessonHeader from "@/components/sd/LessonHeader";
 import Section from "@/components/sd/Section";
 import SequenceDiagram from "@/components/sd/SequenceDiagram";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = SD_LESSONS.find((l) => l.slug === "lesson-62")!;
 
@@ -326,6 +327,7 @@ export default function SdLessonSixTwoPage() {
               traffic only.
             </li>
           </ul>
+          <Explainer name="system-design-62-priority-lanes" />
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Deep dive 2: Reliability and no duplicates</h4>
           <ul>
             <li>

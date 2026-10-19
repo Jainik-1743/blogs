@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
+import Explainer from "@/components/explainers/Explainer";
 import LessonPager from "@/components/LessonPager";
 import { AsciiDiagram, Flow, QA, Timeline } from "@/components/sd/diagrams";
 import LessonHeader from "@/components/sd/LessonHeader";
@@ -183,6 +184,8 @@ export default function SdLessonOneEightPage() {
             order 5521" and skip it if it's already done. Idempotent means that doing the same thing twice gives the
             same result as doing it once. Part 6 goes deep on this.
           </p>
+          <Explainer name="system-design-18-queue-order" />
+
           <h3 id="when-things-keep-failing">When things keep failing</h3>
           <p>
             Some messages will fail over and over: bad data, a bug, a missing record. If they're retried forever, they

@@ -9,6 +9,7 @@ import Recall from "@/components/dsa/Recall";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { getDsaLesson } from "@/lib/dsa";
 import { tracer } from "@/lib/dsa-trace";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = getDsaLesson("lesson-36");
 
@@ -170,6 +171,8 @@ export default function DsaLessonThirtySixPage() {
         before you have a grip on the other end.
       </Callout>
 
+      <Explainer name="dsa-36-reverse-list" />
+
       <h2 id="trace">Traced: reversing 1 → 2 → 3</h2>
       <CodeTrace
         code={traceSrc}
@@ -211,6 +214,8 @@ export default function DsaLessonThirtySixPage() {
         ]}
         note="When the list has an even number of nodes, the loop ends with fast = null and slow on the second middle node. If you need the first middle node, start fast one step ahead, or stop when fast.next.next is null."
       />
+
+      <Explainer name="dsa-36-floyd-cycle" />
 
       <h2 id="cycle">Detecting a cycle (Floyd&apos;s algorithm)</h2>
       <p>

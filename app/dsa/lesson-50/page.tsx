@@ -9,6 +9,7 @@ import Recall from "@/components/dsa/Recall";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { getDsaLesson } from "@/lib/dsa";
 import { tracer } from "@/lib/dsa-trace";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = getDsaLesson("lesson-50");
 
@@ -371,6 +372,9 @@ export default function DsaLessonFiftyPage() {
         because the first vertex to find it is the closest one.
       </p>
       <CodeBlock lang="js" code={earlyCode} />
+
+      <Explainer name="dsa-50-bfs-ripples" />
+
 
       <h2 id="trace">Traced: BFS on a small graph</h2>
       <CodeTrace

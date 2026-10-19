@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
 import ArrayBoxes from "@/components/dsa/ArrayBoxes";
+import Explainer from "@/components/explainers/Explainer";
 import Callout from "@/components/Callout";
 import CodeTrace from "@/components/dsa/CodeTrace";
 import DryRun from "@/components/dsa/DryRun";
@@ -172,6 +173,7 @@ export default function DsaLessonFifteenPage() {
       </p>
 
       <h2 id="trace">Traced: filling a counting array</h2>
+      <Explainer name="dsa-15-counting-array" />
       <CodeTrace
         code={countCode}
         steps={countTrace()}
@@ -277,6 +279,7 @@ export default function DsaLessonFifteenPage() {
         is <strong>chaining</strong>: each bucket holds a short list of entries. A lookup goes to the
         right bucket and checks the few entries there.
       </p>
+      <Explainer name="dsa-15-hash-buckets" />
       <CodeBlock lang="js" code={tableCode} />
       <p>Real hash tables keep collisions rare in two ways:</p>
       <ul>

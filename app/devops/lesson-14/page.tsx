@@ -5,6 +5,7 @@ import Callout from "@/components/Callout";
 import DeployPipeline from "@/components/figures/DeployPipeline";
 import InterviewQA from "@/components/InterviewQA";
 import LessonIntro from "@/components/LessonIntro";
+import Explainer from "@/components/explainers/Explainer";
 import LessonPager from "@/components/LessonPager";
 import Script from "@/components/Script";
 import { getLesson, READINGS, readingHref } from "@/lib/lessons";
@@ -400,6 +401,7 @@ jobs:
           </li>
         </ol>
 
+        <Explainer name="devops-14-github-oidc" />
         <h2 id="build">Step 3 — build and push the image</h2>
         <p>
           This is the deploy workflow. It calls the CI workflow first. Then it builds the image,

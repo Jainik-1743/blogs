@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
 import ArrayBoxes from "@/components/dsa/ArrayBoxes";
+import Explainer from "@/components/explainers/Explainer";
 import Callout from "@/components/Callout";
 import CodeTrace from "@/components/dsa/CodeTrace";
 import DryRun from "@/components/dsa/DryRun";
@@ -177,6 +178,7 @@ export default function DsaLessonNineteenPage() {
       </p>
 
       <h2 id="trace">Traced: removing duplicates in place</h2>
+      <Explainer name="dsa-19-remove-duplicates-in-place" />
       <CodeTrace
         code={dedupCode}
         steps={dedupTrace()}

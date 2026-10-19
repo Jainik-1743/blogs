@@ -9,6 +9,7 @@ import Recall from "@/components/dsa/Recall";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { getDsaLesson } from "@/lib/dsa";
 import { tracer } from "@/lib/dsa-trace";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = getDsaLesson("lesson-31");
 
@@ -204,6 +205,8 @@ export default function DsaLessonThirtyOnePage() {
         Each letter is added once and removed at most once, so the time is <strong>O(n)</strong>. The Set can never hold more than the
         number of different letters in the text or in the alphabet, so the space is <strong>O(min(n, alphabet))</strong>. That means it is the smaller of the text length and the alphabet size.
       </p>
+
+      <Explainer name="dsa-31-longest-no-repeat-window" />
 
       <h2 id="trace">Traced: windows over &ldquo;abcabcbb&rdquo;</h2>
       <CodeTrace

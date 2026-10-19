@@ -7,6 +7,7 @@ import LessonHeader from "@/components/sd/LessonHeader";
 import Section from "@/components/sd/Section";
 import SequenceDiagram from "@/components/sd/SequenceDiagram";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = SD_LESSONS.find((l) => l.slug === "lesson-50")!;
 
@@ -200,6 +201,7 @@ export default function SdLessonFiveZeroPage() {
               { from: 3, to: 1, label: <>photos ✅</>, reply: true },
             ]}
           />
+          <Explainer name="system-design-50-auth-code-pkce" />
           <p>
             <strong>Why two steps ("code first, then token")?</strong> The authorization <strong>code</strong> travels through the browser, in the redirect URL. This is a risky place. The code is <strong>short-lived and can be used only once</strong>, so it is useless on its own. The <strong>tokens</strong> are fetched in a separate, direct request from the client to the authorization server.
           </p>

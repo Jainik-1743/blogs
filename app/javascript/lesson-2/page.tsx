@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import Callout from "@/components/Callout";
+import Explainer from "@/components/explainers/Explainer";
 import CallStackStepper from "@/components/figures/CallStackStepper";
 import Figure from "@/components/figures/Figure";
 import PushPop from "@/components/figures/PushPop";
@@ -420,6 +421,8 @@ export default function JsLessonTwoPage() {
             <code>function countDown(n) {"{"} if (n &lt; 0) return; console.log(n); countDown(n - 1); {"}"}</code>
           </p>
         </Callout>
+
+        <Explainer name="javascript-2-count-down-stack" />
 
         <h2 id="trace">Reading A Real Stack Trace</h2>
         <p>

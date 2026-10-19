@@ -5,6 +5,7 @@ import Callout from "@/components/Callout";
 import CommandList from "@/components/CommandList";
 import ChainOfTrust from "@/components/figures/ChainOfTrust";
 import HttpVsHttps from "@/components/figures/HttpVsHttps";
+import Explainer from "@/components/explainers/Explainer";
 import LessonPager from "@/components/LessonPager";
 import Script from "@/components/Script";
 import TlsHandshakeStepper from "@/components/figures/TlsHandshakeStepper";
@@ -216,6 +217,7 @@ Content-Type: application/json
           know, you see the red warning page.
         </p>
 
+        <Explainer name="devops-4-chain-of-trust" />
         <h2 id="handshake">The handshake, step by step</h2>
         <p>
           The handshake is the short opening talk between browser and server. It takes

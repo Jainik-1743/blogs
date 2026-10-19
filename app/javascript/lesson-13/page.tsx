@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import Callout from "@/components/Callout";
+import Explainer from "@/components/explainers/Explainer";
 import EngineRuntimeMap from "@/components/figures/EngineRuntimeMap";
 import HiddenClassDiagram from "@/components/figures/HiddenClassDiagram";
 import JitTierStepper from "@/components/figures/JitTierStepper";
@@ -361,6 +362,8 @@ export default function JsLessonThirteenPage() {
           </p>
         </Callout>
         <JitTierStepper />
+
+        <Explainer name="javascript-13-engine-pipeline" />
 
         <h2 id="tiers">Beyond Ignition And TurboFan — The Extra Tiers</h2>
         <p>

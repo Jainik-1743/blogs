@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
+import Explainer from "@/components/explainers/Explainer";
 import Callout from "@/components/Callout";
 import CodeTrace from "@/components/dsa/CodeTrace";
 import DryRun from "@/components/dsa/DryRun";
@@ -208,6 +209,7 @@ export default function DsaLessonOnePage() {
         until you learn loops (a loop repeats lines of code; you will learn it in Lesson 4). Step
         through the code with the buttons. Watch the highlighted line and the console:
       </p>
+      <Explainer name="dsa-1-top-to-bottom" />
       <CodeTrace
         code={orderCode}
         steps={orderTrace()}

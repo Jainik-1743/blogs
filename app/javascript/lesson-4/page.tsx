@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import Callout from "@/components/Callout";
+import Explainer from "@/components/explainers/Explainer";
 import IsolationStepper from "@/components/figures/IsolationStepper";
 import OuterReference from "@/components/figures/OuterReference";
 import ParamsMemory from "@/components/figures/ParamsMemory";
@@ -266,6 +267,8 @@ export default function JsLessonFourPage() {
             normal rule: once popped, the memory is thrown away.
           </p>
         </Callout>
+
+        <Explainer name="javascript-4-fresh-environment" />
 
         <h2 id="params">Parameters Are Part Of The Variable Environment Too</h2>
         <p>

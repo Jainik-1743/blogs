@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
+import Explainer from "@/components/explainers/Explainer";
 import Callout from "@/components/Callout";
 import CodeTrace from "@/components/dsa/CodeTrace";
 import DryRun from "@/components/dsa/DryRun";
@@ -171,6 +172,7 @@ export default function DsaLessonEighteenPage() {
       </p>
 
       <h2 id="trace">Traced: partition([7, 2, 9, 4, 5])</h2>
+      <Explainer name="dsa-18-partition-pivot" />
       <CodeTrace
         code={partitionCode}
         steps={partitionTrace()}

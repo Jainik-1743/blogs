@@ -9,6 +9,7 @@ import Recall from "@/components/dsa/Recall";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { getDsaLesson } from "@/lib/dsa";
 import { tracer } from "@/lib/dsa-trace";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = getDsaLesson("lesson-40");
 
@@ -214,6 +215,8 @@ export default function DsaLessonFortyPage() {
         Why is it O(n)? Each index is pushed once and popped at most once. So the inner <code>while</code> loop does not multiply the
         work of the outer loop. Across the whole run, it runs at most n times in total.
       </p>
+
+      <Explainer name="dsa-40-daily-temperatures-stack" />
 
       <h2 id="trace">Traced: daily temperatures</h2>
       <p>

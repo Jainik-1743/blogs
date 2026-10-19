@@ -10,6 +10,7 @@ import Recall from "@/components/dsa/Recall";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { getDsaLesson } from "@/lib/dsa";
 import { tracer } from "@/lib/dsa-trace";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = getDsaLesson("lesson-21");
 
@@ -158,6 +159,8 @@ export default function DsaLessonTwentyOnePage() {
         way to make it bigger is to move <code>l</code> to the right. If the sum is too big, move <code>r</code> to
         the left.
       </p>
+
+      <Explainer name="dsa-21-pair-sum-two-pointers" />
 
       <h2 id="trace">Traced: find two values adding to 10</h2>
       <CodeTrace

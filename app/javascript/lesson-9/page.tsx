@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import Callout from "@/components/Callout";
+import Explainer from "@/components/explainers/Explainer";
 import BlockWall from "@/components/figures/BlockWall";
 import NestedBlocksCase from "@/components/figures/NestedBlocksCase";
 import ShadowStepper from "@/components/figures/ShadowStepper";
@@ -373,6 +374,8 @@ export default function JsLessonNinePage() {
           <em>first-class</em> link in that chain, indistinguishable from a function&apos;s scope
           as far as lookup is concerned. Which is exactly why shadowing behaves the way it does.
         </p>
+
+        <Explainer name="javascript-9-block-environments" />
 
         <h2 id="shadowing">Shadowing — When Names Repeat</h2>
         <p>

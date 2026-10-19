@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
+import Explainer from "@/components/explainers/Explainer";
 import LessonPager from "@/components/LessonPager";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { AsciiDiagram, Flow, QA, Stats } from "@/components/sd/diagrams";
@@ -338,6 +339,8 @@ export default function SdLessonFivePage() {
               column.
             </li>
           </ul>
+          <Explainer name="system-design-5-index-vs-scan" />
+
           <h3 id="explain-ask-the-database-how-it-runs-your-query">EXPLAIN: ask the database how it runs your query</h3>
           <p>
             <code>EXPLAIN</code> shows the plan the database will use for a query. <code>EXPLAIN ANALYZE</code> also runs

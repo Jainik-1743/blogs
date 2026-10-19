@@ -83,9 +83,9 @@ export function validateDef(name: string, def: ExplainerDef): string[] {
       if (x.curve !== undefined && Math.abs(x.curve) > 2) err(`edge "${x.id}": curve must be between -2 and 2`);
     }
     for (const [i, s] of def.steps.entries()) {
-      for (const id of [...(s.appear ?? []), ...(s.focus ?? [])]) if (!ids.has(id)) err(`step ${i + 1}: unknown id "${id}"`);
+      for (const id of [...(s.appear ?? []), ...(s.hide ?? []), ...(s.focus ?? [])]) if (!ids.has(id)) err(`step ${i + 1}: unknown id "${id}"`);
       for (const id of Object.keys(s.set ?? {})) if (!byId.has(id)) err(`step ${i + 1}: set refers to unknown node "${id}"`);
-      if (!s.appear?.length && !s.focus?.length && !s.set) err(`step ${i + 1}: needs appear, focus or set so something changes`);
+      if (!s.appear?.length && !s.hide?.length && !s.focus?.length && !s.set) err(`step ${i + 1}: needs appear, focus or set so something changes`);
     }
   } else if (def.kind === "array") {
     const g = gridOf(def.cells);

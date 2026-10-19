@@ -7,6 +7,7 @@ import LessonHeader from "@/components/sd/LessonHeader";
 import Section from "@/components/sd/Section";
 import SequenceDiagram from "@/components/sd/SequenceDiagram";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = SD_LESSONS.find((l) => l.slug === "lesson-52")!;
 
@@ -445,6 +446,7 @@ export default function SdLessonFiveTwoPage() {
               },
             ]}
           />
+          <Explainer name="system-design-52-ssrf" />
           <p>
             <strong>Fixes:</strong>
           </p>

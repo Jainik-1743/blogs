@@ -4,6 +4,7 @@ import LessonPager from "@/components/LessonPager";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { Flow, QA, Stats, Timeline } from "@/components/sd/diagrams";
 import LessonHeader from "@/components/sd/LessonHeader";
+import Explainer from "@/components/explainers/Explainer";
 import Section from "@/components/sd/Section";
 import Backoff from "@/components/sd/widgets/Backoff";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
@@ -319,6 +320,7 @@ export default function SdLessonFourOnePage() {
               is clearly down, like a fuse that cuts the power.
             </li>
           </ol>
+          <Explainer name="system-design-41-retry-amplification" />
           <h3 id="part-3-exponential-backoff">Part 3: Exponential backoff</h3>
           <p>
             <strong>Exponential backoff</strong> means that the wait doubles after each failure. Do not retry at once.{" "}

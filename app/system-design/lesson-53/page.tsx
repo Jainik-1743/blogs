@@ -5,6 +5,7 @@ import { Compare, Flow, Layers, QA, Timeline } from "@/components/sd/diagrams";
 import LessonHeader from "@/components/sd/LessonHeader";
 import Section from "@/components/sd/Section";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = SD_LESSONS.find((l) => l.slug === "lesson-53")!;
 
@@ -305,6 +306,7 @@ export default function SdLessonFiveThreePage() {
               },
             ]}
           />
+          <Explainer name="system-design-53-strangler-fig" />
           <ol>
             <li>
               Put a <strong>proxy or gateway</strong> in front of the monolith (post 13). A proxy is a server that receives requests and passes them on.

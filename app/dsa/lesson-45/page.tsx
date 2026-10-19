@@ -9,6 +9,7 @@ import Recall from "@/components/dsa/Recall";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { getDsaLesson } from "@/lib/dsa";
 import { tracer } from "@/lib/dsa-trace";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = getDsaLesson("lesson-45");
 
@@ -342,6 +343,9 @@ export default function DsaLessonFortyFivePage() {
         both nodes are really in the tree, as the problem promises. Notice that we compare <em>nodes</em> (<code>root === p</code>),
         not values. This is safe only when we hold the real node objects.
       </p>
+
+      <Explainer name="dsa-45-lca-both-sides-answer" />
+
 
       <h2 id="trace">Traced: finding the LCA of 6 and 4</h2>
       <p>

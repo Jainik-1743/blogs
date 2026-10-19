@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import Callout from "@/components/Callout";
+import Explainer from "@/components/explainers/Explainer";
 import CommandList from "@/components/CommandList";
 import ExecutionContextBox from "@/components/figures/ExecutionContextBox";
 import ExecutionContextStepper from "@/components/figures/ExecutionContextStepper";
@@ -491,6 +492,8 @@ export default function JsLessonOnePage() {
             printed. Only <em>then</em> does line 5 assign <code>10</code> to <code>a</code>.
           </p>
         </details>
+
+        <Explainer name="javascript-1-memory-then-code" />
 
         <h2 id="interview">Interview questions</h2>
         <p>

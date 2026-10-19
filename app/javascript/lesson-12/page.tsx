@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import Callout from "@/components/Callout";
+import Explainer from "@/components/explainers/Explainer";
 import CallbackHandoff from "@/components/figures/CallbackHandoff";
 import CallbackTimingStepper from "@/components/figures/CallbackTimingStepper";
 import ListenerIdentity from "@/components/figures/ListenerIdentity";
@@ -342,6 +343,8 @@ export default function JsLessonTwelvePage() {
           middleware, retry helpers, debounce and throttle, and most &ldquo;decorators&rdquo; you
           will meet in real code.
         </p>
+
+        <Explainer name="javascript-12-function-factory" />
 
         <h2 id="callbacks">Callbacks — Sync vs. Async</h2>
         <p>Not all callbacks run at the same moment relative to the code around them:</p>

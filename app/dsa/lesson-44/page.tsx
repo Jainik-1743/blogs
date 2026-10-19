@@ -9,6 +9,7 @@ import Recall from "@/components/dsa/Recall";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { getDsaLesson } from "@/lib/dsa";
 import { tracer } from "@/lib/dsa-trace";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = getDsaLesson("lesson-44");
 
@@ -476,6 +477,9 @@ export default function DsaLessonFortyFourPage() {
         <code>root.left = deleteNode(root.left, key)</code>. Time is <strong>O(h)</strong>: one search down, plus one more walk
         down to find the successor.
       </p>
+
+      <Explainer name="dsa-44-bst-delete-two-children" />
+
 
       <h2 id="validate">Validate a BST</h2>
       <p>

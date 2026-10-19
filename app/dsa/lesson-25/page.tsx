@@ -9,6 +9,7 @@ import Recall from "@/components/dsa/Recall";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { getDsaLesson } from "@/lib/dsa";
 import { tracer } from "@/lib/dsa-trace";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = getDsaLesson("lesson-25");
 
@@ -301,6 +302,8 @@ export default function DsaLessonTwentyFivePage() {
       </ul>
       <CodeBlock lang="js" code={flatCode} />
       <p>Lesson 28 explains binary search in full. Here, look only at how the index is converted to a row and a column.</p>
+
+      <Explainer name="dsa-25-staircase-search" />
 
       <h2 id="trace">Traced: the staircase search</h2>
       <CodeTrace

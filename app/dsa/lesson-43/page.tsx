@@ -9,6 +9,7 @@ import Recall from "@/components/dsa/Recall";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { getDsaLesson } from "@/lib/dsa";
 import { tracer } from "@/lib/dsa-trace";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = getDsaLesson("lesson-43");
 
@@ -437,6 +438,9 @@ export default function DsaLessonFortyThreePage() {
         ]}
         note="When a question says 'any path' that can turn at its top node, expect this split: one thing recorded, another thing returned."
       />
+
+      <Explainer name="dsa-43-diameter-return-vs-record" />
+
 
       <h2 id="trace">Traced: diameter of a small tree</h2>
       <p>

@@ -9,6 +9,7 @@ import Recall from "@/components/dsa/Recall";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { getDsaLesson } from "@/lib/dsa";
 import { tracer } from "@/lib/dsa-trace";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = getDsaLesson("lesson-52");
 
@@ -332,6 +333,9 @@ export default function DsaLessonFiftyTwoPage() {
         There are at most E pushes (E is the number of edges). Each push costs O(log E) = O(log V), where V is the number of vertices. So the total is O((V + E) log V), usually written O(E log V). To get the
         actual route, also save <code>parent[next] = v</code> whenever you improve <code>dist[next]</code>. Then walk the parents backwards from the target.
       </p>
+
+      <Explainer name="dsa-52-dijkstra-relax" />
+
 
       <h2 id="trace">Traced: Dijkstra on five vertices</h2>
       <CodeTrace

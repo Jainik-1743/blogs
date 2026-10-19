@@ -9,6 +9,7 @@ import Recall from "@/components/dsa/Recall";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { getDsaLesson } from "@/lib/dsa";
 import { tracer } from "@/lib/dsa-trace";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = getDsaLesson("lesson-53");
 
@@ -348,6 +349,9 @@ export default function DsaLessonFiftyThreePage() {
         <code>find</code> can still be slow, but slow calls flatten the tree so well that the average stays tiny.
         In interviews, say &ldquo;nearly constant, formally inverse Ackermann&rdquo; and you are correct.
       </p>
+
+      <Explainer name="dsa-53-union-find-roots" />
+
 
       <h2 id="trace">Traced: a union-find run</h2>
       <CodeTrace

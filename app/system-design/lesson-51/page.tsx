@@ -6,6 +6,7 @@ import LessonHeader from "@/components/sd/LessonHeader";
 import Section from "@/components/sd/Section";
 import SequenceDiagram from "@/components/sd/SequenceDiagram";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = SD_LESSONS.find((l) => l.slug === "lesson-51")!;
 
@@ -317,6 +318,7 @@ export default function SdLessonFiveOnePage() {
               },
             ]}
           />
+          <Explainer name="system-design-51-envelope-encryption" />
           <p>
             <strong>Why it's clever:</strong>
           </p>

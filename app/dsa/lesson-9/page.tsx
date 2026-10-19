@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
+import Explainer from "@/components/explainers/Explainer";
 import Callout from "@/components/Callout";
 import ArrayBoxes from "@/components/dsa/ArrayBoxes";
 import CodeTrace from "@/components/dsa/CodeTrace";
@@ -173,6 +174,7 @@ export default function DsaLessonNinePage() {
         sum. Joining two strings with <code>+</code> or <code>+=</code> is called{" "}
         <strong>concatenation</strong>.
       </p>
+      <Explainer name="dsa-9-reverse-string" />
       <CodeTrace code={revCode} steps={revTrace()} caption="rev grows by one character per iteration: t → ta → tac." />
 
       <h2 id="chars">Checking what kind of character it is</h2>

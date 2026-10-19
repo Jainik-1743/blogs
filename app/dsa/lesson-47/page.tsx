@@ -9,6 +9,7 @@ import Recall from "@/components/dsa/Recall";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { getDsaLesson } from "@/lib/dsa";
 import { tracer } from "@/lib/dsa-trace";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = getDsaLesson("lesson-47");
 
@@ -286,6 +287,9 @@ export default function DsaLessonFortySevenPage() {
         ]}
         note="The loop stops before the last index, because we never need to jump from it. Answer: 2 jumps (for example 0 → 1 → 4)."
       />
+
+      <Explainer name="dsa-47-jump-game-waves" />
+
 
       <h2 id="gas">Gas station</h2>
       <p>

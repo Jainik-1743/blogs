@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
+import Explainer from "@/components/explainers/Explainer";
 import LessonPager from "@/components/LessonPager";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { AsciiDiagram, Flow, QA, Stats } from "@/components/sd/diagrams";
@@ -244,6 +245,8 @@ export default function SdLessonEightPage() {
             "p99 = 1.2 s" means <strong>1% of your requests take over 1.2 seconds</strong>. At 1 million requests a day,
             that is <strong>10,000 slow experiences every day</strong>.
           </p>
+          <Explainer name="system-design-8-averages-lie" />
+
           <h3 id="why-the-tail-matters-more-at-scale">Why the tail matters more at scale</h3>
           <p>
             <strong>Users make many requests.</strong> Loading one page might trigger 50 API calls. If each call has a

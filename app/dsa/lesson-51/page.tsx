@@ -9,6 +9,7 @@ import Recall from "@/components/dsa/Recall";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { getDsaLesson } from "@/lib/dsa";
 import { tracer } from "@/lib/dsa-trace";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = getDsaLesson("lesson-51");
 
@@ -267,6 +268,9 @@ export default function DsaLessonFiftyOnePage() {
         This keeps the time at O(V + E), where V is the number of dots and E is the number of arrows. Every dot goes into the queue once and every arrow is looked at once.
       </p>
       <CodeBlock lang="js" code={kahnCode} />
+
+      <Explainer name="dsa-51-kahn-indegree" />
+
 
       <h2 id="trace">Traced: Kahn on six tasks</h2>
       <CodeTrace

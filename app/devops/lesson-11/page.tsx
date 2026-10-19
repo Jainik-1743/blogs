@@ -5,6 +5,7 @@ import CommandList from "@/components/CommandList";
 import CdnFlow from "@/components/figures/CdnFlow";
 import InterviewQA from "@/components/InterviewQA";
 import LessonIntro from "@/components/LessonIntro";
+import Explainer from "@/components/explainers/Explainer";
 import LessonPager from "@/components/LessonPager";
 import Script from "@/components/Script";
 import { getLesson } from "@/lib/lessons";
@@ -382,6 +383,7 @@ export async function POST(req: Request) {
           </p>
         </Callout>
 
+        <Explainer name="devops-11-presigned-upload" />
         <h2 id="cors">CORS, the error every browser upload hits</h2>
         <p>
           When the <em>browser</em> calls S3 directly, the browser&apos;s same-origin rule applies.

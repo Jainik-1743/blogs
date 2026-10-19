@@ -9,6 +9,7 @@ import Questions from "./questions";
 import Recall from "@/components/dsa/Recall";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { getDsaLesson } from "@/lib/dsa";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = getDsaLesson("lesson-60");
 
@@ -255,6 +256,9 @@ export default function DsaLessonSixtyPage() {
         rows={limitRows}
         note="Example: “n ≤ 100,000, find a pair with a given sum” rules out two loops inside each other (10 billion steps). It points to a Map or to sorting."
       />
+
+      <Explainer name="dsa-60-constraints-pick-algorithm" />
+
 
       <h2 id="cheat">The pattern cheat sheet</h2>
       <p>

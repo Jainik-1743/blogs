@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
+import Explainer from "@/components/explainers/Explainer";
 import Callout from "@/components/Callout";
 import CodeTrace from "@/components/dsa/CodeTrace";
 import DryRun from "@/components/dsa/DryRun";
@@ -180,6 +181,7 @@ export default function DsaLessonFourteenPage() {
         Now let us follow it all the way down once, to see what the computer really does. Watch the{" "}
         <code>stack</code> variable. It shows every call that has started but has not finished yet.
       </p>
+      <Explainer name="dsa-14-factorial-call-stack" />
       <CodeTrace
         code={factCode}
         steps={factTrace()}

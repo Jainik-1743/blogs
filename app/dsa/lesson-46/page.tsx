@@ -9,6 +9,7 @@ import Recall from "@/components/dsa/Recall";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { getDsaLesson } from "@/lib/dsa";
 import { tracer } from "@/lib/dsa-trace";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = getDsaLesson("lesson-46");
 
@@ -477,6 +478,9 @@ export default function DsaLessonFortySixPage() {
         Each walk is at most as long as the height of the tree. So push and pop are both <strong>O(log n)</strong>. Looking at index 0
         is <strong>O(1)</strong>.
       </p>
+
+      <Explainer name="dsa-46-heap-push-pop" />
+
 
       <h2 id="trace">Traced: six pushes and one pop</h2>
       <CodeTrace

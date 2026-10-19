@@ -5,6 +5,7 @@ import { Compare, Flow, QA, Timeline } from "@/components/sd/diagrams";
 import LessonHeader from "@/components/sd/LessonHeader";
 import Section from "@/components/sd/Section";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = SD_LESSONS.find((l) => l.slug === "lesson-48")!;
 
@@ -244,6 +245,7 @@ export default function SdLessonFourEightPage() {
               { title: <>Learn</>, desc: <>blameless postmortem with owned, tracked action items</>, tone: "good" },
             ]}
           />
+          <Explainer name="system-design-48-incident-lifecycle" />
           <p>
             <strong>Severity levels</strong> (SEV) say how serious an incident is, so people know how fast to act. For example:
           </p>

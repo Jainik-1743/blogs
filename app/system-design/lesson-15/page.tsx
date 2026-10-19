@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
+import Explainer from "@/components/explainers/Explainer";
 import LessonPager from "@/components/LessonPager";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { Compare, Layers, QA, Stats } from "@/components/sd/diagrams";
@@ -386,6 +387,8 @@ export default function SdLessonOneFivePage() {
               { from: 1, to: 0, label: <>hit</>, note: <>~1 ms, database untouched</>, reply: true },
             ]}
           />
+          <Explainer name="system-design-15-cache-aside-hit-ratio" />
+
           <h3 id="measure-it">Measure it</h3>
           <p>Always monitor:</p>
           <ul>

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
+import Explainer from "@/components/explainers/Explainer";
 import LessonPager from "@/components/LessonPager";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { Compare, Flow, QA } from "@/components/sd/diagrams";
@@ -261,6 +262,8 @@ export default function SdLessonTwoTwoPage() {
             Google Bigtable, and the storage layers of many modern databases (CockroachDB and TiDB use LSM-based
             engines).
           </p>
+          <Explainer name="system-design-22-lsm-write-path" />
+
           <h3 id="hash-indexes">Hash indexes</h3>
           <p>
             The simplest index is a <strong>hash map</strong>. It maps each key to a position on disk. It is very fast for

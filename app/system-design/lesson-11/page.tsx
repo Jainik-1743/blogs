@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
+import Explainer from "@/components/explainers/Explainer";
 import LessonPager from "@/components/LessonPager";
 import { AsciiDiagram, Compare, QA, Stats } from "@/components/sd/diagrams";
 import LessonHeader from "@/components/sd/LessonHeader";
@@ -233,6 +234,8 @@ export default function SdLessonOneOnePage() {
             send the confirmation email, update the search index, notify the warehouse and so on, without making you
             wait.
           </p>
+          <Explainer name="system-design-11-request-through-blocks" />
+
           <h3 id="where-the-time-goes-a-latency-budget">Where the time goes: a latency budget</h3>
           <p>
             A <strong>latency budget</strong> is a plan for how many milliseconds (ms) each step may use. Suppose the

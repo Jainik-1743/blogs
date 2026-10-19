@@ -8,6 +8,7 @@ import Section from "@/components/sd/Section";
 import SequenceDiagram from "@/components/sd/SequenceDiagram";
 import JwtAnatomy from "@/components/sd/widgets/JwtAnatomy";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = SD_LESSONS.find((l) => l.slug === "lesson-49")!;
 
@@ -306,6 +307,7 @@ export default function SdLessonFourNinePage() {
               { from: 2, to: 0, label: <>new access token + refresh token R2</>, note: <>rotation</>, reply: true },
             ]}
           />
+          <Explainer name="system-design-49-refresh-rotation" />
           <ul>
             <li>
               Access tokens are <strong>verified statelessly</strong> (fast), and a stolen one works for only minutes.

@@ -9,6 +9,7 @@ import Recall from "@/components/dsa/Recall";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { getDsaLesson } from "@/lib/dsa";
 import { tracer } from "@/lib/dsa-trace";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = getDsaLesson("lesson-34");
 
@@ -204,6 +205,8 @@ export default function DsaLessonThirtyFourPage() {
         <li><strong>Sort first.</strong> Then, when one number is too big, you can use <code>break</code> (stop the whole loop) instead of <code>continue</code> (skip only this number), because all later numbers are bigger.</li>
       </ul>
       <CodeBlock lang="js" code={comboCode} />
+
+      <Explainer name="dsa-34-combination-sum-pruning" />
 
       <h2 id="trace">Traced: combination sum for target 7</h2>
       <CodeTrace

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
+import Explainer from "@/components/explainers/Explainer";
 import LessonPager from "@/components/LessonPager";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { Compare, Flow, QA } from "@/components/sd/diagrams";
@@ -161,6 +162,8 @@ export default function SdLessonTwoOnePage() {
             log is also used for <strong>replication</strong> (copying data to other servers, Lesson 24) and for{" "}
             <strong>point-in-time recovery</strong> (restoring the database to an exact moment, Part 7).
           </p>
+          <Explainer name="system-design-21-transfer-crash" />
+
           <h3 id="the-problems-isolation-prevents">The problems isolation prevents</h3>
           <p>
             An "anomaly" is a wrong result that can happen when transactions run at the same time. Here are the five

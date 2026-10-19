@@ -9,6 +9,7 @@ import Recall from "@/components/dsa/Recall";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { getDsaLesson } from "@/lib/dsa";
 import { tracer } from "@/lib/dsa-trace";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = getDsaLesson("lesson-55");
 
@@ -327,6 +328,9 @@ export default function DsaLessonFiftyFivePage() {
       <p>
         The time is O(amount × number of coins) and the space is O(amount). Both versions are correct, but the table avoids deep recursion for large amounts.
       </p>
+
+      <Explainer name="dsa-55-coin-change-table" />
+
 
       <h2 id="trace">Traced: coin change</h2>
       <CodeTrace

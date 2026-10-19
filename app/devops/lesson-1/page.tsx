@@ -5,6 +5,7 @@ import Callout from "@/components/Callout";
 import CommandList from "@/components/CommandList";
 import FilesystemTree from "@/components/figures/FilesystemTree";
 import PermissionBits from "@/components/figures/PermissionBits";
+import Explainer from "@/components/explainers/Explainer";
 import LessonPager from "@/components/LessonPager";
 import Script from "@/components/Script";
 import { getLesson, READINGS, readingHref, SERIES } from "@/lib/lessons";
@@ -221,6 +222,7 @@ export default function LessonOnePage() {
           Setting the key to <code>400</code> fixes it.
         </p>
 
+        <Explainer name="devops-1-permission-bits" />
         <h2 id="users">Part D: Users and sudo</h2>
         <p>
           You log in as a normal user. On an Ubuntu EC2 server that user is <code>ubuntu</code>.

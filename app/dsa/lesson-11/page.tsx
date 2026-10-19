@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
 import ArrayBoxes from "@/components/dsa/ArrayBoxes";
+import Explainer from "@/components/explainers/Explainer";
 import Callout from "@/components/Callout";
 import CodeTrace from "@/components/dsa/CodeTrace";
 import DryRun from "@/components/dsa/DryRun";
@@ -288,6 +289,7 @@ export default function DsaLessonElevenPage() {
       </p>
 
       <h2 id="trace">Traced: the one-pass solution</h2>
+      <Explainer name="dsa-11-second-largest-one-pass" />
       <CodeTrace
         code={onePassCode}
         steps={onePassTrace()}

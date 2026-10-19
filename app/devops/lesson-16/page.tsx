@@ -4,6 +4,7 @@ import Callout from "@/components/Callout";
 import CommandList from "@/components/CommandList";
 import InterviewQA from "@/components/InterviewQA";
 import LessonIntro from "@/components/LessonIntro";
+import Explainer from "@/components/explainers/Explainer";
 import LessonPager from "@/components/LessonPager";
 import Script from "@/components/Script";
 import { getLesson } from "@/lib/lessons";
@@ -254,6 +255,7 @@ export async function updateSettings(tenantId: string, data: Settings) {
   await redis.del(\`app:v1:tenant:\${tenantId}:dashboard\`);   // invalidate (remove the old copy) on write
 }`}
         />
+        <Explainer name="devops-16-cache-aside" />
         <h3>The four decisions that make or break a cache</h3>
         <ul>
           <li>

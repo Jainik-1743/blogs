@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
+import Explainer from "@/components/explainers/Explainer";
 import LessonPager from "@/components/LessonPager";
 import { Compare, Flow, QA } from "@/components/sd/diagrams";
 import LessonHeader from "@/components/sd/LessonHeader";
@@ -334,6 +335,8 @@ export default function SdLessonSixPage() {
             <strong>Assumptions are fine. Hidden assumptions are dangerous.</strong> Write them down so that others can
             question them.
           </p>
+          <Explainer name="system-design-6-requirements-first" />
+
           <h3 id="thinking-in-trade-offs">Thinking in trade-offs</h3>
           <p>
             Almost every decision in this series is a trade-off. Here are the ones you will meet again and again:

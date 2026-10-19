@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import Callout from "@/components/Callout";
+import Explainer from "@/components/explainers/Explainer";
 import ConstBindingBox from "@/components/figures/ConstBindingBox";
 import ErrorTaxonomy from "@/components/figures/ErrorTaxonomy";
 import KeywordMatrix from "@/components/figures/KeywordMatrix";
@@ -507,6 +508,8 @@ export default function JsLessonEightPage() {
           is never evaluated, so <code>stay</code> is never read early and nothing throws. A
           default may refer to any parameter to its <em>left</em>, never to its right.
         </p>
+
+        <Explainer name="javascript-8-shadow-tdz" />
 
         <h2 id="redeclare">Redeclaration: var Allows It, let And const Don&apos;t</h2>
         <Script title="redeclare.js" code={redeclare} />

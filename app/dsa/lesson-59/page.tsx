@@ -8,6 +8,7 @@ import Questions from "./questions";
 import Recall from "@/components/dsa/Recall";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { getDsaLesson } from "@/lib/dsa";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = getDsaLesson("lesson-59");
 
@@ -331,6 +332,9 @@ export default function DsaLessonFiftyNinePage() {
         Never skip the testing step. A brute-force answer that works and that you have tested is worth more than a faster answer that
         is not finished. If time is almost over, say so: &quot;I won&apos;t finish the faster version. Here is how I would finish it.&quot;
       </Callout>
+
+      <Explainer name="dsa-59-interview-six-steps" />
+
 
       <h2 id="clarify">Step 1: clarify the problem</h2>
       <p>

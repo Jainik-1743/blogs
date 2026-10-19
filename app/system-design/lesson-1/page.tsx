@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
 import Callout from "@/components/Callout";
+import Explainer from "@/components/explainers/Explainer";
 import LessonPager from "@/components/LessonPager";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { Flow, Layers, QA, Stats } from "@/components/sd/diagrams";
@@ -158,6 +159,8 @@ export default function SdLessonOnePage() {
               },
             ]}
           />
+          <Explainer name="system-design-1-url-journey" />
+
           <p>Let's go through each step.</p>
           <h3 id="step-1-the-browser-reads-the-url">Step 1: The browser reads the URL</h3>
           <p>

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
+import Explainer from "@/components/explainers/Explainer";
 import Callout from "@/components/Callout";
 import ArrayBoxes from "@/components/dsa/ArrayBoxes";
 import CodeTrace from "@/components/dsa/CodeTrace";
@@ -239,6 +240,7 @@ export default function DsaLessonEightPage() {
       </p>
 
       <h2 id="trace">Traced: finding the maximum</h2>
+      <Explainer name="dsa-8-find-max" />
       <CodeTrace
         code={maxCode}
         steps={maxTrace()}

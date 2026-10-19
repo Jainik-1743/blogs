@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
+import Explainer from "@/components/explainers/Explainer";
 import Callout from "@/components/Callout";
 import CodeTrace from "@/components/dsa/CodeTrace";
 import DryRun from "@/components/dsa/DryRun";
@@ -208,6 +209,7 @@ export default function DsaLessonFourPage() {
 
       <h2 id="trace1">Traced: printing 1 to 3</h2>
       <p>Press Next, and say each step out loud before you see it. Watch the order of check, body and update:</p>
+      <Explainer name="dsa-4-for-loop-order" />
       <CodeTrace
         code={printCode}
         steps={printTrace()}

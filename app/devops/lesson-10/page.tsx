@@ -5,6 +5,7 @@ import CommandList from "@/components/CommandList";
 import NginxFlow from "@/components/figures/NginxFlow";
 import InterviewQA from "@/components/InterviewQA";
 import LessonIntro from "@/components/LessonIntro";
+import Explainer from "@/components/explainers/Explainer";
 import LessonPager from "@/components/LessonPager";
 import Script from "@/components/Script";
 import { getLesson } from "@/lib/lessons";
@@ -324,6 +325,7 @@ server {
           </p>
         </Callout>
 
+        <Explainer name="devops-10-nginx-proxy" />
         <h2 id="performance">Compression, caching and upload limits</h2>
         <p>Add these to the same <code>server</code> block. First compression and the upload cap:</p>
         <Script

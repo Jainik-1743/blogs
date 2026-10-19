@@ -4,6 +4,7 @@ import LessonPager from "@/components/LessonPager";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { Flow, QA, Timeline } from "@/components/sd/diagrams";
 import LessonHeader from "@/components/sd/LessonHeader";
+import Explainer from "@/components/explainers/Explainer";
 import Section from "@/components/sd/Section";
 import SequenceDiagram from "@/components/sd/SequenceDiagram";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
@@ -268,6 +269,7 @@ export default function SdLessonThreeNinePage() {
             ]}
           />
           <p>Event sourcing and CQRS are often used together. You can also use either one alone.</p>
+          <Explainer name="system-design-39-event-sourcing-replay" />
           <h3 id="choreography-vs-orchestration">Choreography vs orchestration</h3>
           <p>When a business process spans several services (like checkout), who is in charge of the steps?</p>
           <p>
@@ -366,6 +368,7 @@ export default function SdLessonThreeNinePage() {
               coordinator). Orchestration is usually easier to reason about for sagas.
             </li>
           </ul>
+          <Explainer name="system-design-39-checkout-saga" />
           <h3 id="change-data-capture-cdc-as-an-event-source">Change Data Capture (CDC) as an event source</h3>
           <p>
             Sometimes you cannot, or do not want to, change old applications so that they publish events.{" "}

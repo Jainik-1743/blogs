@@ -21,5 +21,8 @@ export default function Explainer({ name }: { name: string }) {
         return <SequenceExplainer def={{ title: def.title, actors: def.actors, steps: def.steps }} />;
     }
   }
+  if (process.env.NODE_ENV === "development") {
+    return <p className="rounded-lg border border-red-300/60 px-3 py-2 text-[0.85rem]">Explainer "{name}" is missing or invalid (see the dev server log).</p>;
+  }
   throw new Error(`Unknown explainer "${name}". Add it to lib/explain/data/<series>.ts`);
 }

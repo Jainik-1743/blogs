@@ -4,6 +4,7 @@ import Callout from "@/components/Callout";
 import CommandList from "@/components/CommandList";
 import InterviewQA from "@/components/InterviewQA";
 import LessonIntro from "@/components/LessonIntro";
+import Explainer from "@/components/explainers/Explainer";
 import LessonPager from "@/components/LessonPager";
 import Script from "@/components/Script";
 import { getLesson } from "@/lib/lessons";
@@ -356,6 +357,7 @@ export default function LessonSeventeenPage() {
           ]}
         />
 
+        <Explainer name="devops-17-alarm-window" />
         <h2 id="logs">Step 3 — get the logs off the server</h2>
         <p>
           A container writes its log lines to <strong>stdout</strong> (the standard output stream of

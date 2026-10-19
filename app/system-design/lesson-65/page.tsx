@@ -5,6 +5,7 @@ import { Flow, QA, Stats } from "@/components/sd/diagrams";
 import LessonHeader from "@/components/sd/LessonHeader";
 import Section from "@/components/sd/Section";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = SD_LESSONS.find((l) => l.slug === "lesson-65")!;
 
@@ -98,6 +99,7 @@ export default function SdLessonSixFivePage() {
               },
             ]}
           />
+          <Explainer name="system-design-65-read-a-post" />
           <p>Then ask yourself:</p>
           <ul>
             <li>

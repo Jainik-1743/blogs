@@ -4,6 +4,7 @@ import Callout from "@/components/Callout";
 import VpcLayout from "@/components/figures/VpcLayout";
 import InterviewQA from "@/components/InterviewQA";
 import LessonIntro from "@/components/LessonIntro";
+import Explainer from "@/components/explainers/Explainer";
 import LessonPager from "@/components/LessonPager";
 import Script from "@/components/Script";
 import { getLesson } from "@/lib/lessons";
@@ -314,6 +315,7 @@ export default function LessonSixPage() {
           setup. Inside the VPC, every subnet has a route to every other subnet.{" "}
           <em>Security Groups</em>, not routes, decide who is actually allowed in.
         </p>
+        <Explainer name="devops-6-public-private-subnet" />
         <h3>A public subnet is not enough — the public IP</h3>
         <p>
           For a server to be reachable from the internet, it needs <strong>both</strong> a public

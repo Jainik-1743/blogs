@@ -4,6 +4,7 @@ import LessonPager from "@/components/LessonPager";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { AsciiDiagram, Flow, QA, Timeline } from "@/components/sd/diagrams";
 import LessonHeader from "@/components/sd/LessonHeader";
+import Explainer from "@/components/explainers/Explainer";
 import Section from "@/components/sd/Section";
 import SequenceDiagram from "@/components/sd/SequenceDiagram";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
@@ -208,6 +209,7 @@ export default function SdLessonThreeSevenPage() {
             action many times has the same result as doing it once. <strong>De-duplicated</strong> means that repeated
             copies of a message are found and dropped.
           </p>
+          <Explainer name="system-design-37-at-least-once-duplicate" />
           <h3 id="making-consumers-idempotent">Making consumers idempotent</h3>
           <p>
             <strong>1. De-duplicate using message IDs.</strong> Every message carries a unique ID. The consumer saves
@@ -343,6 +345,7 @@ export default function SdLessonThreeSevenPage() {
             </li>
           </ul>
           <p>This pattern is one of the most important tools in event-driven systems (post 39).</p>
+          <Explainer name="system-design-37-transactional-outbox" />
           <h3 id="ordering-and-retries">Ordering and retries</h3>
           <p>
             Retries can also <strong>change the order</strong> of messages. Say message 1 fails and is retried after

@@ -4,6 +4,7 @@ import LessonPager from "@/components/LessonPager";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { Compare, Flow, Layers, QA } from "@/components/sd/diagrams";
 import LessonHeader from "@/components/sd/LessonHeader";
+import Explainer from "@/components/explainers/Explainer";
 import Section from "@/components/sd/Section";
 import Backoff from "@/components/sd/widgets/Backoff";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
@@ -528,6 +529,7 @@ export default function SdLessonThreeEightPage() {
               up to 14 days, so act within that time.
             </li>
           </ol>
+          <Explainer name="system-design-38-dead-letter-queue" />
           <h3 id="what-to-monitor">What to monitor</h3>
           <ul>
             <li>

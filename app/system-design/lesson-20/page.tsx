@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
+import Explainer from "@/components/explainers/Explainer";
 import LessonPager from "@/components/LessonPager";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { AsciiDiagram, Compare, QA } from "@/components/sd/diagrams";
@@ -281,6 +282,8 @@ export default function SdLessonTwoZeroPage() {
               },
             ]}
           />
+          <Explainer name="system-design-20-pick-data-model" />
+
           <h3 id="other-specialised-databases">Other specialised databases</h3>
           <ul>
             <li>

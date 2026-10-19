@@ -9,6 +9,7 @@ import Recall from "@/components/dsa/Recall";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { getDsaLesson } from "@/lib/dsa";
 import { tracer } from "@/lib/dsa-trace";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = getDsaLesson("lesson-49");
 
@@ -297,6 +298,9 @@ export default function DsaLessonFortyNinePage() {
         <code>new Array(n).fill([])</code> puts the <em>same</em> array in every slot. So if you push to one neighbour list, you
         change all of them. Always build with <code>Array.from(&#123; length: n &#125;, () =&gt; [])</code>.
       </Callout>
+
+      <Explainer name="dsa-49-edge-list-to-adjacency" />
+
 
       <h2 id="trace">Traced: edge list to adjacency list</h2>
       <CodeTrace

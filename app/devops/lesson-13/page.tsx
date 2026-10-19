@@ -5,6 +5,7 @@ import Callout from "@/components/Callout";
 import CommandList from "@/components/CommandList";
 import InterviewQA from "@/components/InterviewQA";
 import LessonIntro from "@/components/LessonIntro";
+import Explainer from "@/components/explainers/Explainer";
 import LessonPager from "@/components/LessonPager";
 import { getLesson, lessonHref } from "@/lib/lessons";
 
@@ -295,6 +296,7 @@ export default function LessonThirteenPage() {
           </p>
         </Callout>
 
+        <Explainer name="devops-13-weighted-cutover" />
         <h2 id="health">Health checks and DNS failover</h2>
         <p>
           A Route 53 <strong>health check</strong> is a robot that runs outside your VPC, in several

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
+import Explainer from "@/components/explainers/Explainer";
 import LessonPager from "@/components/LessonPager";
 import { Compare, Flow, QA, Timeline } from "@/components/sd/diagrams";
 import LessonHeader from "@/components/sd/LessonHeader";
@@ -406,6 +407,8 @@ export default function SdLessonOneSixPage() {
               </tbody>
             </table>
           </div>
+          <Explainer name="system-design-16-cache-stampede" />
+
           <h3 id="part-d-when-caches-cause-outages">Part D: When caches cause outages</h3>
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">1. Cache stampede (thundering herd)</h4>
           <p>

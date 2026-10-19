@@ -12,6 +12,7 @@ import PaasIaasStack from "@/components/figures/PaasIaasStack";
 import RegionLatency from "@/components/figures/RegionLatency";
 import ResponsibilityMatrix from "@/components/figures/ResponsibilityMatrix";
 import VercelWalls from "@/components/figures/VercelWalls";
+import Explainer from "@/components/explainers/Explainer";
 import LessonPager from "@/components/LessonPager";
 import Script from "@/components/Script";
 import { getLesson, READINGS, readingHref, SERIES } from "@/lib/lessons";
@@ -180,6 +181,7 @@ export default function LessonZeroPage() {
         </p>
         <ArchitectureMap />
 
+        <Explainer name="devops-0-request-path" />
         <h3>What each name means, in one line</h3>
         <div className="table-wrap">
         <table>

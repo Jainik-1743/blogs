@@ -6,6 +6,7 @@ import { Compare, Flow, QA } from "@/components/sd/diagrams";
 import LessonHeader from "@/components/sd/LessonHeader";
 import Section from "@/components/sd/Section";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = SD_LESSONS.find((l) => l.slug === "lesson-59")!;
 
@@ -501,6 +502,7 @@ export default function SdLessonFiveNinePage() {
             Wrap-up: this is a simple, read-heavy design. Caching and a CDN (a network that serves copies of files from places near the user) give most of the scale, and object
             storage keeps the database small.
           </p>
+          <Explainer name="system-design-59-design-framework" />
           <h3 id="common-mistakes">Common mistakes</h3>
           <ul>
             <li>

@@ -4,6 +4,7 @@ import LessonPager from "@/components/LessonPager";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { Flow, QA } from "@/components/sd/diagrams";
 import LessonHeader from "@/components/sd/LessonHeader";
+import Explainer from "@/components/explainers/Explainer";
 import Section from "@/components/sd/Section";
 import SequenceDiagram from "@/components/sd/SequenceDiagram";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
@@ -419,6 +420,7 @@ export default function SdLessonThreeThreePage() {
               , not the only copy.
             </li>
           </ul>
+          <Explainer name="system-design-33-message-routing" />
           <h3 id="beyond-these-four">Beyond these four</h3>
           <ul>
             <li>

@@ -4,6 +4,7 @@ import LessonPager from "@/components/LessonPager";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { AsciiDiagram, Compare, Flow, QA, Stats } from "@/components/sd/diagrams";
 import LessonHeader from "@/components/sd/LessonHeader";
+import Explainer from "@/components/explainers/Explainer";
 import Section from "@/components/sd/Section";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
 
@@ -420,6 +421,7 @@ export default function SdLessonTwoFivePage() {
             <strong>6. Operations multiply.</strong> Ten shards mean ten times the backups, the monitoring, the schema
             changes and the failovers. Automation becomes a must.
           </p>
+          <Explainer name="system-design-25-sharding-router" />
           <h3 id="how-requests-find-the-right-shard">How requests find the right shard</h3>
           <AsciiDiagram text={diagram1} />
           <p>

@@ -3,6 +3,7 @@ import { pageMetadata } from "@/lib/seo";
 import LessonPager from "@/components/LessonPager";
 import { Compare, Flow, Layers, QA } from "@/components/sd/diagrams";
 import LessonHeader from "@/components/sd/LessonHeader";
+import Explainer from "@/components/explainers/Explainer";
 import Section from "@/components/sd/Section";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
 
@@ -298,6 +299,7 @@ export default function SdLessonFourFourPage() {
               to stay fair.
             </li>
           </ul>
+          <Explainer name="system-design-44-load-shedding" />
           <h3 id="where-to-shed">Where to shed</h3>
           <ul>
             <li>

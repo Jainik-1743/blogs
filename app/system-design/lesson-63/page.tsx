@@ -7,6 +7,7 @@ import LessonHeader from "@/components/sd/LessonHeader";
 import Section from "@/components/sd/Section";
 import SequenceDiagram from "@/components/sd/SequenceDiagram";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = SD_LESSONS.find((l) => l.slug === "lesson-63")!;
 
@@ -448,6 +449,7 @@ export default function SdLessonSixThreePage() {
               },
             ]}
           />
+          <Explainer name="system-design-63-chat-sync" />
           <h4 className="mb-1 mt-5 font-semibold text-slate-50">Deep dive 4: Storage</h4>
           <p>
             <strong>Why wide-column (Cassandra/ScyllaDB) or similar:</strong> Cassandra is an open-source wide-column database that spreads data over many machines and is very fast at writes. ScyllaDB is a database that works like Cassandra but is written in C++ to be faster. A partition key is the column value that decides which machine and partition holds a row.

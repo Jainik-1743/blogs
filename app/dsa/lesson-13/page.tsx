@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
+import Explainer from "@/components/explainers/Explainer";
 import Callout from "@/components/Callout";
 import CodeTrace from "@/components/dsa/CodeTrace";
 import DryRun from "@/components/dsa/DryRun";
@@ -272,6 +273,7 @@ export default function DsaLessonThirteenPage() {
         5), were already crossed out by 2 and 3. And why stop at √n? Any non-prime number up to n has a
         divisor that is at most √n, so it has already been crossed out.
       </p>
+      <Explainer name="dsa-13-sieve-of-eratosthenes" />
       <CodeBlock lang="js" code={sieveCode} />
       <p>
         The sieve runs in about <strong>O(n log log n)</strong> time. This is so close to O(n) that you can
@@ -299,6 +301,7 @@ export default function DsaLessonThirteenPage() {
       </Callout>
 
       <h2 id="trace">Traced: gcd(252, 105)</h2>
+      <Explainer name="dsa-13-euclid-gcd" />
       <CodeTrace
         code={gcdCode}
         steps={gcdTrace()}

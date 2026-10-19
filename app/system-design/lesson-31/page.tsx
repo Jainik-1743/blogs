@@ -4,6 +4,7 @@ import LessonPager from "@/components/LessonPager";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { Compare, Flow, QA, Stats } from "@/components/sd/diagrams";
 import LessonHeader from "@/components/sd/LessonHeader";
+import Explainer from "@/components/explainers/Explainer";
 import Section from "@/components/sd/Section";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
 
@@ -269,6 +270,7 @@ export default function SdLessonThreeOnePage() {
             <code>PERMISSION_DENIED</code>, <code>RESOURCE_EXHAUSTED</code> (rate limited) and more. They are similar in
             purpose to HTTP status codes.
           </p>
+          <Explainer name="system-design-31-grpc-deadline" />
           <h3 id="interceptors-middleware">Interceptors (middleware)</h3>
           <p>
             <strong>Interceptors</strong> are pieces of code that run before and after every call. They are the natural

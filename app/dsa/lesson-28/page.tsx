@@ -10,6 +10,7 @@ import Recall from "@/components/dsa/Recall";
 import CodeBlock from "@/components/sd/CodeBlock";
 import { getDsaLesson } from "@/lib/dsa";
 import { tracer } from "@/lib/dsa-trace";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = getDsaLesson("lesson-28");
 
@@ -166,6 +167,8 @@ export default function DsaLessonTwentyEightPage() {
         still be. Each step looks at the middle and throws away the half that cannot contain the target.
       </p>
       <CodeBlock lang="js" code={templateCode} />
+
+      <Explainer name="dsa-28-binary-search-halving" />
 
       <h2 id="trace">Traced: searching for 9</h2>
       <CodeTrace

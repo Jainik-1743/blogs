@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
+import Explainer from "@/components/explainers/Explainer";
 import Callout from "@/components/Callout";
 import CodeTrace from "@/components/dsa/CodeTrace";
 import DryRun from "@/components/dsa/DryRun";
@@ -153,6 +154,7 @@ export default function DsaLessonSeventeenPage() {
       </p>
 
       <h2 id="trace">Traced: merge([1, 4, 7], [2, 3, 9])</h2>
+      <Explainer name="dsa-17-merge-two-sorted" />
       <CodeTrace
         code={mergeCode}
         steps={mergeTrace()}

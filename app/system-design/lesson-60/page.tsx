@@ -8,6 +8,7 @@ import Section from "@/components/sd/Section";
 import SequenceDiagram from "@/components/sd/SequenceDiagram";
 import Base62 from "@/components/sd/widgets/Base62";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
+import Explainer from "@/components/explainers/Explainer";
 
 const lesson = SD_LESSONS.find((l) => l.slug === "lesson-60")!;
 
@@ -329,6 +330,7 @@ export default function SdLessonSixZeroPage() {
               },
             ]}
           />
+          <Explainer name="system-design-60-redirect-path" />
           <ul>
             <li>
               <strong>Separate the create path and the redirect path.</strong> Redirects are about 100 times more frequent and must be
