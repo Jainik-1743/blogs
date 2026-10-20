@@ -7,6 +7,7 @@ import JsonLd from "@/components/JsonLd";
 import AuthProvider from "@/components/auth/AuthProvider";
 import ToastProvider from "@/components/Toast";
 import ProgressSync from "@/components/auth/ProgressSync";
+import BookmarksProvider from "@/components/auth/BookmarksProvider";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import GlossaryTooltips from "@/components/GlossaryTooltips";
@@ -86,6 +87,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <JsonLd data={siteJsonLd()} />
         <ToastProvider>
         <AuthProvider>
+        <BookmarksProvider>
         <ProgressSync />
         <SiteHeader />
         <main className="mx-auto w-full max-w-[var(--container)] flex-1 px-4 py-12">
@@ -98,6 +100,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <LinkPreview />
         <ResumePrompt />
         <GlossaryTooltips />
+        </BookmarksProvider>
         </AuthProvider>
         </ToastProvider>
         {ANALYTICS_ENABLED && (

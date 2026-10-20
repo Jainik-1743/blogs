@@ -79,6 +79,16 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // Saved lessons: one record per reader holding a map of bookmarks. Only the reader can see or change it.
+    match /bookmarks/{uid} {
+      allow read: if isOwner(uid);
+      allow create, update: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['items', 'updatedAt'])
+        && request.resource.data.items is map && request.resource.data.items.size() <= 500
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if false;
+    }
+
     // One record per reader: finished lessons, the days they studied (badges are counted from these) and the next lesson.
     match /progress/{uid} {
       allow read: if isOwner(uid);
