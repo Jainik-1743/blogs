@@ -11,6 +11,7 @@ import { authErrorMessage, checkEmail, checkPassword, safeNext } from "@/lib/acc
 import { useToast } from "@/components/Toast";
 import { useAccount } from "./AuthProvider";
 import { Field, GoogleIcon, Notice, inputClass } from "./fields";
+import SignInHelp from "./SignInHelp";
 import { AuthFormSkeleton } from "@/components/Skeleton";
 
 const button = "w-full rounded-lg bg-sky px-5 py-3 font-semibold text-bg transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60";
@@ -30,7 +31,7 @@ export default function AuthPanel({ mode }: { mode: "login" | "signup" }) {
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [errors, setErrors] = useState<{ email?: string | null; password?: string | null }>({});
-  const [message, setMessage] = useState<{ tone: "error" | "info" | "success"; text: string; mismatch?: boolean } | null>(null);
+  const [message, setMessage] = useState<{ tone: "error" | "info" | "success"; text: string; mismatch?: string } | null>(null);
   const [busy, setBusy] = useState(false);
   const [resetting, setResetting] = useState(false);
 
@@ -52,7 +53,7 @@ export default function AuthPanel({ mode }: { mode: "login" | "signup" }) {
     // Firebase says the same thing for a wrong password and for an account that has no password (for example a
     // Google account), so offer both ways forward instead of leaving the reader stuck.
     const code = (err as { code?: string })?.code ?? "";
-    const mismatch = mode === "login" && ["auth/invalid-credential", "auth/wrong-password", "auth/user-not-found"].includes(code);
+    const mismatch = mode === "login" && ["auth/invalid-credential", "auth/wrong-password", "auth/user-not-found"].includes(code) ? code : undefined;
     setMessage({ tone: "error", text, mismatch });
     toast(text, "error");
   };
@@ -133,10 +134,7 @@ export default function AuthPanel({ mode }: { mode: "login" | "signup" }) {
 
       {message && <Notice tone={message.tone}>{message.text}</Notice>}
       {message?.mismatch && !resetting && (
-        <div className="-mt-2 flex flex-wrap gap-2">
-          <button type="button" onClick={google} disabled={busy} className="inline-flex items-center gap-2 rounded-lg border border-line bg-bg px-3.5 py-2 text-[0.85rem] font-semibold text-ink transition hover:border-sky hover:text-sky disabled:opacity-60"><GoogleIcon /> Continue with Google</button>
-          <button type="button" onClick={() => { setResetting(true); setMessage(null); }} className="rounded-lg border border-line px-3.5 py-2 text-[0.85rem] font-semibold text-ink transition hover:border-sky hover:text-sky">Reset my password</button>
-        </div>
+        <SignInHelp code={message.mismatch} next={next} busy={busy} onGoogle={google} onReset={() => { setResetting(true); setMessage(null); }} />
       )}
 
       <form onSubmit={submit} noValidate method="post" className="flex flex-col gap-4">
