@@ -131,6 +131,10 @@ function buildPages(): PageInfo[] {
     });
   }
   pages.push({
+    path: "/features", kind: "hub", title: "What's new: free accounts with streaks, badges and bookmarks",
+    description: "Reading every lesson stays free. A free account adds saved progress across devices, a daily streak, reading badges, bookmarks sorted by topic and shareable achievements.",
+  });
+  pages.push({
     path: "/topics", kind: "hub", title: "Browse by topic: lessons on one subject from every series",
     description: "Pick a subject such as caching, security, databases or APIs and see every lesson about it, from every series, in one list.",
   });

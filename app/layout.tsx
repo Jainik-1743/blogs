@@ -17,6 +17,7 @@ import PageTransition from "@/components/PageTransition";
 import LessonRail from "@/components/LessonRail";
 import ReadingProgress from "@/components/ReadingProgress";
 import ResumePrompt from "@/components/ResumePrompt";
+import NewFeaturesModal from "@/components/NewFeaturesModal";
 import { accentInitScript } from "@/lib/accents";
 import { displayInitScript } from "@/lib/display";
 import { ALL_SERIES } from "@/lib/series";
@@ -99,6 +100,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <FocusMode />
         <LinkPreview />
         <ResumePrompt />
+        <NewFeaturesModal />
         <GlossaryTooltips />
         </BookmarksProvider>
         </AuthProvider>
