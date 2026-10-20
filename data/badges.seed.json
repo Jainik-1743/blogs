@@ -1,0 +1,7 @@
+[
+  { "id": "silver", "name": "Silver", "track": "reading", "metric": "activeDays", "threshold": 5, "blurb": "You have a reading habit.", "image": "/badges/silver.webp", "enabled": true },
+  { "id": "gold", "name": "Gold", "track": "reading", "metric": "activeDays", "threshold": 15, "blurb": "Two weeks of real progress.", "image": "/badges/gold.webp", "enabled": true },
+  { "id": "platinum", "name": "Platinum", "track": "reading", "metric": "activeDays", "threshold": 30, "blurb": "A full month of learning.", "image": "/badges/platinum.webp", "enabled": true },
+  { "id": "diamond", "name": "Diamond", "track": "reading", "metric": "activeDays", "threshold": 60, "blurb": "Two months. This is who you are now.", "image": "/badges/diamond.webp", "enabled": true },
+  { "id": "elite", "name": "Elite", "track": "reading", "metric": "activeDays", "threshold": 120, "blurb": "120 days or more. Top of the board.", "image": "/badges/elite.webp", "enabled": true }
+]

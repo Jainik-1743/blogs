@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Register a new markdown series from a JSON spec: python3 scripts/scaffold-series.py spec.json
 Spec: {slug, const, title, short, tagline, accent, group, related[], lessons:[[title,summary,readTime,[tags]],...]}
-Adds the series to lib/iv.ts, lib/series.ts and app/<slug>/ (copied from app/git-github). WRITTEN starts at 0."""
+Adds the series to lib/iv.ts, lib/series.ts and app/(learn)/<slug>/ (copied from app/(learn)/git-github). WRITTEN starts at 0."""
 import json, sys, re, shutil, os
 spec = json.load(open(sys.argv[1]))
 slug, const = spec["slug"], spec["const"]
@@ -34,9 +34,9 @@ t = t[:m.end(1)] + f", {js(slug)}" + t[m.end(1):]
 rel = ", ".join(js(x) for x in spec["related"])
 t = re.sub(r"(export const RELATED_SERIES[^{]*\{.*?)\n\};", lambda m: m.group(1) + f"\n  {js(slug)}: [{rel}],\n}};", t, 1, flags=re.S)
 open("lib/series.ts", "w").write(t)
-dst = f"app/{slug}"
+dst = f"app/(learn)/{slug}"
 if not os.path.exists(dst):
-    shutil.copytree("app/git-github", dst)
+    shutil.copytree("app/(learn)/git-github", dst)
     for root, _, files in os.walk(dst):
         for f in files:
             p = os.path.join(root, f)

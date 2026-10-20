@@ -4,6 +4,10 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import JsonLd from "@/components/JsonLd";
+import AuthProvider from "@/components/auth/AuthProvider";
+import ToastProvider from "@/components/Toast";
+import ProgressSync from "@/components/auth/ProgressSync";
+import BookmarksProvider from "@/components/auth/BookmarksProvider";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import GlossaryTooltips from "@/components/GlossaryTooltips";
@@ -13,11 +17,12 @@ import PageTransition from "@/components/PageTransition";
 import LessonRail from "@/components/LessonRail";
 import ReadingProgress from "@/components/ReadingProgress";
 import ResumePrompt from "@/components/ResumePrompt";
+import NewFeaturesModal from "@/components/NewFeaturesModal";
 import { accentInitScript } from "@/lib/accents";
 import { displayInitScript } from "@/lib/display";
 import { ALL_SERIES } from "@/lib/series";
 import { robotsMeta, siteJsonLd } from "@/lib/seo";
-import { AUTHOR, BING_VERIFICATION, GOOGLE_VERIFICATION, HOME_DESCRIPTION, HOME_TITLE, SITE_LOCALE, SITE_NAME, SITE_URL } from "@/lib/site";
+import { ANALYTICS_ENABLED, AUTHOR, BING_VERIFICATION, GOOGLE_VERIFICATION, HOME_DESCRIPTION, HOME_TITLE, SITE_LOCALE, SITE_NAME, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
@@ -42,10 +47,14 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image", title: HOME_TITLE, description: HOME_DESCRIPTION, images: ["/og"] },
   robots: robotsMeta,
   // Bing and Google site verification (see lib/site.ts; set GOOGLE_SITE_VERIFICATION in Vercel if you use the meta-tag method).
-  verification: {
-    ...(GOOGLE_VERIFICATION ? { google: GOOGLE_VERIFICATION } : {}),
-    other: { "msvalidate.01": BING_VERIFICATION },
-  },
+  ...(ANALYTICS_ENABLED
+    ? {
+        verification: {
+          ...(GOOGLE_VERIFICATION ? { google: GOOGLE_VERIFICATION } : {}),
+          other: { "msvalidate.01": BING_VERIFICATION },
+        },
+      }
+    : {}),
 };
 
 export const viewport: Viewport = {
@@ -66,6 +75,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body id="top" className="flex min-h-screen flex-col">
+        {ANALYTICS_ENABLED && (
         <noscript>
           <iframe
             src="https://www.googletagmanager.com/ns.html?id=GTM-K5GQ3XVS"
@@ -74,7 +84,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             style={{ display: "none", visibility: "hidden" }}
           />
         </noscript>
+        )}
         <JsonLd data={siteJsonLd()} />
+        <ToastProvider>
+        <AuthProvider>
+        <BookmarksProvider>
+        <ProgressSync />
         <SiteHeader />
         <main className="mx-auto w-full max-w-[var(--container)] flex-1 px-4 py-12">
           <PageTransition>{children}</PageTransition>
@@ -85,7 +100,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <FocusMode />
         <LinkPreview />
         <ResumePrompt />
+        <NewFeaturesModal />
         <GlossaryTooltips />
+        </BookmarksProvider>
+        </AuthProvider>
+        </ToastProvider>
+        {ANALYTICS_ENABLED && (
+          <>
         <Script id="gtm" strategy="afterInteractive">
           {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -102,6 +123,8 @@ gtag('config', 'G-HPQDPRW9T3');`}
         </Script>
         <Analytics />
         <SpeedInsights />
+          </>
+        )}
       </body>
     </html>
   );

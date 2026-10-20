@@ -145,6 +145,8 @@ export default function SiteSearch() {
   // Global shortcuts: "/" (outside text fields) and Ctrl/⌘+K, which also closes the box when it is open.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      // Browser autofill (a saved email, a password manager) can fire a keydown with no `key` at all.
+      if (typeof e.key !== "string") return;
       const el = e.target as HTMLElement | null;
       const typing = el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName));
       if (e.key.toLowerCase() === "k" && (e.metaKey || e.ctrlKey)) {
@@ -385,8 +387,9 @@ export default function SiteSearch() {
                   </li>
                 )}
                 {hasQuery && !index && !failed && (
-                  <li role="presentation" className="px-3 py-6 text-center text-[0.9rem] text-ink-dim">
-                    Loading…
+                  <li role="presentation" aria-busy="true" className="flex flex-col gap-3 px-3 py-4">
+                    <span className="sr-only">Loading…</span>
+                    {["w-3/4", "w-2/3", "w-4/5"].map((w) => <span key={w} aria-hidden="true" className={`block h-4 rounded-md bg-ink-dim/15 motion-safe:animate-pulse ${w}`} />)}
                   </li>
                 )}
                 {failed && (
