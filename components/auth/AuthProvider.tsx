@@ -1,14 +1,19 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { onAuthStateChanged, signOut as fbSignOut, updateProfile as updateAuthProfile, type User } from "firebase/auth";
+import { onAuthStateChanged, sendEmailVerification, signOut as fbSignOut, updateProfile as updateAuthProfile, type User } from "firebase/auth";
 import { doc, getDoc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 import { accountsEnabled, getFirebase } from "@/lib/firebase";
 import type { Profile } from "@/lib/accounts";
 import { clearLocalProgress, setProgressEnabled } from "@/lib/progress";
 
-/** "loading": asking Firebase who is signed in. "out": nobody. "ready": signed in, and the profile exists. */
-type Status = "loading" | "out" | "ready";
+/**
+ * "loading": asking Firebase who is signed in. "out": nobody.
+ * "unverified": signed in with an email and password but the email is not confirmed yet. Treated like nobody for
+ *   everything except the verify-email page: no profile, no progress, and the database refuses them too.
+ * "ready": signed in with a confirmed email, and the profile exists. (Google accounts arrive already confirmed.)
+ */
+type Status = "loading" | "out" | "unverified" | "ready";
 
 type Ctx = {
   enabled: boolean;
@@ -19,6 +24,10 @@ type Ctx = {
   profileError: string | null;
   signOut: () => Promise<void>;
   updateProfile: (input: Pick<Profile, "name" | "experience" | "goal" | "emailUpdates">) => Promise<void>;
+  /** Emails the confirmation link to the signed-in, unverified reader. */
+  sendVerification: () => Promise<void>;
+  /** Asks Firebase again whether the email has been confirmed, and lets the reader in if it has. Resolves to true when it has. */
+  checkVerified: () => Promise<boolean>;
 };
 
 const AuthContext = createContext<Ctx | null>(null);
@@ -42,44 +51,71 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
   const [profileError, setProfileError] = useState<string | null>(null);
   const hadUser = useRef(false);
 
+  /** Works out what a signed-in (or signed-out) person may see: verification first, then their profile. */
+  const load = useCallback(async (u: User | null) => {
+    const fb = getFirebase();
+    if (!fb) return;
+    setUser(u);
+    setProfileError(null);
+    const verified = Boolean(u?.emailVerified);
+    // Progress, streaks and badges exist only for a signed-in reader whose email is confirmed.
+    setProgressEnabled(verified);
+    if (!u && hadUser.current) clearLocalProgress(); // signed out: do not leave their data on this device
+    hadUser.current = Boolean(u);
+    if (!u) {
+      setProfile(null);
+      setStatus("out");
+      return;
+    }
+    if (!verified) {
+      setProfile(null);
+      setStatus("unverified");
+      return;
+    }
+    const ref = doc(fb.db, "users", u.uid);
+    // Make sure Firestore is holding this reader's current token (with the confirmed-email claim) before the first request.
+    await u.getIdToken().catch(() => undefined);
+    let step = "read";
+    try {
+      const snap = await getDoc(ref);
+      if (snap.exists()) {
+        setProfile(snap.data() as Profile);
+      } else {
+        // First sign-in: create the profile from what we already know. No extra form.
+        step = "create";
+        const created: Profile = { name: nameFor(u), email: (u.email ?? "").toLowerCase(), emailUpdates: false };
+        await setDoc(ref, { ...created, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+        setProfile(created);
+      }
+    } catch (err) {
+      console.error(`Profile ${step} failed for uid ${u.uid}:`, err);
+      setProfileError(`${step}: ${(err as { code?: string }).code ?? "unknown"}`);
+      setProfile({ name: nameFor(u), email: (u.email ?? "").toLowerCase(), emailUpdates: false });
+    }
+    setStatus("ready");
+  }, []);
+
   useEffect(() => {
     const fb = getFirebase();
     if (!fb) return;
-    return onAuthStateChanged(fb.auth, async (u) => {
-      setUser(u);
-      setProfileError(null);
-      // Progress, streaks and badges exist only while someone is signed in.
-      setProgressEnabled(Boolean(u));
-      if (!u && hadUser.current) clearLocalProgress(); // signed out: do not leave their data on this device
-      hadUser.current = Boolean(u);
-      if (!u) {
-        setProfile(null);
-        setStatus("out");
-        return;
-      }
-      const ref = doc(fb.db, "users", u.uid);
-      // Make sure Firestore is holding this reader's current token before the first request.
-      await u.getIdToken().catch(() => undefined);
-      let step = "read";
-      try {
-        const snap = await getDoc(ref);
-        if (snap.exists()) {
-          setProfile(snap.data() as Profile);
-        } else {
-          // First sign-in: create the profile from what we already know. No extra form.
-          step = "create";
-          const created: Profile = { name: nameFor(u), email: (u.email ?? "").toLowerCase(), emailUpdates: false };
-          await setDoc(ref, { ...created, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
-          setProfile(created);
-        }
-      } catch (err) {
-        console.error(`Profile ${step} failed for uid ${u.uid}:`, err);
-        setProfileError(`${step}: ${(err as { code?: string }).code ?? "unknown"}`);
-        setProfile({ name: nameFor(u), email: (u.email ?? "").toLowerCase(), emailUpdates: false });
-      }
-      setStatus("ready");
-    });
+    return onAuthStateChanged(fb.auth, (u) => void load(u));
+  }, [load]);
+
+  const sendVerification = useCallback(async () => {
+    const u = getFirebase()?.auth.currentUser;
+    if (!u) throw new Error("Not signed in");
+    await sendEmailVerification(u);
   }, []);
+
+  const checkVerified = useCallback(async () => {
+    const u = getFirebase()?.auth.currentUser;
+    if (!u) return false;
+    await u.reload();
+    if (!u.emailVerified) return false;
+    await u.getIdToken(true); // pick up the confirmed-email claim before the database is used
+    await load(u);
+    return true;
+  }, [load]);
 
   const signOut = useCallback(async () => {
     const fb = getFirebase();
@@ -103,8 +139,8 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
   }, [profile]);
 
   const value = useMemo<Ctx>(
-    () => ({ enabled: accountsEnabled, status, user, profile, profileError, signOut, updateProfile }),
-    [status, user, profile, profileError, signOut, updateProfile],
+    () => ({ enabled: accountsEnabled, status, user, profile, profileError, signOut, updateProfile, sendVerification, checkVerified }),
+    [status, user, profile, profileError, signOut, updateProfile, sendVerification, checkVerified],
   );
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

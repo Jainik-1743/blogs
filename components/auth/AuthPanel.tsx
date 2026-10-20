@@ -4,7 +4,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
-  createUserWithEmailAndPassword, GoogleAuthProvider, sendPasswordResetEmail, signInWithEmailAndPassword, signInWithPopup,
+  createUserWithEmailAndPassword, GoogleAuthProvider, sendEmailVerification, sendPasswordResetEmail, signInWithEmailAndPassword, signInWithPopup,
 } from "firebase/auth";
 import { getFirebase } from "@/lib/firebase";
 import { authErrorMessage, checkEmail, checkPassword, safeNext } from "@/lib/accounts";
@@ -37,6 +37,8 @@ export default function AuthPanel({ mode }: { mode: "login" | "signup" }) {
   // Signed in: leave this page.
   useEffect(() => {
     if (status === "ready") router.replace(next);
+    // An email account that has not confirmed its email waits on its own page.
+    if (status === "unverified") router.replace(`/verify-email?next=${encodeURIComponent(next)}`);
   }, [status, next, router]);
 
   // One welcome message when a sign-in on this page succeeds.
@@ -97,7 +99,10 @@ export default function AuthPanel({ mode }: { mode: "login" | "signup" }) {
         setMessage({ tone: "success", text });
         toast("Reset link sent. Check your email.");
       } else if (mode === "signup") {
-        await createUserWithEmailAndPassword(fb.auth, addr, password);
+        const cred = await createUserWithEmailAndPassword(fb.auth, addr, password);
+        // Prove the person owns this email before the account can be used.
+        await sendEmailVerification(cred.user).catch((err) => console.error("Verification email failed:", err));
+        router.replace(`/verify-email?sent=1&next=${encodeURIComponent(next)}`);
       } else {
         await signInWithEmailAndPassword(fb.auth, addr, password);
       }
@@ -108,8 +113,8 @@ export default function AuthPanel({ mode }: { mode: "login" | "signup" }) {
     }
   }
 
-  // Checking the session, or signed in and about to leave this page: show the shape of the form, not text.
-  if (status === "loading" || status === "ready") return <AuthFormSkeleton />;
+  // Checking the session, or signed in (or waiting to confirm an email) and about to leave this page: show the shape of the form.
+  if (status === "loading" || status === "ready" || status === "unverified") return <AuthFormSkeleton />;
 
   const isSignup = mode === "signup";
   const other = `${isSignup ? "/login" : "/signup"}${next !== "/account" ? `?next=${encodeURIComponent(next)}` : ""}`;

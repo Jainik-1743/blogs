@@ -32,6 +32,12 @@ export default function AccountMenu() {
 
   if (!enabled) return null;
   if (status === "loading") return <Skeleton className="h-9 w-9 rounded-full" />;
+  if (status === "unverified")
+    return (
+      <Link href="/verify-email" className="rounded-lg border border-[#ff9f1c]/60 px-3.5 py-1.5 text-[0.85rem] font-semibold text-[#ffb347] transition hover:bg-[#ff9f1c]/10 hover:no-underline">
+        Confirm email
+      </Link>
+    );
   if (status === "out" || !user)
     return (
       <Link href="/login" className="rounded-lg border border-line px-3.5 py-1.5 text-[0.85rem] font-semibold text-ink transition hover:border-sky hover:text-sky hover:no-underline">

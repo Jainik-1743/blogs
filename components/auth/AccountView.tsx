@@ -3,7 +3,6 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { sendEmailVerification } from "firebase/auth";
 import { EXPERIENCE_OPTIONS, GOAL_OPTIONS, authErrorMessage, checkName, initialsOf } from "@/lib/accounts";
 import { dayKey, streakOf, useProgress } from "@/lib/progress";
 import { previewProgress } from "@/lib/preview";
@@ -64,6 +63,7 @@ export default function AccountView() {
 
   useEffect(() => {
     if (status === "out") router.replace("/login?next=/account");
+    if (status === "unverified") router.replace("/verify-email?next=/account");
   }, [status, router]);
 
   useEffect(() => {
@@ -112,15 +112,6 @@ export default function AccountView() {
       toast(on ? "You will get an email when new lessons are published." : "Email updates are off.");
     } catch (err) {
       setValues((v) => ({ ...v, emailUpdates: !on }));
-      toast(authErrorMessage(err), "error");
-    }
-  }
-
-  async function verify() {
-    try {
-      await sendEmailVerification(user!);
-      toast(`Verification email sent to ${profile!.email}. Check your spam folder if it is not there in a few minutes.`, "info");
-    } catch (err) {
       toast(authErrorMessage(err), "error");
     }
   }
@@ -227,12 +218,6 @@ export default function AccountView() {
           <Card title="Email" text="Choose what we may send to your address.">
             <div className="flex flex-col gap-5">
               <Switch id="email-updates" label="New lessons and series" text="One short email when something new is published. Off by default." checked={values.emailUpdates} onChange={setEmailUpdates} />
-              {!user.emailVerified && (
-                <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line pt-5">
-                  <p className="m-0 max-w-md text-[0.88rem] text-ink-dim">Verify your email so we know it is yours. We only send this when you ask.</p>
-                  <button type="button" onClick={verify} className="rounded-lg border border-sky px-4 py-2 text-[0.88rem] font-semibold text-sky transition hover:bg-sky-soft">Send verification email</button>
-                </div>
-              )}
             </div>
           </Card>
         </div>

@@ -30,6 +30,7 @@ export default function BookmarksView({ topics, pathTopics, seriesNames }: { top
 
   useEffect(() => {
     if (status === "out") router.replace("/login?next=/bookmarks");
+    if (status === "unverified") router.replace("/verify-email?next=/bookmarks");
   }, [status, router]);
 
   const topicsOf = (b: Bookmark) => pathTopics[b.path] ?? [];
@@ -77,7 +78,7 @@ export default function BookmarksView({ topics, pathTopics, seriesNames }: { top
   }
 
   if (!enabled) return <Notice tone="info">Accounts are not set up on this copy of the site yet.</Notice>;
-  if (status === "loading" || status === "out") return <BookmarksSkeleton />;
+  if (status === "loading" || status === "out" || status === "unverified") return <BookmarksSkeleton />;
 
   const topicCount = new Set(items.flatMap((b) => topicsOf(b).slice(0, 1))).size;
   const seriesCount = new Set(items.map((b) => b.series)).size;
