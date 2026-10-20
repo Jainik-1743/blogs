@@ -17,9 +17,9 @@ import ProfileFields, { type ProfileValues } from "./ProfileFields";
 
 const labelOf = (list: readonly { value: string; label: string }[], v?: string) => list.find((o) => o.value === v)?.label;
 
-function Card({ title, text, children, tone }: { title: string; text?: string; children: ReactNode; tone?: "danger" }) {
+function Card({ title, text, children }: { title: string; text?: string; children: ReactNode }) {
   return (
-    <section className={`rounded-2xl border bg-bg-elev p-6 sm:p-7 ${tone === "danger" ? "border-[#f87171]/40" : "border-line"}`}>
+    <section className="rounded-2xl border border-line bg-bg-elev p-6 sm:p-7">
       <h2 className="m-0 text-[1.1rem] font-bold text-ink">{title}</h2>
       {text && <p className="mt-1 mb-0 text-[0.88rem] text-ink-dim">{text}</p>}
       <div className="mt-5">{children}</div>
@@ -36,9 +36,9 @@ function Stat({ value, label }: { value: string; label: string }) {
   );
 }
 
-/** The signed-in reader's page: who they are, their progress, their settings, and the safety controls. */
+/** The signed-in reader's page: who they are, their progress and their settings. */
 export default function AccountView() {
-  const { enabled, status, user, profile, profileError, signOut, updateProfile, deleteAccount } = useAccount();
+  const { enabled, status, user, profile, profileError, signOut, updateProfile } = useAccount();
   const progress = useProgress();
   const badges = useBadges(status === "ready");
   const router = useRouter();
@@ -46,8 +46,6 @@ export default function AccountView() {
   const [values, setValues] = useState<ProfileValues>({ name: "", experience: "", goal: "", emailUpdates: false });
   const [nameError, setNameError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [confirming, setConfirming] = useState(false);
-  const [typed, setTyped] = useState("");
 
   useEffect(() => {
     if (status === "out") router.replace("/login?next=/account");
@@ -101,18 +99,6 @@ export default function AccountView() {
       toast(`Verification email sent to ${profile!.email}. Check your spam folder if it is not there in a few minutes.`, "info");
     } catch (err) {
       toast(authErrorMessage(err), "error");
-    }
-  }
-
-  async function remove() {
-    setBusy(true);
-    try {
-      await deleteAccount();
-      toast("Your account was deleted.", "info");
-      router.replace("/");
-    } catch (err) {
-      toast(authErrorMessage(err), "error");
-      setBusy(false);
     }
   }
 
@@ -192,21 +178,6 @@ export default function AccountView() {
               <Link href="/roadmap" className="rounded-lg bg-sky px-4 py-2 text-[0.85rem] font-semibold text-bg hover:no-underline hover:brightness-110">Roadmap</Link>
               <Link href="/guides" className="rounded-lg border border-line px-4 py-2 text-[0.85rem] font-semibold text-ink hover:border-sky hover:text-sky hover:no-underline">Guides</Link>
             </div>
-          </Card>
-
-          <Card title="Delete account" text="Removes your profile and sign-in for good. Lessons stay free to read." tone="danger">
-            {confirming ? (
-              <div className="flex flex-col gap-3">
-                <label htmlFor="confirm-del" className="text-[0.85rem] text-ink-dim">Type <strong className="text-ink">delete</strong> to confirm.</label>
-                <input id="confirm-del" value={typed} onChange={(e) => setTyped(e.target.value)} autoComplete="off" className="w-full rounded-lg border border-line bg-bg px-3.5 py-2.5 text-ink outline-none focus:border-[#f87171]" />
-                <div className="flex gap-2">
-                  <button type="button" disabled={busy || typed.trim().toLowerCase() !== "delete"} onClick={remove} className="rounded-lg bg-[#ef4444] px-4 py-2 text-[0.88rem] font-semibold text-white disabled:opacity-50">Delete my account</button>
-                  <button type="button" onClick={() => { setConfirming(false); setTyped(""); }} className="rounded-lg px-3 py-2 text-[0.88rem] text-ink-dim hover:text-ink">Cancel</button>
-                </div>
-              </div>
-            ) : (
-              <button type="button" onClick={() => setConfirming(true)} className="rounded-lg border border-[#f87171]/60 px-4 py-2 text-[0.88rem] font-semibold text-[#f87171] hover:bg-[#f87171]/10">Delete account…</button>
-            )}
           </Card>
         </div>
       </div>

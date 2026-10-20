@@ -52,7 +52,8 @@ service cloud.firestore {
         && validGoal(request.resource.data.get('goal', ''))
         && request.resource.data.updatedAt == request.time;
 
-      allow delete: if isOwner(uid);
+      // Readers cannot delete their profile. Records are kept so the owner can see activity.
+      allow delete: if false;
     }
 
     // Only the site owner may change badges. Keep this address in step with ADMIN_EMAIL in lib/admin.ts.
@@ -91,7 +92,7 @@ service cloud.firestore {
         && (request.resource.data.get('next', null) == null
             || (request.resource.data.next is map
                 && request.resource.data.next.keys().hasOnly(['path', 'title'])));
-      allow delete: if isOwner(uid);
+      allow delete: if false;
     }
 
     match /{document=**} {

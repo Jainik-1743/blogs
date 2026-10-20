@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { onAuthStateChanged, signOut as fbSignOut, updateProfile as updateAuthProfile, type User } from "firebase/auth";
-import { deleteDoc, doc, getDoc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 import { accountsEnabled, getFirebase } from "@/lib/firebase";
 import type { Profile } from "@/lib/accounts";
 
@@ -18,7 +18,6 @@ type Ctx = {
   profileError: string | null;
   signOut: () => Promise<void>;
   updateProfile: (input: Pick<Profile, "name" | "experience" | "goal" | "emailUpdates">) => Promise<void>;
-  deleteAccount: () => Promise<void>;
 };
 
 const AuthContext = createContext<Ctx | null>(null);
@@ -97,19 +96,9 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     setProfile({ ...profile, ...input, name });
   }, [profile]);
 
-  /** Removes the saved progress and the profile, then the sign-in account itself. */
-  const deleteAccount = useCallback(async () => {
-    const fb = getFirebase();
-    const u = fb?.auth.currentUser;
-    if (!fb || !u) throw new Error("Not signed in");
-    await deleteDoc(doc(fb.db, "progress", u.uid)).catch(() => undefined);
-    await deleteDoc(doc(fb.db, "users", u.uid));
-    await u.delete();
-  }, []);
-
   const value = useMemo<Ctx>(
-    () => ({ enabled: accountsEnabled, status, user, profile, profileError, signOut, updateProfile, deleteAccount }),
-    [status, user, profile, profileError, signOut, updateProfile, deleteAccount],
+    () => ({ enabled: accountsEnabled, status, user, profile, profileError, signOut, updateProfile }),
+    [status, user, profile, profileError, signOut, updateProfile],
   );
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

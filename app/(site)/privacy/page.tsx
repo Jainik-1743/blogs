@@ -47,8 +47,9 @@ export default function PrivacyPage() {
         <li>The date the account was created.</li>
       </ul>
       <p className={`${p} mt-3`}>
-        Only you can read or change your profile. You can delete your account on the account page, which removes the profile and
-        sign-in. I use this data to run your account and to send the messages you opted in to, and for nothing else.
+        Only you can read or change your profile on the site. Account records are kept so the site owner can see how the site is
+        used and support readers. If you want your account and its data removed, email{" "}
+        <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a> and it will be deleted. I use this data to run your account, to understand how the site is used, and to send the messages you opted in to, and for nothing else.
       </p>
 
       <h2 className={h2}>What is stored in your browser</h2>
