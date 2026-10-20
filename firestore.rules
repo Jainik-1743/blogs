@@ -55,11 +55,11 @@ service cloud.firestore {
       allow delete: if isOwner(uid);
     }
 
-    // Only the site owner may change badges. Keep this address in step with NEXT_PUBLIC_ADMIN_EMAIL.
+    // Only the site owner may change badges. Keep this address in step with ADMIN_EMAIL in lib/admin.ts.
     function isAdmin() {
       return signedIn()
         && request.auth.token.email_verified == true
-        && request.auth.token.email == 'jainikpatel1743@gmail.com';
+        && request.auth.token.email.lower() == 'jainikpatel1743@gmail.com';
     }
 
     // Badges are data: any signed-in reader can read them, only the owner can write them.

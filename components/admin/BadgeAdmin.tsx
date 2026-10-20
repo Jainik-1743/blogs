@@ -5,13 +5,12 @@ import Link from "next/link";
 import { deleteDoc, doc, setDoc, writeBatch } from "firebase/firestore";
 import { getFirebase } from "@/lib/firebase";
 import { METRICS, clearBadgeCache, loadBadges, type Badge as BadgeData, type MetricId } from "@/lib/badges";
+import { isAdminUser } from "@/lib/admin";
 import { useAccount } from "@/components/auth/AuthProvider";
 import { Field, Notice, SelectField, Switch, inputClass } from "@/components/auth/fields";
 import Badge from "@/components/Badge";
 import { useToast } from "@/components/Toast";
 import seed from "@/data/badges.seed.json";
-
-const ADMINS = (process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? "").split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
 
 const BLANK: BadgeData = { id: "", name: "", track: "reading", metric: "activeDays", threshold: 5, blurb: "", image: "", enabled: true };
 
@@ -135,7 +134,7 @@ function Editor({ initial, isNew, onSaved, onDeleted }: { initial: BadgeData; is
 
 /** Owner-only page to manage badges: add, edit, hide or delete them. Changes are live for everyone within a few hours. */
 export default function BadgeAdmin() {
-  const { status, profile, enabled } = useAccount();
+  const { status, user, enabled } = useAccount();
   const toast = useToast();
   const [list, setList] = useState<BadgeData[] | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -149,7 +148,7 @@ export default function BadgeAdmin() {
     }
   }, []);
 
-  const isAdmin = Boolean(profile && ADMINS.includes(profile.email.toLowerCase()));
+  const isAdmin = isAdminUser(user);
   useEffect(() => {
     if (status === "ready" && isAdmin) void reload();
   }, [status, isAdmin, reload]);
