@@ -71,10 +71,9 @@ export function authErrorMessage(err: unknown): string {
     case "auth/invalid-action-code":
     case "auth/expired-action-code": return "This sign-in link has expired or was already used. Request a new one.";
     case "auth/email-already-in-use": return "An account with this email already exists. Sign in instead. If you used Google before, click Continue with Google.";
-    // Firebase deliberately gives one answer for "no such account" and "wrong password", so the page cannot say which.
-    // The message is true for both, and the sign-in page puts "Create an account" first.
-    case "auth/invalid-credential": return "We could not sign you in. Either there is no account for this email yet, or the password is wrong.";
-    case "auth/user-not-found": return "There is no account for this email yet. Create one to get started.";
+    // Firebase gives one answer for "no such account" and "wrong password", so a failed email sign-in is treated as "sign up first".
+    case "auth/invalid-credential":
+    case "auth/user-not-found": return "No account found for this email. Please sign up first.";
     case "auth/wrong-password": return "That password is not correct. You can reset it below.";
     case "auth/provider-already-linked": return "This account already has a password. Use Change password instead.";
     case "auth/credential-already-in-use": return "That email already belongs to another account.";

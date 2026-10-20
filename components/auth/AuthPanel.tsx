@@ -11,7 +11,6 @@ import { authErrorMessage, checkEmail, checkPassword, safeNext } from "@/lib/acc
 import { useToast } from "@/components/Toast";
 import { useAccount } from "./AuthProvider";
 import { Field, GoogleIcon, Notice, inputClass } from "./fields";
-import SignInHelp from "./SignInHelp";
 import { AuthFormSkeleton } from "@/components/Skeleton";
 
 const button = "w-full rounded-lg bg-sky px-5 py-3 font-semibold text-bg transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60";
@@ -132,11 +131,14 @@ export default function AuthPanel({ mode }: { mode: "login" | "signup" }) {
         </>
       )}
 
-      {message && <Notice tone={message.tone}>{message.text}</Notice>}
-      {message?.mismatch && !resetting && (
-        <SignInHelp code={message.mismatch} next={next} busy={busy} onGoogle={google} onReset={() => { setResetting(true); setMessage(null); }} />
+      {message && (
+        <Notice tone={message.tone}>
+          {message.text}
+          {message.mismatch && message.mismatch !== "auth/wrong-password" && (
+            <> <Link href={`/signup${next !== "/account" ? `?next=${encodeURIComponent(next)}` : ""}`} className="font-semibold">Sign up</Link></>
+          )}
+        </Notice>
       )}
-
       <form onSubmit={submit} noValidate method="post" className="flex flex-col gap-4">
         <Field id="email" label="Email" error={errors.email}>
           <input id="email" type="email" name="email" autoComplete="username" inputMode="email" autoCapitalize="none" spellCheck={false} disabled={busy} value={email} onChange={(e) => setEmail(e.target.value)} aria-invalid={Boolean(errors.email)} aria-describedby="email-msg" className={inputClass} placeholder="you@example.com" />
