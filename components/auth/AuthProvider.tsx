@@ -79,8 +79,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     // The token Firestore sees can be up to an hour old. If the email was confirmed after it was issued (for example the
     // link was opened in another tab), the token still says "not confirmed" and the database refuses every request.
     // Ask for a fresh token whenever the token and the account disagree.
-    const claims = await u.getIdTokenResult().catch(() => null);
-    if (claims?.claims.email_verified !== true) await u.getIdToken(true).catch(() => undefined);
+    if (claims?.claims.email_verified !== true && claims?.signInProvider !== "google.com") await u.getIdToken(true).catch(() => undefined);
     let step = "read";
     try {
       const snap = await getDoc(ref).catch(async (err) => {
