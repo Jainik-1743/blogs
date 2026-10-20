@@ -3,11 +3,21 @@
 import { useEffect, useRef } from "react";
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import { getFirebase } from "@/lib/firebase";
-import { mergeProgress, readProgress, replaceProgress, useProgress, type Progress } from "@/lib/progress";
+import { clearLocalProgress, mergeProgress, readProgress, replaceProgress, useProgress, type Progress } from "@/lib/progress";
 import { useAccount } from "./AuthProvider";
 
 /** How long to wait after the last change before saving, so a burst of changes becomes one write. */
 const SAVE_DELAY_MS = 4000;
+
+const OWNER_KEY = "blogs:progress-owner";
+
+/** Progress kept on this device belongs to whoever last synced it. Anyone else signing in starts from their own account. */
+function claimDevice(uid: string) {
+  try {
+    if (localStorage.getItem(OWNER_KEY) !== uid) clearLocalProgress();
+    localStorage.setItem(OWNER_KEY, uid);
+  } catch { /* storage blocked: nothing is kept on this device anyway */ }
+}
 
 const signature = (p: Progress) => JSON.stringify([p.done, p.days, p.next?.path ?? "", p.log]);
 
@@ -40,6 +50,7 @@ export default function ProgressSync() {
     const fb = getFirebase();
     if (status !== "ready" || !user || !fb || ready.current === user.uid) return;
     const uid = user.uid;
+    claimDevice(uid);
     (async () => {
       try {
         const snap = await getDoc(doc(fb.db, "progress", uid));
