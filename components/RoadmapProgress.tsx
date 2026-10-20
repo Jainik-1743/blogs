@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
+import Link from "next/link";
+import { useAccount } from "@/components/auth/AuthProvider";
 import { useProgress } from "@/lib/progress";
 import { ProgressBarSkeleton } from "@/components/Skeleton";
 
@@ -10,6 +12,7 @@ import { ProgressBarSkeleton } from "@/components/Skeleton";
  */
 export default function RoadmapProgress({ total, paths }: { total: number; paths: string[] }) {
   const p = useProgress();
+  const { status } = useAccount();
   const mine = p.done.filter((d) => paths.includes(d));
 
   useEffect(() => {
@@ -19,7 +22,15 @@ export default function RoadmapProgress({ total, paths }: { total: number; paths
     });
   }, [p.done]);
 
-  if (!p.ready) return <ProgressBarSkeleton />;
+  if (status === "loading" || !p.ready) return <ProgressBarSkeleton />;
+  if (status !== "ready") {
+    return (
+      <div className="mb-10 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-line bg-bg-elev px-5 py-4">
+        <p className="m-0 text-ink-dim"><strong className="text-ink">Track your progress.</strong> Sign in to tick off finished lessons and see how far you have got on this roadmap.</p>
+        <Link href="/login?next=/roadmap" className="rounded-lg bg-sky px-4 py-2 text-[0.9rem] font-semibold text-bg hover:no-underline hover:brightness-110">Sign in</Link>
+      </div>
+    );
+  }
   const pct = total ? Math.round((mine.length / total) * 100) : 0;
   return (
     <div className="mb-10 rounded-xl border border-line bg-bg-elev px-5 py-4">

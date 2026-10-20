@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { markDone, streakOf, useProgress, type NextLesson } from "@/lib/progress";
 import { useAccount } from "@/components/auth/AuthProvider";
 import { loadBadges, newlyEarned } from "@/lib/badges";
@@ -20,6 +21,7 @@ export default function LessonComplete({ path, next, tags = [], minutes: stated 
   const progress = useProgress();
   const toast = useToast();
   const { status } = useAccount();
+  const signedIn = status === "ready";
   const done = progress.done.includes(path);
   const streak = streakOf(progress.days);
   const sentinel = useRef<HTMLDivElement>(null);
@@ -46,7 +48,7 @@ export default function LessonComplete({ path, next, tags = [], minutes: stated 
 
   // Count active reading time, remembered per lesson so reading in two sittings adds up.
   useEffect(() => {
-    if (done) return;
+    if (done || !signedIn) return;
     let saved = 0;
     try { saved = Number(localStorage.getItem(storeKey(path))) || 0; } catch { /* ignore */ }
     setSeconds(saved);
@@ -68,7 +70,7 @@ export default function LessonComplete({ path, next, tags = [], minutes: stated 
       window.clearInterval(timer);
       try { localStorage.setItem(storeKey(path), String(total)); } catch { /* ignore */ }
     };
-  }, [path, done]);
+  }, [path, done, signedIn]);
 
   /** Marks the lesson done and, when that earns a badge, says so. Badges are only looked up for signed-in readers. */
   const finish = () => {
@@ -85,14 +87,33 @@ export default function LessonComplete({ path, next, tags = [], minutes: stated 
 
   // Automatic completion: the stated reading time has passed and the reader is at the end.
   useEffect(() => {
-    if (done || !progress.ready) return;
+    if (done || !signedIn || !progress.ready) return;
     if (readingComplete({ seconds, minutes, reachedEnd })) finish();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [seconds, minutes, reachedEnd, done, progress.ready]);
+  }, [seconds, minutes, reachedEnd, done, progress.ready, signedIn]);
 
   const need = minutes * 60;
+  const next_ = `?next=${encodeURIComponent(path)}`;
   const percent = need ? Math.min(100, Math.round((seconds / need) * 100)) : 0;
   const readMin = Math.floor(seconds / 60);
+
+  // Visitors who are not signed in get an invitation, not a tracker.
+  if (status === "loading") return <div ref={sentinel} className="mt-10" />;
+  if (!signedIn) {
+    return (
+      <div ref={sentinel} className="mt-10 rounded-xl border border-line bg-bg-elev px-5 py-4" data-no-glossary>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <p className="m-0 max-w-[52ch] text-ink-dim">
+            <strong className="text-ink">Keep track of what you read.</strong> Sign in to save finished lessons, build a daily streak and earn badges. Reading stays free without an account.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <Link href={`/login${next_}`} className="rounded-lg bg-sky px-4 py-2 text-[0.9rem] font-semibold text-bg hover:no-underline hover:brightness-110">Sign in</Link>
+            <Link href={`/signup${next_}`} className="rounded-lg border border-line px-4 py-2 text-[0.9rem] font-semibold text-ink hover:border-sky hover:text-sky hover:no-underline">Create account</Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div ref={sentinel} className="mt-10" data-no-glossary>

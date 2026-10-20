@@ -1,10 +1,11 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { onAuthStateChanged, signOut as fbSignOut, updateProfile as updateAuthProfile, type User } from "firebase/auth";
 import { doc, getDoc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 import { accountsEnabled, getFirebase } from "@/lib/firebase";
 import type { Profile } from "@/lib/accounts";
+import { clearLocalProgress, setProgressEnabled } from "@/lib/progress";
 
 /** "loading": asking Firebase who is signed in. "out": nobody. "ready": signed in, and the profile exists. */
 type Status = "loading" | "out" | "ready";
@@ -39,6 +40,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [profileError, setProfileError] = useState<string | null>(null);
+  const hadUser = useRef(false);
 
   useEffect(() => {
     const fb = getFirebase();
@@ -46,6 +48,10 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     return onAuthStateChanged(fb.auth, async (u) => {
       setUser(u);
       setProfileError(null);
+      // Progress, streaks and badges exist only while someone is signed in.
+      setProgressEnabled(Boolean(u));
+      if (!u && hadUser.current) clearLocalProgress(); // signed out: do not leave their data on this device
+      hadUser.current = Boolean(u);
       if (!u) {
         setProfile(null);
         setStatus("out");

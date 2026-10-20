@@ -3,7 +3,8 @@
 import { useMemo, useSyncExternalStore } from "react";
 
 /**
- * Reading progress, kept in this browser (localStorage) and, for signed-in readers, copied to their account.
+ * Reading progress, for signed-in readers only. It is cached in this browser (localStorage) so the page is instant,
+ * and copied to the reader's account (see ProgressSync).
  * It records which lessons were finished, the days the reader studied (for streaks and badges), a small
  * per-day log (lessons and topics, for the activity grid), and the lesson to read next.
  * Nothing is sent anywhere, and every function is safe when storage is blocked.
@@ -26,12 +27,42 @@ const LOG_DAYS = 400;
 export const dayKey = (d = new Date()) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 
-function readRaw(): string {
+/**
+ * Progress belongs to signed-in readers. AuthProvider switches this on when someone is signed in and off when
+ * nobody is. While it is off, every reader of progress sees an empty record and markDone does nothing, so a
+ * visitor who is not signed in cannot collect lessons, streaks or badges.
+ */
+let enabled = false;
+
+export function setProgressEnabled(on: boolean) {
+  if (enabled === on) return;
+  enabled = on;
+  if (typeof window !== "undefined") window.dispatchEvent(new Event(EVENT));
+}
+
+/** What is actually stored on this device, whether or not progress is switched on. */
+function readStored(): string {
   try {
     return localStorage.getItem(KEY) ?? "";
   } catch {
     return "";
   }
+}
+
+/** What the rest of the app may see: the stored copy for a signed-in reader, nothing otherwise. */
+function readRaw(): string {
+  return enabled ? readStored() : "";
+}
+
+/** Forgets this device's copy (called on sign-out, so the next person on a shared computer does not inherit it). */
+export function clearLocalProgress() {
+  try {
+    localStorage.removeItem(KEY);
+    for (const k of Object.keys(localStorage)) if (k.startsWith("blogs:read-seconds:")) localStorage.removeItem(k);
+  } catch {
+    /* storage blocked: nothing to clear */
+  }
+  if (typeof window !== "undefined") window.dispatchEvent(new Event(EVENT));
 }
 
 function cleanLog(v: unknown): Record<string, DayLog> {
@@ -93,12 +124,14 @@ function mergeLogs(a: Record<string, DayLog>, b: Record<string, DayLog>): Record
   return Object.fromEntries(keep.map((d) => [d, out[d]]));
 }
 
-/** Reads what is stored on this device right now. */
-export const readProgress = (): Progress => parse(readRaw());
+/** Reads what is stored on this device right now (used to merge it into the account on sign-in). */
+export const readProgress = (): Progress => parse(readStored());
 
 /** Records a finished lesson, today's study day, and the lesson to offer next. Returns the progress before and after, so badges can be compared. */
 export function markDone(path: string, next?: NextLesson | null, tags: string[] = []): { before: Progress; after: Progress } {
-  const p = parse(readRaw());
+  // Not signed in: nothing is recorded.
+  if (!enabled) return { before: EMPTY, after: EMPTY };
+  const p = parse(readStored());
   const before: Progress = { done: [...p.done], days: [...p.days], next: p.next, log: { ...p.log } };
   if (!p.done.includes(path)) p.done.push(path);
   const today = dayKey();
