@@ -76,18 +76,31 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
     const ref = doc(fb.db, "users", u.uid);
-    // Make sure Firestore is holding this reader's current token (with the confirmed-email claim) before the first request.
-    await u.getIdToken().catch(() => undefined);
+    // The token Firestore sees can be up to an hour old. If the email was confirmed after it was issued (for example the
+    // link was opened in another tab), the token still says "not confirmed" and the database refuses every request.
+    // Ask for a fresh token whenever the token and the account disagree.
+    const claims = await u.getIdTokenResult().catch(() => null);
+    if (claims?.claims.email_verified !== true) await u.getIdToken(true).catch(() => undefined);
     let step = "read";
     try {
-      const snap = await getDoc(ref);
+      const snap = await getDoc(ref).catch(async (err) => {
+        // One retry with a fresh token before giving up on a permission error.
+        if ((err as { code?: string }).code !== "permission-denied") throw err;
+        await u.getIdToken(true);
+        return getDoc(ref);
+      });
       if (snap.exists()) {
         setProfile(snap.data() as Profile);
       } else {
         // First sign-in: create the profile from what we already know. No extra form.
         step = "create";
         const created: Profile = { name: nameFor(u), email: (u.email ?? "").toLowerCase(), emailUpdates: false };
-        await setDoc(ref, { ...created, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+        const data = { ...created, createdAt: serverTimestamp(), updatedAt: serverTimestamp() };
+        await setDoc(ref, data).catch(async (err) => {
+          if ((err as { code?: string }).code !== "permission-denied") throw err;
+          await u.getIdToken(true);
+          await setDoc(ref, data);
+        });
         setProfile(created);
       }
     } catch (err) {
