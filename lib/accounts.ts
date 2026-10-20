@@ -53,6 +53,13 @@ export function checkEmail(raw: string): string | null {
   return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(raw.trim()) ? null : "Enter a valid email address.";
 }
 
+/**
+ * Whether a sign-in session may use the site. Google confirms the email itself, so a session that came through Google
+ * always counts, even if the stored "email confirmed" flag was cleared. An email-and-password session counts only
+ * once its email is confirmed. (firestore.rules applies the same rule on the server.)
+ */
+export const isConfirmedSession = (s: { emailVerified: boolean; signInProvider?: string | null }) => s.emailVerified || s.signInProvider === "google.com";
+
 /** True for a path on this site ("/dsa/lesson-1"): one leading slash, never "//host", "javascript:" or a full URL. */
 export const isSitePath = (p: unknown): p is string => typeof p === "string" && /^\/(?!\/)[^\s\\]*$/.test(p);
 

@@ -5,7 +5,10 @@
  */
 export const ADMIN_EMAIL = "jainikpatel1743@gmail.com";
 
-/** True only for the owner's account with a verified email (Google sign-in verifies it automatically). */
-export function isAdminUser(user: { email?: string | null; emailVerified?: boolean } | null | undefined): boolean {
-  return Boolean(user?.emailVerified && user.email && user.email.trim().toLowerCase() === ADMIN_EMAIL);
+/**
+ * True only for the owner's address, and only for a signed-in reader (AuthProvider counts a reader as signed in only
+ * once their email is confirmed, directly or through Google). The database rules repeat this check.
+ */
+export function isAdminUser(user: { email?: string | null } | null | undefined): boolean {
+  return Boolean(user?.email && user.email.trim().toLowerCase() === ADMIN_EMAIL);
 }

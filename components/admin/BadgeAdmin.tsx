@@ -155,7 +155,8 @@ export default function BadgeAdmin() {
     }
   }, []);
 
-  const isAdmin = isAdminUser(user);
+  // Only a fully signed-in reader (confirmed email, or Google) with the owner's address.
+  const isAdmin = status === "ready" && isAdminUser(user);
   useEffect(() => {
     if (status === "ready" && isAdmin) void reload();
   }, [status, isAdmin, reload]);
