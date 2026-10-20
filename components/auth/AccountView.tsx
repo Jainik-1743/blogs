@@ -5,7 +5,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { sendEmailVerification } from "firebase/auth";
 import { EXPERIENCE_OPTIONS, GOAL_OPTIONS, authErrorMessage, checkName, initialsOf } from "@/lib/accounts";
-import { streakOf, useProgress } from "@/lib/progress";
+import { dayKey, streakOf, useProgress } from "@/lib/progress";
+import { longestStreak } from "@/lib/overview";
+import StreakBadge from "@/components/StreakBadge";
+import AppearanceCard from "./AppearanceCard";
 import { useToast } from "@/components/Toast";
 import Badge from "@/components/Badge";
 import BadgesPanel from "./BadgesPanel";
@@ -61,6 +64,14 @@ export default function AccountView() {
   if (status !== "ready" || !profile || !user) return <AccountSkeleton />;
 
   const streak = streakOf(progress.days);
+  const longest = longestStreak(progress.days);
+  const readToday = progress.days.includes(dayKey());
+  const week = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (6 - i));
+    const date = dayKey(d);
+    return { date, label: d.toLocaleDateString("en", { weekday: "short" }).slice(0, 2), on: progress.days.includes(date), today: i === 6 };
+  });
   const tracks = tracksOf(badges.badges, progress);
   /** The badge shown beside the avatar: the highest one earned in the first track that has any. */
   const badge = { current: tracks.find((t) => t.current)?.current ?? null };
@@ -132,6 +143,41 @@ export default function AccountView() {
       </section>
 
       {profileError && <Notice tone="error">Your profile could not be saved to the database ({profileError}). Check that the Firestore rules are deployed, then sign out and in again.</Notice>}
+
+      <AppearanceCard />
+
+      {/* Streak */}
+      <section aria-labelledby="streak-title" className="rounded-3xl border border-line bg-bg-elev p-6 sm:p-9">
+        <div className="flex flex-wrap items-center gap-8">
+          <StreakBadge days={streak} size={220} />
+          <div className="min-w-0 flex-1 basis-72">
+            <p className="m-0 text-[0.75rem] font-semibold uppercase tracking-[0.14em] text-sky">Day streak</p>
+            <h2 id="streak-title" className="m-0 mt-1 text-[1.6rem] font-bold leading-tight tracking-tight text-ink">
+              {streak === 0 ? "Start your streak today" : `${streak}-day streak`}
+            </h2>
+            <p className="mt-1 mb-0 max-w-[50ch] text-ink-dim">
+              {readToday
+                ? "You finished a lesson today. Come back tomorrow to keep the flame going."
+                : streak > 0
+                  ? "Finish a lesson today to keep your streak alive."
+                  : "Finish one lesson to light the flame. Then come back every day."}
+            </p>
+            <dl className="m-0 mt-5 grid max-w-md grid-cols-2 gap-3">
+              <div className="rounded-xl border border-line bg-bg px-4 py-3"><dd className="m-0 text-[1.5rem] font-bold leading-none text-ink">{longest}</dd><dt className="mt-1.5 text-[0.78rem] text-ink-dim">Longest streak</dt></div>
+              <div className="rounded-xl border border-line bg-bg px-4 py-3"><dd className="m-0 text-[1.5rem] font-bold leading-none text-ink">{progress.days.length}</dd><dt className="mt-1.5 text-[0.78rem] text-ink-dim">Total reading days</dt></div>
+            </dl>
+            <ol aria-label="The last 7 days" className="m-0 mt-5 flex list-none gap-2 p-0">
+              {week.map((d) => (
+                <li key={d.date} className="m-0 flex flex-col items-center gap-1.5" title={`${d.date}${d.on ? ": read" : ""}`}>
+                  <span aria-hidden="true" className={`grid h-8 w-8 place-items-center rounded-full border text-[0.8rem] font-bold ${d.on ? "border-transparent bg-[#ff9f1c] text-[#2a1200]" : d.today ? "border-sky text-ink-dim" : "border-line text-transparent"}`}>{d.on ? "✓" : "·"}</span>
+                  <span className="text-[0.7rem] text-ink-dim">{d.label}</span>
+                  <span className="sr-only">{d.on ? "read" : "no lesson"}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </div>
+      </section>
 
       <BookmarksSummary />
 

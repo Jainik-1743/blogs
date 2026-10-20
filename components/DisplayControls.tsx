@@ -1,43 +1,23 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import { FONT_KEY, FONT_LABELS, FONT_STEPS, THEME_COLORS, THEME_KEY, type FontStep, type Theme } from "@/lib/display";
+import { FONT_LABELS, FONT_STEPS } from "@/lib/display";
+import { useDisplay } from "@/lib/display-client";
 
 const BTN =
   "grid h-8 w-8 shrink-0 place-items-center rounded-full border border-line bg-bg-elev text-ink-dim transition-colors hover:border-sky hover:text-sky focus-visible:outline-2 focus-visible:outline-sky";
-
-function save(key: string, value: string | null) {
-  try {
-    if (value === null) localStorage.removeItem(key);
-    else localStorage.setItem(key, value);
-  } catch {
-    // Storage can be blocked (private window). The setting still applies for this visit.
-  }
-}
-
-function readTheme(): Theme {
-  return document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
-}
-
-function readFont(): FontStep {
-  const v = document.documentElement.getAttribute("data-font");
-  return v === "s" || v === "l" || v === "xl" ? v : "m";
-}
 
 /**
  * Two small header buttons: a sun/moon theme switch, and "Aa", which opens a text-size panel.
  * Settings are saved per browser and applied to <html> (see displayInitScript for the first paint).
  */
 export default function DisplayControls() {
-  const [theme, setTheme] = useState<Theme>("dark");
-  const [font, setFont] = useState<FontStep>("m");
+  const { theme, font, setTheme: applyTheme, setFont: applyFont } = useDisplay();
   const [open, setOpen] = useState(false);
   const wrap = useRef<HTMLDivElement>(null);
   const panelId = useId();
 
   useEffect(() => {
-    setTheme(readTheme());
-    setFont(readFont());
     function onDown(e: MouseEvent) {
       if (wrap.current && !wrap.current.contains(e.target as Node)) setOpen(false);
     }
@@ -51,23 +31,6 @@ export default function DisplayControls() {
       document.removeEventListener("keydown", onKey);
     };
   }, []);
-
-  function applyTheme(next: Theme) {
-    const root = document.documentElement;
-    if (next === "light") root.setAttribute("data-theme", "light");
-    else root.removeAttribute("data-theme");
-    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", THEME_COLORS[next]);
-    save(THEME_KEY, next);
-    setTheme(next);
-  }
-
-  function applyFont(next: FontStep) {
-    const root = document.documentElement;
-    if (next === "m") root.removeAttribute("data-font");
-    else root.setAttribute("data-font", next);
-    save(FONT_KEY, next === "m" ? null : next);
-    setFont(next);
-  }
 
   const i = FONT_STEPS.indexOf(font);
   const toLight = theme === "dark";
