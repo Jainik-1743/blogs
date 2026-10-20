@@ -89,6 +89,17 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // Where the reader left off ("Continue where you left off?"): one small record per reader.
+    match /lastpage/{uid} {
+      allow read: if isOwner(uid);
+      allow create, update: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['path', 'title', 'at'])
+        && request.resource.data.path is string && request.resource.data.path.matches('^/.*') && request.resource.data.path.size() <= 200
+        && request.resource.data.title is string && request.resource.data.title.size() <= 200
+        && request.resource.data.at is number;
+      allow delete: if false;
+    }
+
     // One record per reader: finished lessons, the days they studied (badges are counted from these) and the next lesson.
     match /progress/{uid} {
       allow read: if isOwner(uid);

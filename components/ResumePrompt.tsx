@@ -3,28 +3,27 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { getFirebase } from "@/lib/firebase";
+import { useAccount } from "@/components/auth/AuthProvider";
 
 /**
- * "Continue where you left off". The last page a reader opened is kept in localStorage (each new
- * page replaces the old one). When the reader comes back in a later visit, a small card offers to
- * jump straight to it. Nothing leaves the browser, and the card is shown at most once per visit.
+ * "Continue where you left off". For signed-in readers only: the last page they read is kept in their
+ * account (lastpage/{uid} in the database), so it follows them to any device, and nothing is kept in
+ * browser storage. The card is shown at most once per visit, on the first page, when that page is not
+ * the one they left. A page is saved only after the reader has stayed on it for a few seconds (or leaves
+ * the tab), so clicking quickly through pages does not cause a write for each one.
  */
 
-const KEY = "blogs:last-page";
-const SEEN = "blogs:resume-shown";
 /** Pages that are not worth resuming. */
-const SKIP = new Set(["/", "/about", "/privacy", "/glossaries", "/login", "/signup", "/account"]);
+const SKIP = new Set(["/", "/about", "/privacy", "/glossaries", "/login", "/signup", "/account", "/bookmarks"]);
+/** Stay on a page this long before it counts as "where you left off". */
+const SAVE_AFTER_MS = 8000;
 
 type Last = { path: string; title: string; at: number };
 
-function read(): Last | null {
-  try {
-    const v = JSON.parse(localStorage.getItem(KEY) ?? "null");
-    return v && typeof v.path === "string" && typeof v.title === "string" ? v : null;
-  } catch {
-    return null;
-  }
-}
+/** Lives for as long as the page stays open, so a client-side navigation does not show the card again. */
+let checkedThisVisit = false;
 
 const cleanTitle = (t: string) => t.replace(/\s*[·|]\s*blogs\s*$/i, "").trim();
 
@@ -39,38 +38,64 @@ function ago(at: number): string {
 
 export default function ResumePrompt() {
   const pathname = usePathname();
+  const { status, user } = useAccount();
   const [last, setLast] = useState<Last | null>(null);
-  const firstRun = useRef(true);
   const button = useRef<HTMLAnchorElement>(null);
+  const loaded = useRef(false);
+  const written = useRef("");
+  const pathRef = useRef(pathname);
+  pathRef.current = pathname;
 
-  // On the first page of a visit: show the card if the last page differs from this one.
+  // Once per visit: read where the reader left off, and show the card if it is a different page.
   useEffect(() => {
-    if (!firstRun.current) return;
-    firstRun.current = false;
-    try {
-      if (sessionStorage.getItem(SEEN)) return;
-      sessionStorage.setItem(SEEN, "1");
-    } catch {
+    const fb = getFirebase();
+    if (status !== "ready" || !user || !fb) return;
+    if (checkedThisVisit) {
+      loaded.current = true;
       return;
     }
-    const prev = read();
-    if (prev && prev.path !== pathname && !SKIP.has(prev.path)) setLast(prev);
-  }, [pathname]);
+    checkedThisVisit = true;
+    getDoc(doc(fb.db, "lastpage", user.uid))
+      .then((snap) => {
+        const prev = snap.data() as Last | undefined;
+        if (prev && typeof prev.path === "string" && prev.path !== pathRef.current && !SKIP.has(prev.path)) setLast(prev);
+      })
+      .catch((err) => console.error("Last page could not be loaded:", err))
+      .finally(() => { loaded.current = true; });
+    // Older versions kept this in the browser; clear what they left behind.
+    try {
+      localStorage.removeItem("blogs:last-page");
+      sessionStorage.removeItem("blogs:resume-shown");
+    } catch { /* storage blocked: nothing to clear */ }
+  }, [status, user]);
 
-  // On every page: remember it (replacing the previous one) once the page title is in place.
+  // Save the page the reader is on, once they have stayed a few seconds, and when they leave the tab.
   useEffect(() => {
-    if (SKIP.has(pathname)) return;
-    const id = window.setTimeout(() => {
+    const fb = getFirebase();
+    if (status !== "ready" || !user || !fb || SKIP.has(pathname)) return;
+    let timer = 0;
+
+    const save = () => {
+      if (!loaded.current) return; // never overwrite the old value before it has been read
       const title = cleanTitle(document.title);
       if (!title || /not found/i.test(title)) return;
-      try {
-        localStorage.setItem(KEY, JSON.stringify({ path: pathname, title, at: Date.now() } satisfies Last));
-      } catch {
-        /* storage blocked or full: the feature simply does nothing */
-      }
-    }, 600);
-    return () => window.clearTimeout(id);
-  }, [pathname]);
+      const key = `${pathname}|${title}`;
+      if (written.current === key) return;
+      written.current = key;
+      setDoc(doc(fb.db, "lastpage", user.uid), { path: pathname, title, at: Date.now() }).catch((err) => {
+        written.current = "";
+        console.error("Last page could not be saved:", err);
+      });
+    };
+
+    timer = window.setTimeout(save, SAVE_AFTER_MS);
+    const onHide = () => document.visibilityState === "hidden" && save();
+    document.addEventListener("visibilitychange", onHide);
+    return () => {
+      window.clearTimeout(timer);
+      document.removeEventListener("visibilitychange", onHide);
+    };
+  }, [pathname, status, user]);
 
   // Hide the card as soon as the reader goes anywhere, and on Escape.
   useEffect(() => {
