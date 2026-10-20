@@ -23,6 +23,12 @@ async function render(accent: string, kind: "png" | "jpeg"): Promise<{ url: stri
   Object.assign(stage.style, { position: "fixed", left: "-20000px", top: "0", width: `${WIDTH}px`, background: "#ffffff" });
   for (const [k, v] of Object.entries({ ...PAPER, "--color-sky": INK[accent] ?? INK.sky })) stage.style.setProperty(k, v);
   stage.setAttribute("data-theme", "light");
+  // The page's web fonts are not embedded in the picture, so name fonts every computer has instead of falling back to a serif.
+  stage.style.fontFamily = 'system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
+  const fonts = document.createElement("style");
+  fonts.textContent = '[data-export-stage] code, [data-export-stage] .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace !important; }';
+  stage.setAttribute("data-export-stage", "");
+  stage.appendChild(fonts);
   const copy = source.cloneNode(true) as HTMLElement;
   copy.style.border = "0";
   copy.style.padding = "28px";

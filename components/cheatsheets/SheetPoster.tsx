@@ -7,7 +7,7 @@ import type { Sheet } from "@/lib/cheatsheets";
  */
 export default function SheetPoster({ sheet }: { sheet: Sheet }) {
   return (
-    <div id="sheet-poster" data-accent={sheet.accent} className="rounded-2xl border border-line bg-bg p-4 sm:p-6">
+    <div id="sheet-poster" data-accent={sheet.accent} data-no-glossary className="rounded-2xl border border-line bg-bg p-4 sm:p-6">
       <div className="mb-5 flex flex-wrap items-end justify-between gap-3 border-b border-line pb-4">
         <div className="min-w-0">
           <p className="m-0 text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-sky">Cheat sheet</p>
