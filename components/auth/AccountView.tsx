@@ -6,6 +6,9 @@ import { useRouter } from "next/navigation";
 import { sendEmailVerification } from "firebase/auth";
 import { EXPERIENCE_OPTIONS, GOAL_OPTIONS, authErrorMessage, checkName, initialsOf } from "@/lib/accounts";
 import { dayKey, streakOf, useProgress } from "@/lib/progress";
+import { previewProgress } from "@/lib/preview";
+import { usePreviewDays } from "@/lib/preview-client";
+import { isAdminUser } from "@/lib/admin";
 import { longestStreak } from "@/lib/overview";
 import StreakBadge from "@/components/StreakBadge";
 import AppearanceCard from "./AppearanceCard";
@@ -44,7 +47,11 @@ function Stat({ value, label }: { value: string; label: string }) {
 /** The signed-in reader's page: who they are, their progress and their settings. */
 export default function AccountView() {
   const { enabled, status, user, profile, profileError, signOut, updateProfile } = useAccount();
-  const progress = useProgress();
+  const real = useProgress();
+  // Owner-only preview: /account?preview=120 shows the page as if the streak were 120 days. Display only, nothing is saved.
+  const previewDays = usePreviewDays();
+  const previewing = previewDays !== null && isAdminUser(user);
+  const progress = previewing ? previewProgress(previewDays!) : real;
   const badges = useBadges(status === "ready");
   const router = useRouter();
   const toast = useToast();
@@ -143,6 +150,13 @@ export default function AccountView() {
       </section>
 
       {profileError && <Notice tone="error">Your profile could not be saved to the database ({profileError}). Check that the Firestore rules are deployed, then sign out and in again.</Notice>}
+
+      {previewing && (
+        <Notice tone="info">
+          Preview mode: showing {previewDays} days in a row. This is only how the page would look. Nothing is saved.{" "}
+          <Link href="/account" className="font-semibold">Exit preview</Link>
+        </Notice>
+      )}
 
       <AppearanceCard />
 

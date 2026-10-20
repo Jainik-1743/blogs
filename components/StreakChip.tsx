@@ -3,14 +3,20 @@
 import Link from "next/link";
 import { useAccount } from "@/components/auth/AuthProvider";
 import { dayKey, streakOf, useProgress } from "@/lib/progress";
+import { isAdminUser } from "@/lib/admin";
+import { previewProgress } from "@/lib/preview";
+import { usePreviewDays } from "@/lib/preview-client";
 
 /**
  * The reader's current streak in the header: a flame and the number of days. It links to the streak section
  * of the account page. Signed-in readers always see it (a grey flame at 0); visitors only once they have a streak.
  */
 export default function StreakChip() {
-  const { status } = useAccount();
-  const progress = useProgress();
+  const { status, user } = useAccount();
+  const real = useProgress();
+  // Owner-only: /account?preview=120 shows the header as it would look with that streak. Display only.
+  const previewDays = usePreviewDays();
+  const progress = previewDays !== null && isAdminUser(user) ? { ...previewProgress(previewDays), ready: true } : real;
   if (!progress.ready || status === "loading") return null;
 
   const streak = streakOf(progress.days);
@@ -27,9 +33,9 @@ export default function StreakChip() {
       href="/account#streak"
       aria-label={label}
       title={label}
-      className={`inline-flex h-8 items-center gap-1.5 rounded-full border px-2.5 text-[0.82rem] font-bold tabular-nums transition hover:no-underline focus-visible:outline-2 focus-visible:outline-sky ${alive ? "border-[#ff9f1c]/50 bg-[#ff9f1c]/10 text-[#ffb347] hover:border-[#ff9f1c]" : "border-line bg-bg-elev text-ink-dim hover:border-sky"}`}
+      className={`inline-flex h-10 items-center gap-1.5 rounded-full border pr-3.5 pl-2.5 text-[1rem] font-bold tabular-nums transition hover:no-underline focus-visible:outline-2 focus-visible:outline-sky ${alive ? "border-[#ff9f1c]/50 bg-[#ff9f1c]/10 text-[#ffb347] hover:border-[#ff9f1c]" : "border-line bg-bg-elev text-ink-dim hover:border-sky"}`}
     >
-      <svg aria-hidden="true" viewBox="0 0 24 24" width="15" height="15" fill={alive ? "url(#flame)" : "currentColor"} className={alive ? "" : "opacity-60"}>
+      <svg aria-hidden="true" viewBox="0 0 24 24" width="26" height="26" fill={alive ? "url(#flame)" : "currentColor"} className={alive ? "" : "opacity-60"}>
         <defs>
           <linearGradient id="flame" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0" stopColor="#ffd84d" />
