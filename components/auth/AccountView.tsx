@@ -13,6 +13,7 @@ import { longestStreak } from "@/lib/overview";
 import StreakBadge from "@/components/StreakBadge";
 import AppearanceCard from "./AppearanceCard";
 import ShareDialog from "@/components/ShareDialog";
+import SignInMethods from "./SignInMethods";
 import { useToast } from "@/components/Toast";
 import Badge from "@/components/Badge";
 import BadgesPanel from "./BadgesPanel";
@@ -220,6 +221,8 @@ export default function AccountView() {
               </div>
             </form>
           </Card>
+
+          <SignInMethods />
 
           <Card title="Email" text="Choose what we may send to your address.">
             <div className="flex flex-col gap-5">

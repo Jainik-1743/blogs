@@ -73,7 +73,9 @@ export function authErrorMessage(err: unknown): string {
     case "auth/email-already-in-use": return "An account with this email already exists. Sign in instead. If you used Google before, click Continue with Google.";
     case "auth/invalid-credential":
     case "auth/wrong-password":
-    case "auth/user-not-found": return "The email or password is not correct. If you signed up with Google, click Continue with Google.";
+    case "auth/user-not-found": return "That email and password do not match. If you created your account with Google, it has no password yet: use Continue with Google, then add a password on your account page.";
+    case "auth/provider-already-linked": return "This account already has a password. Use Change password instead.";
+    case "auth/credential-already-in-use": return "That email already belongs to another account.";
     case "auth/weak-password": return "Choose a stronger password with at least 8 characters.";
     case "auth/invalid-email": return "Enter a valid email address.";
     case "auth/unauthorized-continue-uri":
