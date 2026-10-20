@@ -1,10 +1,16 @@
+"use client";
+
+import { useState } from "react";
 import Badge from "@/components/Badge";
+import ShareDialog, { type ShareTarget } from "@/components/ShareDialog";
 import { metricUnit, type TrackStatus } from "@/lib/badges";
 
 /** One card per badge track: the badge earned so far, progress toward the next, and the whole ladder. */
 export default function BadgesPanel({ tracks }: { tracks: TrackStatus[] }) {
+  const [sharing, setSharing] = useState<ShareTarget | null>(null);
   return (
     <>
+      <ShareDialog target={sharing} onClose={() => setSharing(null)} />
       {tracks.map((t) => {
         const unit = t.next ? metricUnit(t.next.metric) : t.current ? metricUnit(t.current.metric) : "";
         const first = t.ladder[0];
@@ -34,6 +40,12 @@ export default function BadgesPanel({ tracks }: { tracks: TrackStatus[] }) {
                 ) : (
                   <p className="mt-4 mb-0 font-semibold text-sky">You have reached the top of this ladder. Keep learning!</p>
                 )}
+                {t.current && (
+                  <button type="button" onClick={() => setSharing({ kind: "badge", badge: t.current!, value: t.current!.threshold, unit: metricUnit(t.current!.metric) })} className="mt-5 inline-flex items-center gap-2 rounded-lg border border-sky px-4 py-2 text-[0.88rem] font-semibold text-sky transition hover:bg-sky-soft">
+                    <svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M16 6l-4-4-4 4M12 2v13" /></svg>
+                    Share this badge
+                  </button>
+                )}
               </div>
             </div>
 
@@ -43,6 +55,9 @@ export default function BadgesPanel({ tracks }: { tracks: TrackStatus[] }) {
                   <Badge badge={b} size={72} locked={i >= t.earned} />
                   <span className={`mt-2 text-[0.88rem] font-semibold ${i < t.earned ? "text-ink" : "text-ink-dim"}`}>{b.name}</span>
                   <span className="text-[0.75rem] text-ink-dim">{b.threshold} {metricUnit(b.metric)}</span>
+                  {i < t.earned && (
+                    <button type="button" onClick={() => setSharing({ kind: "badge", badge: b, value: b.threshold, unit: metricUnit(b.metric) })} className="mt-1.5 text-[0.75rem] font-semibold text-sky hover:underline" aria-label={`Share the ${b.name} badge`}>Share</button>
+                  )}
                 </li>
               ))}
             </ul>

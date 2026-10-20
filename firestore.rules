@@ -67,7 +67,7 @@ service cloud.firestore {
     match /badges/{id} {
       allow read: if signedIn();
       allow create, update: if isAdmin()
-        && request.resource.data.keys().hasOnly(['name', 'track', 'metric', 'threshold', 'blurb', 'image', 'enabled'])
+        && request.resource.data.keys().hasOnly(['name', 'track', 'metric', 'threshold', 'blurb', 'image', 'enabled', 'share'])
         && request.resource.data.keys().hasAll(['name', 'track', 'metric', 'threshold', 'image', 'enabled'])
         && request.resource.data.name is string && request.resource.data.name.size() <= 40
         && request.resource.data.track is string && request.resource.data.track.size() <= 30
@@ -75,6 +75,7 @@ service cloud.firestore {
         && request.resource.data.threshold is int && request.resource.data.threshold >= 1
         && request.resource.data.get('blurb', '') is string && request.resource.data.get('blurb', '').size() <= 200
         && request.resource.data.image is string && request.resource.data.image.size() <= 300000
+        && request.resource.data.get('share', '') is string && request.resource.data.get('share', '').size() <= 500
         && request.resource.data.enabled is bool;
       allow delete: if isAdmin();
     }

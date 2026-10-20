@@ -12,6 +12,7 @@ import { isAdminUser } from "@/lib/admin";
 import { longestStreak } from "@/lib/overview";
 import StreakBadge from "@/components/StreakBadge";
 import AppearanceCard from "./AppearanceCard";
+import ShareDialog from "@/components/ShareDialog";
 import { useToast } from "@/components/Toast";
 import Badge from "@/components/Badge";
 import BadgesPanel from "./BadgesPanel";
@@ -50,6 +51,7 @@ export default function AccountView() {
   const real = useProgress();
   // Owner-only preview: /account?preview=120 shows the page as if the streak were 120 days. Display only, nothing is saved.
   const previewDays = usePreviewDays();
+  const [shareStreak, setShareStreak] = useState(false);
   const previewing = previewDays !== null && isAdminUser(user);
   const progress = previewing ? previewProgress(previewDays!) : real;
   const badges = useBadges(status === "ready");
@@ -158,6 +160,8 @@ export default function AccountView() {
         </Notice>
       )}
 
+      <ShareDialog target={shareStreak ? { kind: "streak", days: streak } : null} onClose={() => setShareStreak(false)} />
+
       <AppearanceCard />
 
       {/* Streak */}
@@ -180,6 +184,12 @@ export default function AccountView() {
               <div className="rounded-xl border border-line bg-bg px-4 py-3"><dd className="m-0 text-[1.5rem] font-bold leading-none text-ink">{longest}</dd><dt className="mt-1.5 text-[0.78rem] text-ink-dim">Longest streak</dt></div>
               <div className="rounded-xl border border-line bg-bg px-4 py-3"><dd className="m-0 text-[1.5rem] font-bold leading-none text-ink">{progress.days.length}</dd><dt className="mt-1.5 text-[0.78rem] text-ink-dim">Total reading days</dt></div>
             </dl>
+            {streak > 0 && (
+              <button type="button" onClick={() => setShareStreak(true)} className="mt-5 inline-flex items-center gap-2 rounded-lg border border-sky px-4 py-2 text-[0.88rem] font-semibold text-sky transition hover:bg-sky-soft">
+                <svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M16 6l-4-4-4 4M12 2v13" /></svg>
+                Share my streak
+              </button>
+            )}
             <ol aria-label="The last 7 days" className="m-0 mt-5 flex list-none gap-2 p-0">
               {week.map((d) => (
                 <li key={d.date} className="m-0 flex flex-col items-center gap-1.5" title={`${d.date}${d.on ? ": read" : ""}`}>

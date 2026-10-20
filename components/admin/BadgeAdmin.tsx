@@ -13,7 +13,7 @@ import { useToast } from "@/components/Toast";
 import seed from "@/data/badges.seed.json";
 import { AdminSkeleton } from "@/components/Skeleton";
 
-const BLANK: BadgeData = { id: "", name: "", track: "reading", metric: "activeDays", threshold: 5, blurb: "", image: "", enabled: true };
+const BLANK: BadgeData = { id: "", name: "", track: "reading", metric: "activeDays", threshold: 5, blurb: "", image: "", enabled: true, share: "" };
 
 /** Turns a picked picture into a small WebP data URL (at most 420px wide), so it can live in the database. */
 async function toDataUrl(file: File): Promise<string> {
@@ -55,6 +55,7 @@ function Editor({ initial, isNew, onSaved, onDeleted }: { initial: BadgeData; is
       await setDoc(doc(fb.db, "badges", id), {
         name: b.name.trim(), track: b.track.trim().toLowerCase(), metric: b.metric, threshold: Math.round(b.threshold),
         blurb: b.blurb.trim(), image: b.image, enabled: b.enabled,
+        ...(b.share?.trim() ? { share: b.share.trim() } : {}),
       });
       clearBadgeCache();
       toast(isNew ? "Badge added." : "Badge saved.");
@@ -113,6 +114,11 @@ function Editor({ initial, isNew, onSaved, onDeleted }: { initial: BadgeData; is
           <div className="sm:col-span-2">
             <Field id={`blurb-${id || "new"}`} label="Short message">
               <input value={b.blurb} onChange={(e) => set({ blurb: e.target.value })} className={inputClass} placeholder="Two weeks of real progress." />
+            </Field>
+          </div>
+          <div className="sm:col-span-2">
+            <Field id={`share-${id || "new"}`} label="Share message" optional hint="Wording readers send to friends. Use {badge} {value} {unit} {blurb} {url}. Leave empty for the built-in lines.">
+              <textarea rows={3} value={b.share ?? ""} onChange={(e) => set({ share: e.target.value })} className={inputClass} placeholder="Gold unlocked: {value} {unit} of showing up. {blurb} Join me: {url}" />
             </Field>
           </div>
           <div className="sm:col-span-2">

@@ -30,6 +30,8 @@ export type Badge = {
   /** A site path (/badges/gold.webp), a full URL, or a data: URL saved from the admin page. */
   image: string;
   enabled: boolean;
+  /** Optional wording for the share message. Placeholders: {badge} {value} {unit} {blurb} {url}. */
+  share?: string;
 };
 
 type Counts = Pick<Progress, "done" | "days">;
