@@ -53,9 +53,12 @@ export function checkEmail(raw: string): string | null {
   return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(raw.trim()) ? null : "Enter a valid email address.";
 }
 
-/** Keeps a redirect on this site: only a single leading slash is allowed, never "//host" or a full URL. */
+/** True for a path on this site ("/dsa/lesson-1"): one leading slash, never "//host", "javascript:" or a full URL. */
+export const isSitePath = (p: unknown): p is string => typeof p === "string" && /^\/(?!\/)[^\s\\]*$/.test(p);
+
+/** Keeps a redirect on this site: only a site path is allowed. */
 export function safeNext(next: string | null | undefined): string {
-  return next && /^\/(?!\/)[^\s\\]*$/.test(next) ? next : "/account";
+  return isSitePath(next) ? next : "/account";
 }
 
 /** Plain-English text for the error codes Firebase returns. */

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useSyncExternalStore } from "react";
+import { isSitePath } from "./accounts";
 
 /**
  * Reading progress, for signed-in readers only. It is cached in this browser (localStorage) so the page is instant,
@@ -83,7 +84,7 @@ function parse(raw: string): Progress {
     return {
       done: Array.isArray(v?.done) ? v.done.filter((x: unknown) => typeof x === "string") : [],
       days: Array.isArray(v?.days) ? v.days.filter((x: unknown) => typeof x === "string") : [],
-      next: v?.next && typeof v.next.path === "string" && typeof v.next.title === "string" ? v.next : null,
+      next: v?.next && isSitePath(v.next.path) && typeof v.next.title === "string" ? v.next : null,
       log: cleanLog(v?.log),
     };
   } catch {

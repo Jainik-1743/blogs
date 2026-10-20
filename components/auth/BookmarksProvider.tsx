@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { FieldPath, deleteField, doc, getDoc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 import { getFirebase } from "@/lib/firebase";
+import { isSitePath } from "@/lib/accounts";
 import { useAccount } from "./AuthProvider";
 
 export type Bookmark = { path: string; title: string; series: string; at: number };
@@ -51,7 +52,8 @@ export default function BookmarksProvider({ children }: { children: ReactNode })
       .then((snap) => {
         if (!live) return;
         const items = (snap.data()?.items ?? {}) as Record<string, Bookmark>;
-        setMap(items);
+        // Only links that stay on this site are kept.
+        setMap(Object.fromEntries(Object.entries(items).filter(([, b]) => isSitePath(b?.path) && typeof b.title === "string")));
       })
       .catch((err) => console.error("Bookmarks could not be loaded:", err))
       .finally(() => live && setReady(true));

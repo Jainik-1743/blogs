@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { getFirebase } from "@/lib/firebase";
 import { useAccount } from "@/components/auth/AuthProvider";
+import { isSitePath } from "@/lib/accounts";
 
 /**
  * "Continue where you left off". For signed-in readers only: the last page they read is kept in their
@@ -58,7 +59,7 @@ export default function ResumePrompt() {
     getDoc(doc(fb.db, "lastpage", user.uid))
       .then((snap) => {
         const prev = snap.data() as Last | undefined;
-        if (prev && typeof prev.path === "string" && prev.path !== pathRef.current && !SKIP.has(prev.path)) setLast(prev);
+        if (prev && isSitePath(prev.path) && typeof prev.title === "string" && prev.path !== pathRef.current && !SKIP.has(prev.path)) setLast(prev);
       })
       .catch((err) => console.error("Last page could not be loaded:", err))
       .finally(() => { loaded.current = true; });
