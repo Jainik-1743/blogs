@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -33,12 +33,13 @@ export default function AuthPanel({ mode }: { mode: "login" | "signup" }) {
   const [message, setMessage] = useState<{ tone: "error" | "info" | "success"; text: string; mismatch?: string } | null>(null);
   const [busy, setBusy] = useState(false);
   const [resetting, setResetting] = useState(false);
+  const justSignedUp = useRef(false);
 
   // Signed in: leave this page.
   useEffect(() => {
     if (status === "ready") router.replace(next);
     // An email account that has not confirmed its email waits on its own page.
-    if (status === "unverified") router.replace(`/verify-email?next=${encodeURIComponent(next)}`);
+    if (status === "unverified") router.replace(`/verify-email?${justSignedUp.current ? "sent=1&" : ""}next=${encodeURIComponent(next)}`);
   }, [status, next, router]);
 
   // One welcome message when a sign-in on this page succeeds.
@@ -99,10 +100,11 @@ export default function AuthPanel({ mode }: { mode: "login" | "signup" }) {
         setMessage({ tone: "success", text });
         toast("Reset link sent. Check your email.");
       } else if (mode === "signup") {
+        justSignedUp.current = true;
         const cred = await createUserWithEmailAndPassword(fb.auth, addr, password);
-        // Prove the person owns this email before the account can be used.
+        // Prove the person owns this email before the account can be used. The status change above sends them to the
+        // confirm page once; "sent=1" tells that page the link is already on its way.
         await sendEmailVerification(cred.user).catch((err) => console.error("Verification email failed:", err));
-        router.replace(`/verify-email?sent=1&next=${encodeURIComponent(next)}`);
       } else {
         await signInWithEmailAndPassword(fb.auth, addr, password);
       }

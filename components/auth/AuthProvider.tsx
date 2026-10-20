@@ -4,7 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { onAuthStateChanged, sendEmailVerification, signOut as fbSignOut, updateProfile as updateAuthProfile, type User } from "firebase/auth";
 import { doc, getDoc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 import { accountsEnabled, getFirebase } from "@/lib/firebase";
-import type { Profile } from "@/lib/accounts";
+import { isConfirmedSession, type Profile } from "@/lib/accounts";
 import { clearLocalProgress, setProgressEnabled } from "@/lib/progress";
 
 /**
@@ -57,7 +57,10 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     if (!fb) return;
     setUser(u);
     setProfileError(null);
-    const verified = Boolean(u?.emailVerified);
+    // Google confirms the email itself, so a session that came through Google is confirmed even if the stored flag was
+    // cleared (linking a password to a Google account does that). Email-and-password sessions must confirm their email.
+    const claims = u ? await u.getIdTokenResult().catch(() => null) : null;
+    const verified = Boolean(u && isConfirmedSession({ emailVerified: u.emailVerified, signInProvider: claims?.signInProvider }));
     // Progress, streaks and badges exist only for a signed-in reader whose email is confirmed.
     setProgressEnabled(verified);
     if (!u && hadUser.current) clearLocalProgress(); // signed out: do not leave their data on this device

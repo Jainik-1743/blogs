@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import {
-  EmailAuthProvider, GoogleAuthProvider, linkWithCredential, reauthenticateWithCredential, reauthenticateWithPopup, updatePassword,
+  EmailAuthProvider, GoogleAuthProvider, reauthenticateWithCredential, reauthenticateWithPopup, updatePassword,
 } from "firebase/auth";
 import { authErrorMessage, checkPassword } from "@/lib/accounts";
 import { useToast } from "@/components/Toast";
@@ -12,8 +12,8 @@ import { Field, inputClass } from "./fields";
 const code = (e: unknown) => (e as { code?: string })?.code ?? "";
 
 /**
- * Which ways of signing in the account has, and a form to add or change the password. A reader who signed up with
- * Google has no password, so this is how they can also sign in with their email and a password.
+ * Which ways of signing in the account has, and a form to change the password for email-and-password accounts.
+ * Google accounts have no password: linking one makes Firebase clear the account's "email confirmed" flag, so it is not offered.
  */
 export default function SignInMethods() {
   const { user } = useAccount();
@@ -38,11 +38,8 @@ export default function SignInMethods() {
   }
 
   async function apply() {
-    if (!hasPassword) await linkWithCredential(user!, EmailAuthProvider.credential(email, next));
-    else {
-      if (current) await reauthenticateWithCredential(user!, EmailAuthProvider.credential(email, current));
-      await updatePassword(user!, next);
-    }
+    if (current) await reauthenticateWithCredential(user!, EmailAuthProvider.credential(email, current));
+    await updatePassword(user!, next);
   }
 
   async function submit(ev: FormEvent) {
@@ -61,7 +58,7 @@ export default function SignInMethods() {
         await apply();
       }
       await user!.reload();
-      toast(hasPassword ? "Password changed." : "Password added. You can now sign in with your email and password too.");
+      toast("Password changed.");
       setCurrent("");
       setNext("");
       refresh((n) => n + 1);
@@ -77,7 +74,7 @@ export default function SignInMethods() {
   return (
     <section aria-labelledby="signin-methods" className="rounded-2xl border border-line bg-bg-elev p-6 sm:p-7">
       <h2 id="signin-methods" className="m-0 text-[1.1rem] font-bold text-ink">Sign-in methods</h2>
-      <p className="mt-1 mb-0 text-[0.88rem] text-ink-dim">Choose how you sign in. You can use more than one.</p>
+      <p className="mt-1 mb-0 text-[0.88rem] text-ink-dim">The ways this account can sign in.</p>
 
       <ul className="m-0 mt-5 list-none divide-y divide-line rounded-xl border border-line p-0">
         {[
@@ -91,24 +88,29 @@ export default function SignInMethods() {
         ))}
       </ul>
 
+      {!hasPassword ? (
+        <p className="mt-5 mb-0 max-w-md text-[0.88rem] text-ink-dim">
+          You sign in with Google, so there is no password to manage. Just use <strong className="text-ink">Continue with Google</strong> each time.
+        </p>
+      ) : (
       <form onSubmit={submit} noValidate className="mt-6 flex max-w-md flex-col gap-4">
-        <h3 className="m-0 text-[1rem] font-semibold text-ink">{hasPassword ? "Change your password" : "Add a password"}</h3>
-        {!hasPassword && <p className="m-0 text-[0.88rem] text-ink-dim">You signed up with Google, so there is no password yet. Add one to also sign in with <strong className="text-ink">{email}</strong> and a password.</p>}
+        <h3 className="m-0 text-[1rem] font-semibold text-ink">Change your password</h3>
         {/* Lets a password manager tie the new password to this email. */}
         <input type="email" name="username" autoComplete="username" value={email} readOnly hidden />
-        {hasPassword && (
+        {(
           <Field id="current-password" label="Current password" error={errors.current}>
             <input id="current-password" type="password" autoComplete="current-password" disabled={busy} value={current} onChange={(e) => setCurrent(e.target.value)} aria-describedby="current-password-msg" className={inputClass} />
           </Field>
         )}
-        <Field id="new-password" label={hasPassword ? "New password" : "Password"} error={errors.next} hint="At least 8 characters.">
+        <Field id="new-password" label="New password" error={errors.next} hint="At least 8 characters.">
           <div className="relative">
             <input id="new-password" type={show ? "text" : "password"} autoComplete="new-password" disabled={busy} value={next} onChange={(e) => setNext(e.target.value)} aria-describedby="new-password-msg" className={`${inputClass} pr-16`} />
             <button type="button" onClick={() => setShow((v) => !v)} aria-pressed={show} className="absolute inset-y-0 right-3 text-[0.8rem] font-medium text-ink-dim hover:text-sky">{show ? "Hide" : "Show"}</button>
           </div>
         </Field>
-        <button type="submit" disabled={busy} className="self-start rounded-lg bg-sky px-5 py-2.5 font-semibold text-bg transition hover:brightness-110 disabled:opacity-60">{busy ? "Saving…" : hasPassword ? "Change password" : "Add password"}</button>
+        <button type="submit" disabled={busy} className="self-start rounded-lg bg-sky px-5 py-2.5 font-semibold text-bg transition hover:brightness-110 disabled:opacity-60">{busy ? "Saving…" : "Change password"}</button>
       </form>
+      )}
     </section>
   );
 }
