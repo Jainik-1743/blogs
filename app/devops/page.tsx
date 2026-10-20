@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import JsonLd from "@/components/JsonLd";
 import { pageMetadata, seriesJsonLd } from "@/lib/seo";
 import Link from "next/link";
+import PageHeader from "@/components/page/PageHeader";
 import LessonToc from "@/components/LessonToc";
 import { LESSONS, READINGS, readingHref, SERIES } from "@/lib/lessons";
 
@@ -14,30 +15,19 @@ export default function DevopsIndexPage() {
   return (
     <>
       <JsonLd data={seriesJsonLd("devops")} />
-      <section className="mb-8 border-b border-line pb-8 pt-6">
-        <p className="mb-2 font-mono text-[0.78rem] uppercase tracking-[0.12em] text-sky">
-          A blog series
-        </p>
-        <h1 className="mb-3 text-[2.9rem] font-bold leading-[1.1] tracking-tight text-sky max-sm:text-[2rem]">
-          {SERIES.title}
-        </h1>
-        <p className="max-w-[60ch] text-[1.15rem] text-ink-dim">{SERIES.tagline}</p>
-        <dl className="mt-6 flex flex-wrap gap-x-6 gap-y-2 font-mono text-[0.82rem] text-ink-dim">
-          <div>
-            <dt className="inline text-sky">Started&nbsp;</dt>
-            <dd className="inline">{SERIES.started}</dd>
-          </div>
-          <div>
-            <dt className="inline text-sky">Progress&nbsp;</dt>
-            <dd className="inline">
-              {published} / {LESSONS.length} lessons
-            </dd>
-          </div>
-        </dl>
-      </section>
+      <PageHeader
+        crumbs={[{ label: "Home", href: "/" }, { label: SERIES.title }]}
+        eyebrow="Lesson series"
+        title={SERIES.title}
+        summary={SERIES.tagline}
+        meta={[
+          { label: "Lessons", value: `${published} of ${LESSONS.length}` },
+          { label: "Started", value: SERIES.started },
+        ]}
+      />
 
       <section>
-        <h2 className="mb-2 text-[1.6rem] font-semibold text-sky">Contents</h2>
+        <h2 className="mb-2 text-[1.6rem] font-bold tracking-tight text-ink">Contents</h2>
         <p className="mb-4 text-ink-dim">
           Lessons build on each other. If you are new, start at Lesson 00.
         </p>
@@ -45,7 +35,7 @@ export default function DevopsIndexPage() {
       </section>
 
       <section className="mt-12">
-        <h2 className="mb-2 text-[1.6rem] font-semibold text-sky">Glossary</h2>
+        <h2 className="mb-2 text-[1.6rem] font-bold tracking-tight text-ink">Glossary</h2>
         <p className="mb-4 text-ink-dim">
           Every short form used in the series — EC2, ALB, DNS, TTL and the rest. Inside any lesson,
           hover or tap a dotted term to see its meaning without leaving the page.{" "}
@@ -54,7 +44,7 @@ export default function DevopsIndexPage() {
       </section>
 
       <section className="mt-12">
-        <h2 className="mb-2 text-[1.6rem] font-semibold text-sky">Background reading</h2>
+        <h2 className="mb-2 text-[1.6rem] font-bold tracking-tight text-ink">Background reading</h2>
         <p className="mb-4 text-ink-dim">
           Standalone pieces that sit beside the lessons. Read them whenever they come up.
         </p>

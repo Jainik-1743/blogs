@@ -49,6 +49,15 @@ export const CONTACT_EMAIL = "jainikpatel1743@gmail.com";
  */
 export const INDEXABLE = process.env.VERCEL_ENV ? process.env.VERCEL_ENV === "production" : true;
 
+/**
+ * Analytics (Google Tag Manager, Google Analytics, Vercel Analytics and Speed Insights) and the
+ * search-console verification tags are for the live site only. They stay off on a developer's
+ * machine and on preview deployments, so testing never pollutes the numbers.
+ * Override with ENABLE_ANALYTICS=true or false in .env.local (or the Vercel project settings).
+ */
+export const ANALYTICS_ENABLED =
+  process.env.ENABLE_ANALYTICS === "true" ? true : process.env.ENABLE_ANALYTICS === "false" ? false : process.env.VERCEL_ENV === "production";
+
 /** Absolute URL for a path on this site. */
 export function absoluteUrl(path: string): string {
   return new URL(path, SITE_URL).toString();

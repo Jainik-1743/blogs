@@ -2,6 +2,7 @@ import Logo from "./Logo";
 import DisplayControls from "./DisplayControls";
 import SeriesBar from "./SeriesBar";
 import SiteSearch from "./SiteSearch";
+import AccountMenu from "./auth/AccountMenu";
 import { ALL_SERIES } from "@/lib/series";
 
 /**
@@ -17,6 +18,7 @@ export default function SiteHeader() {
           <SeriesBar series={ALL_SERIES} />
           <SiteSearch />
           <DisplayControls />
+          <AccountMenu />
         </div>
       </div>
     </header>

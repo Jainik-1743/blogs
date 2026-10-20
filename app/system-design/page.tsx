@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import JsonLd from "@/components/JsonLd";
 import { pageMetadata, seriesJsonLd } from "@/lib/seo";
 import Link from "next/link";
+import PageHeader from "@/components/page/PageHeader";
 import LessonToc from "@/components/LessonToc";
 import { SD_GLOSSARY } from "@/lib/sd-glossary";
 import { SD_LESSONS, SD_PARTS, SD_SERIES, sdLessonHref } from "@/lib/system-design";
@@ -16,36 +17,21 @@ export default function SystemDesignIndexPage() {
   return (
     <>
       <JsonLd data={seriesJsonLd("system-design")} />
-      <section className="mb-8 border-b border-line pb-8 pt-6">
-        <p className="mb-2 font-mono text-[0.78rem] uppercase tracking-[0.12em] text-sky">A blog series</p>
-        <h1 className="mb-3 text-[2.9rem] font-bold leading-[1.1] tracking-tight text-sky max-sm:text-[2rem]">
-          {SD_SERIES.title}
-        </h1>
-        <p className="max-w-[60ch] text-[1.15rem] text-ink-dim">{SD_SERIES.tagline}</p>
-        <dl className="mt-6 flex flex-wrap gap-x-6 gap-y-2 font-mono text-[0.82rem] text-ink-dim">
-          <div>
-            <dt className="inline text-sky">Started&nbsp;</dt>
-            <dd className="inline">{SD_SERIES.started}</dd>
-          </div>
-          <div>
-            <dt className="inline text-sky">Progress&nbsp;</dt>
-            <dd className="inline">
-              {published} / {SD_LESSONS.length} lessons
-            </dd>
-          </div>
-          <div>
-            <dt className="inline text-sky">Parts&nbsp;</dt>
-            <dd className="inline">{SD_PARTS.length}</dd>
-          </div>
-          <div>
-            <dt className="inline text-sky">Reading&nbsp;</dt>
-            <dd className="inline">~{Math.round(minutes / 60)} h</dd>
-          </div>
-        </dl>
-      </section>
+      <PageHeader
+        crumbs={[{ label: "Home", href: "/" }, { label: SD_SERIES.title }]}
+        eyebrow="Lesson series"
+        title={SD_SERIES.title}
+        summary={SD_SERIES.tagline}
+        meta={[
+          { label: "Lessons", value: `${published} of ${SD_LESSONS.length}` },
+          { label: "Parts", value: String(SD_PARTS.length) },
+          { label: "Reading time", value: `~${Math.round(minutes / 60)} hours` },
+          { label: "Started", value: SD_SERIES.started },
+        ]}
+      />
 
       <section className="mb-12">
-        <h2 className="mb-2 text-[1.6rem] font-semibold text-sky">How the series is organised</h2>
+        <h2 className="mb-2 text-[1.6rem] font-bold tracking-tight text-ink">How the series is organised</h2>
         <p className="mb-4 text-ink-dim">
           Twelve parts, each building on the one before. Jump to any part, or start at Lesson 01 and read in order.
         </p>
@@ -73,7 +59,7 @@ export default function SystemDesignIndexPage() {
       </section>
 
       <section>
-        <h2 className="mb-2 text-[1.6rem] font-semibold text-sky">Contents</h2>
+        <h2 className="mb-2 text-[1.6rem] font-bold tracking-tight text-ink">Contents</h2>
         {SD_PARTS.map((p) => (
           <div key={p.number} className="mb-8">
             <h3
@@ -89,7 +75,7 @@ export default function SystemDesignIndexPage() {
       </section>
 
       <section className="mt-12">
-        <h2 className="mb-2 text-[1.6rem] font-semibold text-sky">Glossary</h2>
+        <h2 className="mb-2 text-[1.6rem] font-bold tracking-tight text-ink">Glossary</h2>
         <p className="mb-4 text-ink-dim">
           {SD_GLOSSARY.entries.length} short forms and terms — TLS, CDN, ACID, CAP, SLO, JWT, K8s and the rest. Inside
           any lesson, hover or tap a dotted term to see its meaning without leaving the page.{" "}

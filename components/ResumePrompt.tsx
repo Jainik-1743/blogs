@@ -13,7 +13,7 @@ import { usePathname } from "next/navigation";
 const KEY = "blogs:last-page";
 const SEEN = "blogs:resume-shown";
 /** Pages that are not worth resuming. */
-const SKIP = new Set(["/", "/about", "/privacy", "/glossaries"]);
+const SKIP = new Set(["/", "/about", "/privacy", "/glossaries", "/login", "/signup", "/account"]);
 
 type Last = { path: string; title: string; at: number };
 

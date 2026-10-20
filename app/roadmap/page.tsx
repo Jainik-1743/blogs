@@ -5,5 +5,5 @@ import { pageMetadata } from "@/lib/seo";
 export const metadata: Metadata = pageMetadata("/roadmap");
 
 export default function Page() {
-  return <RoadmapPage detailed={false} />;
+  return <RoadmapPage view="overview" />;
 }

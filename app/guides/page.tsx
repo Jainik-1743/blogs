@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import JsonLd from "@/components/JsonLd";
+import PageHeader from "@/components/page/PageHeader";
 import GuideCards from "@/components/GuideCards";
 import { RESOLVED_GUIDES } from "@/lib/guides";
 import { pageMetadata } from "@/lib/seo";
@@ -32,15 +33,19 @@ export default function GuidesPage() {
   return (
     <>
       <JsonLd data={ld} />
-      <p className="mb-2 font-mono text-[0.78rem] uppercase tracking-[0.12em] text-sky">Study guides</p>
-      <h1 className="mb-3 text-[2.2rem] font-bold leading-tight tracking-tight text-sky max-sm:text-[1.8rem]">
-        Study guides: what to read, in what order
-      </h1>
-      <p className="text-[1.1rem] text-ink-dim">
-        Each guide gathers lessons from several series into one reading order for a single goal, such as a system design
-        interview or learning SQL. Pick the goal, then follow the list.
-      </p>
-      <div className="mt-8"><GuideCards /></div>
+      <PageHeader
+        crumbs={[{ label: "Home", href: "/" }, { label: "Guides" }]}
+        eyebrow="Study guides"
+        title="What to read, in what order"
+        summary="Each guide gathers lessons from several series into one reading order for a single goal, such as a system design interview or learning SQL. Pick the goal, then follow the list."
+        meta={[
+          { label: "Guides", value: String(RESOLVED_GUIDES.length) },
+          { label: "Lessons covered", value: String(new Set(RESOLVED_GUIDES.flatMap((g) => g.sections.flatMap((s) => s.pages.map((p) => p.path)))).size) },
+          { label: "Cost", value: "Free" },
+          { label: "Sign-up", value: "Not needed" },
+        ]}
+      />
+      <GuideCards />
     </>
   );
 }

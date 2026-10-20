@@ -10,6 +10,7 @@ import { LESSONS, READINGS, SERIES as DEVOPS_SERIES, lessonHref, readingHref, ty
 import { SD_GLOSSARY } from "./sd-glossary";
 import { SD_LESSONS, SD_SERIES, sdLessonHref } from "./system-design";
 import { GUIDES } from "./guides-data";
+import { STAGES, stageSlug } from "./roadmap-stages";
 import { TERM_PAGES, termPath } from "./glossary-terms";
 import { MIN_LESSONS, TOPICS, type TopicDef } from "./topics";
 import { RELATED_SERIES, SERIES_GROUPS, SERIES_SHORT } from "./series";
@@ -123,6 +124,12 @@ function buildPages(): PageInfo[] {
     path: "/roadmap/detailed", kind: "hub", title: "Detailed developer roadmap: every lesson in order",
     description: "The full roadmap with every lesson on it: eight steps from computer basics to interviews, each series broken into its lessons in reading order, and every box opens its lesson.",
   });
+  for (const st of STAGES) {
+    pages.push({
+      path: `/roadmap/${stageSlug(st.title)}`, kind: "hub", title: `${st.title} roadmap: every lesson in order`,
+      description: `${st.blurb} The full ${st.title} roadmap lists each series and every lesson in reading order, and every box opens its lesson.`,
+    });
+  }
   pages.push({
     path: "/topics", kind: "hub", title: "Browse by topic: lessons on one subject from every series",
     description: "Pick a subject such as caching, security, databases or APIs and see every lesson about it, from every series, in one list.",

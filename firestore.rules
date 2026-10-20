@@ -1,0 +1,101 @@
+rules_version = '2';
+
+// Each reader may read and change only their own profile. Everything else is closed.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function validName(v) {
+      return v is string && v.size() >= 1 && v.size() <= 60;
+    }
+
+    // Keep these lists in step with EXPERIENCE_OPTIONS and GOAL_OPTIONS in lib/accounts.ts.
+    function validExperience(v) {
+      return v in ['', 'student', '0-1', '1-3', '3-5', '5-plus'];
+    }
+
+    function validGoal(v) {
+      return v in ['', 'learn', 'interviews', 'level-up', 'career-switch', 'other'];
+    }
+
+    match /users/{uid} {
+      allow read: if isOwner(uid);
+
+      // The profile is created automatically on the first sign-in.
+      allow create: if isOwner(uid)
+        && request.resource.data.keys().hasAll(['name', 'email', 'emailUpdates', 'createdAt', 'updatedAt'])
+        && request.resource.data.keys().hasOnly(['name', 'email', 'experience', 'goal', 'emailUpdates', 'createdAt', 'updatedAt'])
+        && validName(request.resource.data.name)
+        && request.resource.data.email is string
+        && request.resource.data.email.lower() == request.auth.token.email.lower()
+        && request.resource.data.emailUpdates is bool
+        && validExperience(request.resource.data.get('experience', ''))
+        && validGoal(request.resource.data.get('goal', ''))
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+
+      // Email and creation date are fixed; the rest can change.
+      allow update: if isOwner(uid)
+        && request.resource.data.email == resource.data.email
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.keys().hasOnly(['name', 'email', 'experience', 'goal', 'emailUpdates', 'createdAt', 'updatedAt'])
+        && validName(request.resource.data.name)
+        && request.resource.data.emailUpdates is bool
+        && validExperience(request.resource.data.get('experience', ''))
+        && validGoal(request.resource.data.get('goal', ''))
+        && request.resource.data.updatedAt == request.time;
+
+      allow delete: if isOwner(uid);
+    }
+
+    // Only the site owner may change badges. Keep this address in step with NEXT_PUBLIC_ADMIN_EMAIL.
+    function isAdmin() {
+      return signedIn()
+        && request.auth.token.email_verified == true
+        && request.auth.token.email == 'jainikpatel1743@gmail.com';
+    }
+
+    // Badges are data: any signed-in reader can read them, only the owner can write them.
+    match /badges/{id} {
+      allow read: if signedIn();
+      allow create, update: if isAdmin()
+        && request.resource.data.keys().hasOnly(['name', 'track', 'metric', 'threshold', 'blurb', 'image', 'enabled'])
+        && request.resource.data.keys().hasAll(['name', 'track', 'metric', 'threshold', 'image', 'enabled'])
+        && request.resource.data.name is string && request.resource.data.name.size() <= 40
+        && request.resource.data.track is string && request.resource.data.track.size() <= 30
+        && request.resource.data.metric in ['activeDays', 'lessonsDone', 'streak']
+        && request.resource.data.threshold is int && request.resource.data.threshold >= 1
+        && request.resource.data.get('blurb', '') is string && request.resource.data.get('blurb', '').size() <= 200
+        && request.resource.data.image is string && request.resource.data.image.size() <= 300000
+        && request.resource.data.enabled is bool;
+      allow delete: if isAdmin();
+    }
+
+    // One record per reader: finished lessons, the days they studied (badges are counted from these) and the next lesson.
+    match /progress/{uid} {
+      allow read: if isOwner(uid);
+      allow create, update: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['done', 'days', 'next', 'log', 'updatedAt'])
+        && request.resource.data.keys().hasAll(['done', 'days', 'updatedAt'])
+        && request.resource.data.done is list && request.resource.data.done.size() <= 1000
+        && request.resource.data.days is list && request.resource.data.days.size() <= 800
+        && request.resource.data.get('log', {}) is map && request.resource.data.get('log', {}).size() <= 500
+        && request.resource.data.updatedAt == request.time
+        && (request.resource.data.get('next', null) == null
+            || (request.resource.data.next is map
+                && request.resource.data.next.keys().hasOnly(['path', 'title'])));
+      allow delete: if isOwner(uid);
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

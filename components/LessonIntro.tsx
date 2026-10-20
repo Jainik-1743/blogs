@@ -30,9 +30,9 @@ export default function LessonIntro({ lesson, outline }: { lesson: Lesson; outli
         <h2 id="learn" className="mb-2 text-[1.1rem] font-semibold text-sky">
           What you&apos;ll learn in this lesson
         </h2>
-        <ol className="m-0 list-decimal pl-5 marker:text-sky">
+        <ol className="m-0 list-decimal pl-5 marker:text-sky sm:columns-2 sm:gap-x-12">
           {outline.map((item) => (
-            <li key={item.id} className="my-1">
+            <li key={item.id} className="my-1 break-inside-avoid">
               <a href={`#${item.id}`} className="text-ink hover:text-sky">
                 {item.label}
               </a>

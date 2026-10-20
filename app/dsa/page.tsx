@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import JsonLd from "@/components/JsonLd";
 import { pageMetadata, seriesJsonLd } from "@/lib/seo";
 import Link from "next/link";
+import PageHeader from "@/components/page/PageHeader";
 import DsaToc from "@/components/dsa/DsaToc";
 import { DSA_GLOSSARY } from "@/lib/dsa-glossary";
 import { DSA_LESSONS, DSA_PARTS, DSA_SERIES } from "@/lib/dsa";
@@ -28,36 +29,21 @@ export default function DsaIndexPage() {
   return (
     <>
       <JsonLd data={seriesJsonLd("dsa")} />
-      <section className="mb-8 border-b border-line pb-8 pt-6">
-        <p className="mb-2 font-mono text-[0.78rem] uppercase tracking-[0.12em] text-sky">A blog series</p>
-        <h1 className="mb-3 text-[2.9rem] font-bold leading-[1.1] tracking-tight text-sky max-sm:text-[2rem]">
-          {DSA_SERIES.title}
-        </h1>
-        <p className="max-w-[60ch] text-[1.15rem] text-ink-dim">{DSA_SERIES.tagline}</p>
-        <dl className="mt-6 flex flex-wrap gap-x-6 gap-y-2 font-mono text-[0.82rem] text-ink-dim">
-          <div>
-            <dt className="inline text-sky">Started&nbsp;</dt>
-            <dd className="inline">{DSA_SERIES.started}</dd>
-          </div>
-          <div>
-            <dt className="inline text-sky">Progress&nbsp;</dt>
-            <dd className="inline">
-              {published} / {DSA_LESSONS.length} lessons
-            </dd>
-          </div>
-          <div>
-            <dt className="inline text-sky">Parts&nbsp;</dt>
-            <dd className="inline">{DSA_PARTS.length}</dd>
-          </div>
-          <div>
-            <dt className="inline text-sky">Language&nbsp;</dt>
-            <dd className="inline">JavaScript</dd>
-          </div>
-        </dl>
-      </section>
+      <PageHeader
+        crumbs={[{ label: "Home", href: "/" }, { label: DSA_SERIES.title }]}
+        eyebrow="Lesson series"
+        title={DSA_SERIES.title}
+        summary={DSA_SERIES.tagline}
+        meta={[
+          { label: "Lessons", value: `${published} of ${DSA_LESSONS.length}` },
+          { label: "Parts", value: String(DSA_PARTS.length) },
+          { label: "Language", value: "JavaScript" },
+          { label: "Started", value: DSA_SERIES.started },
+        ]}
+      />
 
       <section className="mb-12">
-        <h2 className="mb-2 text-[1.6rem] font-semibold text-sky">How the series is organised</h2>
+        <h2 className="mb-2 text-[1.6rem] font-bold tracking-tight text-ink">How the series is organised</h2>
         <p className="mb-4 text-ink-dim">
           Fifteen parts, each building on the one before. Never written a loop? Start at Lesson 01 — it
           assumes nothing. Already comfortable with loops and arrays? Jump to Part 2.
@@ -96,7 +82,7 @@ export default function DsaIndexPage() {
       </section>
 
       <section>
-        <h2 className="mb-2 text-[1.6rem] font-semibold text-sky">Contents</h2>
+        <h2 className="mb-2 text-[1.6rem] font-bold tracking-tight text-ink">Contents</h2>
         {DSA_PARTS.map((p) => (
           <div key={p.number} className="mb-8">
             <h3
@@ -112,7 +98,7 @@ export default function DsaIndexPage() {
       </section>
 
       <section className="mt-12">
-        <h2 className="mb-2 text-[1.6rem] font-semibold text-sky">Glossary</h2>
+        <h2 className="mb-2 text-[1.6rem] font-bold tracking-tight text-ink">Glossary</h2>
         <p className="mb-4 text-ink-dim">
           {DSA_GLOSSARY.entries.length} terms — dry run, accumulator, off-by-one, frequency map and the rest. Inside
           any lesson, hover or tap a dotted term to see its meaning without leaving the page.{" "}
@@ -121,7 +107,7 @@ export default function DsaIndexPage() {
       </section>
 
       <section className="mt-12">
-        <h2 className="mb-2 text-[1.6rem] font-semibold text-sky">How this syllabus was built</h2>
+        <h2 className="mb-2 text-[1.6rem] font-bold tracking-tight text-ink">How this syllabus was built</h2>
         <p className="mb-4 text-ink-dim">
           The order of topics and the subtopics in every lesson were checked against the most widely used
           free resources for learning DSA and preparing for interviews. They are all worth bookmarking.
