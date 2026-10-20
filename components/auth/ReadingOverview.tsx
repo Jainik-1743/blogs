@@ -1,7 +1,7 @@
 "use client";
 
-import { heatmap, longestStreak, topTags } from "@/lib/overview";
-import { streakOf, type Progress } from "@/lib/progress";
+import { heatmap, topTags } from "@/lib/overview";
+import type { Progress } from "@/lib/progress";
 
 const CELL = 14;
 const GAP = 4;
@@ -22,19 +22,21 @@ const shade = (n: number) => (n <= 0 ? "border border-line bg-transparent" : n =
 export default function ReadingOverview({ progress }: { progress: Pick<Progress, "done" | "days" | "log"> }) {
   const totalDays = progress.days.length;
   const tags = topTags(progress.log, totalDays);
+  const topicsExplored = new Set(Object.values(progress.log).flatMap((d) => d.tags)).size;
+  const busiest = Math.max(0, ...Object.values(progress.log).map((d) => d.n));
   const grid = heatmap(progress.log, progress.days, WEEKS);
   const step = CELL + GAP;
 
   return (
     <section aria-labelledby="overview-title" className="rounded-3xl border border-line bg-bg-elev p-6 sm:p-9">
       <h2 id="overview-title" className="m-0 text-[1.4rem] font-bold tracking-tight text-ink">Reading overview</h2>
-      <p className="mt-1 mb-6 text-[0.92rem] text-ink-dim">Your habit at a glance. A day counts when you finish at least one lesson.</p>
+      <p className="mt-1 mb-6 text-[0.92rem] text-ink-dim">Your reading at a glance. Your streaks are in the card above.</p>
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Stat value={String(longestStreak(progress.days))} label="Longest streak 🏆" />
-        <Stat value={String(streakOf(progress.days))} label="Current streak" />
-        <Stat value={String(totalDays)} label="Total reading days" />
+        <Stat value={String(totalDays)} label="Days you read" />
         <Stat value={String(progress.done.length)} label="Lessons finished" />
+        <Stat value={String(topicsExplored)} label="Topics explored" />
+        <Stat value={String(busiest)} label={busiest === 1 ? "Most in one day (lesson)" : "Most in one day (lessons)"} />
       </div>
 
       <h3 className="mt-8 mb-3 text-[0.95rem] font-medium text-ink-dim">Top topics by reading days</h3>
@@ -54,7 +56,7 @@ export default function ReadingOverview({ progress }: { progress: Pick<Progress,
         <p className="m-0 text-[0.9rem] text-ink-dim">Topics show up here as you finish lessons.</p>
       )}
 
-      <h3 className="mt-8 mb-3 text-[0.95rem] font-medium text-ink-dim">Lessons finished in the last 12 months ({grid.total})</h3>
+      <h3 className="mt-8 mb-3 text-[0.95rem] font-medium text-ink-dim">Your activity over the last 12 months</h3>
       <div className="overflow-x-auto pb-2">
         <div className="relative inline-block min-w-max pl-9 pt-6">
           {grid.months.map((m) => (
@@ -63,7 +65,7 @@ export default function ReadingOverview({ progress }: { progress: Pick<Progress,
           {[["Mon", 0], ["Wed", 2], ["Fri", 4]].map(([label, row]) => (
             <span key={label} className="absolute left-0 text-[0.75rem] leading-none text-ink-dim" style={{ top: 24 + (row as number) * step + 2 }}>{label}</span>
           ))}
-          <div role="img" aria-label={`${grid.total} lessons finished in the last 12 months`} className="grid grid-flow-col" style={{ gridTemplateRows: `repeat(7, ${CELL}px)`, gridAutoColumns: `${CELL}px`, gap: GAP }}>
+          <div role="img" aria-label={`${grid.total} lessons read in the last 12 months`} className="grid grid-flow-col" style={{ gridTemplateRows: `repeat(7, ${CELL}px)`, gridAutoColumns: `${CELL}px`, gap: GAP }}>
             {grid.columns.flatMap((col) =>
               col.map((c) =>
                 c.future ? <span key={c.date} /> : <span key={c.date} title={`${c.date}: ${c.n} ${c.n === 1 ? "lesson" : "lessons"}`} className={`rounded-[3px] ${shade(c.n)}`} />,

@@ -36,15 +36,6 @@ function Card({ title, text, children }: { title: string; text?: string; childre
   );
 }
 
-function Stat({ value, label }: { value: string; label: string }) {
-  return (
-    <div className="rounded-xl border border-line bg-bg px-4 py-3">
-      <p className="m-0 text-[1.5rem] font-bold leading-none text-ink">{value}</p>
-      <p className="m-0 mt-1.5 text-[0.78rem] text-ink-dim">{label}</p>
-    </div>
-  );
-}
-
 /** The signed-in reader's page: who they are, their progress and their settings. */
 export default function AccountView() {
   const { enabled, status, user, profile, profileError, signOut, updateProfile } = useAccount();
@@ -172,10 +163,7 @@ export default function AccountView() {
                   ? "Finish a lesson today to keep your streak alive."
                   : "Finish one lesson to light the flame. Then come back every day."}
             </p>
-            <dl className="m-0 mt-5 grid max-w-md grid-cols-2 gap-3">
-              <div className="rounded-xl border border-line bg-bg px-4 py-3"><dd className="m-0 text-[1.5rem] font-bold leading-none text-ink">{longest}</dd><dt className="mt-1.5 text-[0.78rem] text-ink-dim">Longest streak</dt></div>
-              <div className="rounded-xl border border-line bg-bg px-4 py-3"><dd className="m-0 text-[1.5rem] font-bold leading-none text-ink">{progress.days.length}</dd><dt className="mt-1.5 text-[0.78rem] text-ink-dim">Total reading days</dt></div>
-            </dl>
+            {longest > streak && <p className="mt-3 mb-0 text-[0.9rem] text-ink-dim">Your longest streak is <strong className="text-ink">{longest} days</strong>. Beat it!</p>}
             {streak > 0 && (
               <button type="button" onClick={() => setShareStreak(true)} className="mt-5 inline-flex items-center gap-2 rounded-lg border border-sky px-4 py-2 text-[0.88rem] font-semibold text-sky transition hover:bg-sky-soft">
                 <svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M16 6l-4-4-4 4M12 2v13" /></svg>
@@ -223,18 +211,14 @@ export default function AccountView() {
         </div>
 
         <div className="flex flex-col gap-6">
-          <Card title="Your progress">
-            <div className="grid grid-cols-2 gap-3">
-              <Stat value={String(progress.done.length)} label={progress.done.length === 1 ? "lesson finished" : "lessons finished"} />
-              <Stat value={String(streak)} label={streak === 1 ? "day streak" : "day streak"} />
-            </div>
+          <Card title="Keep learning">
             {progress.next ? (
-              <Link href={progress.next.path} className="group mt-4 block rounded-xl border border-sky/40 bg-sky-soft px-4 py-3 text-ink hover:no-underline">
+              <Link href={progress.next.path} className="group block rounded-xl border border-sky/40 bg-sky-soft px-4 py-3 text-ink hover:no-underline">
                 <span className="block text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-sky">Up next</span>
                 <span className="mt-0.5 flex items-center justify-between gap-3 font-semibold leading-snug">{progress.next.title}<span aria-hidden="true" className="transition group-hover:translate-x-1">→</span></span>
               </Link>
             ) : (
-              <p className="mt-4 mb-0 text-[0.88rem] text-ink-dim">Finish a lesson and it shows up here, with the one to read next.</p>
+              <p className="m-0 text-[0.88rem] text-ink-dim">Finish a lesson and the next one to read shows up here.</p>
             )}
             <div className="mt-4 flex flex-wrap gap-2">
               <Link href="/roadmap" className="rounded-lg bg-sky px-4 py-2 text-[0.85rem] font-semibold text-bg hover:no-underline hover:brightness-110">Roadmap</Link>
