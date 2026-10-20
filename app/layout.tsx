@@ -8,6 +8,7 @@ import AuthProvider from "@/components/auth/AuthProvider";
 import ToastProvider from "@/components/Toast";
 import ProgressSync from "@/components/auth/ProgressSync";
 import BookmarksProvider from "@/components/auth/BookmarksProvider";
+import NotesProvider from "@/components/auth/NotesProvider";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import GlossaryTooltips from "@/components/GlossaryTooltips";
@@ -89,6 +90,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ToastProvider>
         <AuthProvider>
         <BookmarksProvider>
+        <NotesProvider>
         <ProgressSync />
         <SiteHeader />
         <main className="mx-auto w-full max-w-[var(--container)] flex-1 px-4 py-12">
@@ -102,6 +104,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ResumePrompt />
         <NewFeaturesModal />
         <GlossaryTooltips />
+        </NotesProvider>
         </BookmarksProvider>
         </AuthProvider>
         </ToastProvider>

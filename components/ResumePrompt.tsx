@@ -20,6 +20,8 @@ import { isSitePath } from "@/lib/accounts";
 const SKIP = new Set(["/", "/about", "/privacy", "/glossaries", "/login", "/signup", "/account", "/bookmarks"]);
 /** Stay on a page this long before it counts as "where you left off". */
 const SAVE_AFTER_MS = 8000;
+/** Never write more often than this. The free database plan allows 20,000 writes a day across all readers. */
+const MIN_GAP_MS = 120000;
 
 type Last = { path: string; title: string; at: number };
 
@@ -44,6 +46,7 @@ export default function ResumePrompt() {
   const button = useRef<HTMLAnchorElement>(null);
   const loaded = useRef(false);
   const written = useRef("");
+  const lastWrite = useRef(0);
   const pathRef = useRef(pathname);
   pathRef.current = pathname;
 
@@ -76,21 +79,23 @@ export default function ResumePrompt() {
     if (status !== "ready" || !user || !fb || SKIP.has(pathname)) return;
     let timer = 0;
 
-    const save = () => {
+    const save = (force = false) => {
       if (!loaded.current) return; // never overwrite the old value before it has been read
+      if (!force && Date.now() - lastWrite.current < MIN_GAP_MS) return;
       const title = cleanTitle(document.title);
       if (!title || /not found/i.test(title)) return;
       const key = `${pathname}|${title}`;
       if (written.current === key) return;
       written.current = key;
+      lastWrite.current = Date.now();
       setDoc(doc(fb.db, "lastpage", user.uid), { path: pathname, title, at: Date.now() }).catch((err) => {
         written.current = "";
         console.error("Last page could not be saved:", err);
       });
     };
 
-    timer = window.setTimeout(save, SAVE_AFTER_MS);
-    const onHide = () => document.visibilityState === "hidden" && save();
+    timer = window.setTimeout(() => save(), SAVE_AFTER_MS);
+    const onHide = () => document.visibilityState === "hidden" && save(true);
     document.addEventListener("visibilitychange", onHide);
     return () => {
       window.clearTimeout(timer);

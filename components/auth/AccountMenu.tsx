@@ -56,6 +56,7 @@ export default function AccountMenu() {
           <p className="m-0 truncate border-b border-line px-4 py-3 text-[0.85rem] text-ink-dim">Signed in as <strong className="text-ink">{name}</strong></p>
           <Link role="menuitem" href="/account" className="block px-4 py-2.5 text-[0.9rem] text-ink hover:bg-sky-soft hover:no-underline">Your account</Link>
           <Link role="menuitem" href="/bookmarks" className="block px-4 py-2.5 text-[0.9rem] text-ink hover:bg-sky-soft hover:no-underline">Bookmarks</Link>
+          <Link role="menuitem" href="/notes" className="block px-4 py-2.5 text-[0.9rem] text-ink hover:bg-sky-soft hover:no-underline">Notes</Link>
           {isAdminUser(user) && (
             <Link role="menuitem" href="/admin/badges" className="block px-4 py-2.5 text-[0.9rem] text-ink hover:bg-sky-soft hover:no-underline">Manage badges</Link>
           )}

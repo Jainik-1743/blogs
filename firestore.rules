@@ -92,6 +92,17 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // Private notes on lessons: one record per reader holding a map of notes. Only the reader can see or change it.
+    // The client keeps each note to 2,000 characters and 200 notes; the 1 MB limit on a record is the hard stop.
+    match /notes/{uid} {
+      allow read: if isOwner(uid);
+      allow create, update: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['items', 'updatedAt'])
+        && request.resource.data.items is map && request.resource.data.items.size() <= 200
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if false;
+    }
+
     // Where the reader left off ("Continue where you left off?"): one small record per reader.
     match /lastpage/{uid} {
       allow read: if isOwner(uid);

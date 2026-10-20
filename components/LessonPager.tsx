@@ -1,6 +1,7 @@
 import Link from "next/link";
 import JsonLd from "@/components/JsonLd";
 import LessonComplete from "@/components/LessonComplete";
+import LessonNote from "@/components/LessonNote";
 import { minutesOf } from "@/lib/readtime";
 import { guidesForPath } from "@/lib/guides";
 import { relatedLessons, relatedSeries, topicsForPath } from "@/lib/registry";
@@ -70,6 +71,8 @@ export default function LessonPager({
       {current && path ? (
         <LessonComplete path={path} next={next?.published ? { path: href(next), title: next.title } : null} tags={topics.map((t) => t.title)} minutes={minutesOf(current.readTime)} />
       ) : null}
+
+      {current && path ? <LessonNote path={path} title={current.title} /> : null}
 
       {current && next?.published ? (
         <Link
