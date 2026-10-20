@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { initialsOf } from "@/lib/accounts";
 import { isAdminUser } from "@/lib/admin";
 import { useToast } from "@/components/Toast";
+import { Skeleton } from "@/components/Skeleton";
 import { useAccount } from "./AuthProvider";
 
 /** Header control: "Sign in" for visitors, an avatar menu for readers who are signed in. */
@@ -30,7 +31,7 @@ export default function AccountMenu() {
   }, [open]);
 
   if (!enabled) return null;
-  if (status === "loading") return <span className="h-9 w-20" aria-hidden="true" />;
+  if (status === "loading") return <Skeleton className="h-9 w-9 rounded-full" />;
   if (status === "out" || !user)
     return (
       <Link href="/login" className="rounded-lg border border-line px-3.5 py-1.5 text-[0.85rem] font-semibold text-ink transition hover:border-sky hover:text-sky hover:no-underline">

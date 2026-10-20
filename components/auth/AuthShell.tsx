@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import AuthPanel from "./AuthPanel";
+import { AuthFormSkeleton } from "@/components/Skeleton";
 
 const PERKS = [
   { title: "Your progress is saved", text: "Finished lessons, your streak and your next lesson follow you to any device." },
@@ -31,7 +32,7 @@ export default function AuthShell({ mode }: { mode: "login" | "signup" }) {
       </div>
       <div className="rounded-2xl border border-line bg-bg-elev p-6 sm:p-8">
         <h1 className="sr-only lg:hidden">{mode === "signup" ? "Create an account" : "Sign in"}</h1>
-        <Suspense fallback={<p className="m-0 text-ink-dim">Loading…</p>}>
+        <Suspense fallback={<AuthFormSkeleton />}>
           <AuthPanel mode={mode} />
         </Suspense>
       </div>

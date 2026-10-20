@@ -11,6 +11,7 @@ import { Field, Notice, SelectField, Switch, inputClass } from "@/components/aut
 import Badge from "@/components/Badge";
 import { useToast } from "@/components/Toast";
 import seed from "@/data/badges.seed.json";
+import { AdminSkeleton } from "@/components/Skeleton";
 
 const BLANK: BadgeData = { id: "", name: "", track: "reading", metric: "activeDays", threshold: 5, blurb: "", image: "", enabled: true };
 
@@ -169,7 +170,7 @@ export default function BadgeAdmin() {
   }
 
   if (!enabled) return <Notice tone="info">Accounts are not set up on this copy of the site.</Notice>;
-  if (status === "loading") return <p className="text-ink-dim">Loading…</p>;
+  if (status === "loading") return <AdminSkeleton />;
   if (status === "out") return <Notice tone="info">Please <Link href="/login?next=/admin/badges">sign in</Link> to continue.</Notice>;
   if (!isAdmin) return <Notice tone="error">Only the site owner can manage badges.</Notice>;
 

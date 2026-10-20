@@ -387,8 +387,9 @@ export default function SiteSearch() {
                   </li>
                 )}
                 {hasQuery && !index && !failed && (
-                  <li role="presentation" className="px-3 py-6 text-center text-[0.9rem] text-ink-dim">
-                    Loading…
+                  <li role="presentation" aria-busy="true" className="flex flex-col gap-3 px-3 py-4">
+                    <span className="sr-only">Loading…</span>
+                    {["w-3/4", "w-2/3", "w-4/5"].map((w) => <span key={w} aria-hidden="true" className={`block h-4 rounded-md bg-ink-dim/15 motion-safe:animate-pulse ${w}`} />)}
                   </li>
                 )}
                 {failed && (

@@ -9,6 +9,7 @@ import { useToast } from "@/components/Toast";
 import { useAccount } from "./AuthProvider";
 import { useBookmarks, type Bookmark } from "./BookmarksProvider";
 import { Notice, inputClass } from "./fields";
+import { BookmarkRowsSkeleton, BookmarksSkeleton } from "@/components/Skeleton";
 
 type Topic = { slug: string; title: string };
 
@@ -76,7 +77,7 @@ export default function BookmarksView({ topics, pathTopics, seriesNames }: { top
   }
 
   if (!enabled) return <Notice tone="info">Accounts are not set up on this copy of the site yet.</Notice>;
-  if (status === "loading" || status === "out") return <p className="text-ink-dim">Loading your bookmarks…</p>;
+  if (status === "loading" || status === "out") return <BookmarksSkeleton />;
 
   const topicCount = new Set(items.flatMap((b) => topicsOf(b).slice(0, 1))).size;
   const seriesCount = new Set(items.map((b) => b.series)).size;
@@ -97,7 +98,7 @@ export default function BookmarksView({ topics, pathTopics, seriesNames }: { top
       />
 
       {!ready ? (
-        <p className="text-ink-dim">Loading your bookmarks…</p>
+        <BookmarkRowsSkeleton />
       ) : items.length === 0 ? (
         <div className="rounded-2xl border border-line bg-bg-elev p-8 text-center">
           <h2 className="m-0 text-[1.3rem] font-bold text-ink">Nothing saved yet</h2>

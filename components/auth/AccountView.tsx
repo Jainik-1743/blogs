@@ -11,6 +11,7 @@ import Badge from "@/components/Badge";
 import BadgesPanel from "./BadgesPanel";
 import ReadingOverview from "./ReadingOverview";
 import BookmarksSummary from "./BookmarksSummary";
+import { AccountSkeleton, BadgesSkeleton } from "@/components/Skeleton";
 import { tracksOf, useBadges } from "@/lib/badges";
 import { useAccount } from "./AuthProvider";
 import { Notice, Switch } from "./fields";
@@ -57,7 +58,7 @@ export default function AccountView() {
   }, [profile]);
 
   if (!enabled) return <Notice tone="info">Accounts are not set up on this copy of the site yet.</Notice>;
-  if (status !== "ready" || !profile || !user) return <p className="text-ink-dim">Loading your account…</p>;
+  if (status !== "ready" || !profile || !user) return <AccountSkeleton />;
 
   const streak = streakOf(progress.days);
   const tracks = tracksOf(badges.badges, progress);
@@ -136,7 +137,7 @@ export default function AccountView() {
 
       <ReadingOverview progress={progress} />
 
-      {tracks.length > 0 && <BadgesPanel tracks={tracks} />}
+      {badges.loading ? <BadgesSkeleton /> : tracks.length > 0 && <BadgesPanel tracks={tracks} />}
 
       <div className="grid gap-6 lg:grid-cols-[1fr_22rem]">
         <div className="flex flex-col gap-6">

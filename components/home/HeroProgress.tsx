@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { streakOf, useProgress } from "@/lib/progress";
 import type { DailyPick } from "@/lib/daily";
+import { HeroCardSkeleton } from "@/components/Skeleton";
 
 /** Whole days since 1970 in the reader's own time zone, so the pick changes at the reader's midnight. */
 const dayNumber = () => Math.floor((Date.now() - new Date().getTimezoneOffset() * 60000) / 86400000);
@@ -16,7 +17,7 @@ export default function HeroProgress({ picks }: { picks: DailyPick[] }) {
   const pick = picks.length ? picks[dayNumber() % picks.length] : null;
   const streak = streakOf(p.days);
 
-  if (!p.ready || !pick) return <div className="mt-8 min-h-[6.5rem]" aria-hidden="true" />;
+  if (!p.ready || !pick) return <HeroCardSkeleton />;
 
   const returning = p.done.length > 0;
   return (

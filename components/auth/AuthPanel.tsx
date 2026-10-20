@@ -11,6 +11,7 @@ import { authErrorMessage, checkEmail, checkPassword, safeNext } from "@/lib/acc
 import { useToast } from "@/components/Toast";
 import { useAccount } from "./AuthProvider";
 import { Field, GoogleIcon, Notice, inputClass } from "./fields";
+import { AuthFormSkeleton } from "@/components/Skeleton";
 
 const button = "w-full rounded-lg bg-sky px-5 py-3 font-semibold text-bg transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60";
 
@@ -103,8 +104,8 @@ export default function AuthPanel({ mode }: { mode: "login" | "signup" }) {
     }
   }
 
-  if (status === "loading") return <p className="m-0 text-ink-dim">Checking your session…</p>;
-  if (status === "ready") return <p className="m-0 text-ink-dim">Signed in. Taking you back…</p>;
+  // Checking the session, or signed in and about to leave this page: show the shape of the form, not text.
+  if (status === "loading" || status === "ready") return <AuthFormSkeleton />;
 
   const isSignup = mode === "signup";
   const other = `${isSignup ? "/login" : "/signup"}${next !== "/account" ? `?next=${encodeURIComponent(next)}` : ""}`;

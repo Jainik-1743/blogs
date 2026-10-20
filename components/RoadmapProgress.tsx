@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useProgress } from "@/lib/progress";
+import { ProgressBarSkeleton } from "@/components/Skeleton";
 
 /**
  * Shows the reader's own progress on the lesson-level roadmap: a bar with the total, and a tick on
@@ -18,7 +19,7 @@ export default function RoadmapProgress({ total, paths }: { total: number; paths
     });
   }, [p.done]);
 
-  if (!p.ready) return <div className="mb-10 min-h-[4.5rem]" aria-hidden="true" />;
+  if (!p.ready) return <ProgressBarSkeleton />;
   const pct = total ? Math.round((mine.length / total) * 100) : 0;
   return (
     <div className="mb-10 rounded-xl border border-line bg-bg-elev px-5 py-4">
