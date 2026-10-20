@@ -24,6 +24,7 @@ const FEATURES: { title: string; text: string; icon: ReactNode; soon?: boolean }
   { title: "Your reading overview", text: "A year of activity in one grid, your busiest topics and your totals, like a contribution graph for learning.", icon: <path d="M4 20V10M10 20V4M16 20v-7M22 20H2" /> },
   { title: "Share what you earn", text: "Turn a badge or a streak into a card and a warm message to send to friends and family on WhatsApp, X, LinkedIn or email.", icon: <path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M16 6l-4-4-4 4M12 2v13" /> },
   { title: "Your own look", text: "Choose a dark or light theme and four text sizes, in one place on your account page.", icon: <path d="M12 3a9 9 0 1 0 9 9 4 4 0 0 1-4-4 5 5 0 0 1-5-5z" /> },
+  { title: "Cheat sheets to download", text: "24 one-page cheat sheets for Git, Linux, SQL, Docker, React and more. Read them free, and download any sheet as a PNG or a PDF.", icon: <path d="M6 3h9l4 4v14H6zM14 3v5h5M9 13h7M9 17h7" /> },
   { title: "Daily reminders", text: "Pick a time and a daily goal and get a gentle nudge. We are building this next.", icon: <path d="M6 8a6 6 0 1 1 12 0c0 7 3 8 3 8H3s3-1 3-8M10 21a2 2 0 0 0 4 0" />, soon: true },
   { title: "New-lesson emails", text: "An optional note when new lessons and series are published. Off unless you turn it on.", icon: <path d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zM3 7l9 6 9-6" />, soon: true },
 ];

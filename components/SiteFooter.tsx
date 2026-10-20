@@ -89,6 +89,7 @@ export default function SiteFooter() {
               <FooterLink href="/roadmap">Roadmap</FooterLink>
               <FooterLink href="/guides">Guides</FooterLink>
               <FooterLink href="/topics">Topics</FooterLink>
+              <FooterLink href="/cheatsheets">Cheat sheets</FooterLink>
               <FooterLink href="/features">What&apos;s new</FooterLink>
               <FooterLink href="/glossaries">Glossaries</FooterLink>
               <FooterLink href="/about">About</FooterLink>

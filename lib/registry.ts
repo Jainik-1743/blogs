@@ -1,3 +1,4 @@
+import { SHEETS, sheetPath } from "./cheatsheets";
 import type { AccentName } from "./accents";
 import { DSA_GLOSSARY } from "./dsa-glossary";
 import { DSA_LESSONS, DSA_SERIES, dsaLessonHref } from "./dsa";
@@ -134,6 +135,13 @@ function buildPages(): PageInfo[] {
     path: "/features", kind: "hub", title: "What's new: free accounts with streaks, badges and bookmarks",
     description: "Reading every lesson stays free. A free account adds saved progress across devices, a daily streak, reading badges, bookmarks sorted by topic and shareable achievements.",
   });
+  pages.push({
+    path: "/cheatsheets", kind: "hub", title: "Developer cheat sheets: Git, Linux, SQL, Docker, React and more",
+    description: "One-page cheat sheets for the tools and topics developers look up most. Read them free, and download any sheet as a PNG or a PDF with a free account.",
+  });
+  for (const s of SHEETS) {
+    pages.push({ path: sheetPath(s.slug), kind: "hub", title: s.title, description: s.blurb });
+  }
   pages.push({
     path: "/topics", kind: "hub", title: "Browse by topic: lessons on one subject from every series",
     description: "Pick a subject such as caching, security, databases or APIs and see every lesson about it, from every series, in one list.",
