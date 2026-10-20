@@ -20,7 +20,7 @@ export function SkeletonRegion({ label = "Loading", className = "", children }: 
   );
 }
 
-const CARD = "rounded-2xl border border-line bg-bg-elev p-6 sm:p-7";
+const CARD = "rounded-2xl border border-line bg-bg-elev p-5 sm:p-7";
 
 /** A line of text: width is a Tailwind class such as "w-2/3". */
 const Line = ({ w = "w-full", h = "h-3.5" }: { w?: string; h?: string }) => <Skeleton className={`${h} ${w}`} />;
@@ -45,14 +45,14 @@ export function AuthFormSkeleton() {
 export function AccountSkeleton() {
   return (
     <SkeletonRegion label="Loading your account" className="flex flex-col gap-6">
-      <div className="rounded-3xl border border-line bg-bg-elev p-6 sm:p-9">
+      <div className="rounded-3xl border border-line bg-bg-elev p-5 sm:p-9">
         <div className="flex flex-wrap items-center gap-6">
           <Skeleton className="h-20 w-20 rounded-full" />
           <div className="flex flex-1 flex-col gap-3"><Skeleton className="h-8 w-56 max-w-full" /><Line w="w-64 max-w-full" /><Skeleton className="h-6 w-28 rounded-full" /></div>
         </div>
       </div>
       <div className={CARD}><div className="flex items-center justify-between gap-4"><div className="flex flex-1 flex-col gap-2.5"><Skeleton className="h-5 w-28" /><Line w="w-64 max-w-full" /></div><Skeleton className="h-10 w-28 rounded-lg" /></div></div>
-      <div className="rounded-3xl border border-line bg-bg-elev p-6 sm:p-9">
+      <div className="rounded-3xl border border-line bg-bg-elev p-5 sm:p-9">
         <Skeleton className="mb-6 h-6 w-48" />
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">{[0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-24 rounded-xl" />)}</div>
         <Skeleton className="mt-8 h-32 w-full rounded-xl" />
@@ -72,7 +72,7 @@ export function AccountSkeleton() {
 /** A reading badge card, shown on the account page while the badge list loads. */
 export function BadgesSkeleton() {
   return (
-    <SkeletonRegion label="Loading your badges" className="rounded-3xl border border-line bg-bg-elev p-6 sm:p-9">
+    <SkeletonRegion label="Loading your badges" className="rounded-3xl border border-line bg-bg-elev p-5 sm:p-9">
       <div className="flex flex-wrap items-center gap-8">
         <Skeleton className="h-36 w-32 rounded-xl" />
         <div className="flex min-w-0 flex-1 basis-72 flex-col gap-3"><Line w="w-28" h="h-3" /><Skeleton className="h-8 w-48" /><Line w="w-5/6" /><Skeleton className="mt-2 h-2 w-full max-w-md rounded-full" /></div>

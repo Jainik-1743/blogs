@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { heatmap, topTags } from "@/lib/overview";
 import type { Progress } from "@/lib/progress";
 
@@ -26,9 +27,16 @@ export default function ReadingOverview({ progress }: { progress: Pick<Progress,
   const busiest = Math.max(0, ...Object.values(progress.log).map((d) => d.n));
   const grid = heatmap(progress.log, progress.days, WEEKS);
   const step = CELL + GAP;
+  const scroller = useRef<HTMLDivElement>(null);
+
+  // On a narrow screen the grid is wider than the card; start at the most recent weeks, on the right.
+  useEffect(() => {
+    const el = scroller.current;
+    if (el) el.scrollLeft = el.scrollWidth;
+  }, []);
 
   return (
-    <section aria-labelledby="overview-title" className="rounded-3xl border border-line bg-bg-elev p-6 sm:p-9">
+    <section aria-labelledby="overview-title" className="rounded-3xl border border-line bg-bg-elev p-5 sm:p-9">
       <h2 id="overview-title" className="m-0 text-[1.4rem] font-bold tracking-tight text-ink">Reading overview</h2>
       <p className="mt-1 mb-6 text-[0.92rem] text-ink-dim">Your reading at a glance. Your streaks are in the card above.</p>
 
@@ -57,7 +65,8 @@ export default function ReadingOverview({ progress }: { progress: Pick<Progress,
       )}
 
       <h3 className="mt-8 mb-3 text-[0.95rem] font-medium text-ink-dim">Your activity over the last 12 months</h3>
-      <div className="overflow-x-auto pb-2">
+      <p className="mt-0 mb-2 text-[0.8rem] text-ink-dim sm:hidden">Swipe sideways to see the whole year.</p>
+      <div ref={scroller} className="overflow-x-auto pb-2">
         <div className="relative inline-block min-w-max pl-9 pt-6">
           {grid.months.map((m) => (
             <span key={`${m.label}-${m.col}`} className="absolute top-0 text-[0.75rem] text-ink-dim" style={{ left: 36 + m.col * step }}>{m.label}</span>

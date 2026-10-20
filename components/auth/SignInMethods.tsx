@@ -72,7 +72,7 @@ export default function SignInMethods() {
   }
 
   return (
-    <section aria-labelledby="signin-methods" className="rounded-2xl border border-line bg-bg-elev p-6 sm:p-7">
+    <section aria-labelledby="signin-methods" className="rounded-2xl border border-line bg-bg-elev p-5 sm:p-7">
       <h2 id="signin-methods" className="m-0 text-[1.1rem] font-bold text-ink">Sign-in methods</h2>
       <p className="mt-1 mb-0 text-[0.88rem] text-ink-dim">The ways this account can sign in.</p>
 

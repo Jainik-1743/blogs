@@ -14,7 +14,7 @@ const THEME_LOOK = {
 export default function AppearanceCard() {
   const { theme, font, setTheme, setFont } = useDisplay();
   return (
-    <section aria-labelledby="appearance-title" className="rounded-2xl border border-line bg-bg-elev p-6 sm:p-7">
+    <section aria-labelledby="appearance-title" className="rounded-2xl border border-line bg-bg-elev p-5 sm:p-7">
       <div className="flex flex-wrap items-baseline justify-between gap-3">
         <h2 id="appearance-title" className="m-0 text-[1.1rem] font-bold text-ink">Appearance</h2>
         <p className="m-0 text-[0.85rem] text-ink-dim">Saved on this device.</p>
