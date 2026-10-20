@@ -10,7 +10,7 @@ import { useToast } from "@/components/Toast";
 import Badge from "@/components/Badge";
 import BadgesPanel from "./BadgesPanel";
 import ReadingOverview from "./ReadingOverview";
-import BookmarksPanel from "./BookmarksPanel";
+import BookmarksSummary from "./BookmarksSummary";
 import { tracksOf, useBadges } from "@/lib/badges";
 import { useAccount } from "./AuthProvider";
 import { Notice, Switch } from "./fields";
@@ -38,7 +38,7 @@ function Stat({ value, label }: { value: string; label: string }) {
 }
 
 /** The signed-in reader's page: who they are, their progress and their settings. */
-export default function AccountView({ seriesNames }: { seriesNames: Record<string, string> }) {
+export default function AccountView() {
   const { enabled, status, user, profile, profileError, signOut, updateProfile } = useAccount();
   const progress = useProgress();
   const badges = useBadges(status === "ready");
@@ -132,7 +132,7 @@ export default function AccountView({ seriesNames }: { seriesNames: Record<strin
 
       {profileError && <Notice tone="error">Your profile could not be saved to the database ({profileError}). Check that the Firestore rules are deployed, then sign out and in again.</Notice>}
 
-      <BookmarksPanel seriesNames={seriesNames} />
+      <BookmarksSummary />
 
       <ReadingOverview progress={progress} />
 

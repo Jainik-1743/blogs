@@ -24,6 +24,7 @@ export default function robots(): MetadataRoute.Robots {
           // Private areas: nothing there is meant for search results.
           "/admin",
           "/account",
+          "/bookmarks",
           // The search index is data for the in-page search box, not a page.
           "/search-index.json",
           // The lessons show code with paths and file names (/users/{id}, /tmp/app, package-lock.json).

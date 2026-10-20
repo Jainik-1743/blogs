@@ -26,6 +26,8 @@ export default function BookmarkButton() {
   const saved = status === "ready" && has(path);
 
   async function click() {
+    // Still asking Firebase who is signed in: do nothing yet, rather than treating the reader as signed out.
+    if (status === "loading") return;
     if (status !== "ready") {
       toast("Sign in to save bookmarks.", "info");
       router.push(`/login?next=${encodeURIComponent(path)}`);
@@ -34,7 +36,7 @@ export default function BookmarkButton() {
     const title = document.querySelector("h1")?.textContent?.trim() || document.title;
     try {
       const nowSaved = await toggle({ path, title, series: match![1] });
-      toast(nowSaved ? "Bookmark saved. Find it on your account page." : "Bookmark removed.", nowSaved ? "success" : "info");
+      toast(nowSaved ? "Bookmark saved. See all of them on your Bookmarks page." : "Bookmark removed.", nowSaved ? "success" : "info");
     } catch (err) {
       toast(authErrorMessage(err), "error");
     }
@@ -45,6 +47,7 @@ export default function BookmarkButton() {
       type="button"
       onClick={click}
       aria-pressed={saved}
+      aria-busy={status === "loading"}
       title={saved ? "Remove bookmark" : "Save this lesson"}
       className={`inline-flex h-9 items-center gap-2 rounded-full border px-3.5 text-[0.82rem] font-medium transition focus-visible:outline-2 focus-visible:outline-sky ${saved ? "border-sky bg-sky-soft text-sky" : "border-line bg-bg-elev text-ink-dim hover:border-sky hover:text-sky"}`}
     >
