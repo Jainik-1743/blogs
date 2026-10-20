@@ -147,7 +147,7 @@ export default function AccountView() {
       <AppearanceCard />
 
       {/* Streak */}
-      <section aria-labelledby="streak-title" className="rounded-3xl border border-line bg-bg-elev p-6 sm:p-9">
+      <section id="streak" aria-labelledby="streak-title" className="scroll-mt-24 rounded-3xl border border-line bg-bg-elev p-6 sm:p-9">
         <div className="flex flex-wrap items-center gap-8">
           <StreakBadge days={streak} size={220} />
           <div className="min-w-0 flex-1 basis-72">

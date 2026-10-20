@@ -1,13 +1,13 @@
 import Logo from "./Logo";
-import DisplayControls from "./DisplayControls";
+import StreakChip from "./StreakChip";
 import SeriesBar from "./SeriesBar";
 import SiteSearch from "./SiteSearch";
 import AccountMenu from "./auth/AccountMenu";
 import { ALL_SERIES } from "@/lib/series";
 
 /**
- * Just the logo on the left. On a series page the right side shows that series' name and
- * the accent-colour menu; the search button is always last; the list of all series lives on the home page and in the footer.
+ * Just the logo on the left. On a series page the right side shows that series' name and the accent-colour menu,
+ * then search, the reader's streak and the account menu. Theme and text size live on the account page.
  */
 export default function SiteHeader() {
   return (
@@ -17,7 +17,7 @@ export default function SiteHeader() {
         <div className="flex min-w-0 items-center gap-2 sm:gap-3">
           <SeriesBar series={ALL_SERIES} />
           <SiteSearch />
-          <DisplayControls />
+          <StreakChip />
           <AccountMenu />
         </div>
       </div>
