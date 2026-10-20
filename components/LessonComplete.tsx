@@ -4,38 +4,76 @@ import { useEffect, useRef, useState } from "react";
 import { markDone, streakOf, useProgress, type NextLesson } from "@/lib/progress";
 import { useAccount } from "@/components/auth/AuthProvider";
 import { loadBadges, newlyEarned } from "@/lib/badges";
+import { IDLE_LIMIT_MS, WORDS_PER_MINUTE, readingComplete } from "@/lib/readtime";
 import { useToast } from "@/components/Toast";
 
-/** Reading for less than this long does not count as finishing, so skimming to the bottom does not tick a lesson. */
-const MIN_SECONDS = 25;
+const storeKey = (path: string) => `blogs:read-seconds:${path}`;
 
 /**
- * Sits at the end of a lesson. When the reader reaches it after a fair reading time the lesson is
- * marked complete automatically; a button does the same at any time. It then shows the streak, which
- * is the reason to come back tomorrow.
+ * Sits at the end of a lesson. A lesson counts as complete in exactly two ways:
+ *   1. The reader clicks "Mark as complete".
+ *   2. They have been actively reading for the lesson's stated reading time (for example "12 min")
+ *      and have reached the end of the page. Time only counts while the tab is in front and the
+ *      reader has scrolled, moved or typed in the last minute, and it carries over between visits.
  */
-export default function LessonComplete({ path, next, tags = [] }: { path: string; next: NextLesson | null; tags?: string[] }) {
+export default function LessonComplete({ path, next, tags = [], minutes: stated = 0 }: { path: string; next: NextLesson | null; tags?: string[]; minutes?: number }) {
   const progress = useProgress();
   const toast = useToast();
   const { status } = useAccount();
   const done = progress.done.includes(path);
   const streak = streakOf(progress.days);
   const sentinel = useRef<HTMLDivElement>(null);
-  const opened = useRef(Date.now());
-  const [reached, setReached] = useState(false);
+  const [reachedEnd, setReachedEnd] = useState(false);
+  const [seconds, setSeconds] = useState(0);
+  const [minutes, setMinutes] = useState(stated);
+  const lastActive = useRef(Date.now());
 
+  // Without a stated time, estimate it from the length of the lesson text.
   useEffect(() => {
-    opened.current = Date.now();
+    if (stated > 0) return setMinutes(stated);
+    const words = (document.querySelector("article")?.textContent ?? "").trim().split(/\s+/).length;
+    setMinutes(Math.max(1, Math.round(words / WORDS_PER_MINUTE)));
+  }, [stated, path]);
+
+  // Has the reader reached the end of the page?
+  useEffect(() => {
     const el = sentinel.current;
     if (!el) return;
-    const io = new IntersectionObserver(([e]) => e.isIntersecting && setReached(true), { threshold: 0.6 });
+    const io = new IntersectionObserver(([e]) => e.isIntersecting && setReachedEnd(true), { threshold: 0.6 });
     io.observe(el);
     return () => io.disconnect();
   }, [path]);
 
+  // Count active reading time, remembered per lesson so reading in two sittings adds up.
+  useEffect(() => {
+    if (done) return;
+    let saved = 0;
+    try { saved = Number(localStorage.getItem(storeKey(path))) || 0; } catch { /* ignore */ }
+    setSeconds(saved);
+    let total = saved;
+    lastActive.current = Date.now();
+    const mark = () => { lastActive.current = Date.now(); };
+    const events = ["scroll", "mousemove", "keydown", "touchstart", "click"] as const;
+    events.forEach((e) => window.addEventListener(e, mark, { passive: true }));
+    const timer = window.setInterval(() => {
+      if (document.visibilityState !== "visible" || Date.now() - lastActive.current > IDLE_LIMIT_MS) return;
+      total += 1;
+      setSeconds(total);
+      if (total % 5 === 0) {
+        try { localStorage.setItem(storeKey(path), String(total)); } catch { /* ignore */ }
+      }
+    }, 1000);
+    return () => {
+      events.forEach((e) => window.removeEventListener(e, mark));
+      window.clearInterval(timer);
+      try { localStorage.setItem(storeKey(path), String(total)); } catch { /* ignore */ }
+    };
+  }, [path, done]);
+
   /** Marks the lesson done and, when that earns a badge, says so. Badges are only looked up for signed-in readers. */
   const finish = () => {
     const { before, after } = markDone(path, next, tags);
+    try { localStorage.removeItem(storeKey(path)); } catch { /* ignore */ }
     if (status !== "ready") return toast("Lesson complete. Progress saved on this device.");
     loadBadges()
       .then((badges) => {
@@ -45,13 +83,16 @@ export default function LessonComplete({ path, next, tags = [] }: { path: string
       .catch(() => toast("Lesson complete. Progress saved."));
   };
 
+  // Automatic completion: the stated reading time has passed and the reader is at the end.
   useEffect(() => {
-    if (!reached || done || !progress.ready) return;
-    const wait = Math.max(0, MIN_SECONDS * 1000 - (Date.now() - opened.current));
-    const t = window.setTimeout(finish, wait);
-    return () => window.clearTimeout(t);
+    if (done || !progress.ready) return;
+    if (readingComplete({ seconds, minutes, reachedEnd })) finish();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reached, done, progress.ready, path, next]);
+  }, [seconds, minutes, reachedEnd, done, progress.ready]);
+
+  const need = minutes * 60;
+  const percent = need ? Math.min(100, Math.round((seconds / need) * 100)) : 0;
+  const readMin = Math.floor(seconds / 60);
 
   return (
     <div ref={sentinel} className="mt-10" data-no-glossary>
@@ -67,11 +108,21 @@ export default function LessonComplete({ path, next, tags = [] }: { path: string
           </p>
         </div>
       ) : (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-bg-elev px-5 py-4">
-          <p className="m-0 text-ink-dim">Finished reading? Mark it done to save your progress on this device.</p>
-          <button type="button" onClick={finish} className="rounded-lg border border-sky px-4 py-2 text-[0.9rem] font-semibold text-sky transition hover:bg-sky-soft">
-            Mark as complete
-          </button>
+        <div className="rounded-xl border border-line bg-bg-elev px-5 py-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="m-0 max-w-[48ch] text-ink-dim">
+              This lesson is about <strong className="text-ink">{minutes} min</strong>. It is marked complete when you have read for that long and reach the end, or you can mark it yourself.
+            </p>
+            <button type="button" onClick={finish} className="rounded-lg border border-sky px-4 py-2 text-[0.9rem] font-semibold text-sky transition hover:bg-sky-soft">
+              Mark as complete
+            </button>
+          </div>
+          <div className="mt-4 flex items-center gap-3">
+            <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-line" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent} aria-label="Reading time">
+              <div className="h-full rounded-full bg-sky transition-[width] duration-700" style={{ width: `${percent}%` }} />
+            </div>
+            <span className="shrink-0 font-mono text-[0.72rem] text-ink-dim">{readMin} of {minutes} min</span>
+          </div>
         </div>
       )}
     </div>
