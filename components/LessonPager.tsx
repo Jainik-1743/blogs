@@ -2,6 +2,7 @@ import Link from "next/link";
 import JsonLd from "@/components/JsonLd";
 import LessonComplete from "@/components/LessonComplete";
 import LessonNote from "@/components/LessonNote";
+import LessonQuiz from "@/components/LessonQuiz";
 import { minutesOf } from "@/lib/readtime";
 import { guidesForPath } from "@/lib/guides";
 import { relatedLessons, relatedSeries, topicsForPath } from "@/lib/registry";
@@ -67,6 +68,8 @@ export default function LessonPager({
           ))}
         </p>
       ) : null}
+
+      {current && path ? <LessonQuiz path={path} /> : null}
 
       {current && path ? (
         <LessonComplete path={path} next={next?.published ? { path: href(next), title: next.title } : null} tags={topics.map((t) => t.title)} minutes={minutesOf(current.readTime)} />

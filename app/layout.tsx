@@ -10,6 +10,7 @@ import ProgressSync from "@/components/auth/ProgressSync";
 import BookmarksProvider from "@/components/auth/BookmarksProvider";
 import UsageAnalytics from "@/components/Analytics";
 import NotesProvider from "@/components/auth/NotesProvider";
+import ReviewProvider from "@/components/auth/ReviewProvider";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import GlossaryTooltips from "@/components/GlossaryTooltips";
@@ -92,6 +93,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AuthProvider>
         <BookmarksProvider>
         <NotesProvider>
+        <ReviewProvider>
         <ProgressSync />
         <SiteHeader />
         <main className="mx-auto w-full max-w-[var(--container)] flex-1 px-4 py-12">
@@ -106,6 +108,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <NewFeaturesModal />
         <UsageAnalytics />
         <GlossaryTooltips />
+        </ReviewProvider>
         </NotesProvider>
         </BookmarksProvider>
         </AuthProvider>

@@ -57,6 +57,7 @@ export default function AccountMenu() {
           <Link role="menuitem" href="/account" className="block px-4 py-2.5 text-[0.9rem] text-ink hover:bg-sky-soft hover:no-underline">Your account</Link>
           <Link role="menuitem" href="/bookmarks" className="block px-4 py-2.5 text-[0.9rem] text-ink hover:bg-sky-soft hover:no-underline">Bookmarks</Link>
           <Link role="menuitem" href="/notes" className="block px-4 py-2.5 text-[0.9rem] text-ink hover:bg-sky-soft hover:no-underline">Notes</Link>
+          <Link role="menuitem" href="/review" className="block px-4 py-2.5 text-[0.9rem] text-ink hover:bg-sky-soft hover:no-underline">Review</Link>
           {isAdminUser(user) && (
             <Link role="menuitem" href="/admin/badges" className="block px-4 py-2.5 text-[0.9rem] text-ink hover:bg-sky-soft hover:no-underline">Manage badges</Link>
           )}

@@ -18,6 +18,7 @@ import Badge from "@/components/Badge";
 import BadgesPanel from "./BadgesPanel";
 import ReadingOverview from "./ReadingOverview";
 import BookmarksSummary from "./BookmarksSummary";
+import ReviewSummary from "./ReviewSummary";
 import { AccountSkeleton, BadgesSkeleton } from "@/components/Skeleton";
 import { tracksOf, useBadges } from "@/lib/badges";
 import { useAccount } from "./AuthProvider";
@@ -182,6 +183,8 @@ export default function AccountView() {
           </div>
         </div>
       </section>
+
+      <ReviewSummary />
 
       <BookmarksSummary />
 
