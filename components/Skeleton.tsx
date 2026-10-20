@@ -41,18 +41,30 @@ export function AuthFormSkeleton() {
   );
 }
 
-/** The account page: header card, bookmarks card, overview, then the profile and progress cards. */
+/** The account page, in the same order and shape as the real one: profile, appearance, streak, bookmarks, overview, badges, settings. */
 export function AccountSkeleton() {
+  const big = "rounded-3xl border border-line bg-bg-elev p-5 sm:p-9";
   return (
     <SkeletonRegion label="Loading your account" className="flex flex-col gap-6">
-      <div className="rounded-3xl border border-line bg-bg-elev p-5 sm:p-9">
-        <div className="flex flex-wrap items-center gap-6">
-          <Skeleton className="h-20 w-20 rounded-full" />
-          <div className="flex flex-1 flex-col gap-3"><Skeleton className="h-8 w-56 max-w-full" /><Line w="w-64 max-w-full" /><Skeleton className="h-6 w-28 rounded-full" /></div>
+      <div className={big}>
+        <div className="flex flex-col items-center gap-5 sm:flex-row sm:gap-6">
+          <Skeleton className="h-20 w-20 shrink-0 rounded-full" />
+          <div className="flex w-full flex-1 flex-col items-center gap-3 sm:items-start"><Skeleton className="h-8 w-56 max-w-full" /><Line w="w-64 max-w-full" /><Skeleton className="h-6 w-28 rounded-full" /></div>
+          <Skeleton className="h-10 w-full rounded-lg sm:w-24" />
         </div>
       </div>
-      <div className={CARD}><div className="flex items-center justify-between gap-4"><div className="flex flex-1 flex-col gap-2.5"><Skeleton className="h-5 w-28" /><Line w="w-64 max-w-full" /></div><Skeleton className="h-10 w-28 rounded-lg" /></div></div>
-      <div className="rounded-3xl border border-line bg-bg-elev p-5 sm:p-9">
+      <div className={CARD}>
+        <Skeleton className="h-5 w-28" />
+        <div className="mt-5 grid gap-6 md:grid-cols-2"><Skeleton className="h-28 rounded-xl" /><Skeleton className="h-28 rounded-xl" /></div>
+      </div>
+      <div className={big}>
+        <div className="flex flex-col items-center gap-6 sm:flex-row sm:gap-8">
+          <Skeleton className="h-[200px] w-[200px] shrink-0 rounded-[1.75rem]" />
+          <div className="flex w-full flex-1 flex-col items-center gap-3 sm:items-start"><Line w="w-24" h="h-3" /><Skeleton className="h-7 w-44" /><Line w="w-full max-w-[24rem]" /><div className="mt-2 flex w-full justify-between gap-1 sm:justify-start sm:gap-2">{[0, 1, 2, 3, 4, 5, 6].map((i) => <Skeleton key={i} className="h-8 w-8 rounded-full" />)}</div></div>
+        </div>
+      </div>
+      <div className={CARD}><div className="flex flex-wrap items-center justify-between gap-4"><div className="flex flex-1 flex-col gap-2.5"><Skeleton className="h-5 w-28" /><Line w="w-64 max-w-full" /></div><Skeleton className="h-10 w-full rounded-lg sm:w-28" /></div></div>
+      <div className={big}>
         <Skeleton className="mb-6 h-6 w-48" />
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">{[0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-24 rounded-xl" />)}</div>
         <Skeleton className="mt-8 h-32 w-full rounded-xl" />
@@ -63,7 +75,7 @@ export function AccountSkeleton() {
           {[0, 1, 2].map((i) => <div key={i} className="flex flex-col gap-2"><Line w="w-24" h="h-3" /><Skeleton className="h-11 w-full rounded-lg" /></div>)}
           <Skeleton className="h-11 w-36 rounded-lg" />
         </div>
-        <div className={`${CARD} flex flex-col gap-4`}><Skeleton className="h-5 w-32" /><div className="grid grid-cols-2 gap-3"><Skeleton className="h-20 rounded-xl" /><Skeleton className="h-20 rounded-xl" /></div><Line w="w-full" /><Line w="w-2/3" /></div>
+        <div className={`${CARD} flex flex-col gap-4`}><Skeleton className="h-5 w-32" /><Skeleton className="h-16 rounded-xl" /><div className="flex gap-2"><Skeleton className="h-9 w-24 rounded-lg" /><Skeleton className="h-9 w-24 rounded-lg" /></div></div>
       </div>
     </SkeletonRegion>
   );
@@ -73,11 +85,11 @@ export function AccountSkeleton() {
 export function BadgesSkeleton() {
   return (
     <SkeletonRegion label="Loading your badges" className="rounded-3xl border border-line bg-bg-elev p-5 sm:p-9">
-      <div className="flex flex-wrap items-center gap-8">
-        <Skeleton className="h-36 w-32 rounded-xl" />
-        <div className="flex min-w-0 flex-1 basis-72 flex-col gap-3"><Line w="w-28" h="h-3" /><Skeleton className="h-8 w-48" /><Line w="w-5/6" /><Skeleton className="mt-2 h-2 w-full max-w-md rounded-full" /></div>
+      <div className="flex flex-col items-center gap-6 sm:flex-row sm:flex-wrap sm:gap-8">
+        <Skeleton className="h-36 w-32 shrink-0 rounded-xl" />
+        <div className="flex w-full min-w-0 flex-col items-center gap-3 sm:w-auto sm:flex-1 sm:basis-72 sm:items-start"><Line w="w-28" h="h-3" /><Skeleton className="h-8 w-48" /><Line w="w-5/6" /><Skeleton className="mt-2 h-2 w-full max-w-md rounded-full" /></div>
       </div>
-      <div className="mt-8 grid grid-cols-3 gap-3 border-t border-line pt-6 sm:grid-cols-5">{[0, 1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-24 rounded-xl" />)}</div>
+      <div className="mt-8 grid grid-cols-2 gap-3 border-t border-line pt-6 sm:grid-cols-3 lg:grid-cols-5">{[0, 1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-24 rounded-xl" />)}</div>
     </SkeletonRegion>
   );
 }
