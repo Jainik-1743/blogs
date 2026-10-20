@@ -36,17 +36,30 @@ for (const line of log.split("\n")) {
   first.set(file, date);                                // keeps overwriting, ends as the oldest
 }
 
+// Pages live in route groups such as app/(learn)/<slug>, which do not change the URL. Before the groups
+// existed they sat at app/<slug>, so a file's history is looked up under both paths and no page loses its date.
+const legacyPath = (f) => f.replace(/^app\/\([^)]+\)\//, "app/");
+
 const out = {};
 const put = (path, files) => {
-  const found = files.filter((f) => last.has(f));
+  const found = files.flatMap((f) => [f, legacyPath(f)]).filter((f, i, all) => all.indexOf(f) === i && last.has(f));
   if (!found.length) return;
   const created = found.map((f) => first.get(f)).sort()[0];
   const modified = found.map((f) => last.get(f)).sort().at(-1);
   out[path] = [created, modified];
 };
 
-const appDirs = readdirSync("app", { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name);
-for (const slug of appDirs) {
+// Every route folder, whether it sits directly in app/ or inside a route group: [slug, folder].
+const topLevel = readdirSync("app", { withFileTypes: true }).filter((d) => d.isDirectory());
+const routeDirs = topLevel.flatMap((d) =>
+  d.name.startsWith("(")
+    ? readdirSync(`app/${d.name}`, { withFileTypes: true }).filter((x) => x.isDirectory()).map((x) => [x.name, `app/${d.name}/${x.name}`])
+    : [[d.name, `app/${d.name}`]],
+);
+/** The folder that renders a top-level route, for example "about" -> "app/(site)/about". */
+const dirOf = (slug) => routeDirs.find(([name]) => name === slug)?.[1] ?? `app/${slug}`;
+
+for (const [slug, dir] of routeDirs) {
   // Markdown series: content/<slug>/NN.md  ->  /<slug>/lesson-N
   if (existsSync(`content/${slug}`)) {
     for (const f of readdirSync(`content/${slug}`)) {
@@ -55,22 +68,23 @@ for (const slug of appDirs) {
     }
   }
   // Hand-built pages: app/<slug>/<anything>/page.tsx
-  for (const d of readdirSync(`app/${slug}`, { withFileTypes: true })) {
-    if (d.isDirectory() && !d.name.startsWith("[")) put(`/${slug}/${d.name}`, [`app/${slug}/${d.name}/page.tsx`]);
+  for (const d of readdirSync(dir, { withFileTypes: true })) {
+    if (d.isDirectory() && !d.name.startsWith("[")) put(`/${slug}/${d.name}`, [`${dir}/${d.name}/page.tsx`]);
   }
 }
 
 // Stand-alone top-level pages.
-for (const slug of ["about", "privacy", "glossaries"]) put(`/${slug}`, [`app/${slug}/page.tsx`]);
+for (const slug of ["about", "privacy", "glossaries"]) put(`/${slug}`, [`${dirOf(slug)}/page.tsx`]);
 
 // Guides: the guide definitions file, or the template for the index.
 const guideSlugs = [...readFileSync("lib/guides-data.ts", "utf8").matchAll(/^\s{4}slug: "([^"]+)"/gm)].map((m) => m[1]);
-put("/guides", ["lib/guides-data.ts", "app/guides/page.tsx"]);
-for (const slug of guideSlugs) put(`/guides/${slug}`, ["lib/guides-data.ts", "app/guides/[slug]/page.tsx"]);
+put("/guides", ["lib/guides-data.ts", `${dirOf("guides")}/page.tsx`]);
+for (const slug of guideSlugs) put(`/guides/${slug}`, ["lib/guides-data.ts", `${dirOf("guides")}/[slug]/page.tsx`]);
 
-// The roadmap map: its data file, page and components.
-put("/roadmap", ["lib/roadmap.ts", "app/roadmap/page.tsx", "components/RoadmapMap.tsx", "components/RoadmapPage.tsx"]);
-put("/roadmap/detailed", ["lib/roadmap.ts", "app/roadmap/detailed/page.tsx", "components/RoadmapMap.tsx", "components/RoadmapPage.tsx"]);
+// The roadmap: its data files, page and components.
+const roadmapFiles = ["lib/roadmap.ts", "lib/roadmap-stages.ts", "components/RoadmapPage.tsx", "components/RoadmapTree.tsx", "components/RoadmapLessonTree.tsx", "components/RoadmapPath.tsx"];
+put("/roadmap", [...roadmapFiles, `${dirOf("roadmap")}/page.tsx`]);
+put("/roadmap/detailed", [...roadmapFiles, `${dirOf("roadmap")}/detailed/page.tsx`]);
 
 // Series index and glossary pages: newest lesson in the series.
 const bySeries = {};
