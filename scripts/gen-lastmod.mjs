@@ -59,7 +59,11 @@ const routeDirs = topLevel.flatMap((d) =>
 /** The folder that renders a top-level route, for example "about" -> "app/(site)/about". */
 const dirOf = (slug) => routeDirs.find(([name]) => name === slug)?.[1] ?? `app/${slug}`;
 
-for (const [slug, dir] of routeDirs) {
+// Only lesson series (app/(learn)/<slug>) and any folder not in a group are series. Auth, account, admin and
+// api routes are not content, so they get no entry of their own.
+const seriesDirs = routeDirs.filter(([, dir]) => dir.startsWith("app/(learn)/") || !dir.startsWith("app/("));
+
+for (const [slug, dir] of seriesDirs) {
   // Markdown series: content/<slug>/NN.md  ->  /<slug>/lesson-N
   if (existsSync(`content/${slug}`)) {
     for (const f of readdirSync(`content/${slug}`)) {

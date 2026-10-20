@@ -1,3 +1,4 @@
 # Commits that touched many pages without changing their content.
 # One SHA (or SHA prefix) per line. They are skipped when scripts/gen-lastmod.mjs builds "last modified" dates.
 b542caee1df7a6c144cee5b30ede4cb12bf6f271  # SEO metadata codemod over all pages (no content change)
+2614fa8  # moved app/ routes into route groups (no content change)
