@@ -6,6 +6,7 @@ import { authErrorMessage } from "@/lib/accounts";
 import { useAccount } from "@/components/auth/AuthProvider";
 import { useBookmarks } from "@/components/auth/BookmarksProvider";
 import { useToast } from "@/components/Toast";
+import { track } from "@/lib/analytics";
 
 const LESSON_PATH = /^\/([^/]+)\/lesson-\d+\/?$/;
 
@@ -36,6 +37,7 @@ export default function BookmarkButton() {
     const title = document.querySelector("h1")?.textContent?.trim() || document.title;
     try {
       const nowSaved = await toggle({ path, title, series: match![1] });
+      track(nowSaved ? "bookmark_added" : "bookmark_removed", { path, series: match![1] });
       toast(nowSaved ? "Bookmark saved. See all of them on your Bookmarks page." : "Bookmark removed.", nowSaved ? "success" : "info");
     } catch (err) {
       toast(authErrorMessage(err), "error");

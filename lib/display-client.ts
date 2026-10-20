@@ -1,5 +1,6 @@
 "use client";
 
+import { track } from "@/lib/analytics";
 import { useCallback, useEffect, useState } from "react";
 import { FONT_KEY, THEME_COLORS, THEME_KEY, type FontStep, type Theme } from "./display";
 
@@ -46,6 +47,7 @@ export function useDisplay() {
     else root.removeAttribute("data-theme");
     document.querySelector('meta[name="theme-color"]')?.setAttribute("content", THEME_COLORS[next]);
     save(THEME_KEY, next);
+    track("theme_changed", { theme: next });
     window.dispatchEvent(new Event(EVENT));
   }, []);
 
@@ -54,6 +56,7 @@ export function useDisplay() {
     if (next === "m") root.removeAttribute("data-font");
     else root.setAttribute("data-font", next);
     save(FONT_KEY, next === "m" ? null : next);
+    track("text_size_changed", { size: next });
     window.dispatchEvent(new Event(EVENT));
   }, []);
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { track } from "@/lib/analytics";
 import { useEffect, useRef, useState } from "react";
 import { FRAME_COUNT, badgeMessage, streakMessage, subjectFor } from "@/lib/share";
 import { renderShareCard } from "@/lib/share-card";
@@ -134,7 +135,10 @@ export default function ShareDialog({ target, onClose }: { target: ShareTarget |
               <button type="button" onClick={copy} className="text-[0.85rem] font-semibold text-sky hover:underline">Copy message</button>
             </div>
 
-            <div className="mt-5 flex flex-wrap gap-2">
+            <div className="mt-5 flex flex-wrap gap-2" onClick={(e) => {
+              const el = (e.target as HTMLElement).closest("a,button");
+              if (el) track("share_clicked", { kind: target.kind, channel: (el.textContent ?? "").replace("…", "").trim().toLowerCase() });
+            }}>
               {typeof navigator !== "undefined" && typeof navigator.share === "function" && (
                 <button type="button" onClick={nativeShare} className="inline-flex items-center justify-center gap-2 rounded-lg bg-sky px-4 py-2 text-[0.88rem] font-semibold text-bg hover:brightness-110">Share…</button>
               )}

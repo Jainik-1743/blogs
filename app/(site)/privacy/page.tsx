@@ -32,6 +32,14 @@ export default function PrivacyPage() {
           collect visit counts and page-speed measurements.
         </li>
         <li>
+          <strong className="text-ink">Mixpanel (only if you say yes).</strong> The first time you visit, a short banner asks
+          whether usage may be measured. If you accept, Mixpanel records which pages you open and a short list of actions, such as
+          finishing a lesson, saving a bookmark or a note, signing in, sharing, searching, or changing the theme. It never records
+          what you type, your notes, your email address or your name. If you are signed in, your account is linked only by a random
+          account id. Data is stored in the European Union. If you say no, or your browser sends Do Not Track, nothing is sent.
+          Clear this site&rsquo;s data in your browser to see the question again.
+        </li>
+        <li>
           <strong className="text-ink">Hosting logs.</strong> Like any web host, the hosting provider receives your IP address
           and basic request details when you load a page, to deliver the page and keep the service secure.
         </li>

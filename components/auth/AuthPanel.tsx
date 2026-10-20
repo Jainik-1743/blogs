@@ -4,11 +4,12 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
-  createUserWithEmailAndPassword, GoogleAuthProvider, sendEmailVerification, sendPasswordResetEmail, signInWithEmailAndPassword, signInWithPopup,
+  createUserWithEmailAndPassword, getAdditionalUserInfo, GoogleAuthProvider, sendEmailVerification, sendPasswordResetEmail, signInWithEmailAndPassword, signInWithPopup,
 } from "firebase/auth";
 import { getFirebase } from "@/lib/firebase";
 import { authErrorMessage, checkEmail, checkPassword, safeNext } from "@/lib/accounts";
 import { useToast } from "@/components/Toast";
+import { track } from "@/lib/analytics";
 import { useAccount } from "./AuthProvider";
 import { Field, GoogleIcon, Notice, inputClass } from "./fields";
 import { AuthFormSkeleton } from "@/components/Skeleton";
@@ -70,7 +71,8 @@ export default function AuthPanel({ mode }: { mode: "login" | "signup" }) {
     setBusy(true);
     setMessage(null);
     try {
-      await signInWithPopup(fb.auth, new GoogleAuthProvider());
+      const result = await signInWithPopup(fb.auth, new GoogleAuthProvider());
+      track(getAdditionalUserInfo(result)?.isNewUser ? "sign_up_completed" : "login_completed", { method: "google" });
     } catch (err) {
       fail(err);
     } finally {
@@ -102,11 +104,13 @@ export default function AuthPanel({ mode }: { mode: "login" | "signup" }) {
       } else if (mode === "signup") {
         justSignedUp.current = true;
         const cred = await createUserWithEmailAndPassword(fb.auth, addr, password);
+        track("sign_up_completed", { method: "email" });
         // Prove the person owns this email before the account can be used. The status change above sends them to the
         // confirm page once; "sent=1" tells that page the link is already on its way.
         await sendEmailVerification(cred.user).catch((err) => console.error("Verification email failed:", err));
       } else {
         await signInWithEmailAndPassword(fb.auth, addr, password);
+        track("login_completed", { method: "email" });
       }
     } catch (err) {
       fail(err);

@@ -1,5 +1,6 @@
 "use client";
 
+import { track } from "@/lib/analytics";
 import { useRouter } from "next/navigation";
 import { createPortal } from "react-dom";
 import { Fragment, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
@@ -199,6 +200,7 @@ export default function SiteSearch() {
   const go = (item: SearchItem | undefined) => {
     if (!item) return;
     if (hasQuery) rememberRecent(item);
+    track("search_result_opened", { kind: item.kind, series: item.series ?? "" });
     close();
     router.push(item.href);
   };

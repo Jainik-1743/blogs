@@ -8,6 +8,7 @@ import AuthProvider from "@/components/auth/AuthProvider";
 import ToastProvider from "@/components/Toast";
 import ProgressSync from "@/components/auth/ProgressSync";
 import BookmarksProvider from "@/components/auth/BookmarksProvider";
+import UsageAnalytics from "@/components/Analytics";
 import NotesProvider from "@/components/auth/NotesProvider";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
@@ -103,6 +104,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <LinkPreview />
         <ResumePrompt />
         <NewFeaturesModal />
+        <UsageAnalytics />
         <GlossaryTooltips />
         </NotesProvider>
         </BookmarksProvider>

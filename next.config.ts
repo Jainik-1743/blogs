@@ -42,6 +42,11 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // Mixpanel events are sent through this site's own address so content blockers do not drop them (see lib/analytics.ts).
+  // The region host must match where the project stores its data: api-eu.mixpanel.com (EU) or api.mixpanel.com (US).
+  async rewrites() {
+    return [{ source: "/ingest/:path*", destination: `https://${process.env.MIXPANEL_API_HOST ?? "api-eu.mixpanel.com"}/:path*` }];
+  },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },

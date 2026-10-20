@@ -9,6 +9,7 @@ import { useAccount } from "@/components/auth/AuthProvider";
 import { useNotes } from "@/components/auth/NotesProvider";
 import { inputClass } from "@/components/auth/fields";
 import { useToast } from "@/components/Toast";
+import { track } from "@/lib/analytics";
 
 /**
  * A private note under a lesson. Signed-in readers write and save it to their account; visitors see an invitation.
@@ -52,6 +53,7 @@ export default function LessonNote({ path, title }: { path: string; title: strin
     setBusy(true);
     try {
       await save({ path, title, series, text });
+      track(text.trim() ? "note_saved" : "note_removed", { path, series });
       toast(text.trim() ? "Note saved." : "Note removed.");
     } catch (err) {
       toast((err as { code?: string }).code === "notes/limit" ? "You have reached the limit of 200 notes. Delete an old one first." : authErrorMessage(err), "error");

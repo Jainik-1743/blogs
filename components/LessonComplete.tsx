@@ -7,6 +7,7 @@ import { useAccount } from "@/components/auth/AuthProvider";
 import { loadBadges, newlyEarned } from "@/lib/badges";
 import { IDLE_LIMIT_MS, WORDS_PER_MINUTE, readingComplete } from "@/lib/readtime";
 import { useToast } from "@/components/Toast";
+import { track } from "@/lib/analytics";
 
 const storeKey = (path: string) => `blogs:read-seconds:${path}`;
 
@@ -73,13 +74,15 @@ export default function LessonComplete({ path, next, tags = [], minutes: stated 
   }, [path, done, signedIn]);
 
   /** Marks the lesson done and, when that earns a badge, says so. Badges are only looked up for signed-in readers. */
-  const finish = () => {
+  const finish = (method: "button" | "reading") => {
     const { before, after } = markDone(path, next, tags);
+    track("lesson_completed", { path, series: path.split("/")[1] ?? "", method, minutes });
     try { localStorage.removeItem(storeKey(path)); } catch { /* ignore */ }
     if (status !== "ready") return toast("Lesson complete. Progress saved on this device.");
     loadBadges()
       .then((badges) => {
         const earned = newlyEarned(badges, before, after)[0];
+        if (earned) track("badge_earned", { badge: earned.name });
         toast(earned ? `New badge unlocked: ${earned.name}!` : "Lesson complete. Progress saved.");
       })
       .catch(() => toast("Lesson complete. Progress saved."));
@@ -88,7 +91,7 @@ export default function LessonComplete({ path, next, tags = [], minutes: stated 
   // Automatic completion: the stated reading time has passed and the reader is at the end.
   useEffect(() => {
     if (done || !signedIn || !progress.ready) return;
-    if (readingComplete({ seconds, minutes, reachedEnd })) finish();
+    if (readingComplete({ seconds, minutes, reachedEnd })) finish("reading");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [seconds, minutes, reachedEnd, done, progress.ready, signedIn]);
 
@@ -134,7 +137,7 @@ export default function LessonComplete({ path, next, tags = [], minutes: stated 
             <p className="m-0 max-w-[48ch] text-ink-dim">
               This lesson is about <strong className="text-ink">{minutes} min</strong>. It is marked complete when you have read for that long and reach the end, or you can mark it yourself.
             </p>
-            <button type="button" onClick={finish} className="rounded-lg border border-sky px-4 py-2 text-[0.9rem] font-semibold text-sky transition hover:bg-sky-soft">
+            <button type="button" onClick={() => finish("button")} className="rounded-lg border border-sky px-4 py-2 text-[0.9rem] font-semibold text-sky transition hover:bg-sky-soft">
               Mark as complete
             </button>
           </div>
