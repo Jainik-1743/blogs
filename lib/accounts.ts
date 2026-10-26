@@ -1,3 +1,5 @@
+import { isDisposableEmail } from "./disposable-email";
+
 /** Shared rules for sign-up and the profile. firestore.rules repeats the length and option checks on the server. */
 
 export const EXPERIENCE_OPTIONS = [
@@ -50,7 +52,8 @@ export function checkName(raw: string): string | null {
 }
 
 export function checkEmail(raw: string): string | null {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(raw.trim()) ? null : "Enter a valid email address.";
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(raw.trim())) return "Enter a valid email address.";
+  return isDisposableEmail(raw) ? "Temporary email addresses are not accepted. Use your own email, or continue with Google." : null;
 }
 
 /**
