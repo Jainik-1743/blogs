@@ -49,7 +49,7 @@ for (const s of series) {
       lessons.set(n, [...src.matchAll(/```explainer[^\n]*\n([^\n]+)\n```/g)].map((m) => m[1].trim()));
     }
   } else {
-    const appDir = join(root, "app", s);
+    const appDir = join(root, "app", "(learn)", s);
     for (const d of readdirSync(appDir).filter((d) => /^lesson-\d+$/.test(d))) {
       const n = Number(d.slice(7));
       const src = readFileSync(join(appDir, d, "page.tsx"), "utf8");

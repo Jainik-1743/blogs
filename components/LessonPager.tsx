@@ -5,6 +5,7 @@ import LessonNote from "@/components/LessonNote";
 import LessonQuiz from "@/components/LessonQuiz";
 import { minutesOf } from "@/lib/readtime";
 import { guidesForPath } from "@/lib/guides";
+import { SERIES_SHEETS } from "@/lib/series-sheets";
 import { relatedLessons, relatedSeries, topicsForPath } from "@/lib/registry";
 import { lessonJsonLd, pageDates } from "@/lib/seo";
 import { LESSONS, lessonHref, SERIES, type Lesson } from "@/lib/lessons";
@@ -39,6 +40,7 @@ export default function LessonPager({
   const lessonsLike = path ? relatedLessons(path) : [];
   const guides = path ? guidesForPath(path).slice(0, 3) : [];
   const seriesLike = current ? relatedSeries(series.slug) : [];
+  const cheat = current && SERIES_SHEETS[series.slug] ? `/cheatsheets/series/${series.slug}` : undefined;
   const topics = path ? topicsForPath(path).slice(0, 5) : [];
 
   return (
@@ -111,11 +113,17 @@ export default function LessonPager({
         </div>
       ) : null}
 
-      {lessonsLike.length || seriesLike.length || guides.length ? (
+      {lessonsLike.length || seriesLike.length || guides.length || cheat ? (
         <section aria-labelledby="keep-learning" className="mt-8 rounded-xl border border-line bg-bg-elev/40 px-5 py-4">
           <h2 id="keep-learning" className="mt-0 mb-3 text-[1.1rem] font-semibold text-ink">
             Keep learning
           </h2>
+          {cheat ? (
+            <p className="mb-3 mt-0 text-[0.92rem]">
+              <Link href={cheat} className="font-semibold">Cheat sheet for this series</Link>{" "}
+              <span className="text-ink-dim">· one printable page of the key facts, commands and gotchas</span>
+            </p>
+          ) : null}
           {lessonsLike.length ? (
             <>
               <p className="m-0 mb-1 font-mono text-[0.72rem] uppercase tracking-[0.1em] text-ink-dim">Related lessons</p>
