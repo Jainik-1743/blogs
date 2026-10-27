@@ -1,4 +1,5 @@
 import { SHEETS, sheetPath } from "./cheatsheets";
+import { SERIES_SHEETS } from "./series-sheets";
 import type { AccentName } from "./accents";
 import { DSA_GLOSSARY } from "./dsa-glossary";
 import { DSA_LESSONS, DSA_SERIES, dsaLessonHref } from "./dsa";
@@ -141,6 +142,20 @@ function buildPages(): PageInfo[] {
   });
   for (const s of SHEETS) {
     pages.push({ path: sheetPath(s.slug), kind: "hub", title: s.title, description: s.blurb });
+  }
+  if (Object.keys(SERIES_SHEETS).length) {
+    pages.push({
+      path: "/cheatsheets/series", kind: "hub", title: "Cheat sheets by series: one printable page for every lesson series",
+      description: "A dense, printable cheat sheet for each lesson series: the commands, tables, rules and gotchas, each card linked to the lesson that teaches it.",
+    });
+  }
+  for (const [slug, sheet] of Object.entries(SERIES_SHEETS)) {
+    const series = SERIES_LIST.find((x) => x.slug === slug);
+    if (!series) throw new Error(`Series cheat sheet for unknown series "${slug}"`);
+    pages.push({
+      path: `/cheatsheets/series/${slug}`, kind: "hub", title: `${series.short} cheat sheet: key facts, commands and gotchas`,
+      description: sheet.intro.replace(/[`*]/g, ""), seriesSlug: slug, seriesTitle: series.title, seriesShort: series.short, accent: series.accent,
+    });
   }
   pages.push({
     path: "/topics", kind: "hub", title: "Browse by topic: lessons on one subject from every series",

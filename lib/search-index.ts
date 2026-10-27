@@ -4,6 +4,8 @@ import { DEVOPS_GLOSSARY, glossaryHref, glossaryLessonHref, type Glossary } from
 import fs from "node:fs";
 import path from "node:path";
 import { GUIDES } from "./guides-data";
+import { SERIES_SHEETS } from "./series-sheets";
+import { SERIES_LIST } from "./registry";
 import { IV_SERIES, ivLessonHref } from "./iv";
 import { ivGlossaryFor } from "./iv-glossary";
 import { JS_GLOSSARY } from "./js-glossary";
@@ -93,6 +95,11 @@ export function buildSearchIndex(): SearchItem[] {
 
   for (const g of GUIDES) {
     items.push({ kind: "Guide", series: "guides", seriesTitle: "Study guides", title: g.title, text: g.description, href: `/guides/${g.slug}` });
+  }
+
+  for (const [slug, sheet] of Object.entries(SERIES_SHEETS)) {
+    const sr = SERIES_LIST.find((x) => x.slug === slug);
+    if (sr) items.push({ kind: "Guide", series: "cheatsheets", seriesTitle: "Cheat sheets", title: `${sr.short} cheat sheet`, text: sheet.intro.replace(/[`*]/g, ""), href: `/cheatsheets/series/${slug}` });
   }
 
   for (const g of [DEVOPS_GLOSSARY, JS_GLOSSARY, SD_GLOSSARY, DSA_GLOSSARY, ...IV_SERIES.map((s) => ivGlossaryFor(s.slug))]) items.push(...termItems(g));
