@@ -55,7 +55,7 @@ export default async function CheatSheetPage({ params }: { params: Promise<{ ser
     ],
   };
   return (
-    <article data-accent={s.accent} className="ss-page">
+    <article data-accent={s.accent} data-no-glossary className="ss-page">
       <JsonLd data={ld} />
       <header className="ss-head">
         <nav className="mb-3 font-mono text-[0.8rem] text-ink-dim print:hidden" aria-label="Breadcrumb">
