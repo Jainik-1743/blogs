@@ -7,15 +7,11 @@ import { seriesBySlug } from "@/lib/registry";
 import { pageMetadata } from "@/lib/seo";
 import { absoluteUrl } from "@/lib/site";
 
-/**
- * The 1,360 term pages are not built ahead of time: each is rendered the first time someone (or a crawler) asks
- * for it, then cached. Pre-building them would add about 9,500 files to every deployment, which pushes the whole
- * site past Vercel's limit of 15,000 files per deployment. Unknown slugs still return 404 (see notFound below).
- */
-export const dynamicParams = true;
+// Static export (S3): every term page is pre-built; unknown slugs are 404 via the S3 error document.
+export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return [];
+  return TERM_PAGES.map((t) => ({ term: t.slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ term: string }> }): Promise<Metadata> {

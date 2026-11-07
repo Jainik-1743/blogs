@@ -21,7 +21,8 @@ const clip = (t: string, n: number) => {
 export const dynamic = "force-static";
 
 export function generateStaticParams() {
-  return ALL_PAGES.map((p) => ({ slug: p.path === "/" ? [] : p.path.slice(1).split("/") }));
+  // Glossary terms (1,300+) are skipped to keep the build fast; they fall back to no share image.
+  return ALL_PAGES.filter((p) => p.kind !== "term").map((p) => ({ slug: p.path === "/" ? [] : p.path.slice(1).split("/") }));
 }
 
 export async function GET(_req: Request, { params }: { params: Promise<{ slug?: string[] }> }) {
