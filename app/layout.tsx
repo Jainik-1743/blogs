@@ -46,8 +46,8 @@ export const metadata: Metadata = {
   ],
   // Do not set a site-wide canonical here: it would be inherited by every page. Each page sets its own (lib/seo.ts).
   alternates: { types: { "application/rss+xml": [{ url: "/feed.xml", title: `${SITE_NAME} RSS feed` }] } },
-  openGraph: { type: "website", siteName: SITE_NAME, locale: SITE_LOCALE, title: HOME_TITLE, description: HOME_DESCRIPTION, images: [{ url: "/og", width: 1200, height: 630 }] },
-  twitter: { card: "summary_large_image", title: HOME_TITLE, description: HOME_DESCRIPTION, images: ["/og"] },
+  openGraph: { type: "website", siteName: SITE_NAME, locale: SITE_LOCALE, title: HOME_TITLE, description: HOME_DESCRIPTION, images: [{ url: "/og/image.png", width: 1200, height: 630 }] },
+  twitter: { card: "summary_large_image", title: HOME_TITLE, description: HOME_DESCRIPTION, images: ["/og/image.png"] },
   robots: robotsMeta,
   // Bing and Google site verification (see lib/site.ts; set GOOGLE_SITE_VERIFICATION in Vercel if you use the meta-tag method).
   ...(ANALYTICS_ENABLED

@@ -21,12 +21,15 @@ const clip = (t: string, n: number) => {
 export const dynamic = "force-static";
 
 export function generateStaticParams() {
-  // Glossary terms (1,300+) are skipped to keep the build fast; they fall back to no share image.
-  return ALL_PAGES.filter((p) => p.kind !== "term").map((p) => ({ slug: p.path === "/" ? [] : p.path.slice(1).split("/") }));
+  // One image per page at /og/<path>/image.png. Glossary terms (1,300+) share the glossary's image.
+  return ALL_PAGES.filter((p) => p.kind !== "term").map((p) => ({
+    slug: [...(p.path === "/" ? [] : p.path.slice(1).split("/")), "image.png"],
+  }));
 }
 
 export async function GET(_req: Request, { params }: { params: Promise<{ slug?: string[] }> }) {
-  const { slug = [] } = await params;
+  const { slug: raw = [] } = await params;
+  const slug = raw.at(-1) === "image.png" ? raw.slice(0, -1) : raw;
   const path = slug.length ? `/${slug.join("/")}` : "/";
   const page = findPage(path);
   if (!page) return new Response("Not found", { status: 404 });

@@ -69,8 +69,14 @@ export function descriptionFor(p: PageInfo): string {
   return `${cut.replace(/\s+\S*$/, "").replace(/[,;:\u2014\u2013-]+$/, "")}…`;
 }
 
+/**
+ * Share images are pre-rendered at build time as /og/<page path>/image.png (a file name with an extension, so
+ * a series image and its lessons' images can sit side by side in a static export). Glossary terms reuse the
+ * glossary's image.
+ */
 export function ogImagePath(path: string): string {
-  return path === "/" ? "/og" : `/og${path}`;
+  if (path.startsWith("/glossary/")) return "/og/glossary/image.png";
+  return path === "/" ? "/og/image.png" : `/og${path}/image.png`;
 }
 
 /**
