@@ -1,5 +1,5 @@
 import { ImageResponse } from "next/og";
-import { findPage } from "@/lib/registry";
+import { ALL_PAGES, findPage } from "@/lib/registry";
 import { HOME_TITLE, SITE_NAME } from "@/lib/site";
 
 /**
@@ -16,6 +16,13 @@ const clip = (t: string, n: number) => {
   const c = t.replace(/\s+/g, " ").trim();
   return c.length <= n ? c : `${c.slice(0, n - 1).replace(/\s+\S*$/, "")}…`;
 };
+
+// Static export: pre-render one image per registered page at build time.
+export const dynamic = "force-static";
+
+export function generateStaticParams() {
+  return ALL_PAGES.map((p) => ({ slug: p.path === "/" ? [] : p.path.slice(1).split("/") }));
+}
 
 export async function GET(_req: Request, { params }: { params: Promise<{ slug?: string[] }> }) {
   const { slug = [] } = await params;
