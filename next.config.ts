@@ -40,6 +40,9 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  output: "export",
+  trailingSlash: true,
+  images: { unoptimized: true },
   reactStrictMode: true,
   poweredByHeader: false,
   // Mixpanel events are sent through this site's own address so content blockers do not drop them (see lib/analytics.ts).
